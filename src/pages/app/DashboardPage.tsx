@@ -43,8 +43,8 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
           {[
             { label: "New Project", icon: Upload, href: "/app/upload" },
-            { label: "Bid Score", icon: BarChart3, href: "/app/bid-score" },
-            { label: "Scope Review", icon: FileSearch, href: "/app/scope-analyzer" },
+            { label: "Scope Analyzer", icon: FileSearch, href: "/app/scope-analyzer" },
+            { label: "Bid Leveling", icon: BarChart3, href: "/app/bid-leveling" },
             { label: "Ask Atlas", icon: Bot, href: "/app/atlas" },
           ].map((a) => (
             <a key={a.label} href={a.href} className="flex items-center gap-3 bg-card border border-border rounded-lg p-4 hover:border-primary/30 hover:shadow-card-hover transition-all cursor-pointer">
