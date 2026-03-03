@@ -33,7 +33,7 @@ export default function UploadPage() {
 
   const handleSubmit = () => {
     setProcessing(true);
-    setTimeout(() => navigate("/app/takeoff"), 2500);
+    setTimeout(() => navigate("/app/scope-analyzer"), 2500);
   };
 
   return (
@@ -147,7 +147,7 @@ export default function UploadPage() {
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
-                <ArrowRight size={10} /> Flow: New Project → Plan-Derived Takeoff → Bid Score / Estimate Builder
+                <ArrowRight size={10} /> Flow: New Project → Scope Analyzer → Bid Leveling → Estimate Builder
               </p>
             </div>
 
