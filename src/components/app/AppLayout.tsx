@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Upload, BarChart3, FileSearch, Table2, Bot,
-  FileOutput, GitCompare, TrendingUp, Settings, ChevronLeft
+  FileOutput, GitCompare, TrendingUp, Settings, ChevronLeft, Ruler
 } from "lucide-react";
 import bedrockLogo from "@/assets/bedrock-logo.png";
 import { useState } from "react";
@@ -9,6 +9,7 @@ import { useState } from "react";
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/app" },
   { label: "New Project", icon: Upload, path: "/app/upload" },
+  { label: "Plan-Derived Takeoff", icon: Ruler, path: "/app/takeoff" },
   { label: "Bid Score", icon: BarChart3, path: "/app/bid-score" },
   { label: "Scope Analyzer", icon: FileSearch, path: "/app/scope-analyzer" },
   { label: "Estimate Builder", icon: Table2, path: "/app/estimate-builder" },
@@ -33,9 +34,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       >
         <div className="h-14 flex items-center px-4 border-b border-border gap-2">
           {collapsed ? (
-            <img src={bedrockLogo} alt="Bedrock" className="h-9 w-9 object-contain object-left" />
+            <img src={bedrockLogo} alt="Bedrock" className="h-10 w-10 object-contain object-left" />
           ) : (
-            <img src={bedrockLogo} alt="Bedrock" className="h-10 w-auto" />
+            <img src={bedrockLogo} alt="Bedrock" className="h-11 w-auto" />
           )}
         </div>
 

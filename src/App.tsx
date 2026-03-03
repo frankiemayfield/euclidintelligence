@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import DashboardPage from "./pages/app/DashboardPage";
 import UploadPage from "./pages/app/UploadPage";
+import TakeoffPage from "./pages/app/TakeoffPage";
 import BidScorePage from "./pages/app/BidScorePage";
 import ScopeAnalyzerPage from "./pages/app/ScopeAnalyzerPage";
 import EstimateBuilderPage from "./pages/app/EstimateBuilderPage";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/app" element={<DashboardPage />} />
           <Route path="/app/upload" element={<UploadPage />} />
+          <Route path="/app/takeoff" element={<TakeoffPage />} />
           <Route path="/app/bid-score" element={<BidScorePage />} />
           <Route path="/app/scope-analyzer" element={<ScopeAnalyzerPage />} />
           <Route path="/app/estimate-builder" element={<EstimateBuilderPage />} />
