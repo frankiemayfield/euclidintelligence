@@ -32,7 +32,7 @@ export function MarketingHeader() {
     >
       <div className="container mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
-          <img src={bedrockLogo} alt="Bedrock" className="h-8 w-auto" />
+          <img src={bedrockLogo} alt="Bedrock" className="h-12 w-auto" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
