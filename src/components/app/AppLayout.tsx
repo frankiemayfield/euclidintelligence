@@ -33,9 +33,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       >
         <div className="h-14 flex items-center px-4 border-b border-border gap-2">
           {collapsed ? (
-            <img src={bedrockLogo} alt="Bedrock" className="h-7 w-7 object-contain object-left" />
+            <img src={bedrockLogo} alt="Bedrock" className="h-9 w-9 object-contain object-left" />
           ) : (
-            <img src={bedrockLogo} alt="Bedrock" className="h-6 w-auto" />
+            <img src={bedrockLogo} alt="Bedrock" className="h-10 w-auto" />
           )}
         </div>
 

@@ -7,7 +7,7 @@ export function MarketingFooter() {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <img src={bedrockLogo} alt="Bedrock" className="h-7 w-auto mb-3" />
+            <img src={bedrockLogo} alt="Bedrock" className="h-11 w-auto mb-3" />
             <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
               Bedrock Analytics builds estimating intelligence for the construction industry. Practical, data-driven, and built from real project experience.
             </p>
