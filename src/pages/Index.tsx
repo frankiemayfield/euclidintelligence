@@ -1,12 +1,27 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { HeroSection } from "@/components/marketing/HeroSection";
+import { TrustStrip } from "@/components/marketing/TrustStrip";
+import { StatsBand } from "@/components/marketing/StatsBand";
+import { FeatureGrid } from "@/components/marketing/FeatureGrid";
+import { HowItWorks } from "@/components/marketing/HowItWorks";
+import { AtlasSection } from "@/components/marketing/AtlasSection";
+import { BuiltForSection } from "@/components/marketing/BuiltForSection";
+import { FinalCTA } from "@/components/marketing/FinalCTA";
+import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <MarketingHeader />
+      <HeroSection />
+      <TrustStrip />
+      <StatsBand />
+      <FeatureGrid />
+      <HowItWorks />
+      <AtlasSection />
+      <BuiltForSection />
+      <FinalCTA />
+      <MarketingFooter />
     </div>
   );
 };
