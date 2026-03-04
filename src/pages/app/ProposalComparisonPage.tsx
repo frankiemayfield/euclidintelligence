@@ -36,8 +36,8 @@ export default function ProposalComparisonPage() {
     <AppLayout>
       <div className="p-6 lg:p-8 max-w-5xl">
         <div className="mb-8">
-          <h1 className="font-display text-2xl font-bold text-foreground">Proposal Comparison</h1>
-          <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — Compare your priced proposal against similar projects</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">Estimate Comparison</h1>
+          <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — Compare your priced estimate against similar projects</p>
         </div>
 
         {/* Market Fit Score */}
