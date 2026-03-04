@@ -5,14 +5,14 @@ import { useNavigate } from "react-router-dom";
 const features = [
   {
     icon: BarChart3,
-    title: "Bid Score",
+    title: "Proposal Score",
     desc: "A 0–100 confidence score for every estimate. Instantly see completeness, trade coverage, pricing confidence, scope gap risk, and change-order exposure.",
     detail: "Know where your estimate stands before you send it.",
-    link: "/app/bid-score",
+    link: "/app/estimate-comparison",
   },
   {
     icon: FileSearch,
-    title: "Plan & Scope Analyzer",
+    title: "Scope Analyzer",
     desc: "Document intelligence that surfaces missing scope, inconsistent assumptions, spec mismatches, and likely exclusions before they become problems.",
     detail: "Catch what others miss — before it costs you.",
     link: "/app/scope-analyzer",

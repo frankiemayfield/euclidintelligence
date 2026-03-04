@@ -9,13 +9,13 @@ const steps = [
   },
   {
     icon: BarChart3,
-    title: "Review your Bid Score & estimate",
-    desc: "Get a structured estimate, Bid Score, scope flags, and pricing confidence — organized and actionable.",
+    title: "Build an estimate or compare your proposal",
+    desc: "Generate a structured estimate or benchmark an existing proposal against similar projects with trade-level market comparison.",
   },
   {
     icon: FileCheck,
     title: "Finalize your proposal with Atlas",
-    desc: "Use Estimator Atlas to refine line items, draft exclusions, and generate client-ready proposals.",
+    desc: "Use Estimator Atlas to refine line items, explain pricing variance, draft exclusions, and generate client-ready proposals.",
   },
 ];
 
