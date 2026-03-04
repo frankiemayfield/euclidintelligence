@@ -42,7 +42,7 @@ export function AtlasSection() {
             <div className="bg-muted/50 px-5 py-3 border-b border-border flex items-center gap-2">
               <Bot size={16} className="text-primary" />
               <span className="text-sm font-display font-semibold text-foreground">Estimator Atlas</span>
-              <span className="text-xs text-muted-foreground ml-auto">Project-aware</span>
+              <span className="text-xs text-muted-foreground ml-auto">Project-Aware</span>
             </div>
             <div className="p-5 space-y-3 max-h-80 overflow-y-auto">
               <div className="flex gap-3 items-start">
