@@ -53,7 +53,7 @@ export function HeroSection() {
                 <p className="text-xs text-muted-foreground mb-4 flex-1">
                   Upload an existing estimate or proposal to compare it against similar jobs.
                 </p>
-                <Button size="sm" variant="outline" className="w-full gap-2" onClick={() => setCompareTransition(true)}>
+                <Button size="sm" className="w-full gap-2" onClick={() => setCompareTransition(true)}>
                   <BarChart3 size={14} /> Market Comparison <ArrowRight size={14} />
                 </Button>
               </div>
