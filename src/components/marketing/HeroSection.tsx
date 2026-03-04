@@ -71,38 +71,59 @@ export function HeroSection() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="hidden lg:block"
           >
-            <div className="bg-card border border-border rounded-xl shadow-lg p-6 space-y-4">
-              {/* Proposal Score Preview */}
-              <div className="flex items-center justify-between">
+            {/* Score Panel — matches Market Comparison page exactly */}
+            <div className="bg-card border border-border rounded-2xl shadow-card p-5 space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="relative w-16 h-16 shrink-0">
+                  <svg className="w-16 h-16 -rotate-90">
+                    <circle cx="32" cy="32" r="26" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
+                    <circle cx="32" cy="32" r="26" fill="none" stroke="hsl(var(--primary))" strokeWidth="4" strokeDasharray="163.4" strokeDashoffset="26" strokeLinecap="round" />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center font-display text-xl font-bold text-primary">84</span>
+                </div>
                 <div>
                   <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Proposal Score</p>
-                  <p className="font-display text-4xl font-bold text-primary">84</p>
-                </div>
-                <div className="w-20 h-20 rounded-full border-4 border-primary/20 flex items-center justify-center relative">
-                  <svg className="absolute inset-0 w-20 h-20 -rotate-90">
-                    <circle cx="40" cy="40" r="34" fill="none" stroke="hsl(140,50%,32%)" strokeWidth="4" strokeDasharray="213.6" strokeDashoffset="34" strokeLinecap="round" />
-                  </svg>
-                  <BarChart3 className="text-primary" size={24} />
+                  <p className="text-xs text-muted-foreground mt-0.5">Strong benchmark alignment</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Divider */}
+              <div className="w-full h-px bg-border" />
+
+              {/* Market Context */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1 text-xs">
+                <div><span className="text-muted-foreground">Compared Against</span> <span className="text-foreground font-medium ml-1">20,184 estimates</span></div>
+                <div><span className="text-muted-foreground">Region</span> <span className="text-foreground font-medium ml-1">Midwest</span></div>
+                <div><span className="text-muted-foreground">Project Type</span> <span className="text-foreground font-medium ml-1">Remodel</span></div>
+                <div><span className="text-muted-foreground">Size Band</span> <span className="text-foreground font-medium ml-1">2,000–4,000 SF</span></div>
+                <div><span className="text-muted-foreground">Spec Level</span> <span className="text-foreground font-medium ml-1">Premium</span></div>
+                <div><span className="text-muted-foreground">Pricing Mode</span> <span className="text-foreground font-medium ml-1">Cost Plus</span></div>
+              </div>
+
+              {/* Divider */}
+              <div className="w-full h-px bg-border" />
+
+              {/* Summary Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {[
                   { label: "Completeness", value: "92%", color: "text-primary" },
                   { label: "Trade Coverage", value: "88%", color: "text-primary" },
-                  { label: "Pricing Confidence", value: "High", color: "text-success" },
+                  { label: "Pricing Confidence", value: "High", color: "text-primary" },
+                  { label: "Overall Variance", value: "+4.8%", color: "text-warning" },
+                  { label: "Gross Margin", value: "15.1%", color: "text-warning", sub: "Peer: 16.2%" },
                   { label: "Scope Gaps", value: "3 flags", color: "text-warning" },
                 ].map((m) => (
-                  <div key={m.label} className="bg-muted/50 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground">{m.label}</p>
+                  <div key={m.label} className="bg-muted/20 rounded-lg p-2.5">
+                    <p className="text-[10px] text-muted-foreground">{m.label}</p>
                     <p className={`font-display font-semibold text-sm ${m.color}`}>{m.value}</p>
+                    {m.sub && <p className="text-[10px] text-muted-foreground">{m.sub}</p>}
                   </div>
                 ))}
               </div>
 
-              {/* Atlas Suggestion */}
-              <div className="bg-accent/50 rounded-lg p-4 flex items-start gap-3">
-                <Bot className="text-primary mt-0.5 shrink-0" size={18} />
+              {/* Atlas Insight */}
+              <div className="bg-accent/50 rounded-lg p-3 flex items-start gap-3">
+                <Bot className="text-primary mt-0.5 shrink-0" size={16} />
                 <div>
                   <p className="text-xs font-medium text-foreground">Estimator Atlas</p>
                   <p className="text-xs text-muted-foreground mt-1">
