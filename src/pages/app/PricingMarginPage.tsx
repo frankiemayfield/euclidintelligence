@@ -1,8 +1,9 @@
 import { AppLayout } from "@/components/app/AppLayout";
 import { useState } from "react";
-import { AlertTriangle, ArrowRight, Check, DollarSign, Percent, TrendingUp, Eye, EyeOff, Send } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, DollarSign, Percent, TrendingUp, Eye, EyeOff, Send, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 
 type PricingMode = "Cost Plus" | "Fixed Fee" | "Lump Sum" | "GMP";
 type FeePresentation = "shown separately" | "included in total" | "internal only";
@@ -26,6 +27,7 @@ const costCategories = [
 const baseCost = costCategories.reduce((s, c) => s + c.base, 0);
 
 export default function PricingMarginPage() {
+  const [marketTransition, setMarketTransition] = useState(false);
   const [pricingMode, setPricingMode] = useState<PricingMode>("Cost Plus");
   const [overhead, setOverhead] = useState(8);
   const [profit, setProfit] = useState(10);
@@ -89,7 +91,11 @@ export default function PricingMarginPage() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">Save Strategy</Button>
-            <Button size="sm"><Send size={14} className="mr-1.5" />Send to Proposal Export</Button>
+            <Button variant="outline" size="sm"><Send size={14} className="mr-1.5" />Send to Proposal Export</Button>
+            <Button size="sm" className="gap-1.5" onClick={() => setMarketTransition(true)}>
+              <BarChart3 size={14} />
+              Compare Against Market
+            </Button>
           </div>
         </div>
 
@@ -440,6 +446,20 @@ export default function PricingMarginPage() {
           <Button variant="outline" size="sm"><ArrowRight size={14} className="mr-1.5" />View in Proposal Comparison</Button>
         </div>
       </div>
+
+      <WorkflowTransition
+        active={marketTransition}
+        headline="Comparing your pricing"
+        steps={[
+          { label: "Benchmark alignment analysis" },
+          { label: "Comparing against thousands of estimates" },
+          { label: "Analyzing market pricing" },
+          { label: "Comparing costs and prices" },
+          { label: "Generating proposal score" },
+        ]}
+        targetPath="/app/estimate-comparison"
+        onComplete={() => setMarketTransition(false)}
+      />
     </AppLayout>
   );
 }

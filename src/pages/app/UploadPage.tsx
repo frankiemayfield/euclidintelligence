@@ -1,8 +1,8 @@
 import { AppLayout } from "@/components/app/AppLayout";
 import { Upload, X, CheckCircle, ArrowRight, Settings2, Layers, Target, FileText, AlertCircle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const projectTypes = ["Remodel", "Custom Home", "Addition", "White Box", "Tenant Finish", "Commercial Rehab"];
 const specLevels = ["Builder Grade", "Mid-Tier", "Premium", "Luxury"];
@@ -79,7 +79,7 @@ export default function UploadPage() {
   const [workflowGoal, setWorkflowGoal] = useState("build");
   const [analysisSource, setAnalysisSource] = useState("all");
   const [estimateUsage, setEstimateUsage] = useState("baseline");
-  const navigate = useNavigate();
+  const [transition, setTransition] = useState(false);
 
   const addFiles = () => {
     const newFiles: UploadedFile[] = [
@@ -89,8 +89,7 @@ export default function UploadPage() {
   };
 
   const handleSubmit = () => {
-    setProcessing(true);
-    setTimeout(() => navigate("/app/scope-analyzer"), 2500);
+    setTransition(true);
   };
 
   const updateSourceType = (index: number, newType: SourceType) => {
@@ -123,13 +122,7 @@ export default function UploadPage() {
         <h1 className="font-display text-2xl font-bold text-foreground mb-1">Document Upload</h1>
         <p className="text-sm text-muted-foreground mb-6">Upload project files and configure how Bedrock should structure your project before analysis.</p>
 
-        {processing ? (
-          <div className="bg-card border border-border rounded-2xl p-12 text-center shadow-card">
-            <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin mx-auto mb-5" />
-            <h3 className="font-display text-lg font-semibold text-foreground mb-2">Analyzing your project...</h3>
-            <p className="text-sm text-muted-foreground">Processing documents, extracting quantities, building traceable takeoff...</p>
-          </div>
-        ) : (
+        {!transition ? (
           <div className="space-y-6">
             {/* === UPLOAD AREA === */}
             <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
@@ -450,8 +443,22 @@ export default function UploadPage() {
               Continue to Scope Analyzer <ArrowRight size={14} className="ml-2" />
             </Button>
           </div>
-        )}
+        ) : null}
       </div>
+
+      <WorkflowTransition
+        active={transition}
+        headline="Organizing your project files"
+        steps={[
+          { label: "Reading plans" },
+          { label: "Taking measurements" },
+          { label: "Condensing scope" },
+          { label: "Preparing extracted quantities" },
+          { label: "Organizing your project for scope analysis" },
+        ]}
+        targetPath="/app/scope-analyzer"
+        onComplete={() => setTransition(false)}
+      />
     </AppLayout>
   );
 }
