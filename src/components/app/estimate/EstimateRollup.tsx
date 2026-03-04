@@ -1,6 +1,7 @@
-import { DollarSign, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, AlertTriangle, ClipboardList } from "lucide-react";
 
 interface RollupProps {
+  preBuild: number;
   baseScope: number;
   generalReqs: number;
   allowances: number;
@@ -8,10 +9,11 @@ interface RollupProps {
   alternatesImpact: number;
 }
 
-export function EstimateRollup({ baseScope, generalReqs, allowances, selectionsVariance, alternatesImpact }: RollupProps) {
-  const estimatedTotal = baseScope + generalReqs + allowances + selectionsVariance + alternatesImpact;
+export function EstimateRollup({ preBuild, baseScope, generalReqs, allowances, selectionsVariance, alternatesImpact }: RollupProps) {
+  const estimatedTotal = preBuild + baseScope + generalReqs + allowances + selectionsVariance + alternatesImpact;
 
   const items = [
+    { label: "Pre-Build Reqs", value: preBuild, icon: ClipboardList },
     { label: "Base Scope", value: baseScope, icon: DollarSign },
     { label: "General Requirements", value: generalReqs, icon: DollarSign },
     { label: "Allowances", value: allowances, icon: DollarSign },
@@ -20,7 +22,7 @@ export function EstimateRollup({ baseScope, generalReqs, allowances, selectionsV
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
+    <div className="grid grid-cols-2 md:grid-cols-7 gap-3 mb-4">
       {items.map((item) => (
         <div key={item.label} className="bg-card border border-border rounded-lg p-3 shadow-sm">
           <div className="flex items-center gap-1.5 mb-1">
