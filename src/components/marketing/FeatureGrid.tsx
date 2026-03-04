@@ -63,8 +63,8 @@ export function FeatureGrid() {
                 <f.icon className="text-primary" size={22} />
               </div>
               <h3 className="font-display text-xl font-semibold text-foreground mb-2">{f.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-3">{f.desc}</p>
-              <p className="text-xs font-medium text-primary">{f.detail}</p>
+              <p className="text-sm font-normal text-muted-foreground leading-relaxed mb-3">{f.desc}</p>
+              <p className="text-sm font-normal text-primary">{f.detail}</p>
             </motion.div>
           ))}
         </div>
