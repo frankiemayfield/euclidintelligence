@@ -77,7 +77,7 @@ export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidCo
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-foreground">{b.sub}</span>
+                        <span className="font-medium text-foreground whitespace-nowrap">{b.sub}</span>
                         {b.recommended &&
                           <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
                             Recommended
