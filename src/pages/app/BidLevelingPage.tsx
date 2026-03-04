@@ -1,14 +1,17 @@
 import { AppLayout } from "@/components/app/AppLayout";
 import { useState } from "react";
-import { Upload } from "lucide-react";
+import { Upload, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { trades, bids } from "@/components/app/bid-leveling/bidLevelingData";
 import { BidSummaryCards } from "@/components/app/bid-leveling/BidSummaryCards";
 import { BidComparisonTable } from "@/components/app/bid-leveling/BidComparisonTable";
+import { Button } from "@/components/ui/button";
+import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 
 export default function BidLevelingPage() {
   const [activeTrade, setActiveTrade] = useState("Electrical");
   const [expandedSub, setExpandedSub] = useState<string | null>(null);
+  const [transition, setTransition] = useState(false);
   const items = bids[activeTrade] || [];
 
   return (
@@ -68,7 +71,34 @@ export default function BidLevelingPage() {
           expandedSub={expandedSub}
           onToggleExpand={(sub) => setExpandedSub(expandedSub === sub ? null : sub)}
         />
+
+        {/* Bottom Progression Control */}
+        <div className="mt-10 border-t border-border pt-8 pb-4 flex items-center justify-center">
+          <Button
+            size="lg"
+            className="px-8 text-sm font-semibold gap-2"
+            onClick={() => setTransition(true)}
+          >
+            Build Estimate
+            <ArrowRight size={16} />
+          </Button>
+        </div>
       </div>
+
+      <WorkflowTransition
+        active={transition}
+        headline="Building your estimate"
+        steps={[
+          { label: "Refining scope from analysis" },
+          { label: "Applying selected subcontractor bids" },
+          { label: "Adding scope packages" },
+          { label: "Organizing allowances and selections" },
+          { label: "Preparing estimate structure" },
+          { label: "Carrying leveling decisions into estimate lines" },
+        ]}
+        targetPath="/app/estimate-builder"
+        onComplete={() => setTransition(false)}
+      />
     </AppLayout>
   );
 }
