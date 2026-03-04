@@ -1,10 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Upload, FileSearch, Table2, Bot,
+  LayoutDashboard, Upload, FileSearch, Table2,
   FileOutput, GitCompare, TrendingUp, Settings, ChevronLeft, BarChart3, ChevronDown, DollarSign
 } from "lucide-react";
 import bedrockLogo from "@/assets/bedrock-logo-new.png";
 import { useState } from "react";
+import { AtlasPanel, AtlasToggleButton } from "./AtlasPanel";
 
 const estimatorNavItems = [
   { label: "Document Upload", icon: Upload, path: "/app/upload" },
@@ -12,10 +13,9 @@ const estimatorNavItems = [
   { label: "Bid Leveling", icon: GitCompare, path: "/app/bid-leveling" },
   { label: "Estimate Builder", icon: Table2, path: "/app/estimate-builder" },
   { label: "Pricing & Margin", icon: DollarSign, path: "/app/pricing" },
-  { label: "Estimator Atlas", icon: Bot, path: "/app/atlas" },
+  { label: "Proposal Comparison", icon: BarChart3, path: "/app/proposal-comparison" },
   { label: "Proposal Export", icon: FileOutput, path: "/app/proposal" },
   { label: "Est. vs Actual", icon: TrendingUp, path: "/app/est-vs-actual" },
-  { label: "Proposal Comparison", icon: BarChart3, path: "/app/proposal-comparison" },
 ];
 
 const recentProjects = [
@@ -31,8 +31,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [projectMenuOpen, setProjectMenuOpen] = useState(false);
   const [activeProject] = useState("Maple St. Kitchen Remodel");
+  const [atlasOpen, setAtlasOpen] = useState(false);
 
-  // Determine active global section
   const getSection = (): GlobalSection => {
     if (location.pathname === "/app" || location.pathname === "/app/") return "dashboard";
     if (location.pathname === "/app/settings") return "settings";
@@ -65,7 +65,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          {/* Project switcher */}
           {isEstimator && (
             <div className="relative">
               <button onClick={() => setProjectMenuOpen(!projectMenuOpen)}
@@ -100,7 +99,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Estimator Sidebar — only shown inside Estimator section */}
+        {/* Estimator Sidebar */}
         {isEstimator && (
           <aside className={`${collapsed ? "w-14" : "w-56"} bg-card border-r border-border flex flex-col shrink-0 transition-all duration-200`}>
             <div className="px-3 py-2 border-b border-border">
@@ -129,9 +128,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </aside>
         )}
 
-        {/* Main */}
+        {/* Main + Atlas */}
         <main className="flex-1 overflow-y-auto">{children}</main>
+
+        {/* Atlas Panel - persistent across estimator pages */}
+        {isEstimator && <AtlasPanel isOpen={atlasOpen} onClose={() => setAtlasOpen(false)} />}
       </div>
+
+      {/* Atlas toggle button when panel is closed */}
+      {isEstimator && !atlasOpen && <AtlasToggleButton onClick={() => setAtlasOpen(true)} />}
     </div>
   );
 }
