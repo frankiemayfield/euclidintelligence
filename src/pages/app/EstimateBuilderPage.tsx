@@ -1,6 +1,7 @@
 import { AppLayout } from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Download, Filter, Search, Plus, ChevronDown, CheckCircle, Pencil, Flag, Bot, X } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Download, Filter, Plus, ChevronDown, CheckCircle, Pencil, Flag, Bot, X, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { ExtractionMethodBadge } from "@/components/app/traceability/ExtractionMethodBadge";
 import { ReviewStatusBadge } from "@/components/app/traceability/ReviewStatusBadge";
@@ -8,6 +9,13 @@ import { ConfidenceBadge } from "@/components/app/traceability/ConfidenceBadge";
 import { PlanReferenceChip } from "@/components/app/traceability/PlanReferenceChip";
 import { PricingBasisCard } from "@/components/app/traceability/PricingBasisCard";
 import { AssumptionsDrawer } from "@/components/app/traceability/AssumptionsDrawer";
+import { EstimateRollup } from "@/components/app/estimate/EstimateRollup";
+import { GeneralRequirementsSection } from "@/components/app/estimate/GeneralRequirementsSection";
+import { AllowancesSection } from "@/components/app/estimate/AllowancesSection";
+import { SelectionsSection } from "@/components/app/estimate/SelectionsSection";
+import { AlternatesSection } from "@/components/app/estimate/AlternatesSection";
+import { ReviewSection } from "@/components/app/estimate/ReviewSection";
+import { useNavigate } from "react-router-dom";
 
 type ExtractionMethod = "Explicitly Labeled" | "Derived from Scale" | "Schedule Verified" | "Assumption Applied";
 type ReviewStatus = "Auto-Extracted" | "Needs Review" | "Estimator Confirmed" | "Adjusted by User";
@@ -77,7 +85,7 @@ const lineItems: LineItem[] = [
 type FilterType = "All" | "Needs Review" | "Derived from Scale" | "Low Confidence" | "Confirmed" | "Pricing Outliers";
 const filterOptions: FilterType[] = ["All", "Needs Review", "Derived from Scale", "Low Confidence", "Confirmed", "Pricing Outliers"];
 
-export default function EstimateBuilderPage() {
+function BaseScopeSection() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("All");
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
@@ -95,10 +103,7 @@ export default function EstimateBuilderPage() {
   });
 
   const formatCurrency = (n: number) => `$${n.toLocaleString()}`;
-  const subtotal = lineItems.reduce((s, l) => {
-    const total = l.unit === "LS" ? l.unitCost : l.qty * l.unitCost;
-    return s + total;
-  }, 0);
+  const subtotal = lineItems.reduce((s, l) => s + (l.unit === "LS" ? l.unitCost : l.qty * l.unitCost), 0);
 
   const summaryItems = [
     { label: "Total Line Items", value: lineItems.length, color: "text-foreground" },
@@ -109,156 +114,174 @@ export default function EstimateBuilderPage() {
   ];
 
   return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="font-display text-lg font-bold text-foreground">Base Scope</h2>
+          <p className="text-xs text-muted-foreground">Core trade line items with evidence-backed source data</p>
+        </div>
+        <Button size="sm" className="text-xs"><Plus size={13} className="mr-1.5" />Add Line</Button>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {summaryItems.map((s) => (
+          <div key={s.label} className="bg-card border border-border rounded-lg p-3 shadow-sm text-center">
+            <p className={`font-display text-lg font-bold ${s.color}`}>{s.value}</p>
+            <p className="text-[10px] text-muted-foreground">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Filter + Search */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2 max-w-sm">
+          <Filter size={14} className="text-muted-foreground" />
+          <input className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" placeholder="Search line items..." value={search} onChange={(e) => setSearch(e.target.value)} />
+        </div>
+        <div className="flex gap-1.5 flex-wrap">
+          {filterOptions.map((f) => (
+            <button key={f} onClick={() => setActiveFilter(f)} className={`text-xs px-2.5 py-1 rounded-full font-medium transition-colors ${activeFilter === f ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{f}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="w-8" />
+                {["Code", "Trade", "Description", "Qty", "Unit", "Unit Cost", "Total", "Source", "Confidence", "Status"].map((h) => (
+                  <th key={h} className="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground whitespace-nowrap">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((l) => {
+                const base = l.unit === "LS" ? l.unitCost : l.qty * l.unitCost;
+                const total = base * (1 + l.markup / 100) * (1 + l.contingency / 100);
+                const isExpanded = expandedRow === l.code;
+                return (
+                  <> 
+                    <tr key={l.code} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => setExpandedRow(isExpanded ? null : l.code)}>
+                      <td className="pl-3 py-2.5"><ChevronDown size={14} className={`text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} /></td>
+                      <td className="px-3 py-2.5 font-mono text-xs text-muted-foreground">{l.code}</td>
+                      <td className="px-3 py-2.5 font-medium text-foreground whitespace-nowrap">{l.trade}</td>
+                      <td className="px-3 py-2.5 text-foreground">{l.desc}</td>
+                      <td className="px-3 py-2.5 text-muted-foreground">{l.qty.toLocaleString()}</td>
+                      <td className="px-3 py-2.5 text-muted-foreground">{l.unit}</td>
+                      <td className="px-3 py-2.5 text-foreground">{l.unit === "LS" ? formatCurrency(l.unitCost) : `$${l.unitCost.toFixed(2)}`}</td>
+                      <td className="px-3 py-2.5 font-display font-semibold text-foreground">{formatCurrency(Math.round(total))}</td>
+                      <td className="px-3 py-2.5"><ExtractionMethodBadge method={l.source} /></td>
+                      <td className="px-3 py-2.5"><ConfidenceBadge level={l.confidence} /></td>
+                      <td className="px-3 py-2.5"><ReviewStatusBadge status={l.reviewStatus} /></td>
+                    </tr>
+                    {isExpanded && (
+                      <tr key={`${l.code}-detail`} className="border-b border-border bg-muted/10">
+                        <td colSpan={11} className="p-4">
+                          <div className="grid md:grid-cols-3 gap-4 text-xs">
+                            <div className="space-y-3">
+                              <h4 className="font-display font-semibold text-foreground text-sm">Quantity Source</h4>
+                              <div className="space-y-1.5">
+                                <div className="flex justify-between"><span className="text-muted-foreground">Plan Reference</span><PlanReferenceChip sheet={l.sheet} /></div>
+                                <div className="flex justify-between"><span className="text-muted-foreground">Method</span><ExtractionMethodBadge method={l.source} /></div>
+                                <div className="bg-muted/40 rounded-md p-2 mt-2"><span className="text-muted-foreground">Formula:</span><div className="font-mono text-foreground mt-1">{l.quantityDetail.formula}</div></div>
+                                <div className="bg-muted/40 rounded-md p-2"><span className="text-muted-foreground">Conversion:</span><div className="font-mono text-foreground mt-1">{l.quantityDetail.conversion}</div></div>
+                                <div><span className="text-muted-foreground">Waste Factor:</span> <span className="text-foreground">{l.quantityDetail.wasteFactor}</span></div>
+                              </div>
+                            </div>
+                            <div className="space-y-3">
+                              <h4 className="font-display font-semibold text-foreground text-sm">Pricing & Assumptions</h4>
+                              <PricingBasisCard {...l.pricing} />
+                              <AssumptionsDrawer assumptions={l.assumptions} />
+                            </div>
+                            <div className="space-y-3">
+                              <h4 className="font-display font-semibold text-foreground text-sm">Review</h4>
+                              <div className="flex items-center gap-2 mb-2"><ReviewStatusBadge status={l.reviewStatus} /><ConfidenceBadge level={l.confidence} /></div>
+                              <div className="bg-card border border-border rounded-lg p-3">
+                                <label className="text-muted-foreground block mb-1 text-[10px]">Estimator Comment</label>
+                                <textarea className="w-full bg-muted/20 rounded-md text-xs p-2 outline-none resize-none h-12 text-foreground" placeholder="Add notes..." />
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                <Button size="sm" variant="default" className="text-xs h-7"><CheckCircle size={11} className="mr-1" /> Confirm</Button>
+                                <Button size="sm" variant="outline" className="text-xs h-7"><Pencil size={11} className="mr-1" /> Adjust</Button>
+                                <Button size="sm" variant="outline" className="text-xs h-7"><Flag size={11} className="mr-1" /> Follow-up</Button>
+                                <Button size="sm" variant="outline" className="text-xs h-7"><X size={11} className="mr-1" /> Exclude</Button>
+                                <Button size="sm" variant="outline" className="text-xs h-7"><Bot size={11} className="mr-1" /> Ask Atlas</Button>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div className="px-4 py-3 border-t border-border bg-muted/30 flex justify-between items-center">
+          <span className="text-sm text-muted-foreground">{filtered.length} line items</span>
+          <span className="font-display font-bold text-foreground">Base Scope Total: {formatCurrency(subtotal)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function EstimateBuilderPage() {
+  const navigate = useNavigate();
+
+  // Totals for rollup
+  const baseScopeTotal = lineItems.reduce((s, l) => s + (l.unit === "LS" ? l.unitCost : l.qty * l.unitCost), 0);
+  const generalReqsTotal = 53610;
+  const allowancesTotal = 38800;
+  const selectionsVariance = 1780;
+  const alternatesImpact = 4800;
+
+  return (
     <AppLayout>
       <div className="p-6 lg:p-8">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground">Estimate Builder</h1>
-            <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — v2.1 · Evidence-backed estimate logic</p>
+            <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — v2.1 · Full estimate workspace</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm"><Filter size={14} className="mr-1.5" /> Filter</Button>
             <Button variant="outline" size="sm"><Download size={14} className="mr-1.5" /> Export</Button>
-            <Button size="sm"><Plus size={14} className="mr-1.5" /> Add Line</Button>
+            <Button size="sm" onClick={() => navigate("/app/pricing")}>
+              <ArrowRight size={14} className="mr-1.5" /> Send to Pricing & Margin
+            </Button>
           </div>
         </div>
 
-        {/* Evidence Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
-          {summaryItems.map((s) => (
-            <div key={s.label} className="bg-card border border-border rounded-lg p-3 shadow-card text-center">
-              <p className={`font-display text-lg font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-[10px] text-muted-foreground">{s.label}</p>
-            </div>
-          ))}
-        </div>
+        {/* Financial Rollup */}
+        <EstimateRollup
+          baseScope={baseScopeTotal}
+          generalReqs={generalReqsTotal}
+          allowances={allowancesTotal}
+          selectionsVariance={selectionsVariance}
+          alternatesImpact={alternatesImpact}
+        />
 
-        {/* Filter Chips + Search */}
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2 max-w-sm">
-            <Search size={16} className="text-muted-foreground" />
-            <input
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              placeholder="Search line items..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <div className="flex gap-1.5 flex-wrap">
-            {filterOptions.map((f) => (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
-                className={`text-xs px-2.5 py-1 rounded-full font-medium transition-colors ${
-                  activeFilter === f ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Tabbed Sections */}
+        <Tabs defaultValue="base-scope" className="w-full">
+          <TabsList className="w-full justify-start bg-card border border-border rounded-xl p-1 mb-4 h-auto flex-wrap">
+            <TabsTrigger value="base-scope" className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2">Base Scope</TabsTrigger>
+            <TabsTrigger value="general-reqs" className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2">General Requirements</TabsTrigger>
+            <TabsTrigger value="allowances" className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2">Allowances</TabsTrigger>
+            <TabsTrigger value="selections" className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2">Selections</TabsTrigger>
+            <TabsTrigger value="alternates" className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2">Alternates</TabsTrigger>
+            <TabsTrigger value="review" className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2">Review</TabsTrigger>
+          </TabsList>
 
-        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/30">
-                  <th className="w-8" />
-                  {["Code", "Trade", "Description", "Qty", "Unit", "Unit Cost", "Total", "Source", "Confidence", "Status"].map((h) => (
-                    <th key={h} className="text-left px-3 py-3 text-xs font-medium text-muted-foreground whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((l) => {
-                  const base = l.unit === "LS" ? l.unitCost : l.qty * l.unitCost;
-                  const total = base * (1 + l.markup / 100) * (1 + l.contingency / 100);
-                  const isExpanded = expandedRow === l.code;
-                  return (
-                    <>
-                      <tr
-                        key={l.code}
-                        className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors cursor-pointer"
-                        onClick={() => setExpandedRow(isExpanded ? null : l.code)}
-                      >
-                        <td className="pl-3 py-3">
-                          <ChevronDown size={14} className={`text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                        </td>
-                        <td className="px-3 py-3 font-mono text-xs text-muted-foreground">{l.code}</td>
-                        <td className="px-3 py-3 font-medium text-foreground whitespace-nowrap">{l.trade}</td>
-                        <td className="px-3 py-3 text-foreground">{l.desc}</td>
-                        <td className="px-3 py-3 text-muted-foreground">{l.qty.toLocaleString()}</td>
-                        <td className="px-3 py-3 text-muted-foreground">{l.unit}</td>
-                        <td className="px-3 py-3 text-foreground">{l.unit === "LS" ? formatCurrency(l.unitCost) : `$${l.unitCost.toFixed(2)}`}</td>
-                        <td className="px-3 py-3 font-display font-semibold text-foreground">{formatCurrency(Math.round(total))}</td>
-                        <td className="px-3 py-3"><ExtractionMethodBadge method={l.source} /></td>
-                        <td className="px-3 py-3"><ConfidenceBadge level={l.confidence} /></td>
-                        <td className="px-3 py-3"><ReviewStatusBadge status={l.reviewStatus} /></td>
-                      </tr>
-                      {isExpanded && (
-                        <tr key={`${l.code}-detail`} className="border-b border-border bg-muted/10">
-                          <td colSpan={11} className="p-4">
-                            <div className="grid md:grid-cols-3 gap-4 text-xs">
-                              {/* Quantity Source */}
-                              <div className="space-y-3">
-                                <h4 className="font-display font-semibold text-foreground text-sm">Quantity Source</h4>
-                                <div className="space-y-1.5">
-                                  <div className="flex justify-between"><span className="text-muted-foreground">Plan Reference</span><PlanReferenceChip sheet={l.sheet} /></div>
-                                  <div className="flex justify-between"><span className="text-muted-foreground">Method</span><ExtractionMethodBadge method={l.source} /></div>
-                                  <div className="bg-muted/40 rounded-md p-2 mt-2">
-                                    <span className="text-muted-foreground">Formula:</span>
-                                    <div className="font-mono text-foreground mt-1">{l.quantityDetail.formula}</div>
-                                  </div>
-                                  <div className="bg-muted/40 rounded-md p-2">
-                                    <span className="text-muted-foreground">Conversion:</span>
-                                    <div className="font-mono text-foreground mt-1">{l.quantityDetail.conversion}</div>
-                                  </div>
-                                  <div><span className="text-muted-foreground">Waste Factor:</span> <span className="text-foreground">{l.quantityDetail.wasteFactor}</span></div>
-                                </div>
-                              </div>
-
-                              {/* Pricing Basis */}
-                              <div className="space-y-3">
-                                <h4 className="font-display font-semibold text-foreground text-sm">Pricing & Assumptions</h4>
-                                <PricingBasisCard {...l.pricing} />
-                                <AssumptionsDrawer assumptions={l.assumptions} />
-                              </div>
-
-                              {/* Review */}
-                              <div className="space-y-3">
-                                <h4 className="font-display font-semibold text-foreground text-sm">Review</h4>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <ReviewStatusBadge status={l.reviewStatus} />
-                                  <ConfidenceBadge level={l.confidence} />
-                                </div>
-                                <div className="bg-card border border-border rounded-lg p-3">
-                                  <label className="text-muted-foreground block mb-1 text-[10px]">Estimator Comment</label>
-                                  <textarea className="w-full bg-muted/20 rounded-md text-xs p-2 outline-none resize-none h-12 text-foreground" placeholder="Add notes..." />
-                                </div>
-                                <div className="flex flex-wrap gap-1.5">
-                                  <Button size="sm" variant="default" className="text-xs h-7"><CheckCircle size={11} className="mr-1" /> Confirm</Button>
-                                  <Button size="sm" variant="outline" className="text-xs h-7"><Pencil size={11} className="mr-1" /> Adjust</Button>
-                                  <Button size="sm" variant="outline" className="text-xs h-7"><Flag size={11} className="mr-1" /> Follow-up</Button>
-                                  <Button size="sm" variant="outline" className="text-xs h-7"><X size={11} className="mr-1" /> Exclude</Button>
-                                  <Button size="sm" variant="outline" className="text-xs h-7"><Bot size={11} className="mr-1" /> Ask Atlas</Button>
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div className="px-4 py-3 border-t border-border bg-muted/30 flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">{filtered.length} line items</span>
-            <span className="font-display font-bold text-foreground">Subtotal: {formatCurrency(subtotal)}</span>
-          </div>
-        </div>
+          <TabsContent value="base-scope"><BaseScopeSection /></TabsContent>
+          <TabsContent value="general-reqs"><GeneralRequirementsSection /></TabsContent>
+          <TabsContent value="allowances"><AllowancesSection /></TabsContent>
+          <TabsContent value="selections"><SelectionsSection /></TabsContent>
+          <TabsContent value="alternates"><AlternatesSection /></TabsContent>
+          <TabsContent value="review"><ReviewSection /></TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );
