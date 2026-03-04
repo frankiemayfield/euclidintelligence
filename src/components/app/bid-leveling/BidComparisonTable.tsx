@@ -1,4 +1,4 @@
-import { ChevronDown, Send, Star, CheckCircle, AlertTriangle, Info } from "lucide-react";
+import { ChevronDown, Send, CheckCircle, AlertTriangle, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SubBid, formatCurrency, statusColors } from "./bidLevelingData";
 import { BidDetailPanel } from "./BidDetailPanel";
@@ -11,13 +11,13 @@ interface BidComparisonTableProps {
 
 // Filter out non-lifecycle statuses for display
 const lifecycleStatuses = new Set([
-  "Draft Scope", "Sent to Sub", "Awaiting Bid", "Bid Received",
-  "Needs Clarification", "Ready to Compare", "Sent to Estimate"
-]);
+"Draft Scope", "Sent to Sub", "Awaiting Bid", "Bid Received",
+"Needs Clarification", "Ready to Compare", "Sent to Estimate"]
+);
 
-function getLevelingState(b: SubBid): { label: string; className: string } {
-  const unresolvedExclusions = b.exclusions.filter(e => e.disposition === "unresolved").length;
-  const unresolvedClarifications = b.clarifications.filter(c => !c.resolved).length;
+function getLevelingState(b: SubBid): {label: string;className: string;} {
+  const unresolvedExclusions = b.exclusions.filter((e) => e.disposition === "unresolved").length;
+  const unresolvedClarifications = b.clarifications.filter((c) => !c.resolved).length;
   if (unresolvedExclusions === 0 && unresolvedClarifications === 0) {
     return { label: "Leveling Complete", className: "bg-primary/10 text-primary" };
   }
@@ -70,33 +70,33 @@ export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidCo
                   <tr
                     key={b.sub}
                     className={`border-b border-border last:border-0 hover:bg-muted/20 transition-colors cursor-pointer ${b.selected ? "bg-primary/[0.03]" : ""}`}
-                    onClick={() => onToggleExpand(b.sub)}
-                  >
+                    onClick={() => onToggleExpand(b.sub)}>
+                    
                     <td className="pl-3 py-3">
                       <ChevronDown size={14} className={`text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium text-foreground">{b.sub}</span>
-                        {b.recommended && (
-                          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+                        {b.recommended &&
+                        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
                             Recommended
                           </span>
-                        )}
-                        {b.selected && (
-                          <Star size={12} className="text-primary fill-primary shrink-0" />
-                        )}
+                        }
+                        {b.selected
+
+                        }
                       </div>
                     </td>
                     <td className="px-3 py-3 text-right font-display font-semibold text-muted-foreground">
                       {formatCurrency(b.rawTotal)}
                     </td>
                     <td className="px-3 py-3 text-right font-display font-semibold">
-                      {b.addBacks > 0 ? (
-                        <span className="text-warning">+{formatCurrency(b.addBacks)}</span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
+                      {b.addBacks > 0 ?
+                      <span className="text-warning">+{formatCurrency(b.addBacks)}</span> :
+
+                      <span className="text-muted-foreground">—</span>
+                      }
                     </td>
                     <td className="px-3 py-3 text-right font-display font-bold text-foreground">
                       {formatCurrency(b.leveledTotal)}
@@ -107,18 +107,18 @@ export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidCo
                       </span>
                     </td>
                     <td className="px-3 py-3 text-center">
-                      {b.missingScopeCount > 0 ? (
-                        <span className="text-xs font-medium text-destructive">{b.missingScopeCount}</span>
-                      ) : (
-                        <CheckCircle size={13} className="text-primary mx-auto" />
-                      )}
+                      {b.missingScopeCount > 0 ?
+                      <span className="text-xs font-medium text-destructive">{b.missingScopeCount}</span> :
+
+                      <CheckCircle size={13} className="text-primary mx-auto" />
+                      }
                     </td>
                     <td className="px-3 py-3 text-center">
-                      {b.clarifications.filter(c => !c.resolved).length > 0 ? (
-                        <span className="text-xs font-medium text-warning">{b.clarifications.filter(c => !c.resolved).length}</span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
+                      {b.clarifications.filter((c) => !c.resolved).length > 0 ?
+                      <span className="text-xs font-medium text-warning">{b.clarifications.filter((c) => !c.resolved).length}</span> :
+
+                      <span className="text-xs text-muted-foreground">—</span>
+                      }
                     </td>
                     <td className="px-3 py-3 text-center">
                       <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${statusColors[displayStatus as keyof typeof statusColors] || statusColors[b.status]}`}>
@@ -127,34 +127,34 @@ export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidCo
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex items-center justify-end gap-1.5">
-                        {b.status !== "Sent to Estimate" && (
-                          <Button size="sm" variant="outline" className="text-[11px] h-6 px-2 rounded-lg" onClick={(e) => e.stopPropagation()}>
+                        {b.status !== "Sent to Estimate" &&
+                        <Button size="sm" variant="outline" className="text-[11px] h-6 px-2 rounded-lg" onClick={(e) => e.stopPropagation()}>
                             <Send size={10} className="mr-1" /> Send to Estimate
                           </Button>
-                        )}
-                        {b.status === "Sent to Estimate" && (
-                          <span className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                        }
+                        {b.status === "Sent to Estimate" &&
+                        <span className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
                             Sent to Estimate
                           </span>
-                        )}
+                        }
                       </div>
                     </td>
                   </tr>
-                  {isExpanded && (
-                    <tr key={`${b.sub}-detail`}>
+                  {isExpanded &&
+                  <tr key={`${b.sub}-detail`}>
                       <td colSpan={10} className="p-0 border-b border-border">
                         <div className="border-l-2 border-primary/30 bg-muted/5">
                           <BidDetailPanel bid={b} levelingState={levelingState} />
                         </div>
                       </td>
                     </tr>
-                  )}
-                </>
-              );
+                  }
+                </>);
+
             })}
           </tbody>
         </table>
       </div>
-    </div>
-  );
+    </div>);
+
 }
