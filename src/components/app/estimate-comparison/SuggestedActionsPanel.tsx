@@ -12,12 +12,12 @@ export function SuggestedActionsPanel({ trades }: SuggestedActionsPanelProps) {
     .sort((a, b) => Math.abs(b.variance) - Math.abs(a.variance));
 
   return (
-    <div className="bg-card border border-border rounded-xl shadow-card p-5">
+    <div className="bg-card border border-border rounded-2xl shadow-card p-5">
       <h2 className="font-display font-semibold text-foreground mb-1">Suggested Actions</h2>
       <p className="text-xs text-muted-foreground mb-4">Prioritized recommendations based on benchmark analysis</p>
       <div className="space-y-2">
         {flagged.map((t, i) => (
-          <div key={t.trade} className="flex items-start gap-3 p-3 rounded-lg bg-muted/20 border border-border/50">
+          <div key={t.trade} className="flex items-start gap-3 p-3 rounded-xl bg-muted/20 border border-border/50">
             <span className="text-xs font-semibold text-muted-foreground w-5 pt-0.5">{i + 1}</span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">

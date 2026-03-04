@@ -37,6 +37,7 @@ const App = () => (
             <Route path="/app/estimate-builder" element={<EstimateBuilderPage />} />
             <Route path="/app/pricing" element={<PricingMarginPage />} />
             <Route path="/app/estimate-comparison" element={<ProposalComparisonPage />} />
+            <Route path="/app/market-comparison" element={<ProposalComparisonPage />} />
             <Route path="/app/proposal-comparison" element={<ProposalComparisonPage />} />
             <Route path="/app/proposal" element={<ProposalPage />} />
             <Route path="/app/est-vs-actual" element={<EstVsActualPage />} />

@@ -14,7 +14,7 @@ const estimatorNavItems = [
   { label: "Estimate Builder", icon: Table2, path: "/app/estimate-builder" },
   { label: "Pricing & Margin", icon: DollarSign, path: "/app/pricing" },
   { label: "Proposal Export", icon: FileOutput, path: "/app/proposal" },
-  { label: "Estimate Comparison", icon: BarChart3, path: "/app/estimate-comparison" },
+  { label: "Market Comparison", icon: BarChart3, path: "/app/estimate-comparison" },
   { label: "Est. vs Actual", icon: TrendingUp, path: "/app/est-vs-actual" },
 ];
 
