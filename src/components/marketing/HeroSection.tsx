@@ -1,16 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText, BarChart3, Bot } from "lucide-react";
+import { FileText, BarChart3, Bot, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 
 export function HeroSection() {
   const navigate = useNavigate();
+  const [buildTransition, setBuildTransition] = useState(false);
+  const [compareTransition, setCompareTransition] = useState(false);
 
   return (
     <section className="relative pt-28 pb-20 lg:pt-36 lg:pb-28 gradient-hero overflow-hidden">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left: Copy + Upload */}
+          {/* Left: Copy + Two Workflow Options */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -26,35 +30,41 @@ export function HeroSection() {
               structured estimates in minutes.
             </p>
 
-            {/* Upload Card */}
-            <div className="bg-card border border-border rounded-lg p-6 shadow-card mb-6 max-w-md">
-              <div className="border-2 border-dashed border-primary/30 rounded-lg p-8 text-center hover:border-primary/60 transition-colors cursor-pointer"
-                onClick={() => navigate("/app/upload")}
-              >
-                <Upload className="mx-auto mb-3 text-primary" size={28} />
-                <p className="font-display font-semibold text-sm text-foreground mb-1">
-                  Drag & drop your project files
+            {/* Two Workflow Cards */}
+            <div className="grid sm:grid-cols-2 gap-4 mb-6 max-w-lg">
+              <div className="bg-card border border-border rounded-xl p-5 shadow-card hover:border-primary/40 hover:shadow-md transition-all flex flex-col">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+                  <FileText size={18} className="text-primary" />
+                </div>
+                <h3 className="font-display font-semibold text-foreground text-sm mb-1">Build Your Estimate</h3>
+                <p className="text-xs text-muted-foreground mb-4 flex-1">
+                  Upload plans and project files to start the full estimating workflow.
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  Plans · Bid sheets · Buildertrend exports · Scope docs · Takeoff sheets
+                <Button size="sm" className="w-full gap-2" onClick={() => setBuildTransition(true)}>
+                  Build an Estimate <ArrowRight size={14} />
+                </Button>
+              </div>
+
+              <div className="bg-card border border-border rounded-xl p-5 shadow-card hover:border-primary/40 hover:shadow-md transition-all flex flex-col">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+                  <BarChart3 size={18} className="text-primary" />
+                </div>
+                <h3 className="font-display font-semibold text-foreground text-sm mb-1">Compare Your Proposal</h3>
+                <p className="text-xs text-muted-foreground mb-4 flex-1">
+                  Upload an existing estimate or proposal to compare it against similar jobs.
                 </p>
+                <Button size="sm" variant="outline" className="w-full gap-2" onClick={() => setCompareTransition(true)}>
+                  <BarChart3 size={14} /> Market Comparison <ArrowRight size={14} />
+                </Button>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 mb-4">
-              <Button size="lg" onClick={() => navigate("/app/upload")}>
-                Get My Estimate
-              </Button>
-              <Button size="lg" variant="outline">
-                Book a Demo
-              </Button>
-            </div>
             <p className="text-xs text-muted-foreground">
               No signup required. No credit card. Demo in under 60 seconds.
             </p>
           </motion.div>
 
-          {/* Right: Product Preview */}
+          {/* Right: Proposal Score Preview */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -62,10 +72,10 @@ export function HeroSection() {
             className="hidden lg:block"
           >
             <div className="bg-card border border-border rounded-xl shadow-lg p-6 space-y-4">
-              {/* Bid Score Preview */}
+              {/* Proposal Score Preview */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Bid Score</p>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Proposal Score</p>
                   <p className="font-display text-4xl font-bold text-primary">84</p>
                 </div>
                 <div className="w-20 h-20 rounded-full border-4 border-primary/20 flex items-center justify-center relative">
@@ -96,7 +106,7 @@ export function HeroSection() {
                 <div>
                   <p className="text-xs font-medium text-foreground">Estimator Atlas</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    "This estimate is missing electrical rough-in for the addition. I'd recommend adding a line item for ~$4,200 based on similar projects in your region."
+                    "Electrical scope appears incomplete. Similar kitchen remodels typically include a rough-in allowance between $3,800 and $5,200."
                   </p>
                 </div>
               </div>
@@ -104,6 +114,33 @@ export function HeroSection() {
           </motion.div>
         </div>
       </div>
+
+      <WorkflowTransition
+        active={buildTransition}
+        headline="Building your estimate"
+        steps={[
+          { label: "Classifying documents" },
+          { label: "Filling in project details" },
+          { label: "Setting up workflow preferences" },
+          { label: "Preparing your workspace" },
+        ]}
+        targetPath="/app/upload"
+        onComplete={() => setBuildTransition(false)}
+      />
+
+      <WorkflowTransition
+        active={compareTransition}
+        headline="Comparing your pricing"
+        steps={[
+          { label: "Benchmark alignment analysis" },
+          { label: "Comparing against thousands of estimates" },
+          { label: "Analyzing market pricing" },
+          { label: "Comparing costs and prices" },
+          { label: "Generating proposal score" },
+        ]}
+        targetPath="/app/estimate-comparison?source=upload"
+        onComplete={() => setCompareTransition(false)}
+      />
     </section>
   );
 }
