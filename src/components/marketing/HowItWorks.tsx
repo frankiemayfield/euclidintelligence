@@ -24,7 +24,7 @@ export function HowItWorks() {
     <section id="how-it-works" className="py-20 bg-muted/40">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center mb-14">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">Build an estimate in minutes
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">How it Works
 
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">From upload to proposal in six simple steps.
