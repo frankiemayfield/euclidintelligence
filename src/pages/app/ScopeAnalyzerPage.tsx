@@ -205,6 +205,7 @@ export default function ScopeAnalyzerPage() {
   const [structureFilter, setStructureFilter] = useState<string>("all");
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [activeTab, setActiveTab] = useState("overview");
+  const [assumptionStates, setAssumptionStates] = useState<Record<number, "unresolved" | "confirmed" | "adjusted" | "needs-review" | "deferred">>({});
   const [codeSystem] = useState("16-Division Default");
   const [transition, setTransition] = useState<"bid-leveling" | "estimate" | null>(null);
 
@@ -232,7 +233,7 @@ export default function ScopeAnalyzerPage() {
       setActiveFilter(null);
     } else {
       setActiveFilter(filterKey);
-      if (filterKey && activeTab === "overview") setActiveTab("quantities");
+    if (filterKey && activeTab === "overview") setActiveTab("quantity-takeoff");
     }
   };
 
@@ -274,7 +275,7 @@ export default function ScopeAnalyzerPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground">Scope Analyzer</h1>
-            <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — Structure, validate, and prepare scope for estimating</p>
+            <p className="text-sm text-muted-foreground mt-1">Structure, validate, and prepare scope for estimating</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="text-sm font-semibold gap-1.5" onClick={() => setTransition("estimate")}>
@@ -329,11 +330,11 @@ export default function ScopeAnalyzerPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="quantities">Quantities</TabsTrigger>
-            <TabsTrigger value="structure">Structure</TabsTrigger>
-            <TabsTrigger value="scope-issues">Scope Issues</TabsTrigger>
+            <TabsTrigger value="scope-structure">Scope Structure</TabsTrigger>
+            <TabsTrigger value="quantity-takeoff">Quantity Takeoff</TabsTrigger>
             <TabsTrigger value="assumptions">Assumptions</TabsTrigger>
-            <TabsTrigger value="sub-scope">Sub Scope Export</TabsTrigger>
+            <TabsTrigger value="scope-issues">Scope Issues</TabsTrigger>
+            <TabsTrigger value="sub-bid-packages">Sub Bid Packages</TabsTrigger>
           </TabsList>
 
           {/* ═══════════ OVERVIEW TAB ═══════════ */}
@@ -372,9 +373,9 @@ export default function ScopeAnalyzerPage() {
                   <h3 className="font-display font-semibold text-foreground mb-3">Recommended Next Actions</h3>
                   <div className="space-y-2">
                     {[
-                      { text: `${unmapped.length} items still need cost code assignment`, action: "Go to Structure", tab: "structure" },
+                      { text: `${unmapped.length} items still need cost code assignment`, action: "Go to Scope Structure", tab: "scope-structure" },
                       { text: `${duplicates.length} rows are likely duplicates`, action: "Review Duplicates", tab: "scope-issues" },
-                      { text: "1 scope line should be reassigned to General Requirements", action: "Review Structure", tab: "structure" },
+                      { text: "1 scope line should be reassigned to General Requirements", action: "Review Structure", tab: "scope-structure" },
                       { text: `${mapped.length} lines ready to send to Estimate Builder`, action: "Send to Estimate Builder", tab: null },
                     ].map((item, i) => (
                       <div key={i} className="flex items-center justify-between p-2.5 rounded-xl bg-muted/20">
@@ -387,15 +388,6 @@ export default function ScopeAnalyzerPage() {
                   </div>
                 </div>
 
-                {/* Ready controls */}
-                <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                  <h3 className="font-display font-semibold text-foreground mb-2">Ready for next step?</h3>
-                  <p className="text-sm text-muted-foreground mb-4">Review structure, resolve scope issues, and confirm mappings before moving forward.</p>
-                  <div className="flex gap-2">
-                    <Button size="sm">Send to Estimate Builder <ArrowRight size={12} className="ml-1" /></Button>
-                    <Button size="sm" variant="outline">Send to Bid Leveling <ArrowRight size={12} className="ml-1" /></Button>
-                  </div>
-                </div>
               </div>
 
               {/* Right sidebar */}
@@ -413,7 +405,7 @@ export default function ScopeAnalyzerPage() {
                   <h3 className="font-display font-semibold text-sm text-foreground mb-3">Items Requiring Review</h3>
                   <div className="space-y-2">
                     {needsReview.map((item) => (
-                      <button key={item.id} onClick={() => { setActiveTab("quantities"); setExpandedRow(item.id); }} className="w-full text-left p-2 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
+                      <button key={item.id} onClick={() => { setActiveTab("quantity-takeoff"); setExpandedRow(item.id); }} className="w-full text-left p-2 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
                         <p className="text-xs font-medium text-foreground">{item.description}</p>
                         <div className="flex gap-1.5 mt-1"><ConfidenceBadge level={item.confidence} /><ReviewStatusBadge status={item.status} /></div>
                       </button>
@@ -424,18 +416,36 @@ export default function ScopeAnalyzerPage() {
             </div>
           </TabsContent>
 
-          {/* ═══════════ QUANTITIES TAB ═══════════ */}
-          <TabsContent value="quantities">
+          {/* ═══════════ QUANTITY TAKEOFF TAB ═══════════ */}
+          <TabsContent value="quantity-takeoff">
             <div className="flex gap-6 flex-col xl:flex-row">
               <div className="flex-1 bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
                 <div className="px-5 py-4 border-b border-border flex items-center justify-between">
                   <h2 className="font-display font-semibold text-foreground">Quantity Takeoff</h2>
-                  <p className="text-xs text-muted-foreground">Every number has a source</p>
+                  <div className="flex items-center gap-2">
+                    {selectedRows.size > 0 && (
+                      <div className="flex gap-1.5 mr-2">
+                        <Button size="sm" variant="outline" className="text-xs h-7"><Check size={12} className="mr-1" />Confirm Selected</Button>
+                        <Button size="sm" variant="outline" className="text-xs h-7"><GitMerge size={12} className="mr-1" />Merge Selected</Button>
+                        <Button size="sm" variant="outline" className="text-xs h-7"><Copy size={12} className="mr-1" />Mark Duplicate</Button>
+                        <Button size="sm" variant="outline" className="text-xs h-7"><Flag size={12} className="mr-1" />Needs Review</Button>
+                        <Button size="sm" variant="outline" className="text-xs h-7"><Package size={12} className="mr-1" />Move to Sub Bid Package</Button>
+                        <span className="text-xs text-primary font-medium self-center">{selectedRows.size} selected</span>
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground">Every number has a source</p>
+                  </div>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border bg-muted/30">
+                        <th className="w-8 pl-3 py-3">
+                          <input type="checkbox" className="rounded border-border" checked={selectedRows.size === filteredData.length && filteredData.length > 0} onChange={() => {
+                            if (selectedRows.size === filteredData.length) setSelectedRows(new Set());
+                            else setSelectedRows(new Set(filteredData.map(r => r.id)));
+                          }} />
+                        </th>
                         <th className="w-8" />
                         {["CSI Division", "Description", "Qty", "Unit", "Sheet", "Method", "Confidence", "Status"].map((h) => (
                           <th key={h} className="text-left px-3 py-3 text-xs font-medium text-muted-foreground whitespace-nowrap">{h}</th>
@@ -445,8 +455,11 @@ export default function ScopeAnalyzerPage() {
                     <tbody>
                       {filteredData.map((row) => (
                         <>
-                          <tr key={row.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}>
-                            <td className="pl-3 py-3"><ChevronDown size={14} className={cn("text-muted-foreground transition-transform", expandedRow === row.id && "rotate-180")} /></td>
+                          <tr key={row.id} className={cn("border-b border-border last:border-0 hover:bg-muted/20 transition-colors cursor-pointer", selectedRows.has(row.id) && "bg-primary/5")}>
+                            <td className="pl-3 py-3" onClick={(e) => { e.stopPropagation(); toggleRowSelection(row.id); }}>
+                              <input type="checkbox" className="rounded border-border" checked={selectedRows.has(row.id)} onChange={() => toggleRowSelection(row.id)} />
+                            </td>
+                            <td className="py-3" onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}><ChevronDown size={14} className={cn("text-muted-foreground transition-transform", expandedRow === row.id && "rotate-180")} /></td>
                             <td className="px-3 py-3 font-mono text-xs text-muted-foreground">{row.division}</td>
                             <td className="px-3 py-3 text-foreground">{row.description}</td>
                             <td className="px-3 py-3 font-display font-semibold text-foreground">{row.qty}</td>
@@ -458,7 +471,7 @@ export default function ScopeAnalyzerPage() {
                           </tr>
                           {expandedRow === row.id && (
                             <tr key={`${row.id}-detail`} className="border-b border-border bg-muted/10">
-                              <td colSpan={9} className="p-4">
+                              <td colSpan={10} className="p-4">
                                 <div className="grid md:grid-cols-2 gap-4 text-xs">
                                   <div className="space-y-3">
                                     <h4 className="font-display font-semibold text-foreground text-sm">Quantity Derivation</h4>
@@ -526,7 +539,7 @@ export default function ScopeAnalyzerPage() {
           </TabsContent>
 
           {/* ═══════════ STRUCTURE TAB ═══════════ */}
-          <TabsContent value="structure">
+          <TabsContent value="scope-structure">
             <div className="space-y-4">
               {/* Filter bar */}
               <div className="flex flex-wrap items-center gap-2">
@@ -549,10 +562,15 @@ export default function ScopeAnalyzerPage() {
                   </button>
                 ))}
                 {selectedRows.size > 0 && (
-                  <div className="ml-auto flex gap-1.5">
+                  <div className="ml-auto flex gap-1.5 flex-wrap">
+                    <span className="text-xs text-primary font-medium self-center mr-1">{selectedRows.size} selected</span>
                     <Button size="sm" variant="outline" className="text-xs h-7"><GitMerge size={12} className="mr-1" />Merge Selected</Button>
                     <Button size="sm" variant="outline" className="text-xs h-7"><Copy size={12} className="mr-1" />Mark Duplicate</Button>
                     <Button size="sm" variant="outline" className="text-xs h-7"><Split size={12} className="mr-1" />Split Line</Button>
+                    <Button size="sm" variant="outline" className="text-xs h-7"><Settings2 size={12} className="mr-1" />Assign Cost Code</Button>
+                    <Button size="sm" variant="outline" className="text-xs h-7"><Layers size={12} className="mr-1" />Assign Trade</Button>
+                    <Button size="sm" variant="outline" className="text-xs h-7"><Check size={12} className="mr-1" />Confirm Selected</Button>
+                    <Button size="sm" variant="outline" className="text-xs h-7"><Package size={12} className="mr-1" />Move to Sub Bid Package</Button>
                     <Button size="sm" variant="outline" className="text-xs h-7"><Trash2 size={12} className="mr-1" />Remove</Button>
                   </div>
                 )}
@@ -562,7 +580,7 @@ export default function ScopeAnalyzerPage() {
               <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
                 <div className="px-5 py-4 border-b border-border flex items-center justify-between">
                   <div>
-                    <h2 className="font-display font-semibold text-foreground">Scope Structure Mapping</h2>
+                   <h2 className="font-display font-semibold text-foreground">Scope Structure Mapping</h2>
                     <p className="text-xs text-muted-foreground mt-0.5">Map extracted items into cost codes, trades, and estimate sections</p>
                   </div>
                   <div className="flex gap-1.5">
@@ -734,44 +752,87 @@ export default function ScopeAnalyzerPage() {
           {/* ═══════════ ASSUMPTIONS TAB ═══════════ */}
           <TabsContent value="assumptions">
             <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
-              <div className="px-5 py-4 border-b border-border">
-                <h2 className="font-display font-semibold text-foreground">Items Relying on Assumptions</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Scale-derived, low-confidence, and assumption-based items requiring estimator confirmation</p>
+              <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+                <div>
+                  <h2 className="font-display font-semibold text-foreground">Assumptions</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Review and confirm inferred logic, scale-derived values, and placeholder assumptions</p>
+                </div>
+                <div className="flex gap-1.5">
+                  <Button size="sm" variant="outline" className="text-xs h-7"><Check size={12} className="mr-1" />Confirm All High-Confidence</Button>
+                </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm table-fixed">
                   <colgroup>
-                    <col style={{ width: "20%" }} />
-                    <col style={{ width: "12%" }} />
-                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "18%" }} />
                     <col style={{ width: "10%" }} />
                     <col style={{ width: "8%" }} />
-                    <col style={{ width: "25%" }} />
-                    <col style={{ width: "15%" }} />
+                    <col style={{ width: "8%" }} />
+                    <col style={{ width: "6%" }} />
+                    <col style={{ width: "24%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "16%" }} />
                   </colgroup>
                   <thead>
                     <tr className="border-b border-border bg-muted/30">
-                      {["Description", "Method", "Confidence", "Status", "Risk", "Assumption", "Confirmation"].map((h) => (
+                      {["Description", "Method", "Confidence", "Status", "Risk", "Assumption", "Resolution", "Actions"].map((h) => (
                         <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {assumptionItems.map((row) => (
-                      <tr key={row.id} className="border-b border-border last:border-0 hover:bg-muted/20">
-                        <td className="px-4 py-3 text-foreground truncate">{row.description}</td>
-                        <td className="px-4 py-3"><ExtractionMethodBadge method={row.method} /></td>
-                        <td className="px-4 py-3"><ConfidenceBadge level={row.confidence} /></td>
-                        <td className="px-4 py-3"><ReviewStatusBadge status={row.status} /></td>
-                        <td className="px-4 py-3">
-                          <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", row.confidence === "Low" ? "bg-destructive/10 text-destructive" : "bg-warning/10 text-warning")}>
-                            {row.confidence === "Low" ? "High" : "Medium"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground">{row.detail.assumptionNotes}</td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground">{row.method === "Derived from Scale" ? "Verify with plans" : row.method === "Assumption Applied" ? "Confirm with field" : "Review required"}</td>
-                      </tr>
-                    ))}
+                    {assumptionItems.map((row) => {
+                      const state = assumptionStates[row.id] || "unresolved";
+                      const stateStyles: Record<string, string> = {
+                        "unresolved": "bg-warning/10 text-warning",
+                        "confirmed": "bg-primary/10 text-primary",
+                        "adjusted": "bg-info/10 text-info",
+                        "needs-review": "bg-destructive/10 text-destructive",
+                        "deferred": "bg-muted text-muted-foreground",
+                      };
+                      const stateLabels: Record<string, string> = {
+                        "unresolved": "Unresolved",
+                        "confirmed": "Confirmed",
+                        "adjusted": "Adjusted",
+                        "needs-review": "Needs Review",
+                        "deferred": "Deferred",
+                      };
+                      return (
+                        <tr key={row.id} className={cn("border-b border-border last:border-0 hover:bg-muted/20", state === "confirmed" && "bg-primary/5")}>
+                          <td className="px-4 py-3 text-foreground truncate">{row.description}</td>
+                          <td className="px-4 py-3"><ExtractionMethodBadge method={row.method} /></td>
+                          <td className="px-4 py-3"><ConfidenceBadge level={row.confidence} /></td>
+                          <td className="px-4 py-3"><ReviewStatusBadge status={row.status} /></td>
+                          <td className="px-4 py-3">
+                            <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", row.confidence === "Low" ? "bg-destructive/10 text-destructive" : "bg-warning/10 text-warning")}>
+                              {row.confidence === "Low" ? "High" : "Medium"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground">{row.detail.assumptionNotes}</td>
+                          <td className="px-4 py-3">
+                            <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap", stateStyles[state])}>
+                              {stateLabels[state]}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex gap-1 flex-wrap">
+                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "confirmed" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "confirmed" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary")}>
+                                <Check size={9} className="inline mr-0.5" />Confirm
+                              </button>
+                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "adjusted" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "adjusted" ? "bg-info text-info-foreground" : "bg-muted text-muted-foreground hover:bg-info/10 hover:text-info")}>
+                                Adjust
+                              </button>
+                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "needs-review" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "needs-review" ? "bg-destructive text-destructive-foreground" : "bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive")}>
+                                Review
+                              </button>
+                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "deferred" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "deferred" ? "bg-muted-foreground text-background" : "bg-muted text-muted-foreground hover:bg-muted-foreground/20")}>
+                                Defer
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -779,10 +840,10 @@ export default function ScopeAnalyzerPage() {
           </TabsContent>
 
           {/* ═══════════ SUB SCOPE EXPORT TAB ═══════════ */}
-          <TabsContent value="sub-scope">
+          <TabsContent value="sub-bid-packages">
             <div className="space-y-4">
               <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                <h3 className="font-display font-semibold text-foreground mb-1">Scope Package Builder</h3>
+                <h3 className="font-display font-semibold text-foreground mb-1">Sub Bid Package Builder</h3>
                 <p className="text-sm text-muted-foreground">Build precise scope packages with exact line items, quantities, and descriptions for subcontractor pricing.</p>
               </div>
 

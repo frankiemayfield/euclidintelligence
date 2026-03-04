@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Sun, Moon, Monitor, Users, Link2, Settings2, Building2, Palette, Calculator, DollarSign, FileOutput, Bell, Shield, Globe, Check } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
+import companyLogoImg from "@/assets/company-logo.jpg";
 
 type SettingsTab = "company" | "branding" | "estimator" | "pricing" | "proposal" | "appearance" | "notifications" | "users" | "integrations" | "workspace";
 
@@ -112,8 +113,8 @@ export default function SettingsPage() {
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 max-w-3xl">
           {/* Summary header */}
           <div className="bg-card border border-border rounded-xl p-5 shadow-card mb-6 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              {companyLogo ? <span className="text-lg">🏢</span> : <Building2 size={20} className="text-primary" />}
+            <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center border border-border">
+              <img src={companyLogoImg} alt="Company Logo" className="w-full h-full object-cover" />
             </div>
             <div className="flex-1">
               <p className="font-display font-semibold text-foreground">Mayfield & Co.</p>
@@ -143,11 +144,9 @@ export default function SettingsPage() {
               </SectionCard>
               <SectionCard title="Company Logo" helper="Appears in the app header alongside your company name">
                 <div className="flex items-center gap-4">
-                  {companyLogo ? (
-                    <div className="w-16 h-16 bg-muted/30 rounded-lg flex items-center justify-center text-xs text-muted-foreground border border-border">Logo</div>
-                  ) : (
-                    <div className="w-16 h-16 bg-muted/30 rounded-lg flex items-center justify-center text-xs text-muted-foreground border-2 border-dashed border-border">No logo</div>
-                  )}
+                  <div className="w-16 h-16 rounded-lg overflow-hidden border border-border">
+                    <img src={companyLogoImg} alt="Company Logo" className="w-full h-full object-cover" />
+                  </div>
                   <div>
                     <button onClick={() => setCompanyLogo("uploaded")} className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
                       <Upload size={14} /> Upload logo

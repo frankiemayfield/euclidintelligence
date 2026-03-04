@@ -4,6 +4,7 @@ import {
   FileOutput, GitCompare, TrendingUp, Settings, ChevronLeft, BarChart3, ChevronDown, DollarSign
 } from "lucide-react";
 import bedrockLogo from "@/assets/bedrock-logo-new.png";
+import companyLogo from "@/assets/company-logo.jpg";
 import { useState } from "react";
 import { AtlasPanel, AtlasToggleButton } from "./AtlasPanel";
 
@@ -94,8 +95,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               )}
             </div>
           )}
-          <div className="text-xs text-muted-foreground border-l border-border pl-4">
-            Mayfield & Co.
+          <div className="flex items-center gap-2 border-l border-border pl-4">
+            <img src={companyLogo} alt="Company Logo" className="h-6 w-6 rounded-md object-cover" />
+            <span className="text-xs text-muted-foreground">Mayfield & Co.</span>
           </div>
         </div>
       </header>
