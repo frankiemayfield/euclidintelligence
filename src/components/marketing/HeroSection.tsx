@@ -17,13 +17,12 @@ export function HeroSection() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.1] mb-5">
-              Understand Your{" "}
-              <span className="text-primary">Project Costs</span>
+              Know Exactly Where Your{" "}
+              <span className="text-primary">Proposal Stands</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-lg mb-8 leading-relaxed">
-              AI-powered construction estimating and bid intelligence — built on
-              real project data. Upload plans, bid sheets, or scope docs and get
-              structured estimates in minutes.
+              Upload your estimate and instantly get a Proposal Score, trade-level
+              market comparison, and scope risk analysis before sending it to the client.
             </p>
 
             {/* Upload Card */}
@@ -33,7 +32,7 @@ export function HeroSection() {
               >
                 <Upload className="mx-auto mb-3 text-primary" size={28} />
                 <p className="font-display font-semibold text-sm text-foreground mb-1">
-                  Drag & drop your project files
+                  Upload Your Estimate
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Plans · Bid sheets · Buildertrend exports · Scope docs · Takeoff sheets
@@ -43,7 +42,7 @@ export function HeroSection() {
 
             <div className="flex flex-wrap gap-3 mb-4">
               <Button size="lg" onClick={() => navigate("/app/upload")}>
-                Get My Estimate
+                Get My Proposal Score
               </Button>
               <Button size="lg" variant="outline">
                 Book a Demo
@@ -62,10 +61,10 @@ export function HeroSection() {
             className="hidden lg:block"
           >
             <div className="bg-card border border-border rounded-xl shadow-lg p-6 space-y-4">
-              {/* Bid Score Preview */}
+              {/* Proposal Score Preview */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Bid Score</p>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Proposal Score</p>
                   <p className="font-display text-4xl font-bold text-primary">84</p>
                 </div>
                 <div className="w-20 h-20 rounded-full border-4 border-primary/20 flex items-center justify-center relative">
@@ -81,7 +80,7 @@ export function HeroSection() {
                   { label: "Completeness", value: "92%", color: "text-primary" },
                   { label: "Trade Coverage", value: "88%", color: "text-primary" },
                   { label: "Pricing Confidence", value: "High", color: "text-success" },
-                  { label: "Scope Gaps", value: "3 flags", color: "text-warning" },
+                  { label: "Market Variance", value: "3 trades above benchmark", color: "text-warning" },
                 ].map((m) => (
                   <div key={m.label} className="bg-muted/50 rounded-lg p-3">
                     <p className="text-xs text-muted-foreground">{m.label}</p>
@@ -96,7 +95,7 @@ export function HeroSection() {
                 <div>
                   <p className="text-xs font-medium text-foreground">Estimator Atlas</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    "This estimate is missing electrical rough-in for the addition. I'd recommend adding a line item for ~$4,200 based on similar projects in your region."
+                    "Your electrical scope appears incomplete. Similar kitchen remodels typically include rough-in allowances between $3,800 and $5,200."
                   </p>
                 </div>
               </div>

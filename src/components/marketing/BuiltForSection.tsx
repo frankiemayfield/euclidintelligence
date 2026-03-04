@@ -5,22 +5,22 @@ const audiences = [
   {
     icon: Hammer,
     title: "Builders",
-    desc: "Validate estimates, catch missing scope, and produce client-ready proposals faster — from custom homes to spec builds.",
+    desc: "Catch missing scope and send stronger client proposals.",
   },
   {
     icon: Home,
     title: "Remodelers",
-    desc: "Navigate complex existing-condition estimates with scope intelligence that flags what's commonly missed in renovation work.",
+    desc: "Navigate complex renovation estimates and avoid scope gaps.",
   },
   {
     icon: HardHat,
     title: "General Contractors",
-    desc: "Level sub bids, standardize cost codes, and maintain estimate accuracy across multiple concurrent projects and teams.",
+    desc: "Benchmark subcontractor bids and maintain consistent estimating.",
   },
   {
     icon: Building2,
     title: "Developers",
-    desc: "Get fast proforma-level estimates with trade-level detail, then track budget drift from estimate through closeout.",
+    desc: "Generate structured early-stage budgets and track pricing variance.",
   },
 ];
 
