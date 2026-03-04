@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { FileText, BarChart3, Bot, ArrowRight, Gauge } from "lucide-react";
+import { FileText, BarChart3, Bot, ArrowRight, Gauge, Target, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
@@ -128,6 +128,23 @@ export function HeroSection() {
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Market Sensitivity</p>
                 <p className="font-display text-sm font-bold text-primary">Likely Competitive</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">+2.5% vs local median</p>
+              </div>
+
+              {/* Quick View */}
+              <div className="bg-muted/20 rounded-lg p-3">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Quick View</p>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex items-center gap-2">
+                    <Target size={10} className="text-destructive shrink-0" />
+                    <span className="text-muted-foreground">Top Risk:</span>
+                    <span className="text-foreground font-medium">HVAC under-scope</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck size={10} className="text-primary shrink-0" />
+                    <span className="text-muted-foreground">Strongest:</span>
+                    <span className="text-foreground font-medium">Electrical, Plumbing</span>
+                  </div>
+                </div>
               </div>
 
               {/* Atlas Insight */}
