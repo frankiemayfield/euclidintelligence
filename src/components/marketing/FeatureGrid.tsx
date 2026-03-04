@@ -6,7 +6,7 @@ const features = [
   {
     icon: BarChart3,
     title: "Market Comparison",
-    desc: "A 0–100 confidence score for every estimate. Instantly see completeness, trade coverage, pricing confidence, scope gap risk, and change-order exposure.",
+    desc: "A 0–100 proposal score for every estimate. Instantly see completeness, trade coverage, pricing confidence, scope gap risk, and change-order exposure.",
     detail: "Know where your estimate stands before you send it.",
     link: "/app/estimate-comparison",
   },
