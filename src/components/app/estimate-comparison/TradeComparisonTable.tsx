@@ -19,6 +19,16 @@ const driverLabels: Record<string, string> = {
   fee: "Fee-driven",
 };
 
+// Column widths as tailwind classes for consistency
+const COL = {
+  expand: "w-10",
+  trade: "w-[160px]",
+  money: "w-[110px]",
+  variance: "w-[90px]",
+  range: "w-[150px]",
+  status: "w-[90px]",
+} as const;
+
 export function TradeComparisonTable({ trades, compareMode, isUploadSource = false }: TradeComparisonTableProps) {
   const [expandedTrade, setExpandedTrade] = useState<string | null>(null);
   const totalCost = trades.reduce((s, t) => s + t.yourCost, 0);
@@ -28,6 +38,11 @@ export function TradeComparisonTable({ trades, compareMode, isUploadSource = fal
   const showCost = compareMode === "cost" || compareMode === "both";
   const showSell = compareMode === "sell" || compareMode === "both";
 
+  let colCount = 5;
+  if (showCost) colCount++;
+  if (showSell) colCount++;
+  colCount++;
+
   return (
     <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
       <div className="px-5 py-4 border-b border-border">
@@ -35,21 +50,31 @@ export function TradeComparisonTable({ trades, compareMode, isUploadSource = fal
         <p className="text-xs text-muted-foreground mt-0.5">Comparing your estimate against local benchmark by trade</p>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" style={{ tableLayout: "fixed" }}>
+          <colgroup>
+            <col className={COL.expand} style={{ width: 40 }} />
+            <col style={{ width: 160 }} />
+            {showCost && <col style={{ width: 110 }} />}
+            {showSell && <col style={{ width: 110 }} />}
+            <col style={{ width: 110 }} />
+            <col style={{ width: 90 }} />
+            <col style={{ width: 150 }} />
+            <col style={{ width: 90 }} />
+          </colgroup>
           <thead>
             <tr className="border-b border-border bg-muted/30">
-              <th className="w-10 px-3 py-3" />
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground min-w-[140px]">Trade</th>
+              <th className="px-3 py-3" />
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground truncate">Trade</th>
               {showCost && (
-                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground min-w-[110px]">Builder Cost</th>
+                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground truncate">Builder Cost</th>
               )}
               {showSell && (
-                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground min-w-[110px]">Client Price</th>
+                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground truncate">Client Price</th>
               )}
-              <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground min-w-[110px]">Benchmark</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground min-w-[90px]">Variance</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center min-w-[140px]">Range</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center min-w-[80px]">Status</th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground truncate">Benchmark</th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground truncate">Variance</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center truncate">Range</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center truncate">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -58,12 +83,6 @@ export function TradeComparisonTable({ trades, compareMode, isUploadSource = fal
               const statusLabel = Math.abs(t.variance) <= 5 ? "In Range" : t.variance > 0 ? "Above" : "Below";
               const statusColor = Math.abs(t.variance) <= 5 ? "bg-primary/10 text-primary" : t.variance > 0 ? "bg-warning/10 text-warning" : "bg-destructive/10 text-destructive";
               const compareValue = compareMode === "cost" ? t.yourCost : t.yourSell;
-
-              // Count visible columns for expanded row colspan
-              let colCount = 5; // expand + trade + benchmark + variance + status
-              if (showCost) colCount++;
-              if (showSell) colCount++;
-              colCount++; // range
 
               return (
                 <tbody key={t.trade}>
@@ -74,16 +93,16 @@ export function TradeComparisonTable({ trades, compareMode, isUploadSource = fal
                     <td className="px-3 py-3 text-center">
                       <ChevronDown size={14} className={`text-muted-foreground transition-transform inline-block ${isExpanded ? "rotate-180" : ""}`} />
                     </td>
-                    <td className="px-4 py-3 font-medium text-foreground">{t.trade}</td>
+                    <td className="px-4 py-3 font-medium text-foreground truncate">{t.trade}</td>
                     {showCost && (
-                      <td className="px-4 py-3 text-right text-muted-foreground tabular-nums font-mono text-xs">{fmt(t.yourCost)}</td>
+                      <td className="px-4 py-3 text-right text-muted-foreground tabular-nums font-mono text-xs truncate">{fmt(t.yourCost)}</td>
                     )}
                     {showSell && (
-                      <td className="px-4 py-3 text-right font-semibold text-foreground tabular-nums font-mono text-xs">{fmt(t.yourSell)}</td>
+                      <td className="px-4 py-3 text-right font-semibold text-foreground tabular-nums font-mono text-xs truncate">{fmt(t.yourSell)}</td>
                     )}
-                    <td className="px-4 py-3 text-right text-muted-foreground tabular-nums font-mono text-xs">{fmt(t.benchmark)}</td>
+                    <td className="px-4 py-3 text-right text-muted-foreground tabular-nums font-mono text-xs truncate">{fmt(t.benchmark)}</td>
                     <td className="px-4 py-3 text-right">
-                      <span className="inline-flex items-center gap-1 justify-end">
+                      <span className="inline-flex items-center gap-1 justify-end whitespace-nowrap">
                         {t.variance > 0 ? <TrendingUp size={12} className="text-warning" /> : t.variance < 0 ? <TrendingDown size={12} className="text-destructive" /> : <Minus size={12} className="text-muted-foreground" />}
                         <span className={`tabular-nums font-mono text-xs ${t.variance > 5 ? "text-warning" : t.variance < -5 ? "text-destructive" : "text-muted-foreground"}`}>
                           {t.variance > 0 ? "+" : ""}{t.variance}%
@@ -99,7 +118,7 @@ export function TradeComparisonTable({ trades, compareMode, isUploadSource = fal
                       />
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`text-[11px] px-2.5 py-1 rounded-full font-medium ${statusColor}`}>{statusLabel}</span>
+                      <span className={`text-[11px] px-2.5 py-1 rounded-full font-medium whitespace-nowrap ${statusColor}`}>{statusLabel}</span>
                     </td>
                   </tr>
                   {isExpanded && (

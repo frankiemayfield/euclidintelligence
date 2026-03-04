@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/app/AppLayout";
 import { Bot, Send, FileText, Sparkles, BarChart3, AlertTriangle, Ruler } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Message = { role: "atlas" | "user"; content: string; references?: { label: string; type: string }[] };
 
@@ -32,6 +32,11 @@ const contextItems = [
 export default function AtlasPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
+
+  useEffect(() => {
+    document.title = "Estimator Atlas — Bedrock";
+    return () => { document.title = "Bedrock — Construction Estimating Intelligence"; };
+  }, []);
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -85,7 +90,7 @@ export default function AtlasPage() {
                     <Bot size={16} className="text-primary" />
                   </div>
                 )}
-                <div className={`max-w-lg ${m.role === "user" ? "" : ""}`}>
+                <div className={`max-w-lg`}>
                   <div
                     className={`rounded-xl p-4 text-sm leading-relaxed ${
                       m.role === "user"

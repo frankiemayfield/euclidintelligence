@@ -118,16 +118,16 @@ export default function UploadPage() {
 
   return (
     <AppLayout>
-      <div className="p-6 lg:p-8 max-w-3xl mx-auto">
+      <div className="p-6 lg:p-8 max-w-5xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="font-display text-2xl font-bold text-foreground">Document Upload</h1>
           <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">Upload project files and configure how Bedrock should structure your project before analysis.</p>
         </div>
 
         {!transition ? (
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* === UPLOAD AREA === */}
-            <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
               <div
                 className="border-2 border-dashed border-primary/30 rounded-xl p-10 text-center cursor-pointer hover:border-primary/60 transition-colors"
                 onClick={addFiles}
@@ -142,7 +142,7 @@ export default function UploadPage() {
 
             {/* === FILE CLASSIFICATION === */}
             {files.length > 0 && (
-              <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
+              <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
                 <h2 className="font-display text-sm font-semibold text-foreground mb-1">File Classification</h2>
                 <p className="text-xs text-muted-foreground mb-4">Bedrock classifies uploads automatically. Reassign types, mark primary sources, or exclude files.</p>
 
@@ -207,157 +207,10 @@ export default function UploadPage() {
               </div>
             )}
 
-            {/* === PROJECT STRUCTURING PREFERENCES === */}
-            <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Settings2 size={16} className="text-primary" />
-                </div>
-                <div>
-                  <h2 className="font-display text-sm font-semibold text-foreground">Project Structuring Preferences</h2>
-                  <p className="text-[11px] text-muted-foreground">Tell Bedrock how to interpret and structure your project data.</p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-5">
-                {/* Cost Code System */}
-                <div>
-                  <label className="text-xs font-medium text-foreground mb-2 block flex items-center gap-1.5">
-                    <Layers size={12} className="text-primary" />
-                    Active Cost Code System
-                  </label>
-                  <div className="space-y-1.5">
-                    {costCodeSystems.map(sys => (
-                      <button key={sys.id} onClick={() => setActiveCostCode(sys.id)}
-                        className={`w-full text-left px-3 py-2.5 rounded-xl border transition-colors ${
-                          activeCostCode === sys.id
-                            ? "border-primary/40 bg-primary/5"
-                            : "border-border bg-background hover:border-primary/20"
-                        }`}>
-                        <div className="flex items-center gap-2">
-                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                            activeCostCode === sys.id ? "border-primary" : "border-muted-foreground/30"
-                          }`}>
-                            {activeCostCode === sys.id && <div className="w-2 h-2 rounded-full bg-primary" />}
-                          </div>
-                          <span className="text-xs font-medium text-foreground">{sys.label}</span>
-                        </div>
-                        <p className="text-[10px] text-muted-foreground ml-6 mt-0.5">{sys.description}</p>
-                      </button>
-                    ))}
-                    <button className="text-[10px] text-primary font-medium hover:underline ml-1 mt-1">
-                      + Upload Custom Codes
-                    </button>
-                  </div>
-                </div>
-
-                {/* Primary Workflow Goal */}
-                <div>
-                  <label className="text-xs font-medium text-foreground mb-2 block flex items-center gap-1.5">
-                    <Target size={12} className="text-primary" />
-                    Primary Workflow Goal
-                  </label>
-                  <div className="space-y-1.5">
-                    {workflowGoals.map(goal => (
-                      <button key={goal.id} onClick={() => setWorkflowGoal(goal.id)}
-                        className={`w-full text-left px-3 py-2.5 rounded-xl border transition-colors ${
-                          workflowGoal === goal.id
-                            ? "border-primary/40 bg-primary/5"
-                            : "border-border bg-background hover:border-primary/20"
-                        }`}>
-                        <div className="flex items-center gap-2">
-                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                            workflowGoal === goal.id ? "border-primary" : "border-muted-foreground/30"
-                          }`}>
-                            {workflowGoal === goal.id && <div className="w-2 h-2 rounded-full bg-primary" />}
-                          </div>
-                          <span className="text-xs font-medium text-foreground">{goal.label}</span>
-                        </div>
-                        <p className="text-[10px] text-muted-foreground ml-6 mt-0.5">{goal.description}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Primary Analysis Source */}
-                <div>
-                  <label className="text-xs font-medium text-foreground mb-2 block flex items-center gap-1.5">
-                    <FileText size={12} className="text-primary" />
-                    Primary Analysis Source
-                  </label>
-                  <div className="space-y-1.5">
-                    {analysisSources.map(src => (
-                      <button key={src.id} onClick={() => setAnalysisSource(src.id)}
-                        className={`w-full text-left px-3 py-2 rounded-xl border transition-colors ${
-                          analysisSource === src.id
-                            ? "border-primary/40 bg-primary/5"
-                            : "border-border bg-background hover:border-primary/20"
-                        }`}>
-                        <div className="flex items-center gap-2">
-                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                            analysisSource === src.id ? "border-primary" : "border-muted-foreground/30"
-                          }`}>
-                            {analysisSource === src.id && <div className="w-2 h-2 rounded-full bg-primary" />}
-                          </div>
-                          <span className="text-xs font-medium text-foreground">{src.label}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Estimate File Usage (conditional) */}
-                {hasEstimatesOrProposals ? (
-                  <div>
-                    <label className="text-xs font-medium text-foreground mb-2 block flex items-center gap-1.5">
-                      <FileText size={12} className="text-primary" />
-                      Estimate File Usage
-                    </label>
-                    <div className="space-y-1.5">
-                      {estimateUsageOptions.map(opt => (
-                        <button key={opt.id} onClick={() => setEstimateUsage(opt.id)}
-                          className={`w-full text-left px-3 py-2 rounded-xl border transition-colors ${
-                            estimateUsage === opt.id
-                              ? "border-primary/40 bg-primary/5"
-                              : "border-border bg-background hover:border-primary/20"
-                          }`}>
-                          <div className="flex items-center gap-2">
-                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                              estimateUsage === opt.id ? "border-primary" : "border-muted-foreground/30"
-                            }`}>
-                              {estimateUsage === opt.id && <div className="w-2 h-2 rounded-full bg-primary" />}
-                            </div>
-                            <span className="text-xs font-medium text-foreground">{opt.label}</span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <label className="text-xs font-medium text-foreground mb-2 block flex items-center gap-1.5">
-                      <Layers size={12} className="text-primary" />
-                      Preferred Estimate Structure
-                    </label>
-                    <div className="bg-background border border-border rounded-xl p-3">
-                      <p className="text-[10px] text-muted-foreground mb-2">Bedrock will organize scope into these sections:</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {estimateSections.map(sec => (
-                          <span key={sec} className="text-[10px] px-2 py-1 rounded-full bg-primary/8 text-primary border border-primary/10 font-medium">
-                            {sec}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* === PROJECT SETUP === */}
-            <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
+            {/* === PROJECT SETUP (moved above Project Structuring) === */}
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
               <h2 className="font-display text-sm font-semibold text-foreground mb-4">Project Setup</h2>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-3 gap-5">
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Project Name</label>
                   <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" defaultValue="Maple St. Kitchen Remodel" />
@@ -396,15 +249,152 @@ export default function UploadPage() {
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Job Number / Internal ID</label>
                   <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. MF-2024-042" />
                 </div>
-                <div className="md:col-span-2">
+                <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Notes</label>
                   <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="Optional project notes..." />
                 </div>
               </div>
             </div>
 
+            {/* === PROJECT STRUCTURING (simplified) === */}
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Settings2 size={16} className="text-primary" />
+                </div>
+                <div>
+                  <h2 className="font-display text-sm font-semibold text-foreground">Project Structuring</h2>
+                  <p className="text-[11px] text-muted-foreground">Tell Bedrock how to interpret and structure your project data.</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Cost Code System */}
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                    <Layers size={12} className="text-primary" />
+                    Active Cost Code System
+                  </label>
+                  {costCodeSystems.map(sys => (
+                    <button key={sys.id} onClick={() => setActiveCostCode(sys.id)}
+                      className={`w-full text-left px-3 py-2.5 rounded-xl border transition-colors ${
+                        activeCostCode === sys.id
+                          ? "border-primary/40 bg-primary/5"
+                          : "border-border bg-background hover:border-primary/20"
+                      }`}>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center ${
+                          activeCostCode === sys.id ? "border-primary" : "border-muted-foreground/30"
+                        }`}>
+                          {activeCostCode === sys.id && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                        </div>
+                        <span className="text-xs font-medium text-foreground">{sys.label}</span>
+                      </div>
+                    </button>
+                  ))}
+                  <button className="text-[10px] text-primary font-medium hover:underline ml-1">
+                    + Upload Custom Codes
+                  </button>
+                </div>
+
+                {/* Primary Workflow Goal */}
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                    <Target size={12} className="text-primary" />
+                    Primary Workflow Goal
+                  </label>
+                  {workflowGoals.map(goal => (
+                    <button key={goal.id} onClick={() => setWorkflowGoal(goal.id)}
+                      className={`w-full text-left px-3 py-2.5 rounded-xl border transition-colors ${
+                        workflowGoal === goal.id
+                          ? "border-primary/40 bg-primary/5"
+                          : "border-border bg-background hover:border-primary/20"
+                      }`}>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center ${
+                          workflowGoal === goal.id ? "border-primary" : "border-muted-foreground/30"
+                        }`}>
+                          {workflowGoal === goal.id && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                        </div>
+                        <span className="text-xs font-medium text-foreground">{goal.label}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Primary Analysis Source */}
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                    <FileText size={12} className="text-primary" />
+                    Primary Analysis Source
+                  </label>
+                  {analysisSources.map(src => (
+                    <button key={src.id} onClick={() => setAnalysisSource(src.id)}
+                      className={`w-full text-left px-3 py-2 rounded-xl border transition-colors ${
+                        analysisSource === src.id
+                          ? "border-primary/40 bg-primary/5"
+                          : "border-border bg-background hover:border-primary/20"
+                      }`}>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center ${
+                          analysisSource === src.id ? "border-primary" : "border-muted-foreground/30"
+                        }`}>
+                          {analysisSource === src.id && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                        </div>
+                        <span className="text-xs font-medium text-foreground">{src.label}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Estimate File Usage or Estimate Structure */}
+                {hasEstimatesOrProposals ? (
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                      <FileText size={12} className="text-primary" />
+                      Estimate File Usage
+                    </label>
+                    {estimateUsageOptions.map(opt => (
+                      <button key={opt.id} onClick={() => setEstimateUsage(opt.id)}
+                        className={`w-full text-left px-3 py-2 rounded-xl border transition-colors ${
+                          estimateUsage === opt.id
+                            ? "border-primary/40 bg-primary/5"
+                            : "border-border bg-background hover:border-primary/20"
+                        }`}>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center ${
+                            estimateUsage === opt.id ? "border-primary" : "border-muted-foreground/30"
+                          }`}>
+                            {estimateUsage === opt.id && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                          </div>
+                          <span className="text-xs font-medium text-foreground">{opt.label}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                      <Layers size={12} className="text-primary" />
+                      Preferred Estimate Structure
+                    </label>
+                    <div className="bg-background border border-border rounded-xl p-3">
+                      <p className="text-[10px] text-muted-foreground mb-2">Bedrock will organize scope into these sections:</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {estimateSections.map(sec => (
+                          <span key={sec} className="text-[10px] px-2 py-1 rounded-full bg-primary/8 text-primary border border-primary/10 font-medium">
+                            {sec}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* === DATA READINESS === */}
-            <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
               <div className="flex items-center gap-2 mb-3">
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isReady ? "bg-primary/10" : "bg-warning/10"}`}>
                   {isReady ? <CheckCircle size={16} className="text-primary" /> : <AlertCircle size={16} className="text-warning" />}
@@ -416,7 +406,7 @@ export default function UploadPage() {
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {[
                   { label: "Files uploaded", value: `${files.length}`, ok: files.length > 0 },
                   { label: "Classified", value: `${classifiedCount}`, ok: classifiedCount === files.length },
@@ -425,7 +415,7 @@ export default function UploadPage() {
                   { label: "Cost code system", value: activeCostCode === "16div" ? "16-Division" : "Custom", ok: true },
                   { label: "Workflow goal", value: workflowGoals.find(g => g.id === workflowGoal)?.label || "", ok: true },
                 ].map((item) => (
-                  <div key={item.label} className="flex items-center gap-2 bg-muted/20 rounded-xl px-3 py-2">
+                  <div key={item.label} className="flex items-center gap-2 bg-muted/20 rounded-xl px-3 py-2.5">
                     {item.ok ? (
                       <Check size={12} className="text-primary shrink-0" />
                     ) : (
