@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
-import { Upload, Search, Scale, Calculator, BarChart3, FileOutput } from "lucide-react";
+import { Upload, Search, Scale, Calculator, BarChart3, FileOutput, ChevronRight } from "lucide-react";
 
 const steps = [
   {
     icon: Upload,
     title: "Upload Documents",
-    desc: "Upload plans, bid sheets, Buildertrend exports, scope documents, or takeoff sheets. Bedrock ingests and structures the project data automatically."
+    desc: "Upload plans, bid sheets, Buildertrend exports, scope documents, or takeoff sheets. Bedrock ingests and structures project data automatically."
   },
   {
     icon: Search,
@@ -24,8 +24,8 @@ const steps = [
   },
   {
     icon: BarChart3,
-    title: "Pricing & Margin",
-    desc: "Benchmark your estimate against similar projects to evaluate pricing variance, margin targets, and Proposal Score."
+    title: "Market Comparison",
+    desc: "Benchmark your estimate against similar projects to evaluate pricing variance and calculate your Proposal Score."
   },
   {
     icon: FileOutput,
@@ -40,13 +40,38 @@ export function HowItWorks() {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center mb-14">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
-            How it Works
+            How It Works
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
             From documents to proposal in six simple steps.
           </p>
         </div>
 
+        {/* Layer 1 — Workflow Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex flex-wrap items-center justify-center gap-y-4 mb-16"
+        >
+          {steps.map((s, i) => (
+            <div key={s.title} className="flex items-center">
+              <div className="flex flex-col items-center gap-2 px-3 sm:px-5">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <s.icon className="text-primary" size={22} />
+                </div>
+                <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
+                  {s.title}
+                </span>
+              </div>
+              {i < steps.length - 1 && (
+                <ChevronRight className="text-muted-foreground/50 shrink-0 hidden sm:block" size={18} />
+              )}
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Layer 2 — Step Details */}
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((s, i) => (
             <motion.div
@@ -54,7 +79,7 @@ export function HowItWorks() {
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.15 }}
+              transition={{ delay: i * 0.1 }}
               className="text-center"
             >
               <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
