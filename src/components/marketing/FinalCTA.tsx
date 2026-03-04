@@ -20,7 +20,7 @@ export function FinalCTA() {
           <Button size="lg" className="gap-2" onClick={() => setBuildTransition(true)}>
             Build an Estimate <ArrowRight size={14} />
           </Button>
-          <Button size="lg" variant="outline" className="gap-2" onClick={() => setCompareTransition(true)}>
+          <Button size="lg" className="gap-2" onClick={() => setCompareTransition(true)}>
             <BarChart3 size={14} /> Market Comparison
           </Button>
         </div>
