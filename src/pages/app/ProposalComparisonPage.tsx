@@ -42,7 +42,7 @@ export default function ProposalComparisonPage() {
 
         {/* Market Fit Score */}
         <div className="bg-card border border-border rounded-xl p-8 shadow-card mb-6 text-center">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">Market Fit Score</p>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">Estimator Score</p>
           <div className="inline-flex items-center justify-center w-32 h-32 rounded-full border-4 border-primary/20 relative mb-4">
             <svg className="absolute inset-0 w-32 h-32 -rotate-90">
               <circle cx="64" cy="64" r="56" fill="none" stroke="hsl(140,50%,32%)" strokeWidth="5" strokeDasharray="351.8" strokeDashoffset="70" strokeLinecap="round" />
