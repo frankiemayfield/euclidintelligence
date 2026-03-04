@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import bedrockLogo from "@/assets/bedrock-logo.png";
+import bedrockLogo from "@/assets/bedrock-logo-new.png";
 
 export function MarketingFooter() {
   return (

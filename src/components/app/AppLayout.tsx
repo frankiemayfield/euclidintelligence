@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Upload, FileSearch, Table2, Bot,
   FileOutput, GitCompare, TrendingUp, Settings, ChevronLeft, BarChart3, ChevronDown, DollarSign
 } from "lucide-react";
-import bedrockLogo from "@/assets/bedrock-logo.png";
+import bedrockLogo from "@/assets/bedrock-logo-new.png";
 import { useState } from "react";
 
 const estimatorNavItems = [
