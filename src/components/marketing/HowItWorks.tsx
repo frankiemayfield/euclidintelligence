@@ -5,17 +5,17 @@ const steps = [
   {
     icon: Upload,
     title: "Upload Documents",
-    desc: "Upload plans, bid sheets, Buildertrend exports, scope documents, or takeoff sheets. Bedrock ingests and structures project data automatically."
+    desc: "Upload project files and configure how Bedrock should structure your project before analysis."
   },
   {
     icon: Search,
     title: "Scope Analysis",
-    desc: "The Scope Analyzer reviews project documents to detect missing scope, inconsistent assumptions, specification conflicts, and likely exclusions."
+    desc: "The Scope Analyzer reviews documents to detect missing scope, assemble bid packages, and calculate quantity takeoffs."
   },
   {
     icon: Scale,
     title: "Bid Leveling",
-    desc: "Standardize subcontractor bids and scope assumptions so trades can be compared consistently across proposals."
+    desc: "Standardize subcontractor bids and scope assumptions so trades can be compared consistently across your estimate."
   },
   {
     icon: Calculator,
@@ -24,8 +24,8 @@ const steps = [
   },
   {
     icon: BarChart3,
-    title: "Market Comparison",
-    desc: "Benchmark your estimate against similar projects to evaluate pricing variance and calculate your Proposal Score."
+    title: "Markup and Comparsion",
+    desc: "Evaluate pricing variance, set margin targets, and see how your estimate compares to similar projects."
   },
   {
     icon: FileOutput,
