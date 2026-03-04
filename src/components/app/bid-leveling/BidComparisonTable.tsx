@@ -9,16 +9,32 @@ interface BidComparisonTableProps {
   onToggleExpand: (sub: string) => void;
 }
 
-export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidComparisonTableProps) {
-  const avgLeveled = items.length ? Math.round(items.reduce((s, b) => s + b.leveledTotal, 0) / items.length) : 0;
+// Filter out non-lifecycle statuses for display
+const lifecycleStatuses = new Set([
+  "Draft Scope", "Sent to Sub", "Awaiting Bid", "Bid Received",
+  "Needs Clarification", "Ready to Compare", "Sent to Estimate"
+]);
 
+function getLevelingState(b: SubBid): { label: string; className: string } {
+  const unresolvedExclusions = b.exclusions.filter(e => e.disposition === "unresolved").length;
+  const unresolvedClarifications = b.clarifications.filter(c => !c.resolved).length;
+  if (unresolvedExclusions === 0 && unresolvedClarifications === 0) {
+    return { label: "Leveling Complete", className: "bg-primary/10 text-primary" };
+  }
+  if (unresolvedClarifications > 0) {
+    return { label: "Awaiting Clarification", className: "bg-warning/10 text-warning" };
+  }
+  return { label: "Needs Carry Decisions", className: "bg-destructive/10 text-destructive" };
+}
+
+export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidComparisonTableProps) {
   return (
     <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm table-fixed">
           <colgroup>
             <col className="w-[32px]" />
-            <col className="w-[18%]" />
+            <col className="w-[22%]" />
             <col className="w-[11%]" />
             <col className="w-[10%]" />
             <col className="w-[11%]" />
@@ -26,7 +42,7 @@ export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidCo
             <col className="w-[7%]" />
             <col className="w-[7%]" />
             <col className="w-[10%]" />
-            <col className="w-[17%]" />
+            <col className="w-[13%]" />
           </colgroup>
           <thead>
             <tr className="border-b border-border bg-muted/30">
@@ -45,9 +61,9 @@ export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidCo
           <tbody>
             {items.map((b) => {
               const isExpanded = expandedSub === b.sub;
-              const diff = b.leveledTotal - avgLeveled;
-              const lowestLeveled = Math.min(...items.map(i => i.leveledTotal));
-              const isLowest = b.leveledTotal === lowestLeveled;
+              const levelingState = getLevelingState(b);
+              // Determine display status — use lifecycle status only, not "Selected"
+              const displayStatus = b.status === "Selected" ? "Bid Received" : b.status;
 
               return (
                 <>
@@ -60,9 +76,16 @@ export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidCo
                       <ChevronDown size={14} className={`text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                     </td>
                     <td className="px-3 py-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium text-foreground">{b.sub}</span>
-                        {b.selected && <Star size={12} className="text-primary fill-primary" />}
+                        {b.recommended && (
+                          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+                            Recommended
+                          </span>
+                        )}
+                        {b.selected && (
+                          <Star size={12} className="text-primary fill-primary shrink-0" />
+                        )}
                       </div>
                     </td>
                     <td className="px-3 py-3 text-right font-display font-semibold text-muted-foreground">
@@ -76,10 +99,7 @@ export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidCo
                       )}
                     </td>
                     <td className="px-3 py-3 text-right font-display font-bold text-foreground">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {formatCurrency(b.leveledTotal)}
-                        {isLowest && <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">Lowest</span>}
-                      </div>
+                      {formatCurrency(b.leveledTotal)}
                     </td>
                     <td className="px-3 py-3 text-center">
                       <span className={`text-xs font-semibold ${b.packageCoverage >= 90 ? "text-primary" : b.packageCoverage >= 70 ? "text-warning" : "text-destructive"}`}>
@@ -101,34 +121,31 @@ export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidCo
                       )}
                     </td>
                     <td className="px-3 py-3 text-center">
-                      <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${statusColors[b.status]}`}>
-                        {b.status}
+                      <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${statusColors[displayStatus as keyof typeof statusColors] || statusColors[b.status]}`}>
+                        {displayStatus}
                       </span>
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex items-center justify-end gap-1.5">
-                        {b.recommended && (
-                          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
-                            Recommended
-                          </span>
-                        )}
-                        {b.selected && !b.recommended && (
-                          <span className="text-[10px] bg-accent text-accent-foreground px-2 py-0.5 rounded-full font-medium">
-                            Selected
-                          </span>
-                        )}
                         {b.status !== "Sent to Estimate" && (
                           <Button size="sm" variant="outline" className="text-[11px] h-6 px-2 rounded-lg" onClick={(e) => e.stopPropagation()}>
                             <Send size={10} className="mr-1" /> Send to Estimate
                           </Button>
                         )}
+                        {b.status === "Sent to Estimate" && (
+                          <span className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                            Sent to Estimate
+                          </span>
+                        )}
                       </div>
                     </td>
                   </tr>
                   {isExpanded && (
-                    <tr key={`${b.sub}-detail`} className="border-b border-border bg-muted/5">
-                      <td colSpan={10} className="p-0">
-                        <BidDetailPanel bid={b} />
+                    <tr key={`${b.sub}-detail`}>
+                      <td colSpan={10} className="p-0 border-b border-border">
+                        <div className="border-l-2 border-primary/30 bg-muted/5">
+                          <BidDetailPanel bid={b} levelingState={levelingState} />
+                        </div>
                       </td>
                     </tr>
                   )}
