@@ -160,7 +160,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
             <Bot size={16} className="text-primary" />
           </div>
-          <p className="text-sm font-bold text-foreground font-display">Atlas - Estimator Assistant</p>
+          <p className="text-sm font-bold text-foreground font-display">Estimator Atlas</p>
         </div>
         <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted/50">
           <X size={16} />
