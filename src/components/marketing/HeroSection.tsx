@@ -110,8 +110,9 @@ export function HeroSection() {
                   { label: "Trade Coverage", value: "88%", color: "text-primary" },
                   { label: "Pricing Confidence", value: "High", color: "text-primary" },
                   { label: "Overall Variance", value: "+4.8%", color: "text-warning" },
-                  { label: "Gross Margin", value: "15.1%", color: "text-warning", sub: "Peer: 16.2%" },
+                  { label: "Gross Margin", value: "24.0%", color: "text-primary", sub: "Peer: 16.2%" },
                   { label: "Scope Gaps", value: "3 flags", color: "text-warning" },
+                  { label: "Market Position", value: "In Range", color: "text-primary" },
                 ].map((m) => (
                   <div key={m.label} className="bg-muted/20 rounded-lg p-2.5">
                     <p className="text-[10px] text-muted-foreground">{m.label}</p>
