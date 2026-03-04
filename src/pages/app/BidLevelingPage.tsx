@@ -1,7 +1,8 @@
 import { AppLayout } from "@/components/app/AppLayout";
 import { useState } from "react";
-import { CheckCircle, AlertTriangle, Info, Upload, FileText, X, ChevronDown, Send, ArrowRight } from "lucide-react";
+import { CheckCircle, AlertTriangle, Info, FileText, ChevronDown, Send, ArrowRight, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const trades = ["Electrical", "Plumbing", "HVAC", "Drywall", "Framing"];
 
@@ -10,44 +11,45 @@ type BidStatus = "Draft Scope" | "Sent to Sub" | "Awaiting Bid" | "Bid Received"
 interface SubBid {
   sub: string; total: number; notes: string; recommended?: boolean; status: BidStatus;
   scopeNotes: string[]; inclusions: string[]; exclusions: string[];
+  uploadedFrom: string;
 }
 
 const bids: Record<string, SubBid[]> = {
   Electrical: [
     { sub: "Spark Electric Co.", total: 16800, notes: "Includes panel upgrade", recommended: true, status: "Selected",
-      scopeNotes: ["Full scope", "Includes permit fees"], inclusions: ["200A panel upgrade", "All circuits per plan", "Permit fees", "Fixture trim-out"], exclusions: ["Low voltage / data", "Generator hookup"] },
+      scopeNotes: ["Full scope", "Includes permit fees"], inclusions: ["200A panel upgrade", "All circuits per plan", "Permit fees", "Fixture trim-out"], exclusions: ["Low voltage / data", "Generator hookup"], uploadedFrom: "Spark_Electric_Bid.pdf" },
     { sub: "BrightWire LLC", total: 18200, notes: "Includes permit fees", status: "Bid Received",
-      scopeNotes: ["Excludes panel upgrade", "Assumes owner-supplied fixtures"], inclusions: ["Rough-in only", "Permit fees"], exclusions: ["Panel upgrade", "Fixture supply", "Low voltage"] },
+      scopeNotes: ["Excludes panel upgrade", "Assumes owner-supplied fixtures"], inclusions: ["Rough-in only", "Permit fees"], exclusions: ["Panel upgrade", "Fixture supply", "Low voltage"], uploadedFrom: "BrightWire_Quote.pdf" },
     { sub: "Metro Electrical", total: 21400, notes: "Premium fixtures included", status: "Bid Received",
-      scopeNotes: ["Premium fixtures included", "Full scope"], inclusions: ["Full rough + finish", "Premium fixtures", "Panel upgrade", "Permit fees"], exclusions: ["Generator"] },
+      scopeNotes: ["Premium fixtures included", "Full scope"], inclusions: ["Full rough + finish", "Premium fixtures", "Panel upgrade", "Permit fees"], exclusions: ["Generator"], uploadedFrom: "Metro_Electrical_Bid.pdf" },
   ],
   Plumbing: [
     { sub: "AquaFlow Plumbing", total: 18500, recommended: true, notes: "Includes rough + finish", status: "Selected",
-      scopeNotes: ["Full rough + finish", "Includes fixtures"], inclusions: ["Full rough-in", "Finish plumbing", "Fixture supply"], exclusions: ["Gas piping", "Water heater"] },
+      scopeNotes: ["Full rough + finish", "Includes fixtures"], inclusions: ["Full rough-in", "Finish plumbing", "Fixture supply"], exclusions: ["Gas piping", "Water heater"], uploadedFrom: "AquaFlow_Plumbing_Bid.pdf" },
     { sub: "PipeMasters Inc.", total: 19800, notes: "Excludes fixtures", status: "Needs Clarification",
-      scopeNotes: ["Excludes fixtures", "Rough-in only"], inclusions: ["Rough-in only"], exclusions: ["Fixtures", "Finish plumbing", "Gas piping"] },
+      scopeNotes: ["Excludes fixtures", "Rough-in only"], inclusions: ["Rough-in only"], exclusions: ["Fixtures", "Finish plumbing", "Gas piping"], uploadedFrom: "PipeMasters_Quote.pdf" },
     { sub: "RedLine Plumbing", total: 22100, notes: "Includes fixture allowance", status: "Bid Received",
-      scopeNotes: ["Includes fixture allowance", "Full scope"], inclusions: ["Full rough + finish", "$3,500 fixture allowance"], exclusions: ["Gas piping"] },
+      scopeNotes: ["Includes fixture allowance", "Full scope"], inclusions: ["Full rough + finish", "$3,500 fixture allowance"], exclusions: ["Gas piping"], uploadedFrom: "RedLine_Plumbing.pdf" },
   ],
   HVAC: [
     { sub: "CoolAir Systems", total: 14200, notes: "Equipment only", status: "Needs Clarification",
-      scopeNotes: ["Equipment only", "Excludes ductwork"], inclusions: ["Equipment supply", "Equipment install"], exclusions: ["Ductwork", "Controls", "Startup"] },
+      scopeNotes: ["Equipment only", "Excludes ductwork"], inclusions: ["Equipment supply", "Equipment install"], exclusions: ["Ductwork", "Controls", "Startup"], uploadedFrom: "CoolAir_Bid.pdf" },
     { sub: "ComfortPro HVAC", total: 16900, recommended: true, notes: "Includes ductwork", status: "Ready to Compare",
-      scopeNotes: ["Includes ductwork", "Full scope"], inclusions: ["Equipment", "Ductwork", "Controls", "Startup", "Balancing"], exclusions: ["Electrical connection"] },
+      scopeNotes: ["Includes ductwork", "Full scope"], inclusions: ["Equipment", "Ductwork", "Controls", "Startup", "Balancing"], exclusions: ["Electrical connection"], uploadedFrom: "ComfortPro_Bid.pdf" },
     { sub: "TempRight Mechanical", total: 19500, notes: "Premium equipment", status: "Bid Received",
-      scopeNotes: ["Premium equipment", "Full scope"], inclusions: ["Premium equipment", "Ductwork", "Controls", "Startup"], exclusions: ["Electrical connection"] },
+      scopeNotes: ["Premium equipment", "Full scope"], inclusions: ["Premium equipment", "Ductwork", "Controls", "Startup"], exclusions: ["Electrical connection"], uploadedFrom: "TempRight_Bid.pdf" },
   ],
   Drywall: [
     { sub: "SmoothWall Inc.", total: 12160, recommended: true, notes: "Hang, tape, finish L5", status: "Selected",
-      scopeNotes: ["Full scope Level 5"], inclusions: ["Hang", "Tape", "Level 5 finish", "Cleanup"], exclusions: ["Insulation", "Framing"] },
+      scopeNotes: ["Full scope Level 5"], inclusions: ["Hang", "Tape", "Level 5 finish", "Cleanup"], exclusions: ["Insulation", "Framing"], uploadedFrom: "SmoothWall_Bid.pdf" },
     { sub: "GypBoard Pros", total: 13400, notes: "Includes soundproofing", status: "Bid Received",
-      scopeNotes: ["Includes soundproofing", "Assumes owner-supplied materials"], inclusions: ["Hang", "Tape", "Level 4 finish", "Soundproofing"], exclusions: ["Material supply"] },
+      scopeNotes: ["Includes soundproofing", "Assumes owner-supplied materials"], inclusions: ["Hang", "Tape", "Level 4 finish", "Soundproofing"], exclusions: ["Material supply"], uploadedFrom: "GypBoard_Bid.pdf" },
   ],
   Framing: [
     { sub: "TrueFrame Carpentry", total: 23800, recommended: true, notes: "Full framing package", status: "Sent to Estimate",
-      scopeNotes: ["Full framing package", "Includes sheathing"], inclusions: ["All framing", "Sheathing", "Hardware", "Blocking"], exclusions: ["Engineered lumber supply"] },
+      scopeNotes: ["Full framing package", "Includes sheathing"], inclusions: ["All framing", "Sheathing", "Hardware", "Blocking"], exclusions: ["Engineered lumber supply"], uploadedFrom: "TrueFrame_Bid.pdf" },
     { sub: "SquareEdge Builders", total: 25200, notes: "Includes sheathing", status: "Awaiting Bid",
-      scopeNotes: ["Includes sheathing", "Excludes hardware"], inclusions: ["Framing labor", "Sheathing"], exclusions: ["Hardware", "Blocking", "Engineered lumber"] },
+      scopeNotes: ["Includes sheathing", "Excludes hardware"], inclusions: ["Framing labor", "Sheathing"], exclusions: ["Hardware", "Blocking", "Engineered lumber"], uploadedFrom: "SquareEdge_Quote.pdf" },
   ],
 };
 
@@ -65,7 +67,6 @@ const statusColors: Record<BidStatus, string> = {
 export default function BidLevelingPage() {
   const [activeTrade, setActiveTrade] = useState("Electrical");
   const [expandedSub, setExpandedSub] = useState<string | null>(null);
-  const [uploadedBids, setUploadedBids] = useState<string[]>(["Spark_Electric_Bid.pdf", "BrightWire_Quote.pdf"]);
   const items = bids[activeTrade] || [];
 
   const formatCurrency = (n: number) => `$${n.toLocaleString()}`;
@@ -79,42 +80,33 @@ export default function BidLevelingPage() {
   return (
     <AppLayout>
       <div className="p-6 lg:p-8 max-w-6xl">
-        <div className="mb-6">
-          <h1 className="font-display text-2xl font-bold text-foreground">Bid Leveling</h1>
-          <p className="text-sm text-muted-foreground mt-1">Compare subcontractor bids side-by-side — define scope, compare pricing, send to estimate</p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="font-display text-2xl font-bold text-foreground">Bid Leveling</h1>
+            <p className="text-sm text-muted-foreground mt-1">Compare subcontractor bids side-by-side — review uploaded bids by trade package</p>
+          </div>
         </div>
 
-        {/* Upload Area */}
-        <div className="bg-card border border-border rounded-xl shadow-card p-5 mb-6">
-          <h3 className="font-display text-sm font-semibold text-foreground mb-3">Uploaded Sub Bids</h3>
-          <div className="flex gap-3 flex-wrap mb-3">
-            {uploadedBids.map((f, i) => (
-              <div key={i} className="flex items-center gap-2 bg-muted/30 rounded-lg px-3 py-2">
-                <FileText size={14} className="text-primary" />
-                <span className="text-xs text-foreground">{f}</span>
-                <button onClick={() => setUploadedBids(uploadedBids.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-destructive"><X size={12} /></button>
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={() => setUploadedBids([...uploadedBids, `Sub_Bid_${uploadedBids.length + 1}.pdf`])}
-            className="border-2 border-dashed border-primary/30 rounded-lg px-4 py-3 text-xs text-muted-foreground hover:border-primary/60 hover:text-foreground transition-colors flex items-center gap-2"
-          >
-            <Upload size={14} /> Drop sub bid PDFs here or click to upload
-          </button>
+        {/* Source reference */}
+        <div className="bg-muted/30 border border-border rounded-lg px-4 py-2.5 mb-6 flex items-center gap-2 text-xs text-muted-foreground">
+          <Upload size={12} className="text-primary" />
+          <span>Subcontractor bids imported from <Link to="/app/upload" className="text-primary font-medium hover:underline">Document Upload</Link>. Add new bids there.</span>
         </div>
 
         {/* Trade Tabs */}
         <div className="flex gap-2 mb-6 flex-wrap">
-          {trades.map((t) => (
-            <button key={t} onClick={() => { setActiveTrade(t); setExpandedSub(null); }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTrade === t ? "bg-primary/10 text-primary" : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}>
-              {t}
-            </button>
-          ))}
+          {trades.map((t) => {
+            const tradeItems = bids[t] || [];
+            return (
+              <button key={t} onClick={() => { setActiveTrade(t); setExpandedSub(null); }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTrade === t ? "bg-primary/10 text-primary" : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}>
+                {t} <span className="text-[10px] ml-1 opacity-70">({tradeItems.length})</span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Coverage Comparison */}
+        {/* Coverage cards */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-card border border-border rounded-lg p-3 shadow-card flex items-center gap-2">
             <CheckCircle size={14} className="text-primary" />
@@ -192,7 +184,7 @@ export default function BidLevelingPage() {
                     {isExpanded && (
                       <tr key={`${b.sub}-detail`} className="border-b border-border bg-muted/10">
                         <td colSpan={7} className="p-4">
-                          <div className="grid md:grid-cols-2 gap-4 text-xs">
+                          <div className="grid md:grid-cols-3 gap-4 text-xs">
                             <div>
                               <h4 className="font-display font-semibold text-foreground text-sm mb-2">Scope Inclusions</h4>
                               <div className="space-y-1">
@@ -205,12 +197,20 @@ export default function BidLevelingPage() {
                               <h4 className="font-display font-semibold text-foreground text-sm mb-2">Exclusions</h4>
                               <div className="space-y-1">
                                 {b.exclusions.map((exc, i) => (
-                                  <div key={i} className="flex items-center gap-2"><X size={11} className="text-destructive" /><span className="text-foreground">{exc}</span></div>
+                                  <div key={i} className="flex items-center gap-2"><span className="text-destructive">✕</span><span className="text-foreground">{exc}</span></div>
                                 ))}
                               </div>
                               <div className="mt-3 pt-2 border-t border-border">
-                                <p className="text-muted-foreground mb-1">Notes: {b.notes}</p>
+                                <p className="text-muted-foreground">Notes: {b.notes}</p>
                               </div>
+                            </div>
+                            <div>
+                              <h4 className="font-display font-semibold text-foreground text-sm mb-2">Source</h4>
+                              <div className="flex items-center gap-2 bg-muted/30 rounded-lg px-3 py-2">
+                                <FileText size={12} className="text-primary" />
+                                <span className="text-foreground">{b.uploadedFrom}</span>
+                              </div>
+                              <p className="text-muted-foreground mt-2">Imported from <Link to="/app/upload" className="text-primary hover:underline">Document Upload</Link></p>
                             </div>
                           </div>
                         </td>
