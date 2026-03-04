@@ -56,7 +56,7 @@ export function MarketingHeader() {
             Sign In
           </Button>
           <Button size="sm" onClick={() => navigate("/app/upload")}>
-            Get My Estimate
+            Create Account
           </Button>
         </div>
 
@@ -85,7 +85,7 @@ export function MarketingHeader() {
               Sign In
             </Button>
             <Button size="sm" onClick={() => navigate("/app/upload")}>
-              Get My Estimate
+              Create Account
             </Button>
           </div>
         </div>
