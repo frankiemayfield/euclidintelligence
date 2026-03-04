@@ -1,11 +1,11 @@
 import { AppLayout } from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
 import {
-  Download, Eye, FileText, ToggleLeft, ToggleRight, Upload, Save, Copy, Send, Lock, AlertTriangle,
+  Download, Eye, FileText, ToggleLeft, ToggleRight, Upload, Save, Copy, Send, Lock,
   CheckCircle, Palette, X, Plus, Pencil, Clock, Shield, ZoomIn, ZoomOut,
-  ChevronLeft, ChevronRight, Check, FileCode
+  ChevronLeft, ChevronRight, Check, FileCode, GripVertical, RotateCcw
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 
 interface ProposalSection {
   id: string;
@@ -22,20 +22,18 @@ const initialSections: ProposalSection[] = [
   { id: "summary", title: "Proposal Summary", desc: "Executive overview with project details, total cost, and timeline", status: "ready", included: true, editing: false, content: "This proposal covers the complete renovation of the Maple St. Kitchen, including demolition, framing, electrical, plumbing, HVAC modifications, cabinetry, countertops, flooring, and finish work. Total project cost: $168,700. Estimated duration: 8–10 weeks.", internalNotes: "" },
   { id: "prebuild", title: "Pre-Build Requirements", desc: "Preconstruction, permitting, design, and engineering costs", status: "ready", included: true, editing: false, content: "Permitting & Fees: $4,700\nDesign & Engineering: $12,700\nSite Investigation & Survey: $6,300\nPlanning & Coordination: $3,000\nHOA Submission: $800", internalNotes: "" },
   { id: "scope", title: "Scope Summary", desc: "Detailed scope of work organized by trade with inclusions and exclusions", status: "ready", included: true, editing: false, content: "Division 06 – Wood & Plastics: Custom cabinetry, blocking, trim carpentry\nDivision 09 – Finishes: Drywall, tile backsplash, interior paint\nDivision 22 – Plumbing: Fixture rough-in and finals\nDivision 26 – Electrical: Panel upgrade, lighting, device rough-in", internalNotes: "" },
-  { id: "cost", title: "Cost Breakdown", desc: "Client-friendly cost breakdown by category with subtotals", status: "ready", included: true, editing: false, content: "Pre-Build Requirements: $27,500\nDemolition: $8,200\nFraming & Carpentry: $22,400\nElectrical: $18,600\nPlumbing: $14,800\nHVAC: $14,200\nCabinetry & Millwork: $32,500\nCountertops: $12,400\nFlooring: $9,800\nDrywall & Paint: $11,200\nCleanup & Final: $4,600\nGeneral Conditions: $20,000", internalNotes: "Check HVAC allowance before sending" },
-  { id: "alternates", title: "Alternates & Options", desc: "Optional upgrades and value-engineering alternatives", status: "ready", included: true, editing: false, content: "Alt 1: Upgrade to quartz countertops — Add $4,200\nAlt 2: Under-cabinet LED lighting package — Add $1,800\nVE 1: Standard grade cabinets instead of custom — Deduct $8,400", internalNotes: "" },
-  { id: "allowances", title: "Allowance Schedule", desc: "Itemized allowances with descriptions and amounts", status: "ready", included: true, editing: false, content: "Plumbing fixtures: $3,500 allowance\nLight fixtures: $2,800 allowance\nAppliance package: $6,500 allowance\nTile selection: $2,200 allowance", internalNotes: "" },
-  { id: "generalreqs", title: "General Requirements", desc: "Job-wide conditions, supervision, and site overhead", status: "ready", included: true, editing: false, content: "Dumpster & Hauling: $4,200\nTemporary Facilities: $2,910\nSite Protection: $2,400\nDaily & Final Clean: $3,600\nSupervision: $28,800\nMobilization: $3,200\nSafety & Equipment: $5,700", internalNotes: "Supervision is internal cost — consider hiding from client view" },
+  { id: "cost", title: "Cost Breakdown", desc: "Client-friendly cost breakdown by category with subtotals", status: "ready", included: true, editing: false, content: "Pre-Build Requirements ..... $27,500\nDemolition ..... $8,200\nFraming & Carpentry ..... $22,400\nElectrical ..... $18,600\nPlumbing ..... $14,800\nHVAC ..... $14,200\nCabinetry & Millwork ..... $32,500\nCountertops ..... $12,400\nFlooring ..... $9,800\nDrywall & Paint ..... $11,200\nCleanup & Final ..... $4,600\nGeneral Conditions ..... $20,000", internalNotes: "Check HVAC allowance before sending" },
+  { id: "alternates", title: "Alternates & Options", desc: "Optional upgrades and value-engineering alternatives", status: "ready", included: true, editing: false, content: "Alt 1: Upgrade to quartz countertops ..... Add $4,200\nAlt 2: Under-cabinet LED lighting package ..... Add $1,800\nVE 1: Standard grade cabinets instead of custom ..... Deduct $8,400", internalNotes: "" },
+  { id: "allowances", title: "Allowance Schedule", desc: "Itemized allowances with descriptions and amounts", status: "ready", included: true, editing: false, content: "Plumbing fixtures ..... $3,500\nLight fixtures ..... $2,800\nAppliance package ..... $6,500\nTile selection ..... $2,200", internalNotes: "" },
+  { id: "generalreqs", title: "General Requirements", desc: "Job-wide conditions, supervision, and site overhead", status: "ready", included: true, editing: false, content: "Dumpster & Hauling ..... $4,200\nTemporary Facilities ..... $2,910\nSite Protection ..... $2,400\nDaily & Final Clean ..... $3,600\nSupervision ..... $28,800\nMobilization ..... $3,200\nSafety & Equipment ..... $5,700", internalNotes: "Supervision is internal cost — consider hiding from client view" },
   { id: "exclusions", title: "Exclusions List", desc: "Items explicitly excluded from the scope and pricing", status: "ready", included: true, editing: false, content: "• Permits and inspection fees\n• Furniture, fixtures & equipment (FF&E)\n• Appliance procurement\n• Landscaping or exterior work\n• Asbestos or hazmat abatement\n• Structural engineering", internalNotes: "" },
   { id: "clarifications", title: "Clarifications & Exclusions", desc: "Items requiring client clarification before finalizing", status: "ready", included: true, editing: false, content: "• Confirm final cabinet layout before ordering\n• Tile selection must be finalized 4 weeks before install\n• Owner to confirm appliance models for rough-in dimensions\n• Electrical panel location subject to field verification", internalNotes: "" },
   { id: "terms", title: "Terms & Conditions", desc: "Standard contract terms, payment schedule, and warranty info", status: "ready", included: true, editing: false, content: "Payment Schedule:\n• 10% deposit upon signing\n• 30% at rough-in completion\n• 30% at finish stage\n• 30% upon substantial completion\n\nWarranty: 1-year workmanship warranty from date of substantial completion.\n\nChange Orders: All changes must be documented in writing and approved before work proceeds. Additional costs will be billed at agreed-upon rates.", internalNotes: "" },
 ];
 
-const viewModes = ["Full Proposal", "Client View", "Section Preview"] as const;
 const proposalStates = ["Draft", "Ready for Review", "Finalized"] as const;
 type MarginSetting = "narrow" | "standard" | "wide";
 
-// Pricing summary row type
 interface PricingRow {
   id: string; label: string; value: string; visible: boolean;
 }
@@ -53,7 +51,6 @@ const defaultPricingRows: PricingRow[] = [
 
 export default function ProposalPage() {
   const [sections, setSections] = useState<ProposalSection[]>(initialSections);
-  const [activeView, setActiveView] = useState<typeof viewModes[number]>("Full Proposal");
   const [proposalState, setProposalState] = useState<typeof proposalStates[number]>("Draft");
   const [locked, setLocked] = useState(false);
   const [showCoverPage, setShowCoverPage] = useState(true);
@@ -63,6 +60,7 @@ export default function ProposalPage() {
   const [showPrice, setShowPrice] = useState(true);
   const [showBuilderCost, setShowBuilderCost] = useState(false);
   const [showSubcontractor, setShowSubcontractor] = useState(false);
+  const [showProjectDetails, setShowProjectDetails] = useState(true);
   const [pageMargins, setPageMargins] = useState<MarginSetting>("standard");
   const [previewZoom, setPreviewZoom] = useState(100);
   const [previewPage, setPreviewPage] = useState(1);
@@ -79,13 +77,12 @@ export default function ProposalPage() {
   const [pricingRows, setPricingRows] = useState<PricingRow[]>(defaultPricingRows);
   const [editingPricing, setEditingPricing] = useState(false);
 
-  const readySections = sections.filter(s => s.status === "ready" && s.included).length;
+  // Drag state
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+
+  const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
   const includedSections = sections.filter(s => s.included).length;
-  const draftSections = sections.filter(s => s.status === "draft" && s.included);
-  const warnings: string[] = [];
-  if (!validThrough) warnings.push("Expiration date missing");
-  if (draftSections.length > 0) warnings.push(`${draftSections.length} section(s) still in draft`);
-  if (!sections.find(s => s.id === "exclusions")?.included) warnings.push("No exclusions section included");
 
   const toggleSection = (id: string, field: "included" | "editing") => {
     setSections(prev => prev.map(s => s.id === id ? { ...s, [field]: !s[field] } : s));
@@ -101,7 +98,6 @@ export default function ProposalPage() {
 
   const marginPx = pageMargins === "narrow" ? 24 : pageMargins === "wide" ? 48 : 32;
 
-  // Get sections for the current preview page
   const getPageSections = (page: number) => {
     let contentPageStart = showCoverPage ? 2 : 1;
     if (page < contentPageStart) return { type: "cover" as const };
@@ -116,13 +112,78 @@ export default function ProposalPage() {
     return { type: "content" as const, sections: pageSections };
   };
 
+  const jumpToPage = useCallback((page: number) => {
+    const clamped = Math.max(1, Math.min(totalPages, page));
+    setPreviewPage(clamped);
+    const el = pageRefs.current[clamped];
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [totalPages]);
+
+  // Drag and drop handlers
+  const handleDragStart = (idx: number) => {
+    setDragIdx(idx);
+  };
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    if (dragIdx === null || dragIdx === idx) return;
+    setSections(prev => {
+      const updated = [...prev];
+      const [moved] = updated.splice(dragIdx, 1);
+      updated.splice(idx, 0, moved);
+      return updated;
+    });
+    setDragIdx(idx);
+  };
+  const handleDragEnd = () => {
+    setDragIdx(null);
+  };
+
+  // Helper to render price-aligned content lines in preview
+  const renderContentWithPrices = (content: string) => {
+    return content.split("\n").map((line, i) => {
+      // Detect lines with a price pattern at end like "$1,234" or "Add $1,234" or "Deduct $1,234"
+      const priceMatch = line.match(/^(.+?)\s*\.{2,}\s*(.+)$/);
+      if (priceMatch) {
+        return (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+            <span>{priceMatch[1].trim()}</span>
+            <span style={{ textAlign: "right", whiteSpace: "nowrap", fontWeight: 600 }}>{priceMatch[2].trim()}</span>
+          </div>
+        );
+      }
+      // Also detect "Label: $amount" pattern
+      const colonPrice = line.match(/^(.+?):\s*(\$[\d,]+(?:\.\d+)?(?:\s+allowance)?)$/);
+      if (colonPrice) {
+        return (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+            <span>{colonPrice[1].trim()}</span>
+            <span style={{ textAlign: "right", whiteSpace: "nowrap", fontWeight: 600 }}>{colonPrice[2].trim()}</span>
+          </div>
+        );
+      }
+      // Also detect "Alt N: description — Add/Deduct $X" patterns
+      const altMatch = line.match(/^(.+?)\s+[—–-]\s+((?:Add|Deduct)\s+\$[\d,]+)$/);
+      if (altMatch) {
+        return (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+            <span>{altMatch[1].trim()}</span>
+            <span style={{ textAlign: "right", whiteSpace: "nowrap", fontWeight: 600 }}>{altMatch[2].trim()}</span>
+          </div>
+        );
+      }
+      return <div key={i}>{line}</div>;
+    });
+  };
+
   return (
     <AppLayout>
       <div className="flex h-full overflow-hidden">
         {/* LEFT: Editor Panel */}
         <div className="flex-1 overflow-y-auto border-r border-border">
           <div className="p-5 lg:p-6 max-w-3xl">
-            {/* Page Header with editable title */}
+            {/* Page Header */}
             <div className="flex items-center justify-between mb-5">
               <div className="flex-1">
                 <input
@@ -162,31 +223,6 @@ export default function ProposalPage() {
               ))}
             </div>
 
-            {/* Readiness Panel */}
-            <div className="bg-card border border-border rounded-xl p-4 shadow-card mb-5">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-display text-sm font-semibold text-foreground">Document Readiness</h3>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                  warnings.length === 0 ? "bg-primary/10 text-primary" : "bg-warning/10 text-warning"
-                }`}>
-                  {warnings.length === 0 ? "Ready to Export" : `${warnings.length} Issue${warnings.length > 1 ? "s" : ""}`}
-                </span>
-              </div>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
-                <span><CheckCircle size={11} className="inline mr-1 text-primary" />{readySections} of {includedSections} sections ready</span>
-                <span><Clock size={11} className="inline mr-1" />{revision} · Updated 2h ago</span>
-              </div>
-              {warnings.length > 0 && (
-                <div className="space-y-1 mt-2">
-                  {warnings.map(w => (
-                    <div key={w} className="flex items-center gap-1.5 text-xs text-warning">
-                      <AlertTriangle size={10} /> {w}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
             {/* Template Controls */}
             <div className="bg-card border border-border rounded-xl p-4 shadow-card mb-5">
               <div className="flex items-center justify-between mb-2">
@@ -197,11 +233,11 @@ export default function ProposalPage() {
                 <Button variant="outline" size="sm" className="text-xs h-7"><Upload size={11} className="mr-1" /> Upload Template</Button>
                 <Button variant="outline" size="sm" className="text-xs h-7"><Save size={11} className="mr-1" /> Save as Template</Button>
                 <Button variant="outline" size="sm" className="text-xs h-7"><Copy size={11} className="mr-1" /> Duplicate</Button>
-                <Button variant="outline" size="sm" className="text-xs h-7">Use Default</Button>
+                <Button variant="outline" size="sm" className="text-xs h-7"><RotateCcw size={11} className="mr-1" /> Use Default</Button>
               </div>
             </div>
 
-            {/* Proposal Identity */}
+            {/* Proposal Details */}
             <div className="bg-card border border-border rounded-xl p-4 shadow-card mb-5">
               <h3 className="font-display text-sm font-semibold text-foreground mb-3">Proposal Details</h3>
               <div className="grid grid-cols-2 gap-3">
@@ -234,13 +270,14 @@ export default function ProposalPage() {
               </div>
             </div>
 
-            {/* Presentation Controls — consolidated */}
+            {/* Presentation Controls */}
             <div className="bg-card border border-border rounded-xl p-4 shadow-card mb-5">
               <h3 className="font-display text-sm font-semibold text-foreground mb-3">Presentation Controls</h3>
               <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                 {[
                   { label: "Include Cover Page", state: showCoverPage, toggle: () => setShowCoverPage(!showCoverPage) },
                   { label: "Include Signature Block", state: showSignature, toggle: () => setShowSignature(!showSignature) },
+                  { label: "Show Project Details", state: showProjectDetails, toggle: () => setShowProjectDetails(!showProjectDetails) },
                   { label: "Show Cost Codes", state: showCostCodes, toggle: () => setShowCostCodes(!showCostCodes) },
                   { label: "Show Descriptions", state: showDescriptions, toggle: () => setShowDescriptions(!showDescriptions) },
                   { label: "Show Price", state: showPrice, toggle: () => setShowPrice(!showPrice) },
@@ -285,7 +322,7 @@ export default function ProposalPage() {
               </div>
             </div>
 
-            {/* Pricing Summary — editable & toggle-driven */}
+            {/* Pricing Summary — display only, labels editable, values read-only from Pricing & Margin */}
             <div className="bg-card border border-border rounded-xl p-4 shadow-card mb-5">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-display text-sm font-semibold text-foreground">Pricing Summary</h3>
@@ -293,7 +330,7 @@ export default function ProposalPage() {
                   {editingPricing ? <Check size={14} className="text-primary" /> : <Pencil size={14} />}
                 </button>
               </div>
-              <p className="text-[10px] text-muted-foreground mb-3">Builder Cost is the internal cost before Pricing & Margin. Client Price is the amount after markup.</p>
+              <p className="text-[10px] text-muted-foreground mb-3">Values are calculated from Pricing & Margin. Toggle visibility and edit labels here.</p>
               <div className="space-y-1.5">
                 {pricingRows.map(row => (
                   <div key={row.id} className="flex items-center gap-2">
@@ -305,8 +342,7 @@ export default function ProposalPage() {
                       <>
                         <input value={row.label} onChange={e => setPricingRows(prev => prev.map(r => r.id === row.id ? { ...r, label: e.target.value } : r))}
                           className="flex-1 bg-background border border-border rounded px-2 py-1 text-xs text-foreground outline-none focus:ring-1 focus:ring-ring" />
-                        <input value={row.value} onChange={e => setPricingRows(prev => prev.map(r => r.id === row.id ? { ...r, value: e.target.value } : r))}
-                          className="w-24 bg-background border border-border rounded px-2 py-1 text-xs text-foreground outline-none focus:ring-1 focus:ring-ring text-right" />
+                        <span className="w-24 text-xs text-muted-foreground text-right font-display font-semibold">{row.value}</span>
                       </>
                     ) : (
                       <div className={`flex-1 flex justify-between text-xs ${row.visible ? "text-foreground" : "text-muted-foreground line-through opacity-50"}`}>
@@ -319,19 +355,27 @@ export default function ProposalPage() {
               </div>
             </div>
 
-            {/* Editable Sections — pencil/check pattern, no arrows, no section display text */}
+            {/* Proposal Sections — draggable with grab handle */}
             <div className="mb-5">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-display text-sm font-semibold text-foreground">Proposal Sections</h3>
                 <span className="text-[10px] text-muted-foreground">{includedSections} of {sections.length} included</span>
               </div>
               <div className="space-y-2">
-                {sections.map((section) => (
-                  <div key={section.id} className={`bg-card border rounded-xl shadow-card transition-all ${
-                    section.included ? "border-border" : "border-border opacity-50"
-                  }`}>
-                    {/* Section Header — clean: no arrows, no section display text */}
+                {sections.map((section, idx) => (
+                  <div
+                    key={section.id}
+                    draggable
+                    onDragStart={() => handleDragStart(idx)}
+                    onDragOver={(e) => handleDragOver(e, idx)}
+                    onDragEnd={handleDragEnd}
+                    className={`bg-card border rounded-xl shadow-card transition-all ${
+                      section.included ? "border-border" : "border-border opacity-50"
+                    } ${dragIdx === idx ? "opacity-60 scale-[0.98]" : ""}`}
+                  >
                     <div className="flex items-center gap-2 px-4 py-3">
+                      {/* Drag handle */}
+                      <GripVertical size={14} className="text-muted-foreground cursor-grab active:cursor-grabbing shrink-0" />
                       <FileText size={14} className="text-primary shrink-0" />
                       <div className="flex-1 min-w-0">
                         <span className="font-display text-sm font-semibold text-foreground">{section.title}</span>
@@ -339,7 +383,6 @@ export default function ProposalPage() {
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ${
                         section.status === "ready" ? "bg-primary/10 text-primary" : "bg-warning/10 text-warning"
                       }`}>{section.status === "ready" ? "Ready" : "Draft"}</span>
-                      {/* Pencil / Check edit toggle */}
                       <button onClick={() => toggleSection(section.id, "editing")} className="text-muted-foreground hover:text-foreground shrink-0">
                         {section.editing ? <Check size={14} className="text-primary" /> : <Pencil size={14} />}
                       </button>
@@ -348,7 +391,6 @@ export default function ProposalPage() {
                       </button>
                     </div>
 
-                    {/* Expanded Editor — only when editing */}
                     {section.editing && section.included && (
                       <div className="px-4 pb-4 border-t border-border pt-3 space-y-3">
                         <div>
@@ -405,18 +447,11 @@ export default function ProposalPage() {
           </div>
         </div>
 
-        {/* RIGHT: Print-style Page-by-Page Preview */}
-        <div className="hidden lg:flex flex-col w-[480px] xl:w-[540px] shrink-0 bg-muted/50 dark:bg-neutral-900/50">
-          {/* Preview Controls */}
+        {/* RIGHT: Print Preview */}
+        <div className="hidden lg:flex flex-col w-[480px] xl:w-[540px] shrink-0 bg-muted/50 dark:bg-neutral-900/80">
+          {/* Preview Header — simplified to "Print Preview" */}
           <div className="px-4 py-2.5 border-b border-border bg-card flex items-center justify-between shrink-0">
-            <div className="flex gap-1">
-              {viewModes.map(v => (
-                <button key={v} onClick={() => setActiveView(v)}
-                  className={`text-[10px] px-2 py-1 rounded font-medium transition-colors ${
-                    activeView === v ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
-                  }`}>{v}</button>
-              ))}
-            </div>
+            <span className="font-display text-xs font-semibold text-foreground">Print Preview</span>
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <button onClick={() => setPreviewZoom(Math.max(50, previewZoom - 10))} className="p-1 text-muted-foreground hover:text-foreground rounded"><ZoomOut size={12} /></button>
@@ -424,20 +459,29 @@ export default function ProposalPage() {
                 <button onClick={() => setPreviewZoom(Math.min(150, previewZoom + 10))} className="p-1 text-muted-foreground hover:text-foreground rounded"><ZoomIn size={12} /></button>
               </div>
               <div className="flex items-center gap-1 border-l border-border pl-2">
-                <button onClick={() => setPreviewPage(Math.max(1, previewPage - 1))} className="p-1 text-muted-foreground hover:text-foreground rounded"><ChevronLeft size={12} /></button>
-                <span className="text-[10px] text-muted-foreground">Page {previewPage} of {totalPages}</span>
-                <button onClick={() => setPreviewPage(Math.min(totalPages, previewPage + 1))} className="p-1 text-muted-foreground hover:text-foreground rounded"><ChevronRight size={12} /></button>
+                <button onClick={() => jumpToPage(previewPage - 1)} className="p-1 text-muted-foreground hover:text-foreground rounded"><ChevronLeft size={12} /></button>
+                <select
+                  value={previewPage}
+                  onChange={e => jumpToPage(Number(e.target.value))}
+                  className="text-[10px] text-muted-foreground bg-transparent border-none outline-none cursor-pointer"
+                >
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>Page {i + 1} of {totalPages}</option>
+                  ))}
+                </select>
+                <button onClick={() => jumpToPage(previewPage + 1)} className="p-1 text-muted-foreground hover:text-foreground rounded"><ChevronRight size={12} /></button>
               </div>
             </div>
           </div>
 
-          {/* Preview Document — Always White Paper Pages */}
-          <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center gap-6" style={{ background: "hsl(var(--muted) / 0.5)" }}>
+          {/* Preview Pages — always white paper */}
+          <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center gap-8" style={{ background: "hsl(220 10% 20% / 0.15)" }}>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => {
               const pageData = getPageSections(pageNum);
               return (
                 <div
                   key={pageNum}
+                  ref={(el) => { pageRefs.current[pageNum] = el; }}
                   className="rounded-sm shrink-0"
                   style={{
                     width: `${Math.round(440 * (previewZoom / 100))}px`,
@@ -446,7 +490,7 @@ export default function ProposalPage() {
                     fontSize: `${Math.round(12 * (previewZoom / 100))}px`,
                     background: "#ffffff",
                     color: "#1a1a1a",
-                    boxShadow: "0 2px 20px rgba(0,0,0,0.15)",
+                    boxShadow: "0 2px 20px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)",
                     position: "relative",
                   }}
                 >
@@ -460,9 +504,14 @@ export default function ProposalPage() {
                       <h2 style={{ fontSize: "1.3em", fontWeight: 700, marginBottom: 4, color: "#111" }}>{proposalTitle}</h2>
                       <p style={{ fontSize: "0.85em", color: "#666" }}>Prepared for {clientName}</p>
                       <p style={{ fontSize: "0.85em", color: "#666" }}>{projectName}</p>
-                      <p style={{ fontSize: "0.7em", color: "#999", marginTop: 4 }}>{projectAddress}</p>
-                      <p style={{ fontSize: "0.7em", color: "#999", marginTop: 12 }}>{proposalNumber} · {revision}</p>
-                      <p style={{ fontSize: "0.7em", color: "#999" }}>March 4, 2026</p>
+                      {showProjectDetails && (
+                        <>
+                          <p style={{ fontSize: "0.7em", color: "#999", marginTop: 4 }}>{projectAddress}</p>
+                          <p style={{ fontSize: "0.7em", color: "#999", marginTop: 12 }}>{proposalNumber} · {revision}</p>
+                          <p style={{ fontSize: "0.7em", color: "#999" }}>March 4, 2026</p>
+                          <p style={{ fontSize: "0.7em", color: "#999", marginTop: 2 }}>Prepared by {preparedBy}</p>
+                        </>
+                      )}
                     </div>
                   )}
 
@@ -475,8 +524,8 @@ export default function ProposalPage() {
                           {showDescriptions && (
                             <p style={{ fontSize: "0.7em", color: "#888", fontStyle: "italic", marginBottom: 6 }}>{section.desc}</p>
                           )}
-                          <div style={{ fontSize: "0.75em", color: "#444", lineHeight: 1.6, whiteSpace: "pre-line" }}>
-                            {section.content}
+                          <div style={{ fontSize: "0.75em", color: "#444", lineHeight: 1.7 }}>
+                            {renderContentWithPrices(section.content)}
                           </div>
                         </div>
                       ))}
@@ -487,7 +536,7 @@ export default function ProposalPage() {
                           <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                             {pricingRows.filter(r => r.visible).map(row => (
                               <div key={row.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75em", color: row.id === "client-price" ? "#111" : "#555", fontWeight: row.id === "client-price" ? 700 : 400, borderTop: row.id === "client-price" ? "1px solid #ddd" : undefined, paddingTop: row.id === "client-price" ? 4 : 0 }}>
-                                <span>{row.label}</span><span>{row.value}</span>
+                                <span>{row.label}</span><span style={{ fontWeight: 600 }}>{row.value}</span>
                               </div>
                             ))}
                           </div>
