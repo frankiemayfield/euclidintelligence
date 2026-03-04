@@ -162,7 +162,7 @@ export default function PricingMarginPage() {
             <div className="space-y-3">
               <div>
                 <label className="text-xs font-medium text-foreground mb-1 block">Tax Rate</label>
-                <input type="number" value={taxRate} onChange={e => setTaxRate(+e.target.value)} step={0.1} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" />
+                <input type="number" value={taxRate} onChange={e => setTaxRate(+e.target.value)} step={0.1} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               </div>
               <div>
                 <label className="text-xs font-medium text-foreground mb-1 block">Tax Treatment</label>
@@ -176,7 +176,7 @@ export default function PricingMarginPage() {
               {(pricingMode === "Fixed Fee" || pricingMode === "Cost Plus") && (
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1 block">{pricingMode === "Fixed Fee" ? "Fixed Fee" : "Fee Amount"}</label>
-                  <input type="number" value={fixedFee} onChange={e => setFixedFee(+e.target.value)} step={500} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" />
+                  <input type="number" value={fixedFee} onChange={e => setFixedFee(+e.target.value)} step={500} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                 </div>
               )}
               {pricingMode === "GMP" && (
