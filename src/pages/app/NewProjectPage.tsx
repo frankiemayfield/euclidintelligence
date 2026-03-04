@@ -137,7 +137,7 @@ export default function NewProjectPage() {
             </div>
           </Link>
 
-          <Link to="/app/proposal-comparison" className="block">
+          <Link to="/app/estimate-comparison" className="block">
             <div className={`bg-card border rounded-xl p-6 shadow-card hover:border-primary/40 hover:shadow-md transition-all h-full flex flex-col ${
               hasEstimateOrProposal ? "border-primary/30 ring-1 ring-primary/10" : "border-border"
             }`}>

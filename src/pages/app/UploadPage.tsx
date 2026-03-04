@@ -59,7 +59,7 @@ export default function UploadPage() {
   };
 
   const handleGoToComparison = () => {
-    navigate("/app/proposal-comparison");
+    navigate("/app/estimate-comparison");
   };
 
   const updateSourceType = (index: number, newType: SourceType) => {
