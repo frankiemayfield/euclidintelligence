@@ -47,31 +47,7 @@ export function HowItWorks() {
           </p>
         </div>
 
-        {/* Layer 1 — Workflow Overview */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex flex-wrap items-center justify-center gap-y-4 mb-16"
-        >
-          {steps.map((s, i) => (
-            <div key={s.title} className="flex items-center">
-              <div className="flex flex-col items-center gap-2 px-3 sm:px-5">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <s.icon className="text-primary" size={22} />
-                </div>
-                <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
-                  {s.title}
-                </span>
-              </div>
-              {i < steps.length - 1 && (
-                <ChevronRight className="text-muted-foreground/50 shrink-0 hidden sm:block" size={18} />
-              )}
-            </div>
-          ))}
-        </motion.div>
-
-        {/* Layer 2 — Step Details */}
+        {/* Step Details */}
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((s, i) => (
             <motion.div
