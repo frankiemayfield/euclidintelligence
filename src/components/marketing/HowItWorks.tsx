@@ -15,7 +15,7 @@ const steps = [
   {
     icon: FileCheck,
     title: "Finalize your proposal with Atlas",
-    desc: "Use Estimator Atlas to refine line items, explain pricing variance, draft exclusions, and generate client-ready proposals.",
+    desc: "Use Estimator Atlas to understand your proposal score or refine line items, explain pricing variance, trade scope, and generate client-ready proposals.",
   },
 ];
 
