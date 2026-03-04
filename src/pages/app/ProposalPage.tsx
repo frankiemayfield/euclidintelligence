@@ -6,6 +6,7 @@ import {
   ChevronLeft, ChevronRight, Check, FileCode, GripVertical, RotateCcw
 } from "lucide-react";
 import { useState, useRef, useCallback } from "react";
+import companyLogoImg from "@/assets/company-logo.jpg";
 
 interface ProposalSection {
   id: string;
@@ -497,8 +498,8 @@ export default function ProposalPage() {
                   {/* Cover Page */}
                   {pageData.type === "cover" && (
                     <div className="flex flex-col items-center justify-center h-full text-center" style={{ minHeight: `${Math.round(500 * (previewZoom / 100))}px` }}>
-                      <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: "hsl(140,50%,32%,0.1)" }}>
-                        <Palette size={20} style={{ color: "hsl(140,50%,32%)" }} />
+                      <div className="w-12 h-12 rounded-xl mx-auto mb-3 overflow-hidden">
+                        <img src={companyLogoImg} alt="Company Logo" className="w-full h-full object-cover" />
                       </div>
                       <p style={{ fontSize: "0.7em", color: "#888", marginBottom: 4 }}>{preparedBy.split("—")[1]?.trim() || "Company"}</p>
                       <h2 style={{ fontSize: "1.3em", fontWeight: 700, marginBottom: 4, color: "#111" }}>{proposalTitle}</h2>
