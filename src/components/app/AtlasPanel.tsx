@@ -229,8 +229,8 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
         <div className="flex items-center gap-2 bg-background border border-border rounded-xl px-3 py-2.5">
           <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" multiple
             accept=".pdf,.xlsx,.csv,.xls,.docx,.doc,.png,.jpg,.jpeg" />
-          <button onClick={() => fileInputRef.current?.click()} className="text-muted-foreground hover:text-primary transition-colors shrink-0" title="Upload to Atlas">
-            <Upload size={14} />
+          <button onClick={() => fileInputRef.current?.click()} className="w-7 h-7 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shrink-0 flex items-center justify-center font-bold text-base" title="Upload to Atlas">
+            +
           </button>
           <input
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
