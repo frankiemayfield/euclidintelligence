@@ -26,10 +26,10 @@ export function AtlasSection() {
               Your always-available estimating expert
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6 max-w-md">
-              Atlas reviews your estimate and explains where your proposal may be exposed. It identifies pricing variance, missing scope, and trade-level risks before your proposal goes to the client.
+              Atlas answers practical estimating questions, surfaces risk factors, drafts clarifications, and recommends contingencies — all grounded in your actual project data.
             </p>
             <p className="text-sm text-muted-foreground">
-              Not a generic chatbot. A specialized estimating assistant built on real construction data.
+              Not a generic chatbot. A specialized construction estimating assistant built on real project intelligence.
             </p>
           </motion.div>
 

@@ -2,10 +2,10 @@ import { motion } from "framer-motion";
 
 const stats = [
   { value: "12,400+", label: "Projects Analyzed" },
-  { value: "3.2M", label: "Line Items Indexed" },
-  { value: "48,000+", label: "Cost Codes Normalized" },
+  { value: "3.2M", label: "Estimates Normalized" },
+  { value: "48,000+", label: "Cost Codes Indexed" },
   { value: "160+", label: "Trades Benchmarked" },
-  { value: "38", label: "Regional Markets Covered" },
+  { value: "38", label: "Regions Covered" },
 ];
 
 export function StatsBand() {
