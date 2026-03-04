@@ -83,7 +83,7 @@ export default function DashboardPage() {
             <h1 className="font-display text-2xl font-bold text-foreground">Dashboard</h1>
             <p className="text-sm text-muted-foreground mt-1">Mayfield & Co. — Company estimating overview</p>
           </div>
-          <Link to="/app/upload">
+          <Link to="/app/new-project">
             <Button size="sm"><Plus size={14} className="mr-1.5" /> New Project</Button>
           </Link>
         </div>

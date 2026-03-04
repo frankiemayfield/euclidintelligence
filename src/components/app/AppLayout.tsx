@@ -31,7 +31,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [projectMenuOpen, setProjectMenuOpen] = useState(false);
   const [activeProject] = useState("Maple St. Kitchen Remodel");
-  const [atlasOpen, setAtlasOpen] = useState(false);
+  const [atlasOpen, setAtlasOpen] = useState(true);
 
   const getSection = (): GlobalSection => {
     if (location.pathname === "/app" || location.pathname === "/app/") return "dashboard";
@@ -84,7 +84,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     </button>
                   ))}
                   <div className="border-t border-border mt-1 pt-1">
-                    <Link to="/app/upload" className="block px-3 py-2 text-sm text-primary hover:bg-muted/50" onClick={() => setProjectMenuOpen(false)}>
+                    <Link to="/app/new-project" className="block px-3 py-2 text-sm text-primary hover:bg-muted/50" onClick={() => setProjectMenuOpen(false)}>
                       + New Project
                     </Link>
                   </div>
@@ -102,8 +102,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Estimator Sidebar */}
         {isEstimator && (
           <aside className={`${collapsed ? "w-14" : "w-56"} bg-card border-r border-border flex flex-col shrink-0 transition-all duration-200`}>
-            <div className="px-3 py-2 border-b border-border">
-              <p className={`text-[10px] text-muted-foreground font-medium uppercase tracking-wider ${collapsed ? "hidden" : ""}`}>Project Workflow</p>
+            <div className={`px-3 py-3 border-b border-border ${collapsed ? "px-2" : ""}`}>
+              {!collapsed && (
+                <>
+                  <p className="text-sm font-semibold text-foreground">Estimator</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Project Workspace</p>
+                </>
+              )}
+              {collapsed && (
+                <p className="text-[10px] text-muted-foreground font-medium text-center">Est</p>
+              )}
             </div>
             <nav className="flex-1 py-2 px-1.5 space-y-0.5 overflow-y-auto">
               {estimatorNavItems.map((item) => {

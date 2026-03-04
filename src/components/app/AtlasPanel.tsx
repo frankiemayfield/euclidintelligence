@@ -72,7 +72,7 @@ const initialResponses: Record<string, string> = {
   "/app/bid-leveling": "I see subcontractor bids across 5 trade packages imported from Document Upload. I can help compare scope coverage and identify exclusions.",
   "/app/estimate-builder": "The estimate has 10 line items with a base cost of $168,700. 3 items need review and 1 has low confidence. What would you like to explore?",
   "/app/pricing": "Current pricing mode is Cost Plus with 18% combined markup. I can help analyze margin impact, compare strategies, or calculate target pricing.",
-  "/app/proposal-comparison": "Your proposal is benchmarked against 20,000+ similar projects. Market Fit Score is 78. I can explain variances and pricing position.",
+  "/app/proposal-comparison": "Your proposal is benchmarked against 20,000+ similar projects. Estimator Score is 78. I can explain variances and pricing position.",
   "/app/proposal": "The proposal has 11 sections — 9 are ready. I can help draft exclusions, review completeness, or suggest presentation improvements.",
   "/app/est-vs-actual": "I can see variance data across 10 trades. Overall the estimate was 2.1% under actual. I can help identify patterns and lessons learned.",
 };
@@ -135,10 +135,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
           <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
             <Bot size={14} className="text-primary" />
           </div>
-          <div>
-            <p className="text-xs font-semibold text-foreground">Atlas</p>
-            <p className="text-[10px] text-muted-foreground">{contextLabel}</p>
-          </div>
+          <p className="text-sm font-semibold text-foreground">Atlas - Estimator Assistant</p>
         </div>
         <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
           <X size={14} />
