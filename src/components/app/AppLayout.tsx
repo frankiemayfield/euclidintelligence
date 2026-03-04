@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Upload, FileSearch, Table2, Bot,
-  FileOutput, GitCompare, TrendingUp, Settings, ChevronLeft, BarChart3, ChevronDown
+  FileOutput, GitCompare, TrendingUp, Settings, ChevronLeft, BarChart3, ChevronDown, DollarSign
 } from "lucide-react";
 import bedrockLogo from "@/assets/bedrock-logo.png";
 import { useState } from "react";
@@ -12,6 +12,7 @@ const navItems = [
   { label: "Scope Analyzer", icon: FileSearch, path: "/app/scope-analyzer" },
   { label: "Bid Leveling", icon: GitCompare, path: "/app/bid-leveling" },
   { label: "Estimate Builder", icon: Table2, path: "/app/estimate-builder" },
+  { label: "Pricing & Margin", icon: DollarSign, path: "/app/pricing" },
   { label: "Estimator Atlas", icon: Bot, path: "/app/atlas" },
   { label: "Proposal Export", icon: FileOutput, path: "/app/proposal" },
   { label: "Est. vs Actual", icon: TrendingUp, path: "/app/est-vs-actual" },

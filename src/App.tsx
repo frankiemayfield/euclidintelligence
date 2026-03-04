@@ -14,6 +14,7 @@ import AtlasPage from "./pages/app/AtlasPage";
 import ProposalPage from "./pages/app/ProposalPage";
 import EstVsActualPage from "./pages/app/EstVsActualPage";
 import ProposalComparisonPage from "./pages/app/ProposalComparisonPage";
+import PricingMarginPage from "./pages/app/PricingMarginPage";
 import SettingsPage from "./pages/app/SettingsPage";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/app/scope-analyzer" element={<ScopeAnalyzerPage />} />
           <Route path="/app/bid-leveling" element={<BidLevelingPage />} />
           <Route path="/app/estimate-builder" element={<EstimateBuilderPage />} />
+          <Route path="/app/pricing" element={<PricingMarginPage />} />
           <Route path="/app/atlas" element={<AtlasPage />} />
           <Route path="/app/proposal" element={<ProposalPage />} />
           <Route path="/app/est-vs-actual" element={<EstVsActualPage />} />
