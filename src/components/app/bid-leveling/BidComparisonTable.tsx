@@ -76,15 +76,12 @@ export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidCo
                       <ChevronDown size={14} className={`text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                     </td>
                     <td className="px-3 py-3">
-                      <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex items-center gap-2">
                         <span className="font-medium text-foreground">{b.sub}</span>
                         {b.recommended &&
-                        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+                          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
                             Recommended
                           </span>
-                        }
-                        {b.selected
-
                         }
                       </div>
                     </td>
