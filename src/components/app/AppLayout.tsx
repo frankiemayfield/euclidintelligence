@@ -40,6 +40,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   };
   const section = getSection();
   const isEstimator = section === "estimator";
+  const isDashboard = section === "dashboard";
+  const showAtlas = isEstimator || isDashboard;
 
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
@@ -139,12 +141,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Main + Atlas */}
         <main className="flex-1 overflow-y-auto">{children}</main>
 
-        {/* Atlas Panel - persistent across estimator pages */}
-        {isEstimator && <AtlasPanel isOpen={atlasOpen} onClose={() => setAtlasOpen(false)} />}
+        {/* Atlas Panel - persistent across estimator + dashboard */}
+        {showAtlas && <AtlasPanel isOpen={atlasOpen} onClose={() => setAtlasOpen(false)} />}
       </div>
 
       {/* Atlas toggle button when panel is closed */}
-      {isEstimator && !atlasOpen && <AtlasToggleButton onClick={() => setAtlasOpen(true)} />}
+      {showAtlas && !atlasOpen && <AtlasToggleButton onClick={() => setAtlasOpen(true)} />}
     </div>
   );
 }
