@@ -2,8 +2,9 @@ import { AppLayout } from "@/components/app/AppLayout";
 import {
   AlertTriangle, CheckCircle, FileSearch, Info, XCircle, ChevronDown, ChevronRight,
   Pencil, Flag, Send, Mail, Layers, GitMerge, Split, Copy, Trash2, Settings2,
-  Package, ClipboardList, ArrowRight, Filter, Eye, EyeOff, Save, Check
+  Package, ClipboardList, ArrowRight, Filter, Eye, EyeOff, Save, Check, Hammer
 } from "lucide-react";
+import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 import { PlanReferenceChip } from "@/components/app/traceability/PlanReferenceChip";
 import { ExtractionMethodBadge } from "@/components/app/traceability/ExtractionMethodBadge";
 import { ReviewStatusBadge } from "@/components/app/traceability/ReviewStatusBadge";
@@ -205,6 +206,7 @@ export default function ScopeAnalyzerPage() {
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [activeTab, setActiveTab] = useState("overview");
   const [codeSystem] = useState("16-Division Default");
+  const [transition, setTransition] = useState<"bid-leveling" | "estimate" | null>(null);
 
   const needsReview = takeoffData.filter(r => r.status === "Needs Review" || r.confidence === "Low");
   const mapped = takeoffData.filter(r => r.structureStatus === "Confirmed" || r.structureStatus === "Mapped");
@@ -881,7 +883,53 @@ export default function ScopeAnalyzerPage() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Bottom Progression Controls */}
+        <div className="mt-10 border-t border-border pt-8 pb-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Button
+            size="lg"
+            className="px-8 text-sm font-semibold gap-2"
+            onClick={() => setTransition("bid-leveling")}
+          >
+            Continue to Bid Leveling
+            <ArrowRight size={16} />
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="px-8 text-sm font-semibold gap-2"
+            onClick={() => setTransition("estimate")}
+          >
+            <Hammer size={16} />
+            Skip to Build Estimate
+          </Button>
+        </div>
       </div>
+
+      <WorkflowTransition
+        active={transition === "bid-leveling"}
+        headline="Compiling your subcontractor bids"
+        steps={[
+          { label: "Organizing trade packages from scope analysis" },
+          { label: "Matching subcontractor bids to scope packages" },
+          { label: "Calculating coverage and exclusions" },
+          { label: "Preparing bid leveling workspace" },
+        ]}
+        targetPath="/app/bid-leveling"
+        onComplete={() => setTransition(null)}
+      />
+      <WorkflowTransition
+        active={transition === "estimate"}
+        headline="Building your estimate"
+        steps={[
+          { label: "Refining scope from analysis" },
+          { label: "Adding scope packages" },
+          { label: "Organizing allowances and selections" },
+          { label: "Preparing estimate structure" },
+        ]}
+        targetPath="/app/estimate-builder"
+        onComplete={() => setTransition(null)}
+      />
     </AppLayout>
   );
 }
