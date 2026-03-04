@@ -6,9 +6,8 @@ import {
 import bedrockLogo from "@/assets/bedrock-logo.png";
 import { useState } from "react";
 
-const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/app" },
-  { label: "New Project", icon: Upload, path: "/app/upload" },
+const estimatorNavItems = [
+  { label: "Document Upload", icon: Upload, path: "/app/upload" },
   { label: "Scope Analyzer", icon: FileSearch, path: "/app/scope-analyzer" },
   { label: "Bid Leveling", icon: GitCompare, path: "/app/bid-leveling" },
   { label: "Estimate Builder", icon: Table2, path: "/app/estimate-builder" },
@@ -17,7 +16,6 @@ const navItems = [
   { label: "Proposal Export", icon: FileOutput, path: "/app/proposal" },
   { label: "Est. vs Actual", icon: TrendingUp, path: "/app/est-vs-actual" },
   { label: "Proposal Comparison", icon: BarChart3, path: "/app/proposal-comparison" },
-  { label: "Settings", icon: Settings, path: "/app/settings" },
 ];
 
 const recentProjects = [
@@ -26,56 +24,49 @@ const recentProjects = [
   { name: "Downtown TI - Suite 400", id: "downtown" },
 ];
 
+type GlobalSection = "dashboard" | "estimator" | "settings";
+
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [projectMenuOpen, setProjectMenuOpen] = useState(false);
   const [activeProject] = useState("Maple St. Kitchen Remodel");
 
+  // Determine active global section
+  const getSection = (): GlobalSection => {
+    if (location.pathname === "/app" || location.pathname === "/app/") return "dashboard";
+    if (location.pathname === "/app/settings") return "settings";
+    return "estimator";
+  };
+  const section = getSection();
+  const isEstimator = section === "estimator";
+
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      {/* Sidebar */}
-      <aside className={`${collapsed ? "w-16" : "w-60"} bg-card border-r border-border flex flex-col shrink-0 transition-all duration-200`}>
-        <div className="h-14 flex items-center px-4 border-b border-border gap-2">
-          {collapsed ? (
-            <img src={bedrockLogo} alt="Bedrock" className="h-10 w-10 object-contain object-left" />
-          ) : (
-            <img src={bedrockLogo} alt="Bedrock" className="h-11 w-auto" />
-          )}
+    <div className="flex flex-col h-screen bg-background overflow-hidden">
+      {/* Global Top Nav */}
+      <header className="h-12 border-b border-border bg-card flex items-center justify-between px-4 shrink-0 z-50">
+        <div className="flex items-center gap-6">
+          <Link to="/app" className="shrink-0">
+            <img src={bedrockLogo} alt="Bedrock" className="h-8 w-auto" />
+          </Link>
+          <nav className="flex items-center gap-1">
+            <Link to="/app"
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${section === "dashboard" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+              Dashboard
+            </Link>
+            <Link to="/app/upload"
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isEstimator ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+              Estimator
+            </Link>
+            <Link to="/app/settings"
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${section === "settings" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+              Settings
+            </Link>
+          </nav>
         </div>
-
-        <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
-          {navItems.map((item) => {
-            const active = location.pathname === item.path;
-            return (
-              <Link key={item.path} to={item.path}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-                title={collapsed ? item.label : undefined}
-              >
-                <item.icon size={18} className="shrink-0" />
-                {!collapsed && <span>{item.label}</span>}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <button onClick={() => setCollapsed(!collapsed)}
-          className="h-10 flex items-center justify-center border-t border-border text-muted-foreground hover:text-foreground transition-colors">
-          <ChevronLeft size={16} className={`transition-transform ${collapsed ? "rotate-180" : ""}`} />
-        </button>
-      </aside>
-
-      {/* Main */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top header with project context */}
-        <header className="h-12 border-b border-border bg-card flex items-center justify-between px-6 shrink-0">
-          <div className="text-xs text-muted-foreground">
-            Bedrock Estimating Hub
-          </div>
-          <div className="flex items-center gap-4">
-            {/* Project switcher */}
+        <div className="flex items-center gap-4">
+          {/* Project switcher */}
+          {isEstimator && (
             <div className="relative">
               <button onClick={() => setProjectMenuOpen(!projectMenuOpen)}
                 className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors">
@@ -101,11 +92,44 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
               )}
             </div>
-            <div className="text-xs text-muted-foreground border-l border-border pl-4">
-              Mayfield & Co.
-            </div>
+          )}
+          <div className="text-xs text-muted-foreground border-l border-border pl-4">
+            Mayfield & Co.
           </div>
-        </header>
+        </div>
+      </header>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Estimator Sidebar — only shown inside Estimator section */}
+        {isEstimator && (
+          <aside className={`${collapsed ? "w-14" : "w-56"} bg-card border-r border-border flex flex-col shrink-0 transition-all duration-200`}>
+            <div className="px-3 py-2 border-b border-border">
+              <p className={`text-[10px] text-muted-foreground font-medium uppercase tracking-wider ${collapsed ? "hidden" : ""}`}>Project Workflow</p>
+            </div>
+            <nav className="flex-1 py-2 px-1.5 space-y-0.5 overflow-y-auto">
+              {estimatorNavItems.map((item) => {
+                const active = location.pathname === item.path;
+                return (
+                  <Link key={item.path} to={item.path}
+                    className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                    title={collapsed ? item.label : undefined}
+                  >
+                    <item.icon size={16} className="shrink-0" />
+                    {!collapsed && <span className="text-[13px]">{item.label}</span>}
+                  </Link>
+                );
+              })}
+            </nav>
+            <button onClick={() => setCollapsed(!collapsed)}
+              className="h-9 flex items-center justify-center border-t border-border text-muted-foreground hover:text-foreground transition-colors">
+              <ChevronLeft size={14} className={`transition-transform ${collapsed ? "rotate-180" : ""}`} />
+            </button>
+          </aside>
+        )}
+
+        {/* Main */}
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
