@@ -1,7 +1,7 @@
 import { AppLayout } from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Download, Filter, Plus, ChevronDown, CheckCircle, Pencil, Flag, Bot, X, ArrowRight } from "lucide-react";
+import { Download, Filter, Plus, ChevronDown, CheckCircle, Pencil, Flag, Bot, X, ArrowRight, Check } from "lucide-react";
 import { useState } from "react";
 import { ExtractionMethodBadge } from "@/components/app/traceability/ExtractionMethodBadge";
 import { ReviewStatusBadge } from "@/components/app/traceability/ReviewStatusBadge";
@@ -10,6 +10,7 @@ import { PlanReferenceChip } from "@/components/app/traceability/PlanReferenceCh
 import { PricingBasisCard } from "@/components/app/traceability/PricingBasisCard";
 import { AssumptionsDrawer } from "@/components/app/traceability/AssumptionsDrawer";
 import { EstimateRollup } from "@/components/app/estimate/EstimateRollup";
+import { PreBuildRequirementsSection } from "@/components/app/estimate/PreBuildRequirementsSection";
 import { GeneralRequirementsSection } from "@/components/app/estimate/GeneralRequirementsSection";
 import { AllowancesSection } from "@/components/app/estimate/AllowancesSection";
 import { SelectionsSection } from "@/components/app/estimate/SelectionsSection";
@@ -89,8 +90,11 @@ function BaseScopeSection() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("All");
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [editingRow, setEditingRow] = useState<string | null>(null);
+  const [items, setItems] = useState(lineItems);
+  const [editValues, setEditValues] = useState<Record<string, any>>({});
 
-  const filtered = lineItems.filter((l) => {
+  const filtered = items.filter((l) => {
     const matchesSearch = l.desc.toLowerCase().includes(search.toLowerCase()) || l.trade.toLowerCase().includes(search.toLowerCase());
     if (!matchesSearch) return false;
     if (activeFilter === "All") return true;
@@ -103,15 +107,31 @@ function BaseScopeSection() {
   });
 
   const formatCurrency = (n: number) => `$${n.toLocaleString()}`;
-  const subtotal = lineItems.reduce((s, l) => s + (l.unit === "LS" ? l.unitCost : l.qty * l.unitCost), 0);
+  const subtotal = items.reduce((s, l) => s + (l.unit === "LS" ? l.unitCost : l.qty * l.unitCost), 0);
 
   const summaryItems = [
-    { label: "Total Line Items", value: lineItems.length, color: "text-foreground" },
-    { label: "Auto-Extracted", value: lineItems.filter(l => l.reviewStatus === "Auto-Extracted").length, color: "text-info" },
-    { label: "Needs Review", value: lineItems.filter(l => l.reviewStatus === "Needs Review").length, color: "text-warning" },
-    { label: "Confirmed", value: lineItems.filter(l => l.reviewStatus === "Estimator Confirmed").length, color: "text-primary" },
-    { label: "Low Confidence", value: lineItems.filter(l => l.confidence === "Low").length, color: "text-destructive" },
+    { label: "Total Line Items", value: items.length, color: "text-foreground" },
+    { label: "Auto-Extracted", value: items.filter(l => l.reviewStatus === "Auto-Extracted").length, color: "text-info" },
+    { label: "Needs Review", value: items.filter(l => l.reviewStatus === "Needs Review").length, color: "text-warning" },
+    { label: "Confirmed", value: items.filter(l => l.reviewStatus === "Estimator Confirmed").length, color: "text-primary" },
+    { label: "Low Confidence", value: items.filter(l => l.confidence === "Low").length, color: "text-destructive" },
   ];
+
+  const startEdit = (l: LineItem) => {
+    setEditingRow(l.code);
+    setEditValues({ code: l.code, trade: l.trade, desc: l.desc, qty: l.qty, unit: l.unit, unitCost: l.unitCost });
+  };
+
+  const saveEdit = () => {
+    if (!editingRow) return;
+    setItems(items.map(l => l.code === editingRow ? { ...l, ...editValues, qty: Number(editValues.qty), unitCost: Number(editValues.unitCost) } : l));
+    setEditingRow(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingRow(null);
+    setEditValues({});
+  };
 
   return (
     <div className="space-y-4">
@@ -132,7 +152,6 @@ function BaseScopeSection() {
         ))}
       </div>
 
-      {/* Filter + Search */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2 max-w-sm">
           <Filter size={14} className="text-muted-foreground" />
@@ -151,7 +170,7 @@ function BaseScopeSection() {
             <thead>
               <tr className="border-b border-border bg-muted/30">
                 <th className="w-8" />
-                {["Code", "Trade", "Description", "Qty", "Unit", "Unit Cost", "Total", "Source", "Confidence", "Status"].map((h) => (
+                {["Code", "Trade", "Description", "Qty", "Unit", "Unit Cost", "Total", "Source", "Confidence", "Status", ""].map((h) => (
                   <th key={h} className="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -161,24 +180,47 @@ function BaseScopeSection() {
                 const base = l.unit === "LS" ? l.unitCost : l.qty * l.unitCost;
                 const total = base * (1 + l.markup / 100) * (1 + l.contingency / 100);
                 const isExpanded = expandedRow === l.code;
+                const isEditing = editingRow === l.code;
                 return (
                   <> 
-                    <tr key={l.code} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => setExpandedRow(isExpanded ? null : l.code)}>
-                      <td className="pl-3 py-2.5"><ChevronDown size={14} className={`text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} /></td>
-                      <td className="px-3 py-2.5 font-mono text-xs text-muted-foreground">{l.code}</td>
-                      <td className="px-3 py-2.5 font-medium text-foreground whitespace-nowrap">{l.trade}</td>
-                      <td className="px-3 py-2.5 text-foreground">{l.desc}</td>
-                      <td className="px-3 py-2.5 text-muted-foreground">{l.qty.toLocaleString()}</td>
-                      <td className="px-3 py-2.5 text-muted-foreground">{l.unit}</td>
-                      <td className="px-3 py-2.5 text-foreground">{l.unit === "LS" ? formatCurrency(l.unitCost) : `$${l.unitCost.toFixed(2)}`}</td>
+                    <tr key={l.code} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors cursor-pointer">
+                      <td className="pl-3 py-2.5" onClick={() => setExpandedRow(isExpanded ? null : l.code)}><ChevronDown size={14} className={`text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} /></td>
+                      <td className="px-3 py-2.5 font-mono text-xs text-muted-foreground">
+                        {isEditing ? <input value={editValues.code ?? ""} onChange={e => setEditValues({...editValues, code: e.target.value})} className="w-20 bg-background border border-border rounded px-1.5 py-0.5 text-xs font-mono outline-none focus:ring-1 focus:ring-ring" /> : l.code}
+                      </td>
+                      <td className="px-3 py-2.5 font-medium text-foreground whitespace-nowrap">
+                        {isEditing ? <input value={editValues.trade ?? ""} onChange={e => setEditValues({...editValues, trade: e.target.value})} className="w-28 bg-background border border-border rounded px-1.5 py-0.5 text-xs outline-none focus:ring-1 focus:ring-ring" /> : l.trade}
+                      </td>
+                      <td className="px-3 py-2.5 text-foreground">
+                        {isEditing ? <input value={editValues.desc ?? ""} onChange={e => setEditValues({...editValues, desc: e.target.value})} className="w-full bg-background border border-border rounded px-1.5 py-0.5 text-xs outline-none focus:ring-1 focus:ring-ring" /> : l.desc}
+                      </td>
+                      <td className="px-3 py-2.5 text-muted-foreground">
+                        {isEditing ? <input type="number" value={editValues.qty ?? 0} onChange={e => setEditValues({...editValues, qty: e.target.value})} className="w-16 bg-background border border-border rounded px-1.5 py-0.5 text-xs outline-none focus:ring-1 focus:ring-ring" /> : l.qty.toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2.5 text-muted-foreground">
+                        {isEditing ? <input value={editValues.unit ?? ""} onChange={e => setEditValues({...editValues, unit: e.target.value})} className="w-12 bg-background border border-border rounded px-1.5 py-0.5 text-xs outline-none focus:ring-1 focus:ring-ring" /> : l.unit}
+                      </td>
+                      <td className="px-3 py-2.5 text-foreground">
+                        {isEditing ? <input type="number" step="0.01" value={editValues.unitCost ?? 0} onChange={e => setEditValues({...editValues, unitCost: e.target.value})} className="w-20 bg-background border border-border rounded px-1.5 py-0.5 text-xs outline-none focus:ring-1 focus:ring-ring" /> : (l.unit === "LS" ? formatCurrency(l.unitCost) : `$${l.unitCost.toFixed(2)}`)}
+                      </td>
                       <td className="px-3 py-2.5 font-display font-semibold text-foreground">{formatCurrency(Math.round(total))}</td>
                       <td className="px-3 py-2.5"><ExtractionMethodBadge method={l.source} /></td>
                       <td className="px-3 py-2.5"><ConfidenceBadge level={l.confidence} /></td>
                       <td className="px-3 py-2.5"><ReviewStatusBadge status={l.reviewStatus} /></td>
+                      <td className="px-3 py-2.5">
+                        {isEditing ? (
+                          <div className="flex items-center gap-1">
+                            <button onClick={saveEdit} className="text-primary hover:text-primary/80"><Check size={13} /></button>
+                            <button onClick={cancelEdit} className="text-muted-foreground hover:text-destructive"><X size={13} /></button>
+                          </div>
+                        ) : (
+                          <button onClick={() => startEdit(l)} className="text-muted-foreground hover:text-foreground"><Pencil size={13} /></button>
+                        )}
+                      </td>
                     </tr>
                     {isExpanded && (
                       <tr key={`${l.code}-detail`} className="border-b border-border bg-muted/10">
-                        <td colSpan={11} className="p-4">
+                        <td colSpan={12} className="p-4">
                           <div className="grid md:grid-cols-3 gap-4 text-xs">
                             <div className="space-y-3">
                               <h4 className="font-display font-semibold text-foreground text-sm">Quantity Source</h4>
@@ -232,7 +274,7 @@ function BaseScopeSection() {
 export default function EstimateBuilderPage() {
   const navigate = useNavigate();
 
-  // Totals for rollup
+  const preBuildTotal = 30500;
   const baseScopeTotal = lineItems.reduce((s, l) => s + (l.unit === "LS" ? l.unitCost : l.qty * l.unitCost), 0);
   const generalReqsTotal = 53610;
   const allowancesTotal = 38800;
@@ -255,8 +297,8 @@ export default function EstimateBuilderPage() {
           </div>
         </div>
 
-        {/* Financial Rollup */}
         <EstimateRollup
+          preBuild={preBuildTotal}
           baseScope={baseScopeTotal}
           generalReqs={generalReqsTotal}
           allowances={allowancesTotal}
@@ -264,9 +306,9 @@ export default function EstimateBuilderPage() {
           alternatesImpact={alternatesImpact}
         />
 
-        {/* Tabbed Sections */}
-        <Tabs defaultValue="base-scope" className="w-full">
+        <Tabs defaultValue="pre-build" className="w-full">
           <TabsList className="w-full justify-start bg-card border border-border rounded-xl p-1 mb-4 h-auto flex-wrap">
+            <TabsTrigger value="pre-build" className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2">Pre-Build Requirements</TabsTrigger>
             <TabsTrigger value="base-scope" className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2">Base Scope</TabsTrigger>
             <TabsTrigger value="general-reqs" className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2">General Requirements</TabsTrigger>
             <TabsTrigger value="allowances" className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2">Allowances</TabsTrigger>
@@ -275,6 +317,7 @@ export default function EstimateBuilderPage() {
             <TabsTrigger value="review" className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2">Review</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="pre-build"><PreBuildRequirementsSection /></TabsContent>
           <TabsContent value="base-scope"><BaseScopeSection /></TabsContent>
           <TabsContent value="general-reqs"><GeneralRequirementsSection /></TabsContent>
           <TabsContent value="allowances"><AllowancesSection /></TabsContent>
