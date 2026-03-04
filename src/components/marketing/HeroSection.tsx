@@ -73,17 +73,26 @@ export function HeroSection() {
           >
             {/* Score Panel — matches Market Comparison page exactly */}
             <div className="bg-card border border-border rounded-2xl shadow-card p-5 space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="relative w-16 h-16 shrink-0">
-                  <svg className="w-16 h-16 -rotate-90">
-                    <circle cx="32" cy="32" r="26" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
-                    <circle cx="32" cy="32" r="26" fill="none" stroke="hsl(var(--primary))" strokeWidth="4" strokeDasharray="163.4" strokeDashoffset="26" strokeLinecap="round" />
-                  </svg>
-                  <span className="absolute inset-0 flex items-center justify-center font-display text-xl font-bold text-primary">84</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="relative w-16 h-16 shrink-0">
+                    <svg className="w-16 h-16 -rotate-90">
+                      <circle cx="32" cy="32" r="26" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
+                      <circle cx="32" cy="32" r="26" fill="none" stroke="hsl(var(--primary))" strokeWidth="4" strokeDasharray="163.4" strokeDashoffset="26" strokeLinecap="round" />
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center font-display text-xl font-bold text-primary">84</span>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Proposal Score</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Strong benchmark alignment</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Proposal Score</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Strong benchmark alignment</p>
+                {/* Market Sensitivity */}
+                <div className="bg-muted/20 rounded-lg p-2.5 text-center shrink-0">
+                  <Gauge size={14} className="mx-auto text-muted-foreground mb-1" />
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Market Sensitivity</p>
+                  <p className="font-display text-xs font-bold text-primary">Likely Competitive</p>
+                  <p className="text-[10px] text-muted-foreground">+2.5% vs local median</p>
                 </div>
               </div>
 
@@ -122,13 +131,6 @@ export function HeroSection() {
                 ))}
               </div>
 
-              {/* Market Sensitivity */}
-              <div className="bg-muted/20 rounded-lg p-3 text-center">
-                <Gauge size={18} className="mx-auto text-muted-foreground mb-1.5" />
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Market Sensitivity</p>
-                <p className="font-display text-sm font-bold text-primary">Likely Competitive</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">+2.5% vs local median</p>
-              </div>
 
               {/* Quick View */}
               <div className="bg-muted/20 rounded-lg p-3">
