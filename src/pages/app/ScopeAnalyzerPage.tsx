@@ -271,9 +271,21 @@ export default function ScopeAnalyzerPage() {
     <AppLayout>
       <div className="p-6 lg:p-8">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="font-display text-2xl font-bold text-foreground">Scope Analyzer</h1>
-          <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — Structure, validate, and prepare scope for estimating</p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="font-display text-2xl font-bold text-foreground">Scope Analyzer</h1>
+            <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — Structure, validate, and prepare scope for estimating</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="text-sm font-semibold gap-1.5" onClick={() => setTransition("estimate")}>
+              <Hammer size={14} />
+              Skip to Build Estimate
+            </Button>
+            <Button size="sm" className="text-sm font-semibold gap-1.5" onClick={() => setTransition("bid-leveling")}>
+              Continue to Bid Leveling
+              <ArrowRight size={14} />
+            </Button>
+          </div>
         </div>
 
         {/* Active Cost Code System */}
@@ -884,26 +896,6 @@ export default function ScopeAnalyzerPage() {
           </TabsContent>
         </Tabs>
 
-        {/* Bottom Progression Controls */}
-        <div className="mt-10 border-t border-border pt-8 pb-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button
-            size="lg"
-            className="px-8 text-sm font-semibold gap-2"
-            onClick={() => setTransition("bid-leveling")}
-          >
-            Continue to Bid Leveling
-            <ArrowRight size={16} />
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="px-8 text-sm font-semibold gap-2"
-            onClick={() => setTransition("estimate")}
-          >
-            <Hammer size={16} />
-            Skip to Build Estimate
-          </Button>
-        </div>
       </div>
 
       <WorkflowTransition

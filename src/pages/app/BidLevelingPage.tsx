@@ -24,6 +24,10 @@ export default function BidLevelingPage() {
               Compare and normalize subcontractor bids — level scope differences to find the true best-fit bid
             </p>
           </div>
+          <Button size="sm" className="text-sm font-semibold gap-1.5" onClick={() => setTransition(true)}>
+            Build Estimate
+            <ArrowRight size={14} />
+          </Button>
         </div>
 
         {/* Source reference */}
@@ -72,17 +76,6 @@ export default function BidLevelingPage() {
           onToggleExpand={(sub) => setExpandedSub(expandedSub === sub ? null : sub)}
         />
 
-        {/* Bottom Progression Control */}
-        <div className="mt-10 border-t border-border pt-8 pb-4 flex items-center justify-center">
-          <Button
-            size="lg"
-            className="px-8 text-sm font-semibold gap-2"
-            onClick={() => setTransition(true)}
-          >
-            Build Estimate
-            <ArrowRight size={16} />
-          </Button>
-        </div>
       </div>
 
       <WorkflowTransition
