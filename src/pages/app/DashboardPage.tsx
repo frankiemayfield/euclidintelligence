@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-type StageLabel = "Document Upload" | "Scope Analyzer" | "Bid Leveling" | "Estimate Builder" | "Pricing & Margin" | "Proposal Export" | "Est. vs Actual" | "Proposal Comparison" | "Closed";
+type StageLabel = "Document Upload" | "Scope Analyzer" | "Bid Leveling" | "Estimate Builder" | "Pricing & Margin" | "Proposal Export" | "Est. vs Actual" | "Market Comparison" | "Closed";
 type FilterType = "All" | "Active" | "In Review" | "Awaiting Bids" | "Proposal Ready" | "Closed";
 
 interface Project {
@@ -53,7 +53,7 @@ const stageColor: Record<string, string> = {
   "Pricing & Margin": "bg-primary/10 text-primary",
   "Proposal Export": "bg-primary/10 text-primary",
   "Est. vs Actual": "bg-muted text-muted-foreground",
-  "Proposal Comparison": "bg-muted text-muted-foreground",
+  "Market Comparison": "bg-muted text-muted-foreground",
   "Closed": "bg-muted text-muted-foreground",
 };
 

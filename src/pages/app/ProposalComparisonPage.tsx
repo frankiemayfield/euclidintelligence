@@ -51,16 +51,16 @@ export default function ProposalComparisonPage() {
 
   return (
     <AppLayout>
-      <div className="p-6 lg:p-8 max-w-6xl space-y-6">
+      <div className="p-6 lg:p-8 max-w-[1400px] space-y-6">
 
         {/* Header + Market Context */}
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Estimate Comparison</h1>
+          <h1 className="font-display text-2xl font-bold text-foreground">Market Comparison</h1>
           <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — Market benchmark analysis</p>
         </div>
 
         {/* Compact Score + Market Context Strip */}
-        <div className="bg-card border border-border rounded-xl shadow-card p-5">
+        <div className="bg-card border border-border rounded-2xl shadow-card p-5">
           <div className="flex flex-col md:flex-row md:items-center gap-6">
             {/* Score */}
             <div className="flex items-center gap-4 shrink-0">
@@ -72,7 +72,7 @@ export default function ProposalComparisonPage() {
                 <span className="absolute inset-0 flex items-center justify-center font-display text-xl font-bold text-primary">78</span>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Estimator Score</p>
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Proposal Score</p>
                 <p className="text-xs text-muted-foreground mt-0.5">Strong benchmark alignment</p>
               </div>
             </div>
@@ -102,7 +102,7 @@ export default function ProposalComparisonPage() {
             { label: "Gross Margin", value: `${grossMargin}%`, color: Number(grossMargin) < peerMargin ? "text-warning" : "text-primary", sub: `Peer: ${peerMargin}%` },
             { label: "Market Position", value: Number(totalVariance) > 3 ? "Above Market" : "In Range", color: Number(totalVariance) > 3 ? "text-warning" : "text-primary" },
           ].map(c => (
-            <div key={c.label} className="bg-card border border-border rounded-xl p-3 shadow-card text-center">
+            <div key={c.label} className="bg-card border border-border rounded-2xl p-3 shadow-card text-center">
               <p className="text-[10px] text-muted-foreground mb-0.5">{c.label}</p>
               <p className={`font-display text-lg font-bold ${c.color}`}>{c.value}</p>
               {c.sub && <p className="text-[10px] text-muted-foreground">{c.sub}</p>}
@@ -113,7 +113,7 @@ export default function ProposalComparisonPage() {
         {/* Insights Row: What Changed + Market Sensitivity */}
         <div className="grid md:grid-cols-3 gap-4">
           {/* What Changed After Pricing */}
-          <div className="md:col-span-2 bg-card border border-border rounded-xl shadow-card p-5">
+          <div className="md:col-span-2 bg-card border border-border rounded-2xl shadow-card p-5">
             <h2 className="font-display font-semibold text-foreground mb-3">What Changed After Pricing</h2>
             <div className="space-y-2">
               {[
@@ -134,13 +134,13 @@ export default function ProposalComparisonPage() {
 
           {/* Market Sensitivity + Risks/Opportunities */}
           <div className="space-y-4">
-            <div className="bg-card border border-border rounded-xl shadow-card p-4 text-center">
+            <div className="bg-card border border-border rounded-2xl shadow-card p-4 text-center">
               <Gauge size={20} className="mx-auto text-muted-foreground mb-2" />
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Market Sensitivity</p>
               <p className={`font-display text-sm font-bold ${sensitivityColor}`}>{sensitivityLabel}</p>
               <p className="text-[10px] text-muted-foreground mt-1">+{totalVariance}% vs local median</p>
             </div>
-            <div className="bg-card border border-border rounded-xl shadow-card p-4">
+            <div className="bg-card border border-border rounded-2xl shadow-card p-4">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Quick View</p>
               <div className="space-y-1.5 text-xs">
                 <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export default function ProposalComparisonPage() {
         </div>
 
         {/* Pricing Structure vs Peers */}
-        <div className="bg-card border border-border rounded-xl shadow-card p-5">
+        <div className="bg-card border border-border rounded-2xl shadow-card p-5">
           <h2 className="font-display font-semibold text-foreground mb-1">Pricing Structure vs Peers</h2>
           <p className="text-xs text-muted-foreground mb-4">How your pricing approach compares to similar proposals</p>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
