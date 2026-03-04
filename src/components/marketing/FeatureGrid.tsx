@@ -5,14 +5,14 @@ import { useNavigate } from "react-router-dom";
 const features = [
   {
     icon: BarChart3,
-    title: "Proposal Score",
+    title: "Market Comparison",
     desc: "A 0–100 confidence score for every estimate. Instantly see completeness, trade coverage, pricing confidence, scope gap risk, and change-order exposure.",
     detail: "Know where your estimate stands before you send it.",
     link: "/app/estimate-comparison",
   },
   {
     icon: FileSearch,
-    title: "Scope Analyzer",
+    title: "Scope Analysis",
     desc: "Document intelligence that surfaces missing scope, inconsistent assumptions, spec mismatches, and likely exclusions before they become problems.",
     detail: "Catch what others miss — before it costs you.",
     link: "/app/scope-analyzer",
@@ -27,7 +27,7 @@ const features = [
   {
     icon: Bot,
     title: "Estimator Atlas",
-    desc: "Your always-available estimating expert. Answers scope questions, explains cost assumptions, suggests line items, and drafts clarifications on demand.",
+    desc: "Your always-available AI estimating expert. Answers scope questions, explains cost assumptions, suggests line items, and drafts clarifications on demand.",
     detail: "Like having a senior estimator on speed dial.",
     link: "/app/atlas",
   },
