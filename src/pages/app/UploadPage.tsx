@@ -118,9 +118,11 @@ export default function UploadPage() {
 
   return (
     <AppLayout>
-      <div className="p-6 lg:p-8 max-w-4xl">
-        <h1 className="font-display text-2xl font-bold text-foreground mb-1">Document Upload</h1>
-        <p className="text-sm text-muted-foreground mb-6">Upload project files and configure how Bedrock should structure your project before analysis.</p>
+      <div className="p-6 lg:p-8 max-w-3xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="font-display text-2xl font-bold text-foreground">Document Upload</h1>
+          <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">Upload project files and configure how Bedrock should structure your project before analysis.</p>
+        </div>
 
         {!transition ? (
           <div className="space-y-6">

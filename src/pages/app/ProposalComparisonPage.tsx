@@ -1,6 +1,7 @@
 import { AppLayout } from "@/components/app/AppLayout";
 import { TrendingUp, TrendingDown, AlertTriangle, Download, ArrowRight, Filter, ShieldCheck, Target, Gauge } from "lucide-react";
 import { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { TradeComparisonTable } from "@/components/app/estimate-comparison/TradeComparisonTable";
 import { SuggestedActionsPanel } from "@/components/app/estimate-comparison/SuggestedActionsPanel";
@@ -10,6 +11,9 @@ type FilterMode = "all" | "above" | "below" | "in-range";
 type CompareMode = "sell" | "cost" | "both";
 
 export default function ProposalComparisonPage() {
+  const [searchParams] = useSearchParams();
+  const isUploadSource = searchParams.get("source") === "upload";
+
   const [filter, setFilter] = useState<FilterMode>("all");
   const [compareMode, setCompareMode] = useState<CompareMode>("sell");
 
@@ -56,7 +60,11 @@ export default function ProposalComparisonPage() {
         {/* Header + Market Context */}
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Market Comparison</h1>
-          <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — Market benchmark analysis</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isUploadSource
+              ? "Uploaded estimate — Benchmark analysis against market dataset"
+              : "Maple St. Kitchen Remodel — Market benchmark analysis"}
+          </p>
         </div>
 
         {/* Compact Score + Market Context Strip */}
@@ -110,30 +118,59 @@ export default function ProposalComparisonPage() {
           ))}
         </div>
 
-        {/* Insights Row: What Changed + Market Sensitivity */}
-        <div className="grid md:grid-cols-3 gap-4">
-          {/* What Changed After Pricing */}
-          <div className="md:col-span-2 bg-card border border-border rounded-2xl shadow-card p-5">
-            <h2 className="font-display font-semibold text-foreground mb-3">What Changed After Pricing</h2>
-            <div className="space-y-2">
-              {[
-                { text: "Sell price moved from in-range to above market after contingency and markup were applied", type: "warning" },
-                { text: "Cost Plus structure keeps total transparent but margin is slightly below company target (18%)", type: "warning" },
-                { text: "HVAC remains significantly below peer benchmark — pricing did not offset scope risk", type: "error" },
-                { text: "Electrical and plumbing pricing aligned well with local sub quote benchmarks", type: "ok" },
-              ].map((item, i) => (
-                <div key={i} className={`flex items-start gap-2 p-2.5 rounded-lg text-xs ${
-                  item.type === "error" ? "bg-destructive/5 text-destructive" : item.type === "warning" ? "bg-warning/5 text-warning" : "bg-primary/5 text-primary"
-                }`}>
-                  {item.type === "ok" ? <TrendingUp size={12} className="shrink-0 mt-0.5" /> : <AlertTriangle size={12} className="shrink-0 mt-0.5" />}
-                  <span>{item.text}</span>
+        {/* Insights Row: What Changed + Market Sensitivity — only for internal workflow */}
+        {!isUploadSource && (
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* What Changed After Pricing */}
+            <div className="md:col-span-2 bg-card border border-border rounded-2xl shadow-card p-5">
+              <h2 className="font-display font-semibold text-foreground mb-3">What Changed After Pricing</h2>
+              <div className="space-y-2">
+                {[
+                  { text: "Sell price moved from in-range to above market after contingency and markup were applied", type: "warning" },
+                  { text: "Cost Plus structure keeps total transparent but margin is slightly below company target (18%)", type: "warning" },
+                  { text: "HVAC remains significantly below peer benchmark — pricing did not offset scope risk", type: "error" },
+                  { text: "Electrical and plumbing pricing aligned well with local sub quote benchmarks", type: "ok" },
+                ].map((item, i) => (
+                  <div key={i} className={`flex items-start gap-2 p-2.5 rounded-lg text-xs ${
+                    item.type === "error" ? "bg-destructive/5 text-destructive" : item.type === "warning" ? "bg-warning/5 text-warning" : "bg-primary/5 text-primary"
+                  }`}>
+                    {item.type === "ok" ? <TrendingUp size={12} className="shrink-0 mt-0.5" /> : <AlertTriangle size={12} className="shrink-0 mt-0.5" />}
+                    <span>{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Market Sensitivity + Risks/Opportunities */}
+            <div className="space-y-4">
+              <div className="bg-card border border-border rounded-2xl shadow-card p-4 text-center">
+                <Gauge size={20} className="mx-auto text-muted-foreground mb-2" />
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Market Sensitivity</p>
+                <p className={`font-display text-sm font-bold ${sensitivityColor}`}>{sensitivityLabel}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">+{totalVariance}% vs local median</p>
+              </div>
+              <div className="bg-card border border-border rounded-2xl shadow-card p-4">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Quick View</p>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex items-center gap-2">
+                    <Target size={10} className="text-destructive shrink-0" />
+                    <span className="text-muted-foreground">Top Risk:</span>
+                    <span className="text-foreground font-medium">HVAC under-scope</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck size={10} className="text-primary shrink-0" />
+                    <span className="text-muted-foreground">Strongest:</span>
+                    <span className="text-foreground font-medium">Electrical, Plumbing</span>
+                  </div>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
+        )}
 
-          {/* Market Sensitivity + Risks/Opportunities */}
-          <div className="space-y-4">
+        {/* Upload source: Market Sensitivity inline */}
+        {isUploadSource && (
+          <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-card border border-border rounded-2xl shadow-card p-4 text-center">
               <Gauge size={20} className="mx-auto text-muted-foreground mb-2" />
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Market Sensitivity</p>
@@ -156,20 +193,32 @@ export default function ProposalComparisonPage() {
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Pricing Structure vs Peers */}
         <div className="bg-card border border-border rounded-2xl shadow-card p-5">
-          <h2 className="font-display font-semibold text-foreground mb-1">Pricing Structure vs Peers</h2>
-          <p className="text-xs text-muted-foreground mb-4">How your pricing approach compares to similar proposals</p>
+          <h2 className="font-display font-semibold text-foreground mb-1">
+            {isUploadSource ? "Price Position vs Market" : "Pricing Structure vs Peers"}
+          </h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            {isUploadSource
+              ? "How the uploaded pricing compares to market benchmarks"
+              : "How your pricing approach compares to similar proposals"}
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {[
+            {(isUploadSource ? [
+              { label: "Market Position", yours: Number(totalVariance) > 3 ? "Above Market" : "In Range", peer: "Median", status: Number(totalVariance) > 3 ? "above" : "aligned" },
+              { label: "Cost Category Alignment", yours: `${withinRange}/${tradeComparisons.length} in range`, peer: "Expected", status: withinRange >= tradeComparisons.length * 0.6 ? "aligned" : "below" },
+              { label: "Overall Variance", yours: `${Number(totalVariance) > 0 ? "+" : ""}${totalVariance}%`, peer: "±5% target", status: Math.abs(Number(totalVariance)) <= 5 ? "aligned" : "above" },
+              { label: "Competitiveness", yours: sensitivityLabel, peer: "Peer range", status: Number(totalVariance) > 8 ? "above" : "aligned" },
+              { label: "Gross Margin", yours: `${grossMargin}%`, peer: `${peerMargin}%`, status: Number(grossMargin) < peerMargin ? "below" : "aligned" },
+            ] : [
               { label: "Pricing Mode", yours: "Cost Plus", peer: "62% Cost Plus", status: "aligned" },
               { label: "Avg Markup", yours: "18%", peer: "16.5%", status: "above" },
               { label: "Fee Treatment", yours: "Shown separately", peer: "54% separate", status: "aligned" },
               { label: "Contingency", yours: "5%", peer: "4.2% avg", status: "above" },
               { label: "Gross Margin", yours: `${grossMargin}%`, peer: `${peerMargin}%`, status: Number(grossMargin) < peerMargin ? "below" : "aligned" },
-            ].map(s => (
+            ]).map(s => (
               <div key={s.label} className="bg-muted/20 rounded-lg p-3 text-xs">
                 <p className="text-muted-foreground mb-1">{s.label}</p>
                 <p className="text-foreground font-semibold">{s.yours}</p>
@@ -215,22 +264,26 @@ export default function ProposalComparisonPage() {
         </div>
 
         {/* Trade-Level Benchmark Table */}
-        <TradeComparisonTable trades={filteredTrades} compareMode={compareMode} />
+        <TradeComparisonTable trades={filteredTrades} compareMode={compareMode} isUploadSource={isUploadSource} />
 
-        {/* Suggested Actions */}
-        <SuggestedActionsPanel trades={tradeComparisons} />
+        {/* Suggested Actions — only for internal workflow */}
+        {!isUploadSource && <SuggestedActionsPanel trades={tradeComparisons} />}
 
         {/* Workflow Actions */}
         <div className="flex flex-wrap gap-3 pt-2">
           <Button variant="outline" size="sm" className="text-xs">
             <Download size={12} className="mr-1.5" />Export Comparison Snapshot
           </Button>
-          <Button variant="outline" size="sm" className="text-xs">
-            <ArrowRight size={12} className="mr-1.5" />Send Flagged to Estimate Builder
-          </Button>
-          <Button variant="outline" size="sm" className="text-xs">
-            <ArrowRight size={12} className="mr-1.5" />Send to Pricing & Margin
-          </Button>
+          {!isUploadSource && (
+            <>
+              <Button variant="outline" size="sm" className="text-xs">
+                <ArrowRight size={12} className="mr-1.5" />Send Flagged to Estimate Builder
+              </Button>
+              <Button variant="outline" size="sm" className="text-xs">
+                <ArrowRight size={12} className="mr-1.5" />Send to Pricing & Margin
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </AppLayout>

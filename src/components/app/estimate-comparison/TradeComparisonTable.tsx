@@ -8,6 +8,7 @@ import { fmt } from "./tradeData";
 interface TradeComparisonTableProps {
   trades: TradeComparison[];
   compareMode: "sell" | "cost" | "both";
+  isUploadSource?: boolean;
 }
 
 const driverLabels: Record<string, string> = {
@@ -18,13 +19,14 @@ const driverLabels: Record<string, string> = {
   fee: "Fee-driven",
 };
 
-export function TradeComparisonTable({ trades, compareMode }: TradeComparisonTableProps) {
+export function TradeComparisonTable({ trades, compareMode, isUploadSource = false }: TradeComparisonTableProps) {
   const [expandedTrade, setExpandedTrade] = useState<string | null>(null);
   const totalCost = trades.reduce((s, t) => s + t.yourCost, 0);
   const totalSell = trades.reduce((s, t) => s + t.yourSell, 0);
   const totalBench = trades.reduce((s, t) => s + t.benchmark, 0);
 
-  const colCount = compareMode === "both" ? 8 : 7;
+  const showCost = compareMode === "cost" || compareMode === "both";
+  const showSell = compareMode === "sell" || compareMode === "both";
 
   return (
     <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
@@ -33,31 +35,21 @@ export function TradeComparisonTable({ trades, compareMode }: TradeComparisonTab
         <p className="text-xs text-muted-foreground mt-0.5">Comparing your estimate against local benchmark by trade</p>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm table-fixed">
-          <colgroup>
-            <col className="w-10" />
-            <col className="w-[18%]" />
-            {(compareMode === "cost" || compareMode === "both") && <col className="w-[14%]" />}
-            {(compareMode === "sell" || compareMode === "both") && <col className="w-[14%]" />}
-            <col className="w-[13%]" />
-            <col className="w-[10%]" />
-            <col className="w-[18%]" />
-            <col className="w-[11%]" />
-          </colgroup>
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/30">
-              <th className="px-3 py-3" />
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Trade</th>
-              {(compareMode === "cost" || compareMode === "both") && (
-                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Builder Cost</th>
+              <th className="w-10 px-3 py-3" />
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground min-w-[140px]">Trade</th>
+              {showCost && (
+                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground min-w-[110px]">Builder Cost</th>
               )}
-              {(compareMode === "sell" || compareMode === "both") && (
-                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Client Price</th>
+              {showSell && (
+                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground min-w-[110px]">Client Price</th>
               )}
-              <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Benchmark</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Variance</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Range</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Status</th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground min-w-[110px]">Benchmark</th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground min-w-[90px]">Variance</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center min-w-[140px]">Range</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center min-w-[80px]">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -66,6 +58,12 @@ export function TradeComparisonTable({ trades, compareMode }: TradeComparisonTab
               const statusLabel = Math.abs(t.variance) <= 5 ? "In Range" : t.variance > 0 ? "Above" : "Below";
               const statusColor = Math.abs(t.variance) <= 5 ? "bg-primary/10 text-primary" : t.variance > 0 ? "bg-warning/10 text-warning" : "bg-destructive/10 text-destructive";
               const compareValue = compareMode === "cost" ? t.yourCost : t.yourSell;
+
+              // Count visible columns for expanded row colspan
+              let colCount = 5; // expand + trade + benchmark + variance + status
+              if (showCost) colCount++;
+              if (showSell) colCount++;
+              colCount++; // range
 
               return (
                 <tbody key={t.trade}>
@@ -76,11 +74,11 @@ export function TradeComparisonTable({ trades, compareMode }: TradeComparisonTab
                     <td className="px-3 py-3 text-center">
                       <ChevronDown size={14} className={`text-muted-foreground transition-transform inline-block ${isExpanded ? "rotate-180" : ""}`} />
                     </td>
-                    <td className="px-4 py-3 font-medium text-foreground truncate">{t.trade}</td>
-                    {(compareMode === "cost" || compareMode === "both") && (
+                    <td className="px-4 py-3 font-medium text-foreground">{t.trade}</td>
+                    {showCost && (
                       <td className="px-4 py-3 text-right text-muted-foreground tabular-nums font-mono text-xs">{fmt(t.yourCost)}</td>
                     )}
-                    {(compareMode === "sell" || compareMode === "both") && (
+                    {showSell && (
                       <td className="px-4 py-3 text-right font-semibold text-foreground tabular-nums font-mono text-xs">{fmt(t.yourSell)}</td>
                     )}
                     <td className="px-4 py-3 text-right text-muted-foreground tabular-nums font-mono text-xs">{fmt(t.benchmark)}</td>
@@ -138,14 +136,16 @@ export function TradeComparisonTable({ trades, compareMode }: TradeComparisonTab
                               <p className="text-muted-foreground mb-1">Recommended Action</p>
                               <p className="text-foreground font-medium">{t.suggestedAction}</p>
                             </div>
-                            <div className="flex gap-2 pt-1">
-                              <Button variant="outline" size="sm" className="text-xs h-7 rounded-lg">
-                                <ArrowRight size={10} className="mr-1" />Pricing & Margin
-                              </Button>
-                              <Button variant="outline" size="sm" className="text-xs h-7 rounded-lg">
-                                <ArrowRight size={10} className="mr-1" />Estimate Builder
-                              </Button>
-                            </div>
+                            {!isUploadSource && (
+                              <div className="flex gap-2 pt-1">
+                                <Button variant="outline" size="sm" className="text-xs h-7 rounded-lg">
+                                  <ArrowRight size={10} className="mr-1" />Pricing & Margin
+                                </Button>
+                                <Button variant="outline" size="sm" className="text-xs h-7 rounded-lg">
+                                  <ArrowRight size={10} className="mr-1" />Estimate Builder
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -159,10 +159,10 @@ export function TradeComparisonTable({ trades, compareMode }: TradeComparisonTab
             <tr className="border-t-2 border-border bg-muted/30">
               <td />
               <td className="px-4 py-3 text-xs font-semibold text-foreground">Totals</td>
-              {(compareMode === "cost" || compareMode === "both") && (
+              {showCost && (
                 <td className="px-4 py-3 text-right text-xs font-semibold text-foreground tabular-nums font-mono">{fmt(totalCost)}</td>
               )}
-              {(compareMode === "sell" || compareMode === "both") && (
+              {showSell && (
                 <td className="px-4 py-3 text-right text-xs font-semibold text-foreground tabular-nums font-mono">{fmt(totalSell)}</td>
               )}
               <td className="px-4 py-3 text-right text-xs font-semibold text-foreground tabular-nums font-mono">{fmt(totalBench)}</td>

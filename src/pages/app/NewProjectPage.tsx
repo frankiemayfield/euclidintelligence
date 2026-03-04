@@ -1,8 +1,8 @@
 import { AppLayout } from "@/components/app/AppLayout";
-import { Upload, FileText, BarChart3, ArrowRight, FileSearch, Sparkles } from "lucide-react";
+import { Upload, FileText, BarChart3, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 
 const sourceTypes = [
   "Plans / Drawings", "Scope Documents", "Schedules", "Takeoff Imports",
@@ -17,6 +17,8 @@ interface DetectedFile {
 export default function NewProjectPage() {
   const [files, setFiles] = useState<DetectedFile[]>([]);
   const [dragOver, setDragOver] = useState(false);
+  const [buildTransition, setBuildTransition] = useState(false);
+  const [compareTransition, setCompareTransition] = useState(false);
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -122,42 +124,65 @@ export default function NewProjectPage() {
 
         {/* Two Path Buttons */}
         <div className="grid md:grid-cols-2 gap-4">
-          <Link to="/app/upload" className="block">
-            <div className="bg-card border border-border rounded-xl p-6 shadow-card hover:border-primary/40 hover:shadow-md transition-all h-full flex flex-col">
-              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                <FileText size={20} className="text-primary" />
-              </div>
-              <h3 className="font-display font-semibold text-foreground mb-1">Build Your Estimate</h3>
-              <p className="text-xs text-muted-foreground mb-4 flex-1">
-                Upload plans and project files to start the full estimating workflow
-              </p>
-              <div className="flex items-center text-primary text-xs font-medium">
-                Continue to Document Upload <ArrowRight size={12} className="ml-1.5" />
-              </div>
+          <div className="bg-card border border-border rounded-xl p-6 shadow-card hover:border-primary/40 hover:shadow-md transition-all h-full flex flex-col">
+            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+              <FileText size={20} className="text-primary" />
             </div>
-          </Link>
+            <h3 className="font-display font-semibold text-foreground mb-1">Build Your Estimate</h3>
+            <p className="text-xs text-muted-foreground mb-5 flex-1">
+              Upload plans and project files to start the full estimating workflow
+            </p>
+            <Button className="w-full gap-2" onClick={() => setBuildTransition(true)}>
+              Build Estimate <ArrowRight size={14} />
+            </Button>
+          </div>
 
-          <Link to="/app/estimate-comparison" className="block">
-            <div className={`bg-card border rounded-xl p-6 shadow-card hover:border-primary/40 hover:shadow-md transition-all h-full flex flex-col ${
-              hasEstimateOrProposal ? "border-primary/30 ring-1 ring-primary/10" : "border-border"
-            }`}>
-              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                <BarChart3 size={20} className="text-primary" />
-              </div>
-              <h3 className="font-display font-semibold text-foreground mb-1">Compare Your Proposal</h3>
-              <p className="text-xs text-muted-foreground mb-4 flex-1">
-                Upload an existing estimate or proposal to compare it against similar jobs
-              </p>
-              <div className="flex items-center text-primary text-xs font-medium">
-                Continue to Proposal Comparison <ArrowRight size={12} className="ml-1.5" />
-              </div>
-              {hasEstimateOrProposal && (
-                <span className="text-[10px] text-primary mt-2 font-medium">✦ Estimate or proposal detected — recommended</span>
-              )}
+          <div className={`bg-card border rounded-xl p-6 shadow-card hover:border-primary/40 hover:shadow-md transition-all h-full flex flex-col ${
+            hasEstimateOrProposal ? "border-primary/30 ring-1 ring-primary/10" : "border-border"
+          }`}>
+            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+              <BarChart3 size={20} className="text-primary" />
             </div>
-          </Link>
+            <h3 className="font-display font-semibold text-foreground mb-1">Compare Your Proposal</h3>
+            <p className="text-xs text-muted-foreground mb-5 flex-1">
+              Upload an existing estimate or proposal to compare it against similar jobs
+            </p>
+            <Button variant="outline" className="w-full gap-2" onClick={() => setCompareTransition(true)}>
+              <BarChart3 size={14} /> Market Comparison <ArrowRight size={14} />
+            </Button>
+            {hasEstimateOrProposal && (
+              <span className="text-[10px] text-primary mt-2 font-medium">✦ Estimate or proposal detected — recommended</span>
+            )}
+          </div>
         </div>
       </div>
+
+      <WorkflowTransition
+        active={buildTransition}
+        headline="Building your estimate"
+        steps={[
+          { label: "Classifying documents" },
+          { label: "Filling in project details" },
+          { label: "Setting up workflow preferences" },
+          { label: "Preparing your workspace" },
+        ]}
+        targetPath="/app/upload"
+        onComplete={() => setBuildTransition(false)}
+      />
+
+      <WorkflowTransition
+        active={compareTransition}
+        headline="Comparing your pricing"
+        steps={[
+          { label: "Benchmark alignment analysis" },
+          { label: "Comparing against thousands of estimates" },
+          { label: "Analyzing market pricing" },
+          { label: "Comparing costs and prices" },
+          { label: "Generating proposal score" },
+        ]}
+        targetPath="/app/estimate-comparison?source=upload"
+        onComplete={() => setCompareTransition(false)}
+      />
     </AppLayout>
   );
 }
