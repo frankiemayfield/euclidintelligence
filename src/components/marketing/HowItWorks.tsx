@@ -4,18 +4,18 @@ import { Upload, BarChart3, FileCheck } from "lucide-react";
 const steps = [
   {
     icon: Upload,
-    title: "Upload your project files",
-    desc: "Drop plans, bid sheets, Buildertrend exports, scope documents, or takeoff sheets. Bedrock reads them all.",
+    title: "Upload Your Project Files",
+    desc: "Upload plans, bid sheets, Buildertrend exports, scope docs, or takeoff sheets.",
   },
   {
     icon: BarChart3,
-    title: "Review your Bid Score & estimate",
-    desc: "Get a structured estimate, Bid Score, scope flags, and pricing confidence — organized and actionable.",
+    title: "Get Your Proposal Score & Market Comparison",
+    desc: "Bedrock benchmarks your estimate against real projects and identifies pricing variance by trade.",
   },
   {
     icon: FileCheck,
-    title: "Finalize your proposal with Atlas",
-    desc: "Use Estimator Atlas to refine line items, draft exclusions, and generate client-ready proposals.",
+    title: "Finalize Your Proposal with Atlas",
+    desc: "Atlas explains pricing risks, suggests adjustments, and helps refine scope before sending to the client.",
   },
 ];
 

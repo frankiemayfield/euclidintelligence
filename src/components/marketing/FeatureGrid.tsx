@@ -5,29 +5,29 @@ import { useNavigate } from "react-router-dom";
 const features = [
   {
     icon: BarChart3,
-    title: "Bid Score",
-    desc: "A 0–100 confidence score for every estimate. Instantly see completeness, trade coverage, pricing confidence, scope gap risk, and change-order exposure.",
-    detail: "Know where your estimate stands before you send it.",
+    title: "Proposal Score",
+    desc: "Instantly see how strong your estimate is before sending it. Bedrock analyzes completeness, pricing variance, trade coverage, and scope gaps to generate a single proposal score.",
+    detail: "Know where your proposal stands before it goes out.",
     link: "/app/bid-score",
   },
   {
     icon: FileSearch,
-    title: "Plan & Scope Analyzer",
-    desc: "Document intelligence that surfaces missing scope, inconsistent assumptions, spec mismatches, and likely exclusions before they become problems.",
+    title: "Scope Analyzer",
+    desc: "Detect missing scope before it becomes a change order. Automatically surface missing assumptions, spec conflicts, and scope gaps from uploaded documents.",
     detail: "Catch what others miss — before it costs you.",
     link: "/app/scope-analyzer",
   },
   {
     icon: Table2,
     title: "Estimate Builder",
-    desc: "Structured estimate generation with line items, cost codes, trade breakdowns, labor/material splits, and one-click export to PDF, Excel, or CSV.",
+    desc: "Generate structured estimates with trade breakdowns, cost codes, labor/material splits, and export-ready proposals.",
     detail: "From raw data to client-ready proposal in minutes.",
     link: "/app/estimate-builder",
   },
   {
     icon: Bot,
     title: "Estimator Atlas",
-    desc: "Your always-available estimating expert. Answers scope questions, explains cost assumptions, suggests line items, and drafts clarifications on demand.",
+    desc: "Your always-available estimating assistant. Atlas explains pricing variance, flags risky trades, and recommends adjustments based on real project benchmarks.",
     detail: "Like having a senior estimator on speed dial.",
     link: "/app/atlas",
   },
@@ -41,7 +41,7 @@ export function FeatureGrid() {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center mb-14">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
-            Four pillars of estimating clarity
+            The Four Systems Behind Every Proposal Score
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             Everything you need to understand, validate, and present your project costs with confidence.
