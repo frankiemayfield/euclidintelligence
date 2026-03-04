@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/app/AppLayout";
-import { Upload, FileText, X, CheckCircle, ArrowRight, BarChart3 } from "lucide-react";
+import { Upload, X, CheckCircle, ArrowRight, Settings2, Layers, Target, FileText, AlertCircle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +14,8 @@ interface UploadedFile {
   name: string;
   sourceType: SourceType;
   status: "Classified" | "Needs Review";
+  isPrimary?: boolean;
+  excludeFromAnalysis?: boolean;
 }
 
 const sourceTypeLabels: Record<SourceType, string> = {
@@ -33,6 +35,35 @@ const sourceTypeIcons: Record<SourceType, string> = {
   estimates: "📑", proposals: "📄", subbids: "📨", vendorquotes: "💰", other: "📎",
 };
 
+const costCodeSystems = [
+  { id: "16div", label: "16-Division Default", description: "Standard 16-division construction cost code structure" },
+  { id: "custom", label: "Company Custom Codes", description: "Mayfield & Co. custom cost code system" },
+];
+
+const estimateSections = [
+  "Pre-Build Requirements", "Base Scope", "General Requirements",
+  "Allowances", "Selection Placeholders", "Alternates / Options",
+];
+
+const workflowGoals = [
+  { id: "build", label: "Build Estimate", description: "Full estimating workflow from plans to proposal" },
+  { id: "compare", label: "Compare Existing Estimate", description: "Benchmark an existing estimate against market data" },
+  { id: "subpackages", label: "Prepare Sub Scope Packages", description: "Build and send scope packages to subcontractors" },
+];
+
+const analysisSources = [
+  { id: "plans", label: "Plans / Drawings" },
+  { id: "estimate", label: "Uploaded Estimate" },
+  { id: "subbids", label: "Subcontractor Bids" },
+  { id: "all", label: "Use All Sources" },
+];
+
+const estimateUsageOptions = [
+  { id: "reference", label: "Use as Reference Only" },
+  { id: "baseline", label: "Use as Baseline Estimate" },
+  { id: "comparison", label: "Use for Market Comparison" },
+];
+
 export default function UploadPage() {
   const [files, setFiles] = useState<UploadedFile[]>([
     { name: "A1.1_Floor_Plan.pdf", sourceType: "plans", status: "Classified" },
@@ -44,6 +75,10 @@ export default function UploadPage() {
   ]);
   const [processing, setProcessing] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [activeCostCode, setActiveCostCode] = useState("16div");
+  const [workflowGoal, setWorkflowGoal] = useState("build");
+  const [analysisSource, setAnalysisSource] = useState("all");
+  const [estimateUsage, setEstimateUsage] = useState("baseline");
   const navigate = useNavigate();
 
   const addFiles = () => {
@@ -58,12 +93,16 @@ export default function UploadPage() {
     setTimeout(() => navigate("/app/scope-analyzer"), 2500);
   };
 
-  const handleGoToComparison = () => {
-    navigate("/app/estimate-comparison");
-  };
-
   const updateSourceType = (index: number, newType: SourceType) => {
     setFiles(files.map((f, i) => i === index ? { ...f, sourceType: newType, status: "Classified" } : f));
+  };
+
+  const togglePrimary = (index: number) => {
+    setFiles(files.map((f, i) => i === index ? { ...f, isPrimary: !f.isPrimary } : f));
+  };
+
+  const toggleExclude = (index: number) => {
+    setFiles(files.map((f, i) => i === index ? { ...f, excludeFromAnalysis: !f.excludeFromAnalysis } : f));
   };
 
   const categories: SourceType[] = ["plans", "schedules", "scope", "takeoff", "estimates", "proposals", "subbids", "vendorquotes", "other"];
@@ -72,27 +111,30 @@ export default function UploadPage() {
   const filesByCategory = (cat: string) => files.filter(f => f.sourceType === cat).length;
 
   const hasEstimatesOrProposals = files.some(f => f.sourceType === "estimates" || f.sourceType === "proposals");
-  const hasSubBids = files.some(f => f.sourceType === "subbids");
-  const hasPlansOrScope = files.some(f => f.sourceType === "plans" || f.sourceType === "scope");
+
+  const classifiedCount = files.filter(f => f.status === "Classified").length;
+  const needsReviewCount = files.filter(f => f.status === "Needs Review").length;
+  const primarySelected = files.some(f => f.isPrimary);
+  const isReady = files.length > 0 && needsReviewCount === 0;
 
   return (
     <AppLayout>
       <div className="p-6 lg:p-8 max-w-4xl">
         <h1 className="font-display text-2xl font-bold text-foreground mb-1">Document Upload</h1>
-        <p className="text-sm text-muted-foreground mb-6">Upload project files, estimates, and subcontractor bids. Bedrock will organize your files by source type.</p>
+        <p className="text-sm text-muted-foreground mb-6">Upload project files and configure how Bedrock should structure your project before analysis.</p>
 
         {processing ? (
-          <div className="bg-card border border-border rounded-xl p-12 text-center shadow-card">
+          <div className="bg-card border border-border rounded-2xl p-12 text-center shadow-card">
             <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin mx-auto mb-5" />
             <h3 className="font-display text-lg font-semibold text-foreground mb-2">Analyzing your project...</h3>
             <p className="text-sm text-muted-foreground">Processing documents, extracting quantities, building traceable takeoff...</p>
           </div>
         ) : (
           <div className="space-y-6">
-            {/* === UNIFIED UPLOAD AREA (TOP) === */}
-            <div className="bg-card border border-border rounded-xl p-5 shadow-card">
+            {/* === UPLOAD AREA === */}
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
               <div
-                className="border-2 border-dashed border-primary/30 rounded-xl p-10 text-center cursor-pointer hover:border-primary/60 transition-colors mb-5"
+                className="border-2 border-dashed border-primary/30 rounded-xl p-10 text-center cursor-pointer hover:border-primary/60 transition-colors"
                 onClick={addFiles}
               >
                 <Upload className="mx-auto mb-3 text-primary" size={32} />
@@ -100,17 +142,15 @@ export default function UploadPage() {
                 <p className="text-xs text-muted-foreground max-w-md mx-auto">
                   Plans · Schedules · Scope docs · Takeoff sheets · Estimates · Proposals · Subcontractor bids · Vendor quotes
                 </p>
-                <p className="text-[10px] text-muted-foreground mt-2">Use Bedrock to build an estimate or compare an existing proposal against the market</p>
               </div>
             </div>
 
-            {/* === FILE CLASSIFICATION BREAKDOWN === */}
+            {/* === FILE CLASSIFICATION === */}
             {files.length > 0 && (
-              <div className="bg-card border border-border rounded-xl p-5 shadow-card">
-                <h2 className="font-display text-sm font-semibold text-foreground mb-3">File Classification</h2>
-                <p className="text-xs text-muted-foreground mb-4">Bedrock automatically classifies your uploads. Reassign source types if needed.</p>
+              <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
+                <h2 className="font-display text-sm font-semibold text-foreground mb-1">File Classification</h2>
+                <p className="text-xs text-muted-foreground mb-4">Bedrock classifies uploads automatically. Reassign types, mark primary sources, or exclude files.</p>
 
-                {/* Category summary chips */}
                 <div className="flex gap-1.5 flex-wrap mb-4">
                   {allCategories.map(cat => {
                     const count = cat === "all" ? files.length : filesByCategory(cat);
@@ -126,14 +166,30 @@ export default function UploadPage() {
                   })}
                 </div>
 
-                {/* File list */}
                 <div className="space-y-1.5">
-                  {filteredFiles.map((f, i) => {
+                  {filteredFiles.map((f) => {
                     const realIndex = files.indexOf(f);
                     return (
-                      <div key={i} className="flex items-center gap-3 bg-muted/20 rounded-lg px-3 py-2.5">
+                      <div key={realIndex} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${
+                        f.excludeFromAnalysis ? "bg-muted/10 opacity-50" : "bg-muted/20"
+                      }`}>
                         <span className="text-sm">{sourceTypeIcons[f.sourceType]}</span>
-                        <span className="text-sm text-foreground flex-1">{f.name}</span>
+                        <span className={`text-sm flex-1 ${f.excludeFromAnalysis ? "line-through text-muted-foreground" : "text-foreground"}`}>{f.name}</span>
+                        {f.isPrimary && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">PRIMARY</span>
+                        )}
+                        <button onClick={() => togglePrimary(realIndex)} title="Mark as primary source"
+                          className={`text-[10px] px-1.5 py-0.5 rounded-full border transition-colors ${
+                            f.isPrimary ? "border-primary/30 text-primary" : "border-border text-muted-foreground hover:text-foreground"
+                          }`}>
+                          ★
+                        </button>
+                        <button onClick={() => toggleExclude(realIndex)} title={f.excludeFromAnalysis ? "Include in analysis" : "Exclude from analysis"}
+                          className={`text-[10px] px-1.5 py-0.5 rounded-full border transition-colors ${
+                            f.excludeFromAnalysis ? "border-destructive/30 text-destructive" : "border-border text-muted-foreground hover:text-foreground"
+                          }`}>
+                          {f.excludeFromAnalysis ? "Excluded" : "Excl"}
+                        </button>
                         <select
                           value={f.sourceType}
                           onChange={(e) => updateSourceType(realIndex, e.target.value as SourceType)}
@@ -153,114 +209,246 @@ export default function UploadPage() {
                     );
                   })}
                 </div>
-
-                {/* Source type summary cards */}
-                <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mt-4">
-                  {categories.filter(cat => filesByCategory(cat) > 0).map(cat => (
-                    <div key={cat} className="bg-muted/20 rounded-lg p-2.5 text-center">
-                      <p className="text-lg">{sourceTypeIcons[cat]}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{sourceTypeLabels[cat]}</p>
-                      <p className="text-xs font-display font-bold text-foreground">{filesByCategory(cat)}</p>
-                    </div>
-                  ))}
-                </div>
               </div>
             )}
 
-            {/* === ADAPTIVE NEXT STEPS === */}
-            <div className="bg-card border border-border rounded-xl p-5 shadow-card">
-              <h2 className="font-display text-sm font-semibold text-foreground mb-3">Recommended Next Steps</h2>
-              <div className="space-y-2">
-                {hasPlansOrScope && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
-                    <CheckCircle size={14} className="text-primary shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-xs font-medium text-foreground">Plans & scope documents detected</p>
-                      <p className="text-[10px] text-muted-foreground">Continue to Scope Analyzer to review quantities and scope issues</p>
-                    </div>
-                    <Button size="sm" className="text-xs shrink-0" onClick={handleSubmit}>
-                      Continue to Scope Analyzer <ArrowRight size={12} className="ml-1" />
-                    </Button>
+            {/* === PROJECT STRUCTURING PREFERENCES === */}
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Settings2 size={16} className="text-primary" />
+                </div>
+                <div>
+                  <h2 className="font-display text-sm font-semibold text-foreground">Project Structuring Preferences</h2>
+                  <p className="text-[11px] text-muted-foreground">Tell Bedrock how to interpret and structure your project data.</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-5">
+                {/* Cost Code System */}
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-2 block flex items-center gap-1.5">
+                    <Layers size={12} className="text-primary" />
+                    Active Cost Code System
+                  </label>
+                  <div className="space-y-1.5">
+                    {costCodeSystems.map(sys => (
+                      <button key={sys.id} onClick={() => setActiveCostCode(sys.id)}
+                        className={`w-full text-left px-3 py-2.5 rounded-xl border transition-colors ${
+                          activeCostCode === sys.id
+                            ? "border-primary/40 bg-primary/5"
+                            : "border-border bg-background hover:border-primary/20"
+                        }`}>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                            activeCostCode === sys.id ? "border-primary" : "border-muted-foreground/30"
+                          }`}>
+                            {activeCostCode === sys.id && <div className="w-2 h-2 rounded-full bg-primary" />}
+                          </div>
+                          <span className="text-xs font-medium text-foreground">{sys.label}</span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground ml-6 mt-0.5">{sys.description}</p>
+                      </button>
+                    ))}
+                    <button className="text-[10px] text-primary font-medium hover:underline ml-1 mt-1">
+                      + Upload Custom Codes
+                    </button>
                   </div>
-                )}
-                {hasSubBids && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border">
-                    <CheckCircle size={14} className="text-primary shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-xs font-medium text-foreground">{filesByCategory("subbids")} subcontractor bids uploaded</p>
-                      <p className="text-[10px] text-muted-foreground">These will be available in Bid Leveling for side-by-side comparison</p>
+                </div>
+
+                {/* Primary Workflow Goal */}
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-2 block flex items-center gap-1.5">
+                    <Target size={12} className="text-primary" />
+                    Primary Workflow Goal
+                  </label>
+                  <div className="space-y-1.5">
+                    {workflowGoals.map(goal => (
+                      <button key={goal.id} onClick={() => setWorkflowGoal(goal.id)}
+                        className={`w-full text-left px-3 py-2.5 rounded-xl border transition-colors ${
+                          workflowGoal === goal.id
+                            ? "border-primary/40 bg-primary/5"
+                            : "border-border bg-background hover:border-primary/20"
+                        }`}>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                            workflowGoal === goal.id ? "border-primary" : "border-muted-foreground/30"
+                          }`}>
+                            {workflowGoal === goal.id && <div className="w-2 h-2 rounded-full bg-primary" />}
+                          </div>
+                          <span className="text-xs font-medium text-foreground">{goal.label}</span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground ml-6 mt-0.5">{goal.description}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Primary Analysis Source */}
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-2 block flex items-center gap-1.5">
+                    <FileText size={12} className="text-primary" />
+                    Primary Analysis Source
+                  </label>
+                  <div className="space-y-1.5">
+                    {analysisSources.map(src => (
+                      <button key={src.id} onClick={() => setAnalysisSource(src.id)}
+                        className={`w-full text-left px-3 py-2 rounded-xl border transition-colors ${
+                          analysisSource === src.id
+                            ? "border-primary/40 bg-primary/5"
+                            : "border-border bg-background hover:border-primary/20"
+                        }`}>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                            analysisSource === src.id ? "border-primary" : "border-muted-foreground/30"
+                          }`}>
+                            {analysisSource === src.id && <div className="w-2 h-2 rounded-full bg-primary" />}
+                          </div>
+                          <span className="text-xs font-medium text-foreground">{src.label}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Estimate File Usage (conditional) */}
+                {hasEstimatesOrProposals ? (
+                  <div>
+                    <label className="text-xs font-medium text-foreground mb-2 block flex items-center gap-1.5">
+                      <FileText size={12} className="text-primary" />
+                      Estimate File Usage
+                    </label>
+                    <div className="space-y-1.5">
+                      {estimateUsageOptions.map(opt => (
+                        <button key={opt.id} onClick={() => setEstimateUsage(opt.id)}
+                          className={`w-full text-left px-3 py-2 rounded-xl border transition-colors ${
+                            estimateUsage === opt.id
+                              ? "border-primary/40 bg-primary/5"
+                              : "border-border bg-background hover:border-primary/20"
+                          }`}>
+                          <div className="flex items-center gap-2">
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                              estimateUsage === opt.id ? "border-primary" : "border-muted-foreground/30"
+                            }`}>
+                              {estimateUsage === opt.id && <div className="w-2 h-2 rounded-full bg-primary" />}
+                            </div>
+                            <span className="text-xs font-medium text-foreground">{opt.label}</span>
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
-                )}
-                {hasEstimatesOrProposals && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/30 border border-accent/20">
-                    <BarChart3 size={14} className="text-primary shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-xs font-medium text-foreground">Estimate or proposal detected</p>
-                      <p className="text-[10px] text-muted-foreground">Compare it against 20,000+ similar proposals in the Bedrock dataset</p>
+                ) : (
+                  <div>
+                    <label className="text-xs font-medium text-foreground mb-2 block flex items-center gap-1.5">
+                      <Layers size={12} className="text-primary" />
+                      Preferred Estimate Structure
+                    </label>
+                    <div className="bg-background border border-border rounded-xl p-3">
+                      <p className="text-[10px] text-muted-foreground mb-2">Bedrock will organize scope into these sections:</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {estimateSections.map(sec => (
+                          <span key={sec} className="text-[10px] px-2 py-1 rounded-full bg-primary/8 text-primary border border-primary/10 font-medium">
+                            {sec}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <Button size="sm" variant="outline" className="text-xs shrink-0" onClick={handleGoToComparison}>
-                      Open Proposal Comparison <ArrowRight size={12} className="ml-1" />
-                    </Button>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* === PROJECT SETUP (BELOW UPLOAD) === */}
-            <div className="bg-card border border-border rounded-xl p-5 shadow-card">
+            {/* === PROJECT SETUP === */}
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
               <h2 className="font-display text-sm font-semibold text-foreground mb-4">Project Setup</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Project Name</label>
-                  <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" defaultValue="Maple St. Kitchen Remodel" />
+                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" defaultValue="Maple St. Kitchen Remodel" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Client / Owner</label>
-                  <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. Johnson Family" />
+                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. Johnson Family" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Project Type</label>
-                  <select className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring">
+                  <select className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring">
                     {projectTypes.map(t => <option key={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Region</label>
-                  <select className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring">
+                  <select className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring">
                     {regions.map(r => <option key={r}>{r}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Spec Level</label>
-                  <select className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring">
+                  <select className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring">
                     {specLevels.map(s => <option key={s}>{s}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Square Footage</label>
-                  <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. 2,800" />
+                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. 2,800" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-1.5 block">Project Address</label>
+                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. 123 Maple St, Chicago, IL" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-1.5 block">Job Number / Internal ID</label>
+                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. MF-2024-042" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Notes</label>
-                  <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="Optional project notes..." />
+                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="Optional project notes..." />
                 </div>
               </div>
             </div>
 
-            {/* Workflow hint */}
-            <div className="bg-card border border-border rounded-xl p-4 shadow-card">
-              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <ArrowRight size={10} className="text-primary" />
-                <span>Flow: <span className="text-foreground font-medium">Document Upload</span> → Scope Analyzer → Bid Leveling → Estimate Builder → Pricing & Margin → Proposal Comparison → Proposal Export → Est. vs Actual</span>
-              </p>
+            {/* === DATA READINESS === */}
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
+              <div className="flex items-center gap-2 mb-3">
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isReady ? "bg-primary/10" : "bg-warning/10"}`}>
+                  {isReady ? <CheckCircle size={16} className="text-primary" /> : <AlertCircle size={16} className="text-warning" />}
+                </div>
+                <div>
+                  <h2 className="font-display text-sm font-semibold text-foreground">Data Readiness</h2>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isReady ? "Project is ready for Scope Analyzer" : "Some items need attention before continuing"}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {[
+                  { label: "Files uploaded", value: `${files.length}`, ok: files.length > 0 },
+                  { label: "Classified", value: `${classifiedCount}`, ok: classifiedCount === files.length },
+                  { label: "Needs review", value: `${needsReviewCount}`, ok: needsReviewCount === 0 },
+                  { label: "Primary source", value: primarySelected ? "Selected" : "Not set", ok: primarySelected },
+                  { label: "Cost code system", value: activeCostCode === "16div" ? "16-Division" : "Custom", ok: true },
+                  { label: "Workflow goal", value: workflowGoals.find(g => g.id === workflowGoal)?.label || "", ok: true },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center gap-2 bg-muted/20 rounded-xl px-3 py-2">
+                    {item.ok ? (
+                      <Check size={12} className="text-primary shrink-0" />
+                    ) : (
+                      <AlertCircle size={12} className="text-warning shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-muted-foreground">{item.label}</p>
+                      <p className="text-xs font-medium text-foreground truncate">{item.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {!hasPlansOrScope && (
-              <Button onClick={handleSubmit} disabled={files.length === 0} size="lg" className="w-full">
-                Continue to Scope Analyzer
-              </Button>
-            )}
+            {/* === CTA === */}
+            <Button onClick={handleSubmit} disabled={files.length === 0} size="lg" className="w-full rounded-2xl">
+              Continue to Scope Analyzer <ArrowRight size={14} className="ml-2" />
+            </Button>
           </div>
         )}
       </div>
