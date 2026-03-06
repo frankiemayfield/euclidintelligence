@@ -74,7 +74,7 @@ export function HowItWorks() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.12 + 0.06 }}
-                  className="flex items-center pt-5 px-2"
+                  className="flex items-center px-2" style={{ marginTop: '50px' }}
                 >
                   <ArrowRight className="text-primary/40" size={20} />
                 </motion.div>
