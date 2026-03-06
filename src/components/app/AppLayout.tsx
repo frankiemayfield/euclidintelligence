@@ -50,7 +50,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <header className="h-12 border-b border-border bg-card flex items-center justify-between px-4 shrink-0 z-50">
         <div className="flex items-center gap-6">
           <Link to="/" className="shrink-0">
-            <img src={bedrockLogo} alt="Bedrock" className="h-8 w-auto" />
+            <img src={bedrockLogo} alt="Bedrock" className="h-14 w-auto" />
           </Link>
           <nav className="flex items-center gap-1">
             <Link to="/app"
