@@ -59,9 +59,24 @@ export function HeroSection() {
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              No signup required. No credit card. Demo in under 60 seconds.
-            </p>
+            <div className="flex items-center gap-4 mb-3 max-w-lg">
+              <p className="text-xs text-muted-foreground">
+                No signup required. No credit card. Demo in under 60 seconds.
+              </p>
+            </div>
+
+            {/* Subcontractor CTA */}
+            <div className="bg-card/50 border border-border rounded-xl p-4 max-w-lg">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Are you a Subcontractor?</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Build and manage your own trade-specific quotes</p>
+                </div>
+                <Button variant="outline" size="sm" className="shrink-0 gap-1.5" onClick={() => navigate("/sub")}>
+                  Subcontractor Portal <ArrowRight size={14} />
+                </Button>
+              </div>
+            </div>
           </motion.div>
 
           {/* Right: Proposal Score Preview */}
