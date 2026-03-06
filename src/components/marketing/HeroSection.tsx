@@ -18,8 +18,8 @@ export function HeroSection() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+            transition={{ duration: 0.6 }}>
+            
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.1] mb-5">
               Understand Your{" "}
               <span className="text-primary">Project Costs</span>
@@ -54,29 +54,14 @@ export function HeroSection() {
                   Upload an existing estimate or proposal to compare it against similar jobs.
                 </p>
                 <Button size="sm" className="w-full gap-2" onClick={() => setCompareTransition(true)}>
-                  <BarChart3 size={14} /> Market Comparison <ArrowRight size={14} />
+                   Market Comparison <ArrowRight size={14} />
                 </Button>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 mb-3 max-w-lg">
-              <p className="text-xs text-muted-foreground">
-                No signup required. No credit card. Demo in under 60 seconds.
-              </p>
-            </div>
-
-            {/* Subcontractor CTA */}
-            <div className="bg-card/50 border border-border rounded-xl p-4 max-w-lg">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Are you a Subcontractor?</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Build and manage your own trade-specific quotes</p>
-                </div>
-                <Button variant="outline" size="sm" className="shrink-0 gap-1.5" onClick={() => navigate("/sub")}>
-                  Subcontractor Portal <ArrowRight size={14} />
-                </Button>
-              </div>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              No signup required. No credit card. Demo in under 60 seconds.
+            </p>
           </motion.div>
 
           {/* Right: Proposal Score Preview */}
@@ -84,8 +69,8 @@ export function HeroSection() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="hidden lg:block"
-          >
+            className="hidden lg:block">
+            
             {/* Score Panel — matches Market Comparison page exactly */}
             <div className="bg-card border border-border rounded-2xl shadow-card p-5 space-y-4">
               <div className="flex items-center justify-between">
@@ -130,20 +115,20 @@ export function HeroSection() {
               {/* Summary Stats */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {[
-                  { label: "Completeness", value: "92%", color: "text-primary" },
-                  { label: "Trade Coverage", value: "88%", color: "text-primary" },
-                  { label: "Pricing Confidence", value: "High", color: "text-primary" },
-                  { label: "Overall Variance", value: "+4.8%", color: "text-warning" },
-                  { label: "Gross Margin", value: "24.0%", color: "text-primary", sub: "Peer: 16.2%" },
-                  { label: "Scope Gaps", value: "3 flags", color: "text-warning" },
-                  
-                ].map((m) => (
-                  <div key={m.label} className="bg-muted/20 rounded-lg p-2.5">
+                { label: "Completeness", value: "92%", color: "text-primary" },
+                { label: "Trade Coverage", value: "88%", color: "text-primary" },
+                { label: "Pricing Confidence", value: "High", color: "text-primary" },
+                { label: "Overall Variance", value: "+4.8%", color: "text-warning" },
+                { label: "Gross Margin", value: "24.0%", color: "text-primary", sub: "Peer: 16.2%" },
+                { label: "Scope Gaps", value: "3 flags", color: "text-warning" }].
+
+                map((m) =>
+                <div key={m.label} className="bg-muted/20 rounded-lg p-2.5">
                     <p className="text-[10px] text-muted-foreground">{m.label}</p>
                     <p className={`font-display font-semibold text-sm ${m.color}`}>{m.value}</p>
                     {m.sub && <p className="text-[10px] text-muted-foreground">{m.sub}</p>}
                   </div>
-                ))}
+                )}
               </div>
 
 
@@ -183,28 +168,28 @@ export function HeroSection() {
         active={buildTransition}
         headline="Building your estimate"
         steps={[
-          { label: "Classifying documents" },
-          { label: "Filling in project details" },
-          { label: "Setting up workflow preferences" },
-          { label: "Preparing your workspace" },
-        ]}
+        { label: "Classifying documents" },
+        { label: "Filling in project details" },
+        { label: "Setting up workflow preferences" },
+        { label: "Preparing your workspace" }]
+        }
         targetPath="/app/upload"
-        onComplete={() => setBuildTransition(false)}
-      />
+        onComplete={() => setBuildTransition(false)} />
+      
 
       <WorkflowTransition
         active={compareTransition}
         headline="Comparing your pricing"
         steps={[
-          { label: "Benchmark alignment analysis" },
-          { label: "Comparing against thousands of estimates" },
-          { label: "Analyzing market pricing" },
-          { label: "Comparing costs and prices" },
-          { label: "Generating proposal score" },
-        ]}
+        { label: "Benchmark alignment analysis" },
+        { label: "Comparing against thousands of estimates" },
+        { label: "Analyzing market pricing" },
+        { label: "Comparing costs and prices" },
+        { label: "Generating proposal score" }]
+        }
         targetPath="/app/estimate-comparison?source=upload"
-        onComplete={() => setCompareTransition(false)}
-      />
-    </section>
-  );
+        onComplete={() => setCompareTransition(false)} />
+      
+    </section>);
+
 }
