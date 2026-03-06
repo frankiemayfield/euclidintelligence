@@ -101,7 +101,7 @@ export function HeroSection() {
 
               {/* Market Context */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1 text-xs">
-                <div><span className="text-muted-foreground">Compared Against</span> <span className="text-foreground font-medium ml-1">20,184 estimates</span></div>
+                <div><span className="text-muted-foreground">Compared Against</span> <span className="text-foreground font-medium ml-1">20,184</span></div>
                 <div><span className="text-muted-foreground">Region</span> <span className="text-foreground font-medium ml-1">Midwest</span></div>
                 <div><span className="text-muted-foreground">Project Type</span> <span className="text-foreground font-medium ml-1">Remodel</span></div>
                 <div><span className="text-muted-foreground">Size Band</span> <span className="text-foreground font-medium ml-1">2,000–4,000 SF</span></div>
