@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { FileText, BarChart3, Bot, ArrowRight, Gauge, Target, ShieldCheck } from "lucide-react";
+import { FileText, BarChart3, Bot, Gauge, Target, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
@@ -41,7 +41,7 @@ export function HeroSection() {
                   Upload plans and project files to start the full estimating workflow.
                 </p>
                 <Button size="sm" className="w-full gap-2" onClick={() => setBuildTransition(true)}>
-                  <FileText size={14} /> Build an Estimate
+                  Build an Estimate 
                 </Button>
               </div>
 
@@ -54,7 +54,7 @@ export function HeroSection() {
                   Upload an existing estimate or proposal to compare it against similar jobs.
                 </p>
                 <Button size="sm" className="w-full gap-2" onClick={() => setCompareTransition(true)}>
-                   Market Comparison <ArrowRight size={14} />
+                   Market Comparison 
                 </Button>
               </div>
             </div>
