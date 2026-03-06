@@ -35,7 +35,7 @@ export function BuiltForSection() {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center mb-14">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
-            Built for the people who build
+            Built for those who build
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
             Bedrock serves every role in the estimating and pre-construction workflow.
