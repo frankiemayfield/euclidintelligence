@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BarChart3, FileSearch, Table2, Bot } from "lucide-react";
+import { BarChart3, FileSearch, Table2, Scale } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const features = [
@@ -25,7 +25,7 @@ const features = [
     link: "/app/estimate-builder",
   },
   {
-    icon: Bot,
+    icon: Scale,
     title: "AI Estimator Assistant",
     desc: "Your always-available AI estimating expert. Answers scope questions, explains cost assumptions, suggests line items, and drafts clarifications on demand.",
     detail: "Like having a senior estimator on speed dial.",
