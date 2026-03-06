@@ -2,7 +2,8 @@ import { SubLayout } from "@/components/sub/SubLayout";
 import {
   AlertTriangle, CheckCircle, FileSearch, Info, XCircle, ChevronDown, ChevronRight,
   Pencil, Flag, Send, Mail, Layers, GitMerge, Split, Copy, Trash2, Settings2,
-  Package, ClipboardList, ArrowRight, Filter, Eye, EyeOff, Save, Check, Hammer
+  Package, ClipboardList, ArrowRight, Filter, Eye, EyeOff, Save, Check, Hammer,
+  MessageSquare, ShieldAlert, Link2, CircleCheck, Plus
 } from "lucide-react";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 import { PlanReferenceChip } from "@/components/app/traceability/PlanReferenceChip";
@@ -44,6 +45,16 @@ interface BidPackage {
   clarifications: string[];
 }
 
+type IssueDerivedType = "rfi" | "clarification" | "exclusion" | "allowance-note";
+
+interface IssueDerivedItem {
+  id: string;
+  sourceIssue: string;
+  text: string;
+  type: IssueDerivedType;
+  linkedLineItem?: string;
+}
+
 // Framing-specific takeoff data with formulas/derivations
 const takeoffData: TakeoffRow[] = [
   { id: 1, division: "06 10 00", description: "2×4 wall framing — exterior", qty: 1420, unit: "LF", sheet: "A1.1", method: "Derived from Scale", confidence: "Medium", status: "Needs Review", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Mapped",
@@ -76,50 +87,65 @@ const takeoffData: TakeoffRow[] = [
 const categories: { title: string; icon: typeof XCircle; severity: string; items: ScopeItem[] }[] = [
   { title: "Missing Scope Items", icon: XCircle, severity: "high", items: [
     { message: "Stair opening framing not dimensioned on structural plans", trade: "Framing", affectedItem: "Stair Opening", sheet: "S1.1", issueType: "Missing Scope", atlasNote: "Floor plan shows stair location but structural plans do not dimension the opening or specify header sizes. This is critical for accurate framing.", recommendation: "Request dimensioned stair opening detail from structural engineer before finalizing quote." },
-    { message: "Temporary shoring not specified during demolition phase", trade: "Framing", affectedItem: "Temporary Shoring", sheet: "—", issueType: "Missing Scope", atlasNote: "Bearing wall removal requires temporary shoring during demo. No callout in GC scope package or structural plans.", recommendation: "Confirm with GC if temporary shoring is GC-provided or sub responsibility. Add to exclusions if not included." },
+    { message: "Temporary shoring not specified during demolition phase", trade: "Framing", affectedItem: "Temporary Shoring", sheet: "—", issueType: "Missing Scope", atlasNote: "Bearing wall removal requires temporary shoring during demo. No callout in scope package or structural plans.", recommendation: "Confirm if temporary shoring is provided or sub responsibility. Add to exclusions if not included." },
   ]},
   { title: "Inconsistent Assumptions", icon: AlertTriangle, severity: "medium", items: [
     { message: "Opening header sizes conflict between framing detail and schedule", trade: "Framing", affectedItem: "LVL Headers", sheet: "S1.1 / A5.1", issueType: "Spec Conflict", atlasNote: "Header schedule on S1.1 shows 3.5×11.875 for openings D105 and D108, but detail S1.1-D shows 5.25×11.875 for the same openings. Cost difference is ~$180 per header.", recommendation: "Clarify which header sizes govern — detail or schedule. Submit RFI." },
-    { message: "Blocking scope inferred — no explicit blocking schedule", trade: "Framing", affectedItem: "Blocking/Nailers", sheet: "—", issueType: "Scope Gap", atlasNote: "Cabinet backing, TV mount backing, and handrail blocking are inferred from finish schedule but not explicitly called out on framing plans.", recommendation: "Request blocking schedule or confirm scope with GC. Currently carried as lump sum." },
+    { message: "Blocking scope inferred — no explicit blocking schedule", trade: "Framing", affectedItem: "Blocking/Nailers", sheet: "—", issueType: "Scope Gap", atlasNote: "Cabinet backing, TV mount backing, and handrail blocking are inferred from finish schedule but not explicitly called out on framing plans.", recommendation: "Request blocking schedule or confirm scope. Currently carried as lump sum." },
   ]},
   { title: "Duplicate / Overlapping Scope", icon: Copy, severity: "high", items: [
     { message: "Unclear bearing wall transition at kitchen-to-addition boundary", trade: "Framing", affectedItem: "Bearing Wall Transition", sheet: "S1.1", issueType: "Scope Overlap", atlasNote: "Structural plan shows bearing wall ending at kitchen boundary but addition structural framing also shows bearing at same location. Potential double-count of posts and headers.", recommendation: "Request structural clarification on load path at transition point." },
   ]},
   { title: "Likely Exclusions Needed", icon: Info, severity: "low", items: [
     { message: "Finish carpentry — trim, casing, base", trade: "Framing", affectedItem: "—", sheet: "—", issueType: "Exclusion Risk", atlasNote: "Finish carpentry is a separate trade. Ensure framing quote explicitly excludes trim work.", recommendation: "Add to exclusions list in proposal." },
-    { message: "Demolition of existing framing", trade: "Framing", affectedItem: "Demo", sheet: "—", issueType: "Exclusion Risk", atlasNote: "Demo scope typically handled by GC or demo sub. Confirm responsibility.", recommendation: "Clarify with GC or add to exclusions." },
-    { message: "Subfloor installation", trade: "Framing", affectedItem: "Subfloor", sheet: "—", issueType: "Exclusion Risk", atlasNote: "Subfloor (3/4\" T&G plywood) is sometimes included in framing scope, sometimes separate. Clarify.", recommendation: "Confirm with GC if subfloor is in framing scope or separate." },
+    { message: "Demolition of existing framing", trade: "Framing", affectedItem: "Demo", sheet: "—", issueType: "Exclusion Risk", atlasNote: "Demo scope typically handled by GC or demo sub. Confirm responsibility.", recommendation: "Clarify or add to exclusions." },
+    { message: "Subfloor installation", trade: "Framing", affectedItem: "Subfloor", sheet: "—", issueType: "Exclusion Risk", atlasNote: "Subfloor (3/4\" T&G plywood) is sometimes included in framing scope, sometimes separate. Clarify.", recommendation: "Confirm if subfloor is in framing scope or separate." },
   ]},
 ];
 
-// Bid package (GC scope package received)
-const bidPackages: BidPackage[] = [
-  {
-    category: "GC Scope Package — Framing", status: "Confirmed",
-    scopeDescription: "Provide all rough framing per plans A1.1, A4.1, S1.1. Includes exterior walls, interior bearing walls, floor system, roof trusses, sheathing (wall + roof), blocking, and hardware installation. Engineered lumber (LVL) supplied by GC — labor only by sub.",
-    lineItems: [
-      { description: "Exterior wall framing — 2×4 @ 16\" OC", qty: 1420, unit: "LF", costCode: "06-100", notes: "Per floor plan A1.1" },
-      { description: "Interior bearing walls — 2×6 @ 16\" OC", qty: 380, unit: "LF", costCode: "06-100", notes: "Per structural S1.1" },
-      { description: "LVL header installation (material by GC)", qty: 18, unit: "EA", costCode: "06-100", notes: "Labor only — LVL supplied by GC" },
-      { description: "Roof truss installation", qty: 22, unit: "EA", costCode: "06-100", notes: "Pre-engineered, crane set by GC" },
-      { description: "Floor joist installation — I-joists", qty: 1100, unit: "LF", costCode: "06-100", notes: "11⅞\" TJI per structural" },
-      { description: "Wall sheathing — 7/16\" OSB", qty: 2800, unit: "SF", costCode: "06-160", notes: "Material + labor" },
-      { description: "Roof sheathing — 7/16\" OSB", qty: 1900, unit: "SF", costCode: "06-160", notes: "Material + labor" },
-      { description: "Blocking — cabinet/TV/handrail", qty: 1, unit: "LS", costCode: "06-100", notes: "Per finish schedule" },
-      { description: "Hardware installation — hangers, straps, clips", qty: 1, unit: "LS", costCode: "06-100", notes: "Per structural hardware schedule" },
-      { description: "Temporary bracing during construction", qty: 1, unit: "LS", costCode: "06-100", notes: "Until permanent structure complete" },
-    ],
-    exclusions: ["Demolition of existing framing", "Finish carpentry / trim", "Subfloor installation", "Insulation", "Drywall"],
-    clarifications: ["LVL sizes per engineer's spec — material by GC", "All lumber SPF #2 or better", "Crane for truss set provided by GC", "Assumes open access — no confined space premiums"],
-  },
+// Bid package line items (scope summary)
+const bidPackageLineItems: BidPackageLineItem[] = [
+  { description: "Exterior wall framing — 2×4 @ 16\" OC", qty: 1420, unit: "LF", costCode: "06-100", notes: "Per floor plan A1.1" },
+  { description: "Interior bearing walls — 2×6 @ 16\" OC", qty: 380, unit: "LF", costCode: "06-100", notes: "Per structural S1.1" },
+  { description: "LVL header installation", qty: 18, unit: "EA", costCode: "06-100", notes: "Sizes per header schedule" },
+  { description: "Roof truss installation", qty: 22, unit: "EA", costCode: "06-100", notes: "Pre-engineered, crane set" },
+  { description: "Floor joist installation — I-joists", qty: 1100, unit: "LF", costCode: "06-100", notes: "11⅞\" TJI per structural" },
+  { description: "Wall sheathing — 7/16\" OSB", qty: 2800, unit: "SF", costCode: "06-160", notes: "Material + labor" },
+  { description: "Roof sheathing — 7/16\" OSB", qty: 1900, unit: "SF", costCode: "06-160", notes: "Material + labor" },
+  { description: "Blocking — cabinet/TV/handrail", qty: 1, unit: "LS", costCode: "06-100", notes: "Per finish schedule" },
+  { description: "Hardware installation — hangers, straps, clips", qty: 1, unit: "LS", costCode: "06-100", notes: "Per structural hardware schedule" },
+  { description: "Temporary bracing during construction", qty: 1, unit: "LS", costCode: "06-100", notes: "Until permanent structure complete" },
 ];
 
-const statusColors: Record<string, string> = {
-  "Draft": "bg-muted text-muted-foreground",
-  "Ready": "bg-info/10 text-info",
-  "Sent to GC": "bg-warning/10 text-warning",
-  "Confirmed": "bg-primary/10 text-primary",
-};
+const defaultInclusions = [
+  "All rough framing per plans A1.1, A4.1, S1.1",
+  "Exterior and interior bearing wall framing",
+  "Roof truss installation (pre-engineered)",
+  "Floor joist system — I-joists with rim board",
+  "Wall and roof sheathing — 7/16\" OSB",
+  "Blocking for cabinets, TV mounts, and handrails",
+  "Hardware installation per structural schedule",
+  "Temporary bracing during construction",
+];
+
+const defaultExclusions = [
+  "Demolition of existing framing",
+  "Finish carpentry / trim",
+  "Subfloor installation",
+  "Insulation",
+  "Drywall",
+];
+
+const defaultClarifications = [
+  "All lumber SPF #2 or better",
+  "Assumes open access — no confined space premiums",
+];
+
+const defaultTerms = [
+  "Quote valid for 30 days from submission",
+  "Pricing subject to material escalation clause",
+  "Payment terms: Net 30 from invoice date",
+];
 
 const estimateSectionOptions: EstimateSection[] = ["Pre-Build Requirements", "Base Scope", "General Requirements", "Allowance", "Selection Placeholder", "Alternate / Option"];
 
@@ -143,14 +169,25 @@ const structureStatusColors: Record<StructureStatus, string> = {
 export default function SubScopeAnalyzerPage() {
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
-  const [expandedPackage, setExpandedPackage] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [structureFilter, setStructureFilter] = useState<string>("all");
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("quantity-takeoff");
   const [assumptionStates, setAssumptionStates] = useState<Record<number, "unresolved" | "confirmed" | "adjusted" | "needs-review" | "deferred">>({});
   const [codeSystem] = useState("16-Division Default");
   const [transition, setTransition] = useState<"bid-leveling" | "estimate" | null>(null);
+
+  // Issue resolution state
+  const [resolvedIssues, setResolvedIssues] = useState<Set<string>>(new Set());
+  const [issueDerivedItems, setIssueDerivedItems] = useState<IssueDerivedItem[]>([]);
+  const [issueLinkedItems, setIssueLinkedItems] = useState<Record<string, string>>({});
+
+  // Bid package editable sections
+  const [bpInclusions, setBpInclusions] = useState<string[]>(defaultInclusions);
+  const [bpExclusions, setBpExclusions] = useState<string[]>(defaultExclusions);
+  const [bpClarifications, setBpClarifications] = useState<string[]>(defaultClarifications);
+  const [bpAllowanceNotes, setBpAllowanceNotes] = useState<string[]>([]);
+  const [bpTerms, setBpTerms] = useState<string[]>(defaultTerms);
 
   const needsReview = takeoffData.filter(r => r.status === "Needs Review" || r.confidence === "Low");
   const mapped = takeoffData.filter(r => r.structureStatus === "Confirmed" || r.structureStatus === "Mapped");
@@ -158,12 +195,15 @@ export default function SubScopeAnalyzerPage() {
   const duplicates = takeoffData.filter(r => r.structureStatus === "Duplicate Candidate");
   const assumptionItems = takeoffData.filter(r => r.method === "Assumption Applied" || r.method === "Derived from Scale" || r.confidence !== "High");
 
+  const allIssues = categories.flatMap((cat, ci) => cat.items.map((item, ii) => ({ ...item, key: `${ci}-${ii}`, category: cat.title, severity: cat.severity })));
+  const openIssues = allIssues.filter(i => !resolvedIssues.has(i.key));
+
   const summaryCards = [
     { label: "Total Extracted", value: takeoffData.length, color: "text-foreground", filterKey: null },
     { label: "Explicitly Labeled", value: takeoffData.filter(r => r.method === "Explicitly Labeled").length, color: "text-primary", filterKey: "Explicitly Labeled" },
     { label: "Derived from Scale", value: takeoffData.filter(r => r.method === "Derived from Scale").length, color: "text-warning", filterKey: "Derived from Scale" },
     { label: "Needs Review", value: needsReview.length, color: "text-warning", filterKey: "Needs Review" },
-    { label: "Issues Found", value: categories.reduce((s, c) => s + c.items.length, 0), color: "text-destructive", filterKey: "Issues" },
+    { label: "Issues Found", value: `${openIssues.length} open`, color: "text-destructive", filterKey: "Issues" },
   ];
 
   const handleCardClick = (filterKey: string | null) => {
@@ -176,7 +216,7 @@ export default function SubScopeAnalyzerPage() {
       setActiveFilter(null);
     } else {
       setActiveFilter(filterKey);
-      if (filterKey && activeTab === "overview") setActiveTab("quantity-takeoff");
+      if (filterKey && activeTab !== "quantity-takeoff") setActiveTab("quantity-takeoff");
     }
   };
 
@@ -208,8 +248,56 @@ export default function SubScopeAnalyzerPage() {
     });
   };
 
+  // Issue action handlers
+  const handleConvertIssue = (issueKey: string, issueMessage: string, type: IssueDerivedType) => {
+    const newItem: IssueDerivedItem = {
+      id: `${type}-${Date.now()}`,
+      sourceIssue: issueKey,
+      text: issueMessage,
+      type,
+    };
+    setIssueDerivedItems(prev => [...prev, newItem]);
+
+    // Also add to the appropriate bid package section
+    if (type === "exclusion") {
+      setBpExclusions(prev => [...prev, issueMessage]);
+    } else if (type === "clarification" || type === "rfi") {
+      setBpClarifications(prev => [...prev, `[${type === "rfi" ? "RFI" : "Clarification"}] ${issueMessage}`]);
+    } else if (type === "allowance-note") {
+      setBpAllowanceNotes(prev => [...prev, issueMessage]);
+    }
+  };
+
+  const handleResolveIssue = (issueKey: string) => {
+    setResolvedIssues(prev => new Set(prev).add(issueKey));
+  };
+
+  const handleAssignToLineItem = (issueKey: string) => {
+    setIssueLinkedItems(prev => ({ ...prev, [issueKey]: "assigned" }));
+  };
+
+  const removeIssueDerivedItem = (id: string) => {
+    const item = issueDerivedItems.find(i => i.id === id);
+    if (item) {
+      setIssueDerivedItems(prev => prev.filter(i => i.id !== id));
+      if (item.type === "exclusion") {
+        setBpExclusions(prev => prev.filter(e => e !== item.text));
+      } else if (item.type === "clarification" || item.type === "rfi") {
+        const prefix = item.type === "rfi" ? "[RFI]" : "[Clarification]";
+        setBpClarifications(prev => prev.filter(c => c !== `${prefix} ${item.text}`));
+      } else if (item.type === "allowance-note") {
+        setBpAllowanceNotes(prev => prev.filter(n => n !== item.text));
+      }
+    }
+  };
+
   const filteredData = getFilteredData();
   const structureData = getStructureFilteredData();
+
+  // Counts for bid package badge indicators
+  const issueDerivedExclusions = issueDerivedItems.filter(i => i.type === "exclusion");
+  const issueDerivedClarifications = issueDerivedItems.filter(i => i.type === "clarification" || i.type === "rfi");
+  const issueDerivedAllowances = issueDerivedItems.filter(i => i.type === "allowance-note");
 
   return (
     <SubLayout>
@@ -245,7 +333,7 @@ export default function SubScopeAnalyzerPage() {
           </div>
         </div>
 
-        {/* Summary Cards — clickable filters */}
+        {/* Summary Cards — readiness snapshot (replaces overview) */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
           {summaryCards.map((c) => (
             <button
@@ -272,90 +360,17 @@ export default function SubScopeAnalyzerPage() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="scope-structure">Mapping</TabsTrigger>
             <TabsTrigger value="quantity-takeoff">Quantity Takeoff</TabsTrigger>
             <TabsTrigger value="assumptions">Assumptions</TabsTrigger>
-            <TabsTrigger value="scope-issues">Issues</TabsTrigger>
-            <TabsTrigger value="bid-package">GC Bid Package</TabsTrigger>
+            <TabsTrigger value="scope-structure">Scope Structure</TabsTrigger>
+            <TabsTrigger value="scope-issues">
+              Issues
+              {openIssues.length > 0 && (
+                <span className="ml-1.5 text-[10px] font-bold bg-destructive/10 text-destructive px-1.5 py-0.5 rounded-full">{openIssues.length}</span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="bid-package">Bid Package</TabsTrigger>
           </TabsList>
-
-          {/* ═══════════ OVERVIEW TAB ═══════════ */}
-          <TabsContent value="overview">
-            <div className="grid lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-4">
-                {/* Structuring Readiness */}
-                <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                  <h3 className="font-display font-semibold text-foreground mb-3">Structuring Readiness</h3>
-                  <div className="space-y-2">
-                    {[
-                      { label: "Documents scanned & indexed", value: "8 documents", ok: true },
-                      { label: "Total extracted items", value: `${takeoffData.length} items`, ok: true },
-                      { label: "Mapped to cost codes", value: `${mapped.length} of ${takeoffData.length}`, ok: mapped.length === takeoffData.length },
-                      { label: "Unmapped items", value: `${unmapped.length} items`, ok: unmapped.length === 0 },
-                      { label: "Duplicate candidates", value: `${duplicates.length} items`, ok: duplicates.length === 0 },
-                      { label: "Needs review", value: `${needsReview.length} items`, ok: needsReview.length === 0 },
-                      { label: "Assumptions unresolved", value: `${assumptionItems.length} items`, ok: false },
-                      { label: "Scope issues detected", value: `${categories.reduce((s, c) => s + c.items.length, 0)} issues`, ok: false },
-                      { label: "Items assigned to General Requirements", value: `${takeoffData.filter(r => r.estimateSection === "General Requirements").length} items`, ok: true },
-                    ].map((item) => (
-                      <div key={item.label} className="flex items-center justify-between p-2.5 rounded-xl bg-muted/20">
-                        <div className="flex items-center gap-2">
-                          {item.ok ? <CheckCircle size={14} className="text-primary" /> : <AlertTriangle size={14} className="text-warning" />}
-                          <span className="text-sm text-foreground">{item.label}</span>
-                        </div>
-                        <span className="text-sm font-medium text-muted-foreground">{item.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Recommended next actions */}
-                <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                  <h3 className="font-display font-semibold text-foreground mb-3">Recommended Next Actions</h3>
-                  <div className="space-y-2">
-                    {[
-                      { text: `${unmapped.length} items still need cost code assignment`, action: "Go to Scope Mapping", tab: "scope-structure" },
-                      { text: `${needsReview.length} items need review before quoting`, action: "Review Items", tab: "quantity-takeoff" },
-                      { text: "2 scope issues require structural clarification", action: "View Issues", tab: "scope-issues" },
-                      { text: `${mapped.length} lines ready to send to Estimate Builder`, action: "Send to Estimate Builder", tab: null },
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-center justify-between p-2.5 rounded-xl bg-muted/20">
-                        <span className="text-sm text-foreground">{item.text}</span>
-                        <Button size="sm" variant="ghost" className="text-xs h-7 text-primary" onClick={() => item.tab && setActiveTab(item.tab)}>
-                          {item.action} <ArrowRight size={11} className="ml-1" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Right sidebar */}
-              <div className="space-y-4">
-                <div className="bg-card border border-border rounded-2xl p-4 shadow-sm">
-                  <h3 className="font-display font-semibold text-sm text-foreground mb-1">Readiness Summary</h3>
-                  <p className="text-xs text-muted-foreground mb-3">Scope lines ready for downstream use</p>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">Ready for Estimate Builder</span><span className="font-semibold text-primary">{takeoffData.filter(r => r.structureStatus === "Confirmed").length}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">GC Bid Package Items</span><span className="font-semibold text-primary">{bidPackages[0]?.lineItems.length || 0}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">Exclusions Identified</span><span className="font-semibold text-foreground">{bidPackages[0]?.exclusions.length || 0}</span></div>
-                  </div>
-                </div>
-                <div className="bg-card border border-border rounded-2xl shadow-sm p-4">
-                  <h3 className="font-display font-semibold text-sm text-foreground mb-3">Items Requiring Review</h3>
-                  <div className="space-y-2">
-                    {needsReview.map((item) => (
-                      <button key={item.id} onClick={() => { setActiveTab("quantity-takeoff"); setExpandedRow(item.id); }} className="w-full text-left p-2 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
-                        <p className="text-xs font-medium text-foreground">{item.description}</p>
-                        <div className="flex gap-1.5 mt-1"><ConfidenceBadge level={item.confidence} /><ReviewStatusBadge status={item.status} /></div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
 
           {/* ═══════════ QUANTITY TAKEOFF TAB ═══════════ */}
           <TabsContent value="quantity-takeoff">
@@ -413,34 +428,28 @@ export default function SubScopeAnalyzerPage() {
                           {expandedRow === row.id && (
                             <tr key={`${row.id}-detail`} className="border-b border-border bg-muted/10">
                               <td colSpan={10} className="p-4">
-                                <div className="grid md:grid-cols-2 gap-4 text-xs">
-                                  <div className="space-y-3">
-                                    <h4 className="font-display font-semibold text-foreground text-sm">Quantity Derivation</h4>
-                                    <div className="space-y-2">
-                                      <div><span className="text-muted-foreground">Source Type:</span> <span className="text-foreground ml-1">{row.detail.sourceType}</span></div>
-                                      <div><span className="text-muted-foreground">Sheet Reference:</span> <span className="text-foreground ml-1">{row.detail.sheetRef}</span></div>
-                                      <div><span className="text-muted-foreground">Detection Note:</span> <span className="text-foreground ml-1">{row.detail.detectionNote}</span></div>
-                                      <div className="bg-muted/40 rounded-xl p-2"><span className="text-muted-foreground">Formula:</span><div className="font-mono text-foreground mt-1">{row.detail.formula}</div></div>
-                                      <div className="bg-muted/40 rounded-xl p-2"><span className="text-muted-foreground">Unit Conversion:</span><div className="font-mono text-foreground mt-1">{row.detail.unitConversion}</div></div>
-                                    </div>
+                                <div className="grid md:grid-cols-3 gap-4 text-xs">
+                                  <div className="space-y-2">
+                                    <h4 className="font-display font-semibold text-foreground text-sm mb-2">Source & Detection</h4>
+                                    <div><span className="text-muted-foreground">Source Type:</span> <span className="text-foreground ml-1">{row.detail.sourceType}</span></div>
+                                    <div><span className="text-muted-foreground">Sheet Ref:</span> <span className="text-foreground ml-1">{row.detail.sheetRef}</span></div>
+                                    <div><span className="text-muted-foreground">Detection:</span> <span className="text-foreground ml-1">{row.detail.detectionNote}</span></div>
                                   </div>
-                                  <div className="space-y-3">
-                                    <h4 className="font-display font-semibold text-foreground text-sm">Structure & Review</h4>
-                                    <div className="space-y-2">
-                                      <div><span className="text-muted-foreground">Cost Code:</span> <span className="text-foreground ml-1 font-mono">{row.costCode}</span></div>
-                                      <div><span className="text-muted-foreground">Trade:</span> <span className="text-foreground ml-1">{row.trade}</span></div>
-                                      <div><span className="text-muted-foreground">Estimate Section:</span> <span className={cn("ml-1 text-[10px] px-2 py-0.5 rounded-full font-semibold", sectionColors[row.estimateSection])}>{row.estimateSection}</span></div>
-                                      <div><span className="text-muted-foreground">Assumptions:</span> <span className="text-foreground ml-1">{row.detail.assumptionNotes}</span></div>
-                                      <div><span className="text-muted-foreground">Confidence:</span> <span className="text-foreground ml-1">{row.detail.confidenceExplanation}</span></div>
-                                    </div>
+                                  <div className="space-y-2">
+                                    <h4 className="font-display font-semibold text-foreground text-sm mb-2">Quantity Derivation</h4>
+                                    <div><span className="text-muted-foreground">Formula:</span> <span className="font-mono text-foreground ml-1">{row.detail.formula}</span></div>
+                                    <div><span className="text-muted-foreground">Unit Conversion:</span> <span className="text-foreground ml-1">{row.detail.unitConversion}</span></div>
+                                    <div><span className="text-muted-foreground">Assumptions:</span> <span className="text-foreground ml-1">{row.detail.assumptionNotes}</span></div>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <h4 className="font-display font-semibold text-foreground text-sm mb-2">Confidence</h4>
                                     <div className="bg-card border border-border rounded-xl p-3">
-                                      <label className="text-muted-foreground block mb-1">Reviewer Comment</label>
-                                      <textarea className="w-full bg-muted/20 rounded-lg text-xs p-2 outline-none resize-none h-14 text-foreground" placeholder="Add review notes..." />
+                                      <p className="text-foreground">{row.detail.confidenceExplanation}</p>
                                     </div>
-                                    <div className="flex gap-2">
-                                      <Button size="sm" variant="default" className="text-xs h-7"><CheckCircle size={12} className="mr-1" /> Confirm</Button>
-                                      <Button size="sm" variant="outline" className="text-xs h-7"><Pencil size={12} className="mr-1" /> Adjust</Button>
-                                      <Button size="sm" variant="outline" className="text-xs h-7"><Flag size={12} className="mr-1" /> Flag</Button>
+                                    <div className="flex gap-2 mt-2">
+                                      <Button size="sm" variant="default" className="text-xs h-7"><Check size={12} className="mr-1" />Confirm</Button>
+                                      <Button size="sm" variant="outline" className="text-xs h-7"><Pencil size={12} className="mr-1" />Adjust</Button>
+                                      <Button size="sm" variant="outline" className="text-xs h-7"><Flag size={12} className="mr-1" />Flag for Review</Button>
                                     </div>
                                   </div>
                                 </div>
@@ -453,50 +462,117 @@ export default function SubScopeAnalyzerPage() {
                   </table>
                 </div>
               </div>
-              <div className="xl:w-72 shrink-0 space-y-4">
-                <div className="bg-card border border-border rounded-2xl shadow-sm p-4">
-                  <h3 className="font-display font-semibold text-sm text-foreground mb-3">Items Requiring Review</h3>
-                  <div className="space-y-2">
-                    {needsReview.map((item) => (
-                      <button key={item.id} onClick={() => setExpandedRow(item.id)} className="w-full text-left p-2 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
-                        <p className="text-xs font-medium text-foreground">{item.description}</p>
-                        <div className="flex gap-1.5 mt-1"><ConfidenceBadge level={item.confidence} /><ReviewStatusBadge status={item.status} /></div>
-                      </button>
-                    ))}
-                  </div>
+            </div>
+          </TabsContent>
+
+          {/* ═══════════ ASSUMPTIONS TAB ═══════════ */}
+          <TabsContent value="assumptions">
+            <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+                <div>
+                  <h2 className="font-display font-semibold text-foreground">Assumptions</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Review and confirm inferred logic, scale-derived values, and placeholder assumptions</p>
                 </div>
-                <div className="bg-card border border-border rounded-2xl shadow-sm p-4">
-                  <h3 className="font-display font-semibold text-sm text-foreground mb-2">Quick Actions</h3>
-                  <div className="space-y-2">
-                    <Button variant="outline" size="sm" className="w-full text-xs justify-start"><CheckCircle size={12} className="mr-1.5" /> Confirm all high-confidence</Button>
-                    <Button variant="outline" size="sm" className="w-full text-xs justify-start"><AlertTriangle size={12} className="mr-1.5" /> Review scale-derived items</Button>
-                    <Button variant="outline" size="sm" className="w-full text-xs justify-start"><GitMerge size={12} className="mr-1.5" /> Merge Selected</Button>
-                    <Button variant="outline" size="sm" className="w-full text-xs justify-start"><Copy size={12} className="mr-1.5" /> Mark Duplicate</Button>
-                    <Button size="sm" className="w-full text-xs justify-start">Send to Estimate Builder <ArrowRight size={11} className="ml-1" /></Button>
-                  </div>
+                <div className="flex gap-1.5">
+                  <Button size="sm" variant="outline" className="text-xs h-7"><Check size={12} className="mr-1" />Confirm All High-Confidence</Button>
                 </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm table-fixed">
+                  <colgroup>
+                    <col style={{ width: "18%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "8%" }} />
+                    <col style={{ width: "8%" }} />
+                    <col style={{ width: "6%" }} />
+                    <col style={{ width: "24%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "16%" }} />
+                  </colgroup>
+                  <thead>
+                    <tr className="border-b border-border bg-muted/30">
+                      {["Description", "Method", "Confidence", "Status", "Risk", "Assumption", "Resolution", "Actions"].map((h) => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assumptionItems.map((row) => {
+                      const state = assumptionStates[row.id] || "unresolved";
+                      const stateStyles: Record<string, string> = {
+                        "unresolved": "bg-warning/10 text-warning",
+                        "confirmed": "bg-primary/10 text-primary",
+                        "adjusted": "bg-info/10 text-info",
+                        "needs-review": "bg-destructive/10 text-destructive",
+                        "deferred": "bg-muted text-muted-foreground",
+                      };
+                      const stateLabels: Record<string, string> = {
+                        "unresolved": "Unresolved",
+                        "confirmed": "Confirmed",
+                        "adjusted": "Adjusted",
+                        "needs-review": "Needs Review",
+                        "deferred": "Deferred",
+                      };
+                      return (
+                        <tr key={row.id} className={cn("border-b border-border last:border-0 hover:bg-muted/20", state === "confirmed" && "bg-primary/5")}>
+                          <td className="px-4 py-3 text-foreground truncate">{row.description}</td>
+                          <td className="px-4 py-3"><ExtractionMethodBadge method={row.method} /></td>
+                          <td className="px-4 py-3"><ConfidenceBadge level={row.confidence} /></td>
+                          <td className="px-4 py-3"><ReviewStatusBadge status={row.status} /></td>
+                          <td className="px-4 py-3">
+                            <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", row.confidence === "Low" ? "bg-destructive/10 text-destructive" : "bg-warning/10 text-warning")}>
+                              {row.confidence === "Low" ? "High" : "Medium"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground">{row.detail.assumptionNotes}</td>
+                          <td className="px-4 py-3">
+                            <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap", stateStyles[state])}>
+                              {stateLabels[state]}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex gap-1 flex-wrap">
+                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "confirmed" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "confirmed" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary")}>
+                                <Check size={9} className="inline mr-0.5" />Confirm
+                              </button>
+                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "adjusted" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "adjusted" ? "bg-info text-info-foreground" : "bg-muted text-muted-foreground hover:bg-info/10 hover:text-info")}>
+                                Adjust
+                              </button>
+                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "needs-review" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "needs-review" ? "bg-destructive text-destructive-foreground" : "bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive")}>
+                                Review
+                              </button>
+                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "deferred" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "deferred" ? "bg-muted-foreground text-background" : "bg-muted text-muted-foreground hover:bg-muted-foreground/20")}>
+                                Defer
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
           </TabsContent>
 
-          {/* ═══════════ STRUCTURE TAB ═══════════ */}
+          {/* ═══════════ SCOPE STRUCTURE TAB ═══════════ */}
           <TabsContent value="scope-structure">
             <div className="space-y-4">
-              {/* Filter bar */}
-              <div className="flex flex-wrap items-center gap-2">
+              {/* Structure filter chips */}
+              <div className="flex gap-2 flex-wrap items-center">
                 {[
-                  { label: "All Items", key: "all", count: takeoffData.length },
-                  { label: "Unmapped", key: "unmapped", count: unmapped.length },
-                  { label: "Mapped", key: "mapped", count: mapped.length },
-                  { label: "Duplicates", key: "duplicate", count: duplicates.length },
-                  { label: "Deferred", key: "deferred", count: takeoffData.filter(r => r.structureStatus === "Deferred").length },
-                ].map(f => (
+                  { key: "all", label: "All Items", count: takeoffData.length },
+                  { key: "unmapped", label: "Unmapped", count: unmapped.length },
+                  { key: "mapped", label: "Mapped / Confirmed", count: mapped.length },
+                  { key: "duplicate", label: "Duplicate Candidates", count: duplicates.length },
+                  { key: "deferred", label: "Deferred", count: takeoffData.filter(r => r.structureStatus === "Deferred").length },
+                ].map((f) => (
                   <button
                     key={f.key}
                     onClick={() => setStructureFilter(f.key)}
                     className={cn(
-                      "text-xs px-3 py-1.5 rounded-full font-medium transition-colors border",
-                      structureFilter === f.key ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground hover:bg-muted/50"
+                      "text-xs px-3 py-1.5 rounded-full font-medium transition-colors",
+                      structureFilter === f.key ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
                     )}
                   >
                     {f.label} ({f.count})
@@ -521,7 +597,7 @@ export default function SubScopeAnalyzerPage() {
               <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
                 <div className="px-5 py-4 border-b border-border flex items-center justify-between">
                   <div>
-                    <h2 className="font-display font-semibold text-foreground">Scope Mapping</h2>
+                    <h2 className="font-display font-semibold text-foreground">Scope Structure</h2>
                     <p className="text-xs text-muted-foreground mt-0.5">Map extracted items into cost codes, trades, and estimate sections</p>
                   </div>
                   <div className="flex gap-1.5">
@@ -644,139 +720,126 @@ export default function SubScopeAnalyzerPage() {
             </div>
           </TabsContent>
 
-          {/* ═══════════ SCOPE ISSUES TAB ═══════════ */}
+          {/* ═══════════ ISSUES TAB (WORK QUEUE) ═══════════ */}
           <TabsContent value="scope-issues">
-            <div className="space-y-6">
-              {categories.map((cat) => (
-                <div key={cat.title} className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
-                  <div className="px-5 py-4 border-b border-border flex items-center gap-2">
-                    <cat.icon size={16} className={cat.severity === "high" ? "text-destructive" : cat.severity === "medium" ? "text-warning" : "text-info"} />
-                    <h2 className="font-display font-semibold text-foreground">{cat.title}</h2>
-                    <span className="ml-auto text-xs text-muted-foreground">{cat.items.length} items</span>
+            <div className="space-y-4">
+              {/* Issues header */}
+              <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-display font-semibold text-foreground">Scope Issues — Work Queue</h3>
+                    <p className="text-sm text-muted-foreground mt-0.5">Identify scope gaps, RFIs, clarifications, and exclusions. Convert issues directly into your Bid Package.</p>
                   </div>
-                  <div className="divide-y divide-border">
-                    {cat.items.map((item, i) => {
-                      const key = `${cat.title}-${i}`;
-                      const isExpanded = expandedItem === key;
-                      return (
-                        <div key={i}>
-                          <button onClick={() => setExpandedItem(isExpanded ? null : key)} className="w-full flex items-start gap-3 p-4 hover:bg-muted/20 transition-colors text-left">
-                            <CheckCircle size={14} className="text-muted-foreground mt-0.5 shrink-0" />
-                            <div className="flex-1">
-                              <p className="text-sm text-foreground">{item.message}</p>
-                              <div className="flex gap-2 mt-1.5 flex-wrap">
-                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{item.trade}</span>
-                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{item.issueType}</span>
-                                {item.sheet !== "—" && <PlanReferenceChip sheet={item.sheet} />}
-                              </div>
-                            </div>
-                            <ChevronDown size={14} className={cn("text-muted-foreground mt-1 transition-transform", isExpanded && "rotate-180")} />
-                          </button>
-                          {isExpanded && (
-                            <div className="px-4 pb-4 ml-7 space-y-2 text-xs">
-                              <div className="bg-muted/30 rounded-xl p-3 space-y-2">
-                                <div><span className="text-muted-foreground">Affected Item:</span> <span className="text-foreground ml-1">{item.affectedItem}</span></div>
-                                <div><span className="text-muted-foreground">Atlas Analysis:</span> <span className="text-foreground ml-1">{item.atlasNote}</span></div>
-                                <div className="pt-1 border-t border-border"><span className="text-muted-foreground">Recommendation:</span> <span className="text-foreground font-medium ml-1">{item.recommendation}</span></div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                  <div className="flex items-center gap-3">
+                    <div className="text-xs text-muted-foreground">
+                      <span className="font-semibold text-foreground">{openIssues.length}</span> open · <span className="font-semibold text-foreground">{resolvedIssues.size}</span> resolved · <span className="font-semibold text-foreground">{issueDerivedItems.length}</span> converted
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </TabsContent>
+              </div>
 
-          {/* ═══════════ ASSUMPTIONS TAB ═══════════ */}
-          <TabsContent value="assumptions">
-            <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
-              <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-                <div>
-                  <h2 className="font-display font-semibold text-foreground">Assumptions</h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">Review and confirm inferred logic, scale-derived values, and placeholder assumptions</p>
-                </div>
-                <div className="flex gap-1.5">
-                  <Button size="sm" variant="outline" className="text-xs h-7"><Check size={12} className="mr-1" />Confirm All High-Confidence</Button>
-                </div>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm table-fixed">
-                  <colgroup>
-                    <col style={{ width: "18%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "8%" }} />
-                    <col style={{ width: "8%" }} />
-                    <col style={{ width: "6%" }} />
-                    <col style={{ width: "24%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "16%" }} />
-                  </colgroup>
-                  <thead>
-                    <tr className="border-b border-border bg-muted/30">
-                      {["Description", "Method", "Confidence", "Status", "Risk", "Assumption", "Resolution", "Actions"].map((h) => (
-                        <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {assumptionItems.map((row) => {
-                      const state = assumptionStates[row.id] || "unresolved";
-                      const stateStyles: Record<string, string> = {
-                        "unresolved": "bg-warning/10 text-warning",
-                        "confirmed": "bg-primary/10 text-primary",
-                        "adjusted": "bg-info/10 text-info",
-                        "needs-review": "bg-destructive/10 text-destructive",
-                        "deferred": "bg-muted text-muted-foreground",
-                      };
-                      const stateLabels: Record<string, string> = {
-                        "unresolved": "Unresolved",
-                        "confirmed": "Confirmed",
-                        "adjusted": "Adjusted",
-                        "needs-review": "Needs Review",
-                        "deferred": "Deferred",
-                      };
-                      return (
-                        <tr key={row.id} className={cn("border-b border-border last:border-0 hover:bg-muted/20", state === "confirmed" && "bg-primary/5")}>
-                          <td className="px-4 py-3 text-foreground truncate">{row.description}</td>
-                          <td className="px-4 py-3"><ExtractionMethodBadge method={row.method} /></td>
-                          <td className="px-4 py-3"><ConfidenceBadge level={row.confidence} /></td>
-                          <td className="px-4 py-3"><ReviewStatusBadge status={row.status} /></td>
-                          <td className="px-4 py-3">
-                            <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", row.confidence === "Low" ? "bg-destructive/10 text-destructive" : "bg-warning/10 text-warning")}>
-                              {row.confidence === "Low" ? "High" : "Medium"}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-xs text-muted-foreground">{row.detail.assumptionNotes}</td>
-                          <td className="px-4 py-3">
-                            <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap", stateStyles[state])}>
-                              {stateLabels[state]}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex gap-1 flex-wrap">
-                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "confirmed" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "confirmed" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary")}>
-                                <Check size={9} className="inline mr-0.5" />Confirm
-                              </button>
-                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "adjusted" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "adjusted" ? "bg-info text-info-foreground" : "bg-muted text-muted-foreground hover:bg-info/10 hover:text-info")}>
-                                Adjust
-                              </button>
-                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "needs-review" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "needs-review" ? "bg-destructive text-destructive-foreground" : "bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive")}>
-                                Review
-                              </button>
-                              <button onClick={() => setAssumptionStates(s => ({ ...s, [row.id]: "deferred" }))} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors", state === "deferred" ? "bg-muted-foreground text-background" : "bg-muted text-muted-foreground hover:bg-muted-foreground/20")}>
-                                Defer
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              {categories.map((cat, ci) => {
+                const catIssues = cat.items.map((item, ii) => ({ ...item, key: `${ci}-${ii}` }));
+                const openCatIssues = catIssues.filter(i => !resolvedIssues.has(i.key));
+                if (openCatIssues.length === 0 && catIssues.length > 0) {
+                  return (
+                    <div key={cat.title} className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden opacity-60">
+                      <div className="px-5 py-4 flex items-center gap-2">
+                        <cat.icon size={16} className="text-primary" />
+                        <h2 className="font-display font-semibold text-foreground">{cat.title}</h2>
+                        <span className="ml-auto text-xs text-primary font-medium">All resolved ✓</span>
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div key={cat.title} className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+                    <div className="px-5 py-4 border-b border-border flex items-center gap-2">
+                      <cat.icon size={16} className={cat.severity === "high" ? "text-destructive" : cat.severity === "medium" ? "text-warning" : "text-info"} />
+                      <h2 className="font-display font-semibold text-foreground">{cat.title}</h2>
+                      <span className="ml-auto text-xs text-muted-foreground">{openCatIssues.length} open</span>
+                    </div>
+                    <div className="divide-y divide-border">
+                      {catIssues.map((item) => {
+                        const isResolved = resolvedIssues.has(item.key);
+                        const isExpanded = expandedItem === item.key;
+                        const isConverted = issueDerivedItems.some(d => d.sourceIssue === item.key);
+                        const isLinked = issueLinkedItems[item.key];
+
+                        if (isResolved) return null;
+
+                        return (
+                          <div key={item.key}>
+                            <button onClick={() => setExpandedItem(isExpanded ? null : item.key)} className="w-full flex items-start gap-3 p-4 hover:bg-muted/20 transition-colors text-left">
+                              <CheckCircle size={14} className={cn("mt-0.5 shrink-0", isConverted ? "text-primary" : "text-muted-foreground")} />
+                              <div className="flex-1">
+                                <p className="text-sm text-foreground">{item.message}</p>
+                                <div className="flex gap-2 mt-1.5 flex-wrap">
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{item.trade}</span>
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{item.issueType}</span>
+                                  {item.sheet !== "—" && <PlanReferenceChip sheet={item.sheet} />}
+                                  {isConverted && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">Converted</span>}
+                                  {isLinked && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-info/10 text-info font-medium">Linked</span>}
+                                </div>
+                              </div>
+                              <ChevronDown size={14} className={cn("text-muted-foreground mt-1 transition-transform", isExpanded && "rotate-180")} />
+                            </button>
+                            {isExpanded && (
+                              <div className="px-4 pb-4 ml-7 space-y-3 text-xs">
+                                <div className="bg-muted/30 rounded-xl p-3 space-y-2">
+                                  <div><span className="text-muted-foreground">Affected Item:</span> <span className="text-foreground ml-1">{item.affectedItem}</span></div>
+                                  <div><span className="text-muted-foreground">Atlas Analysis:</span> <span className="text-foreground ml-1">{item.atlasNote}</span></div>
+                                  <div className="pt-1 border-t border-border"><span className="text-muted-foreground">Recommendation:</span> <span className="text-foreground font-medium ml-1">{item.recommendation}</span></div>
+                                </div>
+                                {/* Action buttons */}
+                                <div className="flex gap-2 flex-wrap">
+                                  <Button
+                                    size="sm" variant="outline" className="text-xs h-7"
+                                    onClick={(e) => { e.stopPropagation(); handleConvertIssue(item.key, item.message, "rfi"); }}
+                                  >
+                                    <Mail size={12} className="mr-1" />Convert to RFI
+                                  </Button>
+                                  <Button
+                                    size="sm" variant="outline" className="text-xs h-7"
+                                    onClick={(e) => { e.stopPropagation(); handleConvertIssue(item.key, item.message, "clarification"); }}
+                                  >
+                                    <MessageSquare size={12} className="mr-1" />Convert to Clarification
+                                  </Button>
+                                  <Button
+                                    size="sm" variant="outline" className="text-xs h-7"
+                                    onClick={(e) => { e.stopPropagation(); handleConvertIssue(item.key, item.message, "exclusion"); }}
+                                  >
+                                    <ShieldAlert size={12} className="mr-1" />Convert to Exclusion
+                                  </Button>
+                                  <Button
+                                    size="sm" variant="outline" className="text-xs h-7"
+                                    onClick={(e) => { e.stopPropagation(); handleConvertIssue(item.key, item.message, "allowance-note"); }}
+                                  >
+                                    <FileSearch size={12} className="mr-1" />Add to Allowances / Notes
+                                  </Button>
+                                  <Button
+                                    size="sm" variant="outline" className="text-xs h-7"
+                                    onClick={(e) => { e.stopPropagation(); handleAssignToLineItem(item.key); }}
+                                  >
+                                    <Link2 size={12} className="mr-1" />Assign to Line Item
+                                  </Button>
+                                  <Button
+                                    size="sm" variant="default" className="text-xs h-7"
+                                    onClick={(e) => { e.stopPropagation(); handleResolveIssue(item.key); }}
+                                  >
+                                    <CircleCheck size={12} className="mr-1" />Mark Resolved
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </TabsContent>
 
@@ -785,114 +848,104 @@ export default function SubScopeAnalyzerPage() {
             <div className="space-y-4">
               <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
                 <h3 className="font-display font-semibold text-foreground mb-1">Bid Package</h3>
-                <p className="text-sm text-muted-foreground">Review the GC's scope package sent to you. Confirm quantities, note exclusions, and finalize clarifications before building your quote.</p>
+                <p className="text-sm text-muted-foreground">Your quote submission package — inclusions, exclusions, clarifications, and mapped line items.</p>
               </div>
 
-              <div className="space-y-4">
-                {bidPackages.map((pkg) => {
-                  const isExpanded = expandedPackage === pkg.category;
-                  return (
-                    <div key={pkg.category} className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
-                      {/* Package header */}
-                      <button
-                        onClick={() => setExpandedPackage(isExpanded ? null : pkg.category)}
-                        className="w-full flex items-center gap-4 px-5 py-4 hover:bg-muted/20 transition-colors text-left"
-                      >
-                        <Package size={16} className="text-primary shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3">
-                            <h3 className="font-display font-semibold text-foreground">{pkg.category}</h3>
-                            <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium", statusColors[pkg.status])}>{pkg.status}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            From: Mayfield & Co. · {pkg.lineItems.length} line items
-                          </p>
-                        </div>
-                        <ChevronDown size={14} className={cn("text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
-                      </button>
+              {/* Scope Summary / Line Items */}
+              <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+                <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+                  <h4 className="font-display font-semibold text-foreground">Scope Summary</h4>
+                  <Button size="sm" variant="ghost" className="text-xs h-6"><ClipboardList size={11} className="mr-1" />Add Item</Button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/20">
+                        <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Description</th>
+                        <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground w-16">Qty</th>
+                        <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground w-14">Unit</th>
+                        <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground w-20">Code</th>
+                        <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bidPackageLineItems.map((li, idx) => (
+                        <tr key={idx} className="border-b border-border last:border-0 hover:bg-muted/10">
+                          <td className="px-3 py-2 text-foreground">{li.description}</td>
+                          <td className="px-3 py-2 font-display font-semibold text-foreground">{typeof li.qty === 'number' && li.qty >= 10 ? li.qty.toLocaleString() : li.qty}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{li.unit}</td>
+                          <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{li.costCode}</td>
+                          <td className="px-3 py-2 text-xs text-muted-foreground">{li.notes}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-                      {/* Expanded package */}
-                      {isExpanded && (
-                        <div className="border-t border-border">
-                          {/* Scope description */}
-                          <div className="px-5 py-4 border-b border-border">
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Scope Package Description</h4>
-                              <Button size="sm" variant="ghost" className="text-xs h-6"><Pencil size={11} className="mr-1" />Edit</Button>
-                            </div>
-                            <p className="text-sm text-foreground leading-relaxed">{pkg.scopeDescription}</p>
-                          </div>
+              {/* Inclusions */}
+              <BidPackageEditableSection
+                title="Inclusions"
+                icon={<CheckCircle size={14} className="text-primary" />}
+                items={bpInclusions}
+                onUpdate={setBpInclusions}
+                issueDerivedCount={0}
+                itemIcon={<Check size={12} className="text-primary mt-0.5 shrink-0" />}
+              />
 
-                          {/* Line items table */}
-                          <div className="px-5 py-4 border-b border-border">
-                            <div className="flex items-center justify-between mb-3">
-                              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Included Line Items</h4>
-                              <Button size="sm" variant="ghost" className="text-xs h-6"><ClipboardList size={11} className="mr-1" />Add Item</Button>
-                            </div>
-                            <div className="overflow-x-auto">
-                              <table className="w-full text-sm">
-                                <thead>
-                                  <tr className="border-b border-border bg-muted/20">
-                                    <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Description</th>
-                                    <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground w-16">Qty</th>
-                                    <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground w-14">Unit</th>
-                                    <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground w-20">Code</th>
-                                    <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Notes</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {pkg.lineItems.map((li, idx) => (
-                                    <tr key={idx} className="border-b border-border last:border-0 hover:bg-muted/10">
-                                      <td className="px-3 py-2 text-foreground">{li.description}</td>
-                                      <td className="px-3 py-2 font-display font-semibold text-foreground">{typeof li.qty === 'number' && li.qty >= 10 ? li.qty.toLocaleString() : li.qty}</td>
-                                      <td className="px-3 py-2 text-muted-foreground">{li.unit}</td>
-                                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{li.costCode}</td>
-                                      <td className="px-3 py-2 text-xs text-muted-foreground">{li.notes}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
+              {/* Exclusions */}
+              <BidPackageEditableSection
+                title="Exclusions"
+                icon={<XCircle size={14} className="text-destructive" />}
+                items={bpExclusions}
+                onUpdate={setBpExclusions}
+                issueDerivedCount={issueDerivedExclusions.length}
+                issueDerivedItems={issueDerivedExclusions}
+                onRemoveIssueDerived={removeIssueDerivedItem}
+                itemIcon={<XCircle size={12} className="text-destructive mt-0.5 shrink-0" />}
+              />
 
-                          {/* Exclusions & Clarifications */}
-                          <div className="px-5 py-4 border-b border-border grid md:grid-cols-2 gap-4">
-                            <div>
-                              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Exclusions</h4>
-                              <ul className="space-y-1">
-                                {pkg.exclusions.map((ex, i) => (
-                                  <li key={i} className="text-sm text-foreground flex items-start gap-2">
-                                    <XCircle size={12} className="text-destructive mt-0.5 shrink-0" />
-                                    {ex}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            <div>
-                              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Clarifications</h4>
-                              <ul className="space-y-1">
-                                {pkg.clarifications.map((cl, i) => (
-                                  <li key={i} className="text-sm text-foreground flex items-start gap-2">
-                                    <Info size={12} className="text-info mt-0.5 shrink-0" />
-                                    {cl}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
+              {/* Clarifications / RFIs */}
+              <BidPackageEditableSection
+                title="Clarifications / RFIs"
+                icon={<Info size={14} className="text-info" />}
+                items={bpClarifications}
+                onUpdate={setBpClarifications}
+                issueDerivedCount={issueDerivedClarifications.length}
+                issueDerivedItems={issueDerivedClarifications}
+                onRemoveIssueDerived={removeIssueDerivedItem}
+                itemIcon={<Info size={12} className="text-info mt-0.5 shrink-0" />}
+              />
 
-                          {/* Actions */}
-                          <div className="px-5 py-3 flex gap-2 flex-wrap">
-                            <Button size="sm" variant="outline" className="text-xs h-7"><Eye size={12} className="mr-1" />View Full Scope</Button>
-                            <Button size="sm" variant="outline" className="text-xs h-7"><Pencil size={12} className="mr-1" />Edit Notes</Button>
-                            <Button size="sm" variant="outline" className="text-xs h-7"><Save size={12} className="mr-1" />Save Draft</Button>
-                            <Button size="sm" className="text-xs h-7"><Send size={12} className="mr-1" />Confirm to GC</Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+              {/* Allowances / Notes */}
+              <BidPackageEditableSection
+                title="Allowances / Notes"
+                icon={<FileSearch size={14} className="text-warning" />}
+                items={bpAllowanceNotes}
+                onUpdate={setBpAllowanceNotes}
+                issueDerivedCount={issueDerivedAllowances.length}
+                issueDerivedItems={issueDerivedAllowances}
+                onRemoveIssueDerived={removeIssueDerivedItem}
+                itemIcon={<AlertTriangle size={12} className="text-warning mt-0.5 shrink-0" />}
+                emptyMessage="No allowance notes yet. Convert issues or add manually."
+              />
+
+              {/* Terms & Conditions */}
+              <BidPackageEditableSection
+                title="Terms & Conditions"
+                icon={<ClipboardList size={14} className="text-muted-foreground" />}
+                items={bpTerms}
+                onUpdate={setBpTerms}
+                issueDerivedCount={0}
+                itemIcon={<Check size={12} className="text-muted-foreground mt-0.5 shrink-0" />}
+              />
+
+              {/* Actions */}
+              <div className="flex gap-2 flex-wrap">
+                <Button size="sm" variant="outline" className="text-xs h-7"><Eye size={12} className="mr-1" />Preview Package</Button>
+                <Button size="sm" variant="outline" className="text-xs h-7"><Pencil size={12} className="mr-1" />Edit Notes</Button>
+                <Button size="sm" variant="outline" className="text-xs h-7"><Save size={12} className="mr-1" />Save Draft</Button>
+                <Button size="sm" className="text-xs h-7"><Send size={12} className="mr-1" />Submit Quote</Button>
               </div>
             </div>
           </TabsContent>
@@ -905,7 +958,7 @@ export default function SubScopeAnalyzerPage() {
         headline="Compiling scope for bid review"
         steps={[
           { label: "Organizing scope items" },
-          { label: "Checking GC package coverage" },
+          { label: "Checking package coverage" },
           { label: "Preparing comparison workspace" },
         ]}
         targetPath="/sub/bid-leveling"
@@ -924,5 +977,98 @@ export default function SubScopeAnalyzerPage() {
         onComplete={() => setTransition(null)}
       />
     </SubLayout>
+  );
+}
+
+// ─── Editable Section Component ───────────────────────────────────
+interface BidPackageEditableSectionProps {
+  title: string;
+  icon: React.ReactNode;
+  items: string[];
+  onUpdate: (items: string[]) => void;
+  issueDerivedCount: number;
+  issueDerivedItems?: IssueDerivedItem[];
+  onRemoveIssueDerived?: (id: string) => void;
+  itemIcon: React.ReactNode;
+  emptyMessage?: string;
+}
+
+function BidPackageEditableSection({ title, icon, items, onUpdate, issueDerivedCount, issueDerivedItems: derivedItems, onRemoveIssueDerived, itemIcon, emptyMessage }: BidPackageEditableSectionProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState("");
+
+  const handleAdd = () => {
+    if (editText.trim()) {
+      onUpdate([...items, editText.trim()]);
+      setEditText("");
+      setIsEditing(false);
+    }
+  };
+
+  const handleRemove = (index: number) => {
+    onUpdate(items.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+      <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {icon}
+          <h4 className="font-display font-semibold text-foreground">{title}</h4>
+          {issueDerivedCount > 0 && (
+            <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+              {issueDerivedCount} from issues
+            </span>
+          )}
+        </div>
+        <div className="flex gap-1.5">
+          <Button size="sm" variant="ghost" className="text-xs h-6" onClick={() => setIsEditing(!isEditing)}>
+            <Plus size={11} className="mr-1" />Add
+          </Button>
+          <Button size="sm" variant="ghost" className="text-xs h-6">
+            <Pencil size={11} className="mr-1" />Edit
+          </Button>
+        </div>
+      </div>
+      <div className="px-5 py-3">
+        {items.length === 0 && !isEditing && (
+          <p className="text-xs text-muted-foreground py-2">{emptyMessage || "No items yet."}</p>
+        )}
+        <ul className="space-y-1">
+          {items.map((item, i) => {
+            const isDerived = derivedItems?.some(d => {
+              if (d.type === "exclusion") return d.text === item;
+              const prefix = d.type === "rfi" ? "[RFI]" : d.type === "clarification" ? "[Clarification]" : "";
+              return prefix ? `${prefix} ${d.text}` === item : d.text === item;
+            });
+            return (
+              <li key={i} className="text-sm text-foreground flex items-start gap-2 group py-0.5">
+                {itemIcon}
+                <span className="flex-1">{item}</span>
+                {isDerived && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium shrink-0">from issue</span>}
+                <button onClick={() => handleRemove(i)} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0">
+                  <Trash2 size={12} />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        {isEditing && (
+          <div className="flex gap-2 mt-2">
+            <input
+              type="text"
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+              placeholder={`Add ${title.toLowerCase()} item...`}
+              className="flex-1 text-sm bg-muted/30 border border-border rounded-lg px-3 py-1.5 text-foreground outline-none focus:ring-1 focus:ring-primary/30"
+              autoFocus
+            />
+            <Button size="sm" variant="default" className="text-xs h-8" onClick={handleAdd}>Add</Button>
+            <Button size="sm" variant="ghost" className="text-xs h-8" onClick={() => { setIsEditing(false); setEditText(""); }}>Cancel</Button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
