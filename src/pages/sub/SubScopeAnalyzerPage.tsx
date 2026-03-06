@@ -273,7 +273,7 @@ export default function SubScopeAnalyzerPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="scope-structure">Scope Structure</TabsTrigger>
+            <TabsTrigger value="scope-structure">Scope Mapping</TabsTrigger>
             <TabsTrigger value="quantity-takeoff">Quantity Takeoff</TabsTrigger>
             <TabsTrigger value="assumptions">Assumptions</TabsTrigger>
             <TabsTrigger value="scope-issues">Scope Issues</TabsTrigger>
@@ -315,7 +315,7 @@ export default function SubScopeAnalyzerPage() {
                   <h3 className="font-display font-semibold text-foreground mb-3">Recommended Next Actions</h3>
                   <div className="space-y-2">
                     {[
-                      { text: `${unmapped.length} items still need cost code assignment`, action: "Go to Scope Structure", tab: "scope-structure" },
+                      { text: `${unmapped.length} items still need cost code assignment`, action: "Go to Scope Mapping", tab: "scope-structure" },
                       { text: `${needsReview.length} items need review before quoting`, action: "Review Items", tab: "quantity-takeoff" },
                       { text: "2 scope issues require structural clarification", action: "View Issues", tab: "scope-issues" },
                       { text: `${mapped.length} lines ready to send to Estimate Builder`, action: "Send to Estimate Builder", tab: null },
@@ -521,7 +521,7 @@ export default function SubScopeAnalyzerPage() {
               <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
                 <div className="px-5 py-4 border-b border-border flex items-center justify-between">
                   <div>
-                    <h2 className="font-display font-semibold text-foreground">Scope Structure Mapping</h2>
+                    <h2 className="font-display font-semibold text-foreground">Scope Mapping</h2>
                     <p className="text-xs text-muted-foreground mt-0.5">Map extracted items into cost codes, trades, and estimate sections</p>
                   </div>
                   <div className="flex gap-1.5">
