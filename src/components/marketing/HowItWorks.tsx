@@ -30,7 +30,7 @@ const steps = [
   {
     icon: FileOutput,
     title: "Proposal Export",
-    desc: "Customize, edit, and format your estimate, then export client-ready proposals instantly to PDF, Excel, or CSV.",
+    desc: "Customize, edit, and format your estimate. Export client-ready proposals instantly to PDF, Excel, or CSV.",
   },
 ];
 
