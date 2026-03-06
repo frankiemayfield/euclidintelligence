@@ -273,10 +273,10 @@ export default function SubScopeAnalyzerPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="scope-structure">Scope Mapping</TabsTrigger>
+            <TabsTrigger value="scope-structure">Mapping</TabsTrigger>
             <TabsTrigger value="quantity-takeoff">Quantity Takeoff</TabsTrigger>
             <TabsTrigger value="assumptions">Assumptions</TabsTrigger>
-            <TabsTrigger value="scope-issues">Scope Issues</TabsTrigger>
+            <TabsTrigger value="scope-issues">Issues</TabsTrigger>
             <TabsTrigger value="bid-package">GC Bid Package</TabsTrigger>
           </TabsList>
 
