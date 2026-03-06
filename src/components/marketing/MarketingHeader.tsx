@@ -20,7 +20,6 @@ export function MarketingHeader() {
     { label: "How It Works", href: "#how-it-works" },
     { label: "Pricing", href: "#pricing" },
     { label: "For Teams", href: "#built-for" },
-    { label: "For Subcontractors", href: "/sub" },
   ];
 
   return (
@@ -62,19 +61,11 @@ export function MarketingHeader() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate("/sub")}
-            className="text-primary"
-          >
-            Subcontractor Portal
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/app")}
+            onClick={() => navigate("/signin")}
           >
             Sign In
           </Button>
-          <Button size="sm" onClick={() => navigate("/app/upload")}>
+          <Button size="sm" onClick={() => navigate("/signup")}>
             Create Account
           </Button>
         </div>
@@ -100,10 +91,10 @@ export function MarketingHeader() {
             </a>
           ))}
           <div className="flex flex-col gap-2 mt-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/app")}>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/signin")}>
               Sign In
             </Button>
-            <Button size="sm" onClick={() => navigate("/app/upload")}>
+            <Button size="sm" onClick={() => navigate("/signup")}>
               Create Account
             </Button>
           </div>
