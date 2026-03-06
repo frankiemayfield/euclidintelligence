@@ -26,7 +26,7 @@ const features = [
   },
   {
     icon: Bot,
-    title: "Estimator Atlas",
+    title: "AI Estimator Assistant",
     desc: "Your always-available AI estimating expert. Answers scope questions, explains cost assumptions, suggests line items, and drafts clarifications on demand.",
     detail: "Like having a senior estimator on speed dial.",
     link: "/app/atlas",
