@@ -36,7 +36,7 @@ export function HeroSection() {
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
                   <FileText size={18} className="text-primary" />
                 </div>
-                <h3 className="font-display font-semibold text-foreground text-sm mb-1">Build Your Estimate</h3>
+                <h3 className="font-display font-semibold text-foreground text-sm mb-1">Build an  Estimate</h3>
                 <p className="text-xs text-muted-foreground mb-4 flex-1">
                   Upload plans and project files to start the full estimating workflow.
                 </p>
