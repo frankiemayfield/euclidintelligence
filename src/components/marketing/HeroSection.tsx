@@ -41,7 +41,7 @@ export function HeroSection() {
                   Upload plans and project files to start the full estimating workflow.
                 </p>
                 <Button size="sm" className="w-full gap-2" onClick={() => setBuildTransition(true)}>
-                  Build an Estimate <ArrowRight size={14} />
+                  <FileText size={14} /> Build an Estimate <ArrowRight size={14} />
                 </Button>
               </div>
 
