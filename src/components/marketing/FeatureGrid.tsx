@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
-import { Scale, FileSearch, Table2, Bot } from "lucide-react";
+import { BarChart3, FileSearch, Table2, Bot } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const features = [
   {
-    icon: Scale,
+    icon: BarChart3,
     title: "Market Comparison",
     desc: "A 0–100 proposal score for every estimate. Instantly see completeness, trade coverage, pricing confidence, scope gap risk, and change-order exposure.",
     detail: "Know where your estimate stands before you send it.",
