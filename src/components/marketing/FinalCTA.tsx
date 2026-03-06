@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, FileText } from "lucide-react";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 
 export function FinalCTA() {
@@ -18,7 +18,7 @@ export function FinalCTA() {
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Button size="lg" className="gap-2" onClick={() => setBuildTransition(true)}>
-            Build an Estimate 
+            <FileText size={14} /> Build an Estimate 
           </Button>
           <Button size="lg" className="gap-2" onClick={() => setCompareTransition(true)}>
             <BarChart3 size={14} /> Market Comparison
