@@ -20,6 +20,7 @@ export function MarketingHeader() {
     { label: "How It Works", href: "#how-it-works" },
     { label: "Pricing", href: "#pricing" },
     { label: "For Teams", href: "#built-for" },
+    { label: "For Subcontractors", href: "/sub" },
   ];
 
   return (
@@ -37,17 +38,35 @@ export function MarketingHeader() {
 
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {l.label}
-            </a>
+            l.href.startsWith("/") ? (
+              <button
+                key={l.label}
+                onClick={() => navigate(l.href)}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {l.label}
+              </button>
+            ) : (
+              <a
+                key={l.label}
+                href={l.href}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {l.label}
+              </a>
+            )
           ))}
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/sub")}
+            className="text-primary"
+          >
+            Subcontractor Portal
+          </Button>
           <Button
             variant="ghost"
             size="sm"
