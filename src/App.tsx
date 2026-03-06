@@ -30,6 +30,7 @@ import SubMarketComparisonPage from "./pages/sub/SubMarketComparisonPage";
 import SubProposalExportPage from "./pages/sub/SubProposalExportPage";
 import SubEstVsActualPage from "./pages/sub/SubEstVsActualPage";
 import SubSettingsPage from "./pages/sub/SubSettingsPage";
+import { SubSettingsProvider } from "./hooks/use-sub-settings";
 
 const queryClient = new QueryClient();
 
@@ -57,17 +58,17 @@ const App = () => (
               <Route path="/app/proposal" element={<ProposalPage />} />
               <Route path="/app/est-vs-actual" element={<EstVsActualPage />} />
               <Route path="/app/settings" element={<SettingsPage />} />
-              {/* Subcontractor routes */}
-              <Route path="/sub" element={<SubDashboardPage />} />
-              <Route path="/sub/upload" element={<SubUploadPage />} />
-              <Route path="/sub/scope-analyzer" element={<SubScopeAnalyzerPage />} />
-              <Route path="/sub/bid-leveling" element={<SubBidLevelingPage />} />
-              <Route path="/sub/estimate-builder" element={<SubEstimateBuilderPage />} />
-              <Route path="/sub/pricing" element={<SubPricingMarginPage />} />
-              <Route path="/sub/market-comparison" element={<SubMarketComparisonPage />} />
-              <Route path="/sub/proposal" element={<SubProposalExportPage />} />
-              <Route path="/sub/est-vs-actual" element={<SubEstVsActualPage />} />
-              <Route path="/sub/settings" element={<SubSettingsPage />} />
+              {/* Subcontractor routes — wrapped in SubSettingsProvider */}
+              <Route path="/sub" element={<SubSettingsProvider><SubDashboardPage /></SubSettingsProvider>} />
+              <Route path="/sub/upload" element={<SubSettingsProvider><SubUploadPage /></SubSettingsProvider>} />
+              <Route path="/sub/scope-analyzer" element={<SubSettingsProvider><SubScopeAnalyzerPage /></SubSettingsProvider>} />
+              <Route path="/sub/bid-leveling" element={<SubSettingsProvider><SubBidLevelingPage /></SubSettingsProvider>} />
+              <Route path="/sub/estimate-builder" element={<SubSettingsProvider><SubEstimateBuilderPage /></SubSettingsProvider>} />
+              <Route path="/sub/pricing" element={<SubSettingsProvider><SubPricingMarginPage /></SubSettingsProvider>} />
+              <Route path="/sub/market-comparison" element={<SubSettingsProvider><SubMarketComparisonPage /></SubSettingsProvider>} />
+              <Route path="/sub/proposal" element={<SubSettingsProvider><SubProposalExportPage /></SubSettingsProvider>} />
+              <Route path="/sub/est-vs-actual" element={<SubSettingsProvider><SubEstVsActualPage /></SubSettingsProvider>} />
+              <Route path="/sub/settings" element={<SubSettingsProvider><SubSettingsPage /></SubSettingsProvider>} />
               {/* Legacy redirects */}
               <Route path="/app/atlas" element={<UploadPage />} />
               <Route path="/app/bid-score" element={<ProposalComparisonPage />} />
