@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Hammer, Home, HardHat, Building2 } from "lucide-react";
+import { Hammer, Home, HardHat, Building2, Wrench } from "lucide-react";
 
 const audiences = [
   {
@@ -22,6 +22,11 @@ const audiences = [
     title: "Developers",
     desc: "Get fast proforma-level estimates with trade-level detail, then track budget drift from estimate through closeout.",
   },
+  {
+    icon: Wrench,
+    title: "Subcontractors",
+    desc: "Build trade-specific quotes with scope checklists, labor and material defaults, and proposal export — tailored to your craft.",
+  },
 ];
 
 export function BuiltForSection() {
@@ -37,7 +42,7 @@ export function BuiltForSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
           {audiences.map((a, i) => (
             <motion.div
               key={a.title}
