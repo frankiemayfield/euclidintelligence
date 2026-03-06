@@ -58,12 +58,12 @@ export function HowItWorks() {
                 transition={{ delay: i * 0.12 }}
                 className="flex flex-col items-center text-center w-44"
               >
-                <div className="w-16 h-16 rounded-2xl bg-card border border-border shadow-card flex items-center justify-center mb-4 relative">
+                <div className="w-16 h-16 rounded-2xl bg-card border border-border shadow-card flex items-center justify-center mb-3 relative">
                   <s.icon className="text-primary" size={28} />
-                  <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
-                    {i + 1}
-                  </span>
                 </div>
+                <span className="inline-block rounded-full bg-primary/10 text-primary text-[10px] font-bold px-2.5 py-0.5 mb-2 uppercase tracking-wider">
+                  Step {i + 1}
+                </span>
                 <h3 className="font-display text-sm font-semibold text-foreground mb-1.5">{s.title}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed px-1">{s.desc}</p>
               </motion.div>
@@ -94,12 +94,12 @@ export function HowItWorks() {
                 transition={{ delay: i * 0.1 }}
                 className="bg-card border border-border rounded-2xl p-5 shadow-card text-center w-full"
               >
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 relative">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
                   <s.icon className="text-primary" size={26} />
-                  <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
-                    {i + 1}
-                  </span>
                 </div>
+                <span className="inline-block rounded-full bg-primary/10 text-primary text-[10px] font-bold px-2.5 py-0.5 mb-2 uppercase tracking-wider">
+                  Step {i + 1}
+                </span>
                 <h3 className="font-display text-base font-semibold text-foreground mb-2">{s.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
               </motion.div>
@@ -126,13 +126,13 @@ export function HowItWorks() {
                 transition={{ delay: i * 0.08 }}
                 className="bg-card border border-border rounded-2xl p-5 shadow-card flex items-start gap-4 w-full"
               >
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 relative">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
                   <s.icon className="text-primary" size={22} />
-                  <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                    {i + 1}
-                  </span>
                 </div>
                 <div>
+                  <span className="inline-block rounded-full bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 mb-1 uppercase tracking-wider">
+                    Step {i + 1}
+                  </span>
                   <h3 className="font-display text-sm font-semibold text-foreground mb-1">{s.title}</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
                 </div>
