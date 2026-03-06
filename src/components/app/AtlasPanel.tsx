@@ -65,6 +65,60 @@ const contextSuggestions: Record<string, string[]> = {
     "Show lessons learned for next project",
     "Are my estimates trending accurate?",
   ],
+  "/sub": [
+    "Show what's due next",
+    "Draft RFI for missing scope",
+    "Generate exclusions list for Maple St.",
+    "Find low-confidence takeoff items",
+  ],
+  "/sub/upload": [
+    "What files are in this scope package?",
+    "Classify uploaded documents by type",
+    "Are any key drawings missing?",
+    "Suggest next steps after upload",
+  ],
+  "/sub/scope-analyzer": [
+    "Which scope items are unconfirmed?",
+    "List low-confidence takeoff quantities",
+    "Draft RFI for missing structural detail",
+    "Summarize framing scope assumptions",
+  ],
+  "/sub/bid-leveling": [
+    "Compare v1 vs v2 quote coverage",
+    "What exclusions should I flag for GC?",
+    "Which scope items are carried by other trades?",
+    "Generate revised clarifications list",
+  ],
+  "/sub/estimate-builder": [
+    "Which line items need review?",
+    "Explain the lumber package pricing",
+    "Are there missing framing scope items?",
+    "Show pricing outliers in my quote",
+  ],
+  "/sub/pricing": [
+    "How does my markup affect competitiveness?",
+    "What margin do I need for 15% profit?",
+    "Compare my pricing against market rates",
+    "Is my contingency adequate for this scope?",
+  ],
+  "/sub/market-comparison": [
+    "Why is my quote above market?",
+    "Which cost categories are driving variance?",
+    "How does my Proposal Score compare?",
+    "What adjustments would improve my score?",
+  ],
+  "/sub/proposal": [
+    "Draft exclusions for uncertain framing items",
+    "Review the proposal for completeness",
+    "Should I include alternates?",
+    "Add clarification notes for the GC",
+  ],
+  "/sub/est-vs-actual": [
+    "Which items went over budget?",
+    "What caused the lumber variance?",
+    "Show lessons learned for next bid",
+    "Are my framing quotes trending accurate?",
+  ],
 };
 
 const initialResponses: Record<string, string> = {
@@ -78,6 +132,15 @@ const initialResponses: Record<string, string> = {
   "/app/estimate-comparison": "Your estimate is benchmarked against 20,000+ similar projects. Proposal Score is 78. I can explain variances and pricing position.",
   "/app/proposal": "The proposal has 8 sections — all are ready. I can help draft exclusions, review completeness, or suggest presentation improvements.",
   "/app/est-vs-actual": "I can see variance data across 10 trades. Overall the estimate was 2.1% under actual. I can help identify patterns and lessons learned.",
+  "/sub": "Welcome back. You have 4 active quotes — 2 are due this week and 1 is ready to submit. I can see 6 open RFIs and 12 unconfirmed assumptions across your pipeline. What should we tackle first?",
+  "/sub/upload": "I can see your uploaded scope package files. I'll help classify them and flag any missing documents before you proceed to scope analysis.",
+  "/sub/scope-analyzer": "I've loaded the framing scope data for Maple St. Kitchen Remodel. I can see 9 takeoff items — 3 assumptions need confirmation and 1 RFI is open.",
+  "/sub/bid-leveling": "I see your current quote version alongside the GC scope package. I can help compare coverage, identify gaps, and draft clarifications.",
+  "/sub/estimate-builder": "Your framing quote has 9 line items with a base cost of $48,200. 2 items need review. Want me to check pricing or scope coverage?",
+  "/sub/pricing": "Current markup is 22% combined. I can help analyze margin impact, compare strategies, or calculate target pricing for this bid.",
+  "/sub/market-comparison": "Your quote is benchmarked against similar framing bids in the Midwest. Proposal Score is 82. I can explain variances and positioning.",
+  "/sub/proposal": "The proposal has 8 sections — all ready for export. I can help draft exclusions, review completeness, or add clarification notes.",
+  "/sub/est-vs-actual": "I can see variance data for completed framing projects. Overall your estimates were 3.2% under actual. I can help identify patterns.",
 };
 
 interface UploadedFile {
