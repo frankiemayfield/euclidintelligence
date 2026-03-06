@@ -277,7 +277,7 @@ export default function SubScopeAnalyzerPage() {
             <TabsTrigger value="quantity-takeoff">Quantity Takeoff</TabsTrigger>
             <TabsTrigger value="assumptions">Assumptions</TabsTrigger>
             <TabsTrigger value="scope-issues">Scope Issues</TabsTrigger>
-            <TabsTrigger value="bid-package">Bid Package</TabsTrigger>
+            <TabsTrigger value="bid-package">GC Bid Package</TabsTrigger>
           </TabsList>
 
           {/* ═══════════ OVERVIEW TAB ═══════════ */}
