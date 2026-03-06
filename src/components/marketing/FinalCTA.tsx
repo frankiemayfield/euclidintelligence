@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3 } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 
 export function FinalCTA() {
@@ -18,7 +18,7 @@ export function FinalCTA() {
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Button size="lg" className="gap-2" onClick={() => setBuildTransition(true)}>
-            Build an Estimate <ArrowRight size={14} />
+            Build an Estimate 
           </Button>
           <Button size="lg" className="gap-2" onClick={() => setCompareTransition(true)}>
             <BarChart3 size={14} /> Market Comparison
@@ -33,28 +33,28 @@ export function FinalCTA() {
         active={buildTransition}
         headline="Building your estimate"
         steps={[
-          { label: "Classifying documents" },
-          { label: "Filling in project details" },
-          { label: "Setting up workflow preferences" },
-          { label: "Preparing your workspace" },
-        ]}
+        { label: "Classifying documents" },
+        { label: "Filling in project details" },
+        { label: "Setting up workflow preferences" },
+        { label: "Preparing your workspace" }]
+        }
         targetPath="/app/upload"
-        onComplete={() => setBuildTransition(false)}
-      />
+        onComplete={() => setBuildTransition(false)} />
+      
 
       <WorkflowTransition
         active={compareTransition}
         headline="Comparing your pricing"
         steps={[
-          { label: "Benchmark alignment analysis" },
-          { label: "Comparing against thousands of estimates" },
-          { label: "Analyzing market pricing" },
-          { label: "Comparing costs and prices" },
-          { label: "Generating proposal score" },
-        ]}
+        { label: "Benchmark alignment analysis" },
+        { label: "Comparing against thousands of estimates" },
+        { label: "Analyzing market pricing" },
+        { label: "Comparing costs and prices" },
+        { label: "Generating proposal score" }]
+        }
         targetPath="/app/estimate-comparison?source=upload"
-        onComplete={() => setCompareTransition(false)}
-      />
-    </section>
-  );
+        onComplete={() => setCompareTransition(false)} />
+      
+    </section>);
+
 }
