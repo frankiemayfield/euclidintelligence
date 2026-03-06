@@ -23,7 +23,7 @@ type EstimateSection = "Pre-Build Requirements" | "Base Scope" | "General Requir
 type StructureStatus = "Mapped" | "Unmapped" | "Duplicate Candidate" | "Deferred" | "Confirmed";
 
 interface TakeoffRow {
-  id: number; division: string; description: string; qty: number; unit: string; sheet: string;
+  id: number; division: string; category: string; description: string; qty: number; unit: string; sheet: string;
   method: ExtractionMethod; confidence: Confidence; status: ReviewStatus;
   costCode: string; trade: string; estimateSection: EstimateSection; structureStatus: StructureStatus;
   detail: { sourceType: string; sheetRef: string; detectionNote: string; formula: string; unitConversion: string; assumptionNotes: string; confidenceExplanation: string; };
@@ -57,29 +57,29 @@ interface IssueDerivedItem {
 
 // Framing-specific takeoff data with formulas/derivations
 const takeoffData: TakeoffRow[] = [
-  { id: 1, division: "06 10 00", description: "2×4 wall framing — exterior", qty: 1420, unit: "LF", sheet: "A1.1", method: "Derived from Scale", confidence: "Medium", status: "Needs Review", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Mapped",
+  { id: 1, division: "06 10 00", category: "Wall Framing", description: "2×4 wall framing — exterior", qty: 1420, unit: "LF", sheet: "A1.1", method: "Derived from Scale", confidence: "Medium", status: "Needs Review", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Mapped",
     detail: { sourceType: "Scaled perimeter", sheetRef: "Sheet A1.1 — Floor Plan", detectionNote: "Exterior wall perimeter measured from floor plan scale at gridlines", formula: "Perimeter 142 LF × 10 ft wall height = 1,420 LF of plate (top + bottom)", unitConversion: "1,420 LF plate stock → ~178 pcs 2×4×8 studs @ 16\" OC + plates", assumptionNotes: "Wall height assumed 10 ft from section detail A-A. Corner assemblies included.", confidenceExplanation: "Perimeter from scale, not dimensioned. Wall height confirmed from section." }},
-  { id: 2, division: "06 10 00", description: "2×6 wall framing — bearing", qty: 380, unit: "LF", sheet: "S1.1", method: "Explicitly Labeled", confidence: "High", status: "Estimator Confirmed", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Confirmed",
+  { id: 2, division: "06 10 00", category: "Wall Framing", description: "2×6 wall framing — bearing", qty: 380, unit: "LF", sheet: "S1.1", method: "Explicitly Labeled", confidence: "High", status: "Estimator Confirmed", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Confirmed",
     detail: { sourceType: "Plan callout", sheetRef: "Sheet S1.1 — Structural Plan", detectionNote: "Interior bearing walls dimensioned on structural plan with callouts for 2×6 framing", formula: "38 LF kitchen bearing + 24 LF hallway bearing + 18 LF addition tie-in = 380 LF (×10 ft height)", unitConversion: "380 LF → ~48 pcs 2×6×10 studs @ 16\" OC + double top plate", assumptionNotes: "All interior load-bearing partitions per structural plan. Non-bearing partitions excluded.", confidenceExplanation: "Bearing walls explicitly dimensioned and labeled on structural plan." }},
-  { id: 3, division: "06 10 00", description: "LVL headers — assorted sizes", qty: 18, unit: "EA", sheet: "S1.1", method: "Schedule Verified", confidence: "Medium", status: "Needs Review", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Mapped",
+  { id: 3, division: "06 10 00", category: "Structural", description: "LVL headers — assorted sizes", qty: 18, unit: "EA", sheet: "S1.1", method: "Schedule Verified", confidence: "Medium", status: "Needs Review", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Mapped",
     detail: { sourceType: "Structural schedule + detail sheet", sheetRef: "Sheet S1.1 — Structural Details / Header Schedule", detectionNote: "Header schedule lists 18 openings requiring LVL headers. Sizes range from 3.5×9.25 to 5.25×11.875.", formula: "Direct count from header schedule: 6× 3.5×9.25, 8× 3.5×11.875, 4× 5.25×11.875", unitConversion: "EA count — material priced per size category", assumptionNotes: "Header sizes from schedule. Detail S1.1-D shows conflict with door schedule A5.1 on two openings.", confidenceExplanation: "Schedule verified but two header sizes conflict between structural detail and door schedule." }},
-  { id: 4, division: "06 10 00", description: "Roof trusses — pre-engineered", qty: 22, unit: "EA", sheet: "A4.1", method: "Explicitly Labeled", confidence: "High", status: "Estimator Confirmed", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Confirmed",
+  { id: 4, division: "06 10 00", category: "Roof Framing", description: "Roof trusses — pre-engineered", qty: 22, unit: "EA", sheet: "A4.1", method: "Explicitly Labeled", confidence: "High", status: "Estimator Confirmed", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Confirmed",
     detail: { sourceType: "Plan callout + framing plan", sheetRef: "Sheet A4.1 — Framing Plan / Roof Plan", detectionNote: "Framing plan shows 22 trusses at 24\" OC across 44 ft span. Standard Fink profile.", formula: "44 ft roof span ÷ 2 ft OC = 22 trusses + 1 gable end = 22 EA (gable included in count)", unitConversion: "EA count — trusses priced per unit from truss supplier", assumptionNotes: "Pre-engineered trusses assumed. Verify with truss shop drawings before order.", confidenceExplanation: "Truss count and spacing explicitly shown on framing plan." }},
-  { id: 5, division: "06 10 00", description: "Floor joists — I-joists 11⅞\"", qty: 1100, unit: "LF", sheet: "S1.1", method: "Derived from Scale", confidence: "Medium", status: "Needs Review", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Mapped",
+  { id: 5, division: "06 10 00", category: "Floor Framing", description: "Floor joists — I-joists 11⅞\"", qty: 1100, unit: "LF", sheet: "S1.1", method: "Derived from Scale", confidence: "Medium", status: "Needs Review", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Mapped",
     detail: { sourceType: "Scaled measurement + structural note", sheetRef: "Sheet S1.1 — Structural Floor Framing", detectionNote: "Floor area measured from structural plan. I-joist depth noted as 11⅞\" TJI.", formula: "Floor area 1,000 SF → span 25 ft × 44 pcs at 16\" OC = 1,100 LF of I-joist", unitConversion: "1,100 LF → ~44 pcs × 25 ft lengths = 44 I-joists", assumptionNotes: "I-joist spacing assumed 16\" OC per typical residential. Rim board counted separately.", confidenceExplanation: "Joist spacing from typical practice, not dimensioned. Span from scale." }},
-  { id: 6, division: "06 10 00", description: "Wall sheathing — 7/16\" OSB", qty: 2800, unit: "SF", sheet: "A1.1", method: "Derived from Scale", confidence: "High", status: "Estimator Confirmed", costCode: "06-160", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Confirmed",
+  { id: 6, division: "06 10 00", category: "Sheathing", description: "Wall sheathing — 7/16\" OSB", qty: 2800, unit: "SF", sheet: "A1.1", method: "Derived from Scale", confidence: "High", status: "Estimator Confirmed", costCode: "06-160", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Confirmed",
     detail: { sourceType: "Calculated from wall perimeter", sheetRef: "Sheet A1.1 — Floor Plan + Elevations", detectionNote: "Exterior wall area calculated from perimeter × height. Window/door openings deducted.", formula: "142 LF perimeter × 10 ft height = 1,420 SF gross − 120 SF openings = 1,300 SF net × 2 stories = 2,600 SF + 8% waste = 2,800 SF", unitConversion: "2,800 SF ÷ 32 SF/sheet = 87.5 → 88 sheets 4×8 OSB", assumptionNotes: "7/16\" OSB per spec section 06 16 00. Clips at unsupported edges included.", confidenceExplanation: "Perimeter confirmed from plan. Height from section. Waste factor standard 8%." }},
-  { id: 7, division: "06 10 00", description: "Roof sheathing — 7/16\" OSB", qty: 1900, unit: "SF", sheet: "A4.1", method: "Explicitly Labeled", confidence: "High", status: "Estimator Confirmed", costCode: "06-160", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Confirmed",
+  { id: 7, division: "06 10 00", category: "Sheathing", description: "Roof sheathing — 7/16\" OSB", qty: 1900, unit: "SF", sheet: "A4.1", method: "Explicitly Labeled", confidence: "High", status: "Estimator Confirmed", costCode: "06-160", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Confirmed",
     detail: { sourceType: "Plan callout + roof plan", sheetRef: "Sheet A4.1 — Roof Plan", detectionNote: "Roof area from plan outline with pitch multiplier applied for actual surface area.", formula: "1,200 SF plan area × 1.118 pitch factor (6:12) = 1,341 SF + 8% waste = 1,448 SF → rounded to 1,900 SF (includes overhangs + ridges)", unitConversion: "1,900 SF ÷ 32 SF/sheet = 59.4 → 60 sheets 4×8 OSB", assumptionNotes: "6:12 pitch confirmed from Section A-A. Overhangs 12\" all sides included.", confidenceExplanation: "Roof outline dimensioned. Pitch confirmed from building section." }},
-  { id: 8, division: "06 10 00", description: "Blocking — cabinet/TV/handrail", qty: 1, unit: "LS", sheet: "—", method: "Assumption Applied", confidence: "Low", status: "Needs Review", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Unmapped",
+  { id: 8, division: "06 10 00", category: "Blocking", description: "Blocking — cabinet/TV/handrail", qty: 1, unit: "LS", sheet: "—", method: "Assumption Applied", confidence: "Low", status: "Needs Review", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Unmapped",
     detail: { sourceType: "Inferred from project type", sheetRef: "— (Inferred from finish schedule)", detectionNote: "No explicit blocking schedule on plans. Inferred from cabinet layout, TV locations, and handrail details.", formula: "Lump sum — estimated 120 LF blocking at various heights", unitConversion: "LS — priced as labor + material lump sum", assumptionNotes: "Cabinet backing at 34\" + 54\" AFF, TV mount backing per owner spec, handrail blocking per code.", confidenceExplanation: "No plan reference. Based on finish schedule inference and project type." }},
-  { id: 9, division: "06 10 00", description: "Hangers/fasteners/hardware", qty: 1, unit: "LS", sheet: "S1.1", method: "Schedule Verified", confidence: "Medium", status: "Auto-Extracted", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Mapped",
+  { id: 9, division: "06 10 00", category: "Hardware", description: "Hangers/fasteners/hardware", qty: 1, unit: "LS", sheet: "S1.1", method: "Schedule Verified", confidence: "Medium", status: "Auto-Extracted", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Mapped",
     detail: { sourceType: "Hardware schedule", sheetRef: "Sheet S1.1 — Hardware Schedule", detectionNote: "Hardware schedule lists joist hangers, hurricane straps, hold-downs, and Simpson connectors.", formula: "Direct from schedule: 44 joist hangers + 22 hurricane straps + 8 hold-downs + misc clips", unitConversion: "LS — priced from hardware schedule quantities", assumptionNotes: "Simpson Strong-Tie or equivalent per spec. Installation labor included.", confidenceExplanation: "Hardware schedule present but may not be complete for all conditions." }},
-  { id: 10, division: "06 10 00", description: "Rim board — 1¼\" LVL", qty: 180, unit: "LF", sheet: "S1.1", method: "Explicitly Labeled", confidence: "High", status: "Estimator Confirmed", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Confirmed",
+  { id: 10, division: "06 10 00", category: "Floor Framing", description: "Rim board — 1¼\" LVL", qty: 180, unit: "LF", sheet: "S1.1", method: "Explicitly Labeled", confidence: "High", status: "Estimator Confirmed", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Confirmed",
     detail: { sourceType: "Plan callout", sheetRef: "Sheet S1.1 — Structural Floor Framing", detectionNote: "Rim board callout at floor perimeter. 1¼\" LVL rim per structural note.", formula: "Floor perimeter 180 LF — continuous rim board at joist bearing", unitConversion: "180 LF → 9 pcs × 20 ft lengths", assumptionNotes: "LVL rim board per structural spec. Material by GC or sub TBD.", confidenceExplanation: "Rim board dimensioned on structural plan with explicit callout." }},
-  { id: 11, division: "06 10 00", description: "Stair framing — opening + stringers", qty: 1, unit: "LS", sheet: "S1.1", method: "Assumption Applied", confidence: "Low", status: "Needs Review", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Unmapped",
+  { id: 11, division: "06 10 00", category: "Structural", description: "Stair framing — opening + stringers", qty: 1, unit: "LS", sheet: "S1.1", method: "Assumption Applied", confidence: "Low", status: "Needs Review", costCode: "06-100", trade: "Framing", estimateSection: "Base Scope", structureStatus: "Unmapped",
     detail: { sourceType: "Inferred from floor plan", sheetRef: "Sheet S1.1 — Structural (stair opening not dimensioned)", detectionNote: "Stair shown on floor plan but opening framing not detailed on structural plans.", formula: "Lump sum — assumed 3 ft × 10 ft opening with doubled headers + 3 stringers", unitConversion: "LS — labor + material for stair opening framing", assumptionNotes: "Stair opening framing not dimensioned. Stringers assumed 2×12. Verify with structural.", confidenceExplanation: "Stair opening shown but not dimensioned. Requires structural clarification." }},
-  { id: 12, division: "01 50 00", description: "Mobilization & staging", qty: 1, unit: "LS", sheet: "—", method: "Assumption Applied", confidence: "Medium", status: "Auto-Extracted", costCode: "01-500", trade: "General Conditions", estimateSection: "General Requirements", structureStatus: "Mapped",
+  { id: 12, division: "01 50 00", category: "General Conditions", description: "Mobilization & staging", qty: 1, unit: "LS", sheet: "—", method: "Assumption Applied", confidence: "Medium", status: "Auto-Extracted", costCode: "01-500", trade: "General Conditions", estimateSection: "General Requirements", structureStatus: "Mapped",
     detail: { sourceType: "Inferred", sheetRef: "—", detectionNote: "Standard mobilization allowance for framing crew. Includes equipment delivery and staging area setup.", formula: "Lump sum estimate — 1 day mob + staging", unitConversion: "—", assumptionNotes: "Assumes adequate staging area provided by GC. Dumpster by GC.", confidenceExplanation: "Standard practice item. No plan reference needed." }},
 ];
 
@@ -403,7 +403,7 @@ export default function SubScopeAnalyzerPage() {
                           }} />
                         </th>
                         <th className="w-8" />
-                        {["CSI Division", "Description", "Qty", "Unit", "Sheet", "Method", "Confidence", "Status"].map((h) => (
+                        {["Category", "Description", "Qty", "Unit", "Sheet", "Method", "Confidence", "Status"].map((h) => (
                           <th key={h} className="text-left px-3 py-3 text-xs font-medium text-muted-foreground whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
@@ -416,7 +416,7 @@ export default function SubScopeAnalyzerPage() {
                               <input type="checkbox" className="rounded border-border" checked={selectedRows.has(row.id)} onChange={() => toggleRowSelection(row.id)} />
                             </td>
                             <td className="py-3" onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}><ChevronDown size={14} className={cn("text-muted-foreground transition-transform", expandedRow === row.id && "rotate-180")} /></td>
-                            <td className="px-3 py-3 font-mono text-xs text-muted-foreground">{row.division}</td>
+                            <td className="px-3 py-3 text-xs text-foreground"><span className="bg-muted px-2 py-0.5 rounded-full font-medium">{row.category}</span></td>
                             <td className="px-3 py-3 text-foreground">{row.description}</td>
                             <td className="px-3 py-3 font-display font-semibold text-foreground">{typeof row.qty === 'number' && row.qty >= 10 ? row.qty.toLocaleString() : row.qty}</td>
                             <td className="px-3 py-3 text-muted-foreground">{row.unit}</td>
@@ -930,23 +930,6 @@ export default function SubScopeAnalyzerPage() {
                 emptyMessage="No allowance notes yet. Convert issues or add manually."
               />
 
-              {/* Terms & Conditions */}
-              <BidPackageEditableSection
-                title="Terms & Conditions"
-                icon={<ClipboardList size={14} className="text-muted-foreground" />}
-                items={bpTerms}
-                onUpdate={setBpTerms}
-                issueDerivedCount={0}
-                itemIcon={<Check size={12} className="text-muted-foreground mt-0.5 shrink-0" />}
-              />
-
-              {/* Actions */}
-              <div className="flex gap-2 flex-wrap">
-                <Button size="sm" variant="outline" className="text-xs h-7"><Eye size={12} className="mr-1" />Preview Package</Button>
-                <Button size="sm" variant="outline" className="text-xs h-7"><Pencil size={12} className="mr-1" />Edit Notes</Button>
-                <Button size="sm" variant="outline" className="text-xs h-7"><Save size={12} className="mr-1" />Save Draft</Button>
-                <Button size="sm" className="text-xs h-7"><Send size={12} className="mr-1" />Submit Quote</Button>
-              </div>
             </div>
           </TabsContent>
         </Tabs>
