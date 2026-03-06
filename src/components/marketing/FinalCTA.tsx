@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { BarChart3, FileText } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 
 export function FinalCTA() {
@@ -13,12 +13,12 @@ export function FinalCTA() {
         <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
           Stop guessing. Start estimating with clarity.
         </h2>
-        <p className="text-muted-foreground max-w-lg mx-auto mb-8">
-          Upload your project files and generate a structured estimate, Proposal Score, and trade-level market comparison in minutes.
+        <p className="text-muted-foreground max-w-lg mx-auto mb-8">Upload your project files and generate a structured estimate, a trade-level market comparison, and export a proposal in minutes.
+
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Button size="lg" className="gap-2" onClick={() => setBuildTransition(true)}>
-            <FileText size={14} /> Build an Estimate 
+            Build an Estimate 
           </Button>
           <Button size="lg" className="gap-2" onClick={() => setCompareTransition(true)}>
             <BarChart3 size={14} /> Market Comparison
