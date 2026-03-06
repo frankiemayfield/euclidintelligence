@@ -3,9 +3,9 @@ import { Hammer, Home, HardHat, Building2, Wrench } from "lucide-react";
 
 const audiences = [
   {
-    icon: Hammer,
-    title: "Builders",
-    desc: "Control costs on your own projects — validate estimates, track budget drift, and protect margins whether you're building spec homes or developing to sell.",
+    icon: HardHat,
+    title: "General Contractors",
+    desc: "Level sub bids, standardize cost codes, and maintain estimate accuracy across multiple concurrent projects and teams.",
   },
   {
     icon: Home,
@@ -13,19 +13,19 @@ const audiences = [
     desc: "Navigate complex existing-condition estimates with scope intelligence that flags what's commonly missed in renovation work.",
   },
   {
-    icon: HardHat,
-    title: "General Contractors",
-    desc: "Level sub bids, standardize cost codes, and maintain estimate accuracy across multiple concurrent projects and teams.",
-  },
-  {
-    icon: Building2,
-    title: "Developers",
-    desc: "Get fast proforma-level estimates with trade-level detail, then track budget drift from estimate through closeout.",
+    icon: Hammer,
+    title: "Builders",
+    desc: "Control costs on your own projects — validate estimates, track budget drift, and protect margins whether you're building spec homes or developing to sell.",
   },
   {
     icon: Wrench,
     title: "Subcontractors",
     desc: "Build trade-specific quotes with scope checklists, labor and material defaults, and proposal export — tailored to your craft.",
+  },
+  {
+    icon: Building2,
+    title: "Developers",
+    desc: "Get fast proforma-level estimates with trade-level detail, then track budget drift from estimate through closeout.",
   },
 ];
 
