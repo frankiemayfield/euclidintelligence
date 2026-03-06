@@ -58,12 +58,12 @@ export function HowItWorks() {
                 transition={{ delay: i * 0.12 }}
                 className="flex flex-col items-center text-center w-44"
               >
-                <div className="w-16 h-16 rounded-2xl bg-card border border-border shadow-card flex items-center justify-center mb-3 relative">
-                  <s.icon className="text-primary" size={28} />
-                </div>
-                <span className="inline-block rounded-full bg-primary/10 text-primary text-[10px] font-bold px-2.5 py-0.5 mb-2 uppercase tracking-wider">
+                <span className="inline-block rounded-full bg-primary/10 text-primary text-[10px] font-bold px-2.5 py-0.5 mb-3 uppercase tracking-wider">
                   Step {i + 1}
                 </span>
+                <div className="w-16 h-16 rounded-2xl bg-card border border-border shadow-card flex items-center justify-center mb-3">
+                  <s.icon className="text-primary" size={28} />
+                </div>
                 <h3 className="font-display text-sm font-semibold text-foreground mb-1.5">{s.title}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed px-1">{s.desc}</p>
               </motion.div>
@@ -94,12 +94,12 @@ export function HowItWorks() {
                 transition={{ delay: i * 0.1 }}
                 className="bg-card border border-border rounded-2xl p-5 shadow-card text-center w-full"
               >
+                <span className="inline-block rounded-full bg-primary/10 text-primary text-[10px] font-bold px-2.5 py-0.5 mb-3 uppercase tracking-wider">
+                  Step {i + 1}
+                </span>
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
                   <s.icon className="text-primary" size={26} />
                 </div>
-                <span className="inline-block rounded-full bg-primary/10 text-primary text-[10px] font-bold px-2.5 py-0.5 mb-2 uppercase tracking-wider">
-                  Step {i + 1}
-                </span>
                 <h3 className="font-display text-base font-semibold text-foreground mb-2">{s.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
               </motion.div>
