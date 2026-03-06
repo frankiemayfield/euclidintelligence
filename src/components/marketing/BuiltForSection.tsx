@@ -5,7 +5,7 @@ const audiences = [
   {
     icon: Hammer,
     title: "Builders",
-    desc: "Validate estimates, catch missing scope, and produce client-ready proposals faster — from custom homes to spec builds.",
+    desc: "Control costs on your own projects — validate estimates, track budget drift, and protect margins whether you're building spec homes or developing to sell.",
   },
   {
     icon: Home,
