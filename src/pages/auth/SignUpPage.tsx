@@ -85,7 +85,7 @@ export default function SignUpPage() {
             Create your account
           </h1>
           <p className="text-muted-foreground">
-            Start estimating smarter with Bedrock
+            Start estimating smarter with Euclid
           </p>
         </div>
 

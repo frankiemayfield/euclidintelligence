@@ -31,7 +31,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     root.classList.remove("light", "dark");
     root.classList.add(resolvedTheme);
-    localStorage.setItem("bedrock-theme", theme);
+    localStorage.setItem("euclid-theme", theme);
   }, [theme, resolvedTheme]);
 
   useEffect(() => {

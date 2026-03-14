@@ -67,7 +67,7 @@ export default function NewProjectPage() {
           <h1 className="font-display text-2xl font-bold text-foreground">New Project</h1>
           <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">
             Upload plans, estimates, proposals, and project files to start in the right workflow.
-            Bedrock will organize your files and route you where you need to go.
+            Euclid will organize your files and route you where you need to go.
           </p>
         </div>
 

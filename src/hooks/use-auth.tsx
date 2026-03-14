@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       region: data.region,
       isFirstRun: true,
     };
-    localStorage.setItem(`bedrock-account-${data.email}`, JSON.stringify(newUser));
+    localStorage.setItem(`euclid-account-${data.email}`, JSON.stringify(newUser));
     setUser(newUser);
   }, []);
 

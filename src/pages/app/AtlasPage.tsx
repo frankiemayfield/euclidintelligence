@@ -130,7 +130,7 @@ export default function AtlasPage() {
             <div className="flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-3">
               <input
                 className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                placeholder="Ask Atlas about your estimate..."
+                placeholder="Ask Euclid about your estimate..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}

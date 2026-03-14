@@ -28,7 +28,7 @@ export default function ChooseAccountTypePage() {
             Choose your account type
           </h1>
           <p className="text-muted-foreground">
-            This determines your Bedrock experience
+            This determines your Euclid experience
           </p>
         </div>
 

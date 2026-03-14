@@ -48,7 +48,7 @@ export default function SignInPage() {
             Welcome back
           </h1>
           <p className="text-muted-foreground">
-            Sign in to your Bedrock account
+            Sign in to your Euclid account
           </p>
         </div>
 
