@@ -76,7 +76,7 @@ export default function AtlasPage() {
               <Bot size={20} className="text-primary" />
             </div>
             <div>
-              <h1 className="font-display text-lg font-semibold text-foreground">Estimator Atlas</h1>
+              <h1 className="font-display text-lg font-semibold text-foreground">Euclid</h1>
               <p className="text-xs text-muted-foreground">Explains the work — traces every number back to its source</p>
             </div>
           </div>
