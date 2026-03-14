@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (email: string, _password: string) => {
     // Mock: look up stored user by email, or create a minimal one
-    const stored = localStorage.getItem(`bedrock-account-${email}`);
+    const stored = localStorage.getItem(`euclid-account-${email}`);
     if (stored) {
       setUser(JSON.parse(stored));
     } else {
