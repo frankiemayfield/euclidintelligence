@@ -144,7 +144,7 @@ export default function UploadPage() {
             {files.length > 0 && (
               <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
                 <h2 className="font-display text-sm font-semibold text-foreground mb-1">File Classification</h2>
-                <p className="text-xs text-muted-foreground mb-4">Bedrock classifies uploads automatically. Reassign types, mark primary sources, or exclude files.</p>
+                <p className="text-xs text-muted-foreground mb-4">Euclid classifies uploads automatically. Reassign types, mark primary sources, or exclude files.</p>
 
                 <div className="flex gap-1.5 flex-wrap mb-4">
                   {allCategories.map(cat => {
