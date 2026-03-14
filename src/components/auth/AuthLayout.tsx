@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import bedrockLogo from "@/assets/bedrock-logo-new.png";
+import euclidLogo from "@/assets/euclid-logo.png";
 
 export function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -8,7 +8,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
       {/* Header */}
       <header className="w-full px-6 py-5">
         <Link to="/" className="inline-flex items-center gap-2">
-          <img src={bedrockLogo} alt="Bedrock" className="h-8 w-auto" />
+          <img src={euclidLogo} alt="Euclid" className="h-8 w-auto" />
         </Link>
       </header>
 
@@ -21,7 +21,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
 
       {/* Footer */}
       <footer className="py-6 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Bedrock Analytics. All rights reserved.
+        © {new Date().getFullYear()} Euclid Intelligence. All rights reserved.
       </footer>
     </div>
   );

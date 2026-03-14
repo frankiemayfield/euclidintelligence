@@ -38,7 +38,7 @@ export function BuiltForSection() {
             Built by and for those who build
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            Bedrock serves every role in the estimating and pre-construction workflow.
+            Euclid serves every role in the estimating and pre-construction workflow.
           </p>
         </div>
 

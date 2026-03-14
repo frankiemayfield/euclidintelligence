@@ -2,7 +2,7 @@ import { Bot, Send, X, Sparkles, Upload, FileText, XCircle } from "lucide-react"
 import { useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
-type Message = { role: "atlas" | "user"; content: string; references?: { label: string; type: string }[] };
+type Message = { role: "euclid" | "user"; content: string; references?: { label: string; type: string }[] };
 
 const contextSuggestions: Record<string, string[]> = {
   "/app": [
@@ -169,7 +169,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
     setLastPath(currentPath);
     const initialMsg = initialResponses[currentPath];
     if (initialMsg) {
-      setMessages([{ role: "atlas", content: initialMsg }]);
+      setMessages([{ role: "euclid", content: initialMsg }]);
     }
   }
 
@@ -184,7 +184,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
       setMessages(prev => [
         ...prev,
         {
-          role: "atlas",
+          role: "euclid",
           content: "Based on the current project data, I can see relevant patterns here. The key factors are the scope assumptions and how they flow through to pricing. I'd recommend reviewing the flagged items before finalizing — they could affect your proposal competitiveness by 3–5%.",
           references: [
             { label: "Maple St. Kitchen Remodel", type: "Project" },
@@ -204,7 +204,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
     setUploadedFiles(prev => [...prev, ...newFiles]);
     setMessages(prev => [
       ...prev,
-      { role: "atlas", content: `I've received ${newFiles.length} file${newFiles.length > 1 ? "s" : ""}: ${newFiles.map(f => f.name).join(", ")}. I can help analyze, classify, or answer questions about ${newFiles.length > 1 ? "these files" : "this file"}.` }
+      { role: "euclid", content: `I've received ${newFiles.length} file${newFiles.length > 1 ? "s" : ""}: ${newFiles.map(f => f.name).join(", ")}. I can help analyze, classify, or answer questions about ${newFiles.length > 1 ? "these files" : "this file"}.` }
     ]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -223,7 +223,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
             <Bot size={16} className="text-primary" />
           </div>
-          <p className="text-sm font-bold text-foreground font-display">Estimator Atlas</p>
+          <p className="text-sm font-bold text-foreground font-display">Euclid</p>
         </div>
         <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted/50">
           <X size={16} />
@@ -252,7 +252,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((m, i) => (
           <div key={i} className={`flex gap-3 ${m.role === "user" ? "justify-end" : ""}`}>
-            {m.role === "atlas" && (
+            {m.role === "euclid" && (
               <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-1">
                 <Bot size={13} className="text-primary" />
               </div>
@@ -292,12 +292,12 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
         <div className="flex items-center gap-2 bg-background border border-border rounded-xl px-3 py-2.5">
           <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" multiple
             accept=".pdf,.xlsx,.csv,.xls,.docx,.doc,.png,.jpg,.jpeg" />
-          <button onClick={() => fileInputRef.current?.click()} className="w-7 h-7 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shrink-0 flex items-center justify-center font-bold text-base" title="Upload to Atlas">
+          <button onClick={() => fileInputRef.current?.click()} className="w-7 h-7 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shrink-0 flex items-center justify-center font-bold text-base" title="Upload to Euclid">
             +
           </button>
           <input
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            placeholder="Ask Atlas..."
+            placeholder="Ask Euclid..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
@@ -318,7 +318,7 @@ export function AtlasToggleButton({ onClick }: { onClick: () => void }) {
       className="fixed right-4 bottom-4 z-40 flex items-center gap-2 bg-primary text-primary-foreground rounded-full px-4 py-2.5 shadow-lg hover:bg-primary/90 transition-colors text-sm font-medium"
     >
       <Bot size={16} />
-      <span>Open Atlas</span>
+      <span>Open Euclid</span>
     </button>
   );
 }

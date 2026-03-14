@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import bedrockLogo from "@/assets/bedrock-logo-new.png";
+import euclidLogo from "@/assets/euclid-logo.png";
 
 export function MarketingHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -32,7 +32,7 @@ export function MarketingHeader() {
     >
       <div className="container mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
-          <img src={bedrockLogo} alt="Bedrock" className="h-12 w-auto" />
+          <img src={euclidLogo} alt="Euclid" className="h-12 w-auto" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
