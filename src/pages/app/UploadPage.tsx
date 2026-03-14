@@ -264,7 +264,7 @@ export default function UploadPage() {
                 </div>
                 <div>
                   <h2 className="font-display text-sm font-semibold text-foreground">Project Structuring</h2>
-                  <p className="text-[11px] text-muted-foreground">Tell Bedrock how to interpret and structure your project data.</p>
+                  <p className="text-[11px] text-muted-foreground">Tell Euclid how to interpret and structure your project data.</p>
                 </div>
               </div>
 
