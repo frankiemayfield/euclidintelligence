@@ -43,7 +43,7 @@ const AuthContext = createContext<AuthContextType>({
   demoSignIn: () => {},
 });
 
-const STORAGE_KEY = "bedrock-auth-user";
+const STORAGE_KEY = "euclid-auth-user";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => {
