@@ -126,7 +126,7 @@ export default function SettingsPage() {
           {/* ===== COMPANY ===== */}
           {activeTab === "company" && (
             <div className="space-y-6">
-              <SectionCard title="Company Profile" helper="Your company identity across Bedrock">
+              <SectionCard title="Company Profile" helper="Your company identity across Euclid">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div><FieldLabel>Company Name</FieldLabel><FieldInput defaultValue="Mayfield & Co." /></div>
                   <div><FieldLabel>Company Email</FieldLabel><FieldInput defaultValue="info@mayfield.co" type="email" /></div>
