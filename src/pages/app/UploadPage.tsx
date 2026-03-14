@@ -121,7 +121,7 @@ export default function UploadPage() {
       <div className="p-6 lg:p-8 max-w-5xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="font-display text-2xl font-bold text-foreground">Document Upload</h1>
-          <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">Upload project files and configure how Bedrock should structure your project before analysis.</p>
+          <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">Upload project files and configure how Euclid should structure your project before analysis.</p>
         </div>
 
         {!transition ? (
