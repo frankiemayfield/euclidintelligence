@@ -13,8 +13,8 @@ export default function ChooseAccountTypePage() {
     // Update user in localStorage
     if (user) {
       const updated = { ...user, accountTrack: track, isFirstRun: true };
-      localStorage.setItem("bedrock-auth-user", JSON.stringify(updated));
-      localStorage.setItem(`bedrock-account-${user.email}`, JSON.stringify(updated));
+      localStorage.setItem("euclid-auth-user", JSON.stringify(updated));
+      localStorage.setItem(`euclid-account-${user.email}`, JSON.stringify(updated));
       // Force reload to pick up new state
       window.location.href = track === "subcontractor" ? "/sub/settings" : "/app/settings";
     }
