@@ -34,8 +34,8 @@ export default function AtlasPage() {
   const [input, setInput] = useState("");
 
   useEffect(() => {
-    document.title = "Estimator Atlas — Bedrock";
-    return () => { document.title = "Bedrock — Construction Estimating Intelligence"; };
+    document.title = "Euclid — Construction Estimating Intelligence";
+    return () => { document.title = "Euclid — Construction Estimating Intelligence"; };
   }, []);
 
   const handleSend = () => {
