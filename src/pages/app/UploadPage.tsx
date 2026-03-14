@@ -379,7 +379,7 @@ export default function UploadPage() {
                       Preferred Estimate Structure
                     </label>
                     <div className="bg-background border border-border rounded-xl p-3">
-                      <p className="text-[10px] text-muted-foreground mb-2">Bedrock will organize scope into these sections:</p>
+                      <p className="text-[10px] text-muted-foreground mb-2">Euclid will organize scope into these sections:</p>
                       <div className="flex flex-wrap gap-1.5">
                         {estimateSections.map(sec => (
                           <span key={sec} className="text-[10px] px-2 py-1 rounded-full bg-primary/8 text-primary border border-primary/10 font-medium">

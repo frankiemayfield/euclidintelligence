@@ -357,7 +357,7 @@ export default function SettingsPage() {
           {/* ===== USERS & PERMISSIONS ===== */}
           {activeTab === "users" && (
             <div className="space-y-6">
-              <SectionCard title="Team Members" helper="Manage who has access to your Bedrock workspace">
+              <SectionCard title="Team Members" helper="Manage who has access to your Euclid workspace">
                 <div className="flex justify-end mb-3">
                   <Button size="sm" className="text-xs"><Users size={12} className="mr-1.5" />Add User</Button>
                 </div>
