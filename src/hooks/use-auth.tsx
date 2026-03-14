@@ -43,7 +43,7 @@ const AuthContext = createContext<AuthContextType>({
   demoSignIn: () => {},
 });
 
-const STORAGE_KEY = "bedrock-auth-user";
+const STORAGE_KEY = "euclid-auth-user";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => {
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (email: string, _password: string) => {
     // Mock: look up stored user by email, or create a minimal one
-    const stored = localStorage.getItem(`bedrock-account-${email}`);
+    const stored = localStorage.getItem(`euclid-account-${email}`);
     if (stored) {
       setUser(JSON.parse(stored));
     } else {
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       region: data.region,
       isFirstRun: true,
     };
-    localStorage.setItem(`bedrock-account-${data.email}`, JSON.stringify(newUser));
+    localStorage.setItem(`euclid-account-${data.email}`, JSON.stringify(newUser));
     setUser(newUser);
   }, []);
 

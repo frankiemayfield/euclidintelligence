@@ -25,7 +25,7 @@ export function HeroSection() {
               <span className="text-primary">Project Costs</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-lg mb-8 leading-relaxed">
-              AI-powered construction estimating and bid intelligence — built on
+              Precision construction estimating and bid intelligence — built on
               real project data. Upload plans, bid sheets, or scope docs and get
               structured estimates in minutes.
             </p>
@@ -36,7 +36,7 @@ export function HeroSection() {
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
                   <FileText size={18} className="text-primary" />
                 </div>
-                <h3 className="font-display font-semibold text-foreground text-sm mb-1">Build an  Estimate</h3>
+                <h3 className="font-display font-semibold text-foreground text-sm mb-1">Build an  Estimate</h3>
                 <p className="text-xs text-muted-foreground mb-4 flex-1">
                   Upload plans and project files to start the full estimating workflow.
                 </p>
@@ -149,11 +149,11 @@ export function HeroSection() {
                 </div>
               </div>
 
-              {/* Atlas Insight */}
+              {/* Euclid Insight */}
               <div className="bg-accent/50 rounded-lg p-3 flex items-start gap-3">
                 <Bot className="text-primary mt-0.5 shrink-0" size={16} />
                 <div>
-                  <p className="text-xs font-medium text-foreground">Estimator Atlas</p>
+                  <p className="text-xs font-medium text-foreground">Euclid</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     "Electrical scope appears incomplete. Similar kitchen remodels typically include a rough-in allowance between $3,800 and $5,200."
                   </p>

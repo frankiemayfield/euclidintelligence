@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import bedrockLogo from "@/assets/bedrock-logo-new.png";
+import euclidLogo from "@/assets/euclid-logo.png";
 
 export function MarketingFooter() {
   return (
@@ -7,9 +7,9 @@ export function MarketingFooter() {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <img src={bedrockLogo} alt="Bedrock" className="h-11 w-auto mb-3" />
+            <img src={euclidLogo} alt="Euclid" className="h-11 w-auto mb-3" />
             <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-              Bedrock Analytics builds estimating intelligence for the construction industry. Practical, data-driven, and built from real project experience.
+              Euclid Intelligence builds estimating intelligence for the construction industry. Precise, data-driven, and built from real project experience.
             </p>
           </div>
           <div>
@@ -32,7 +32,7 @@ export function MarketingFooter() {
           </div>
         </div>
         <div className="border-t border-border mt-8 pt-6 text-center text-xs text-muted-foreground">
-          © 2026 Bedrock Analytics. All rights reserved.
+          © 2026 Euclid Intelligence. All rights reserved.
         </div>
       </div>
     </footer>

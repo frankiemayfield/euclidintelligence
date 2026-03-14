@@ -126,7 +126,7 @@ export default function SettingsPage() {
           {/* ===== COMPANY ===== */}
           {activeTab === "company" && (
             <div className="space-y-6">
-              <SectionCard title="Company Profile" helper="Your company identity across Bedrock">
+              <SectionCard title="Company Profile" helper="Your company identity across Euclid">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div><FieldLabel>Company Name</FieldLabel><FieldInput defaultValue="Mayfield & Co." /></div>
                   <div><FieldLabel>Company Email</FieldLabel><FieldInput defaultValue="info@mayfield.co" type="email" /></div>
@@ -151,7 +151,7 @@ export default function SettingsPage() {
                     <button onClick={() => setCompanyLogo("uploaded")} className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
                       <Upload size={14} /> Upload logo
                     </button>
-                    <p className="text-xs text-muted-foreground mt-1">Bedrock branding remains in the sidebar. Your logo is your workspace identity.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Euclid branding remains in the sidebar. Your logo is your workspace identity.</p>
                   </div>
                 </div>
               </SectionCard>
@@ -357,7 +357,7 @@ export default function SettingsPage() {
           {/* ===== USERS & PERMISSIONS ===== */}
           {activeTab === "users" && (
             <div className="space-y-6">
-              <SectionCard title="Team Members" helper="Manage who has access to your Bedrock workspace">
+              <SectionCard title="Team Members" helper="Manage who has access to your Euclid workspace">
                 <div className="flex justify-end mb-3">
                   <Button size="sm" className="text-xs"><Users size={12} className="mr-1.5" />Add User</Button>
                 </div>

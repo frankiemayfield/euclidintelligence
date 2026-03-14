@@ -34,8 +34,8 @@ export default function AtlasPage() {
   const [input, setInput] = useState("");
 
   useEffect(() => {
-    document.title = "Estimator Atlas — Bedrock";
-    return () => { document.title = "Bedrock — Construction Estimating Intelligence"; };
+    document.title = "Euclid — Construction Estimating Intelligence";
+    return () => { document.title = "Euclid — Construction Estimating Intelligence"; };
   }, []);
 
   const handleSend = () => {
@@ -76,7 +76,7 @@ export default function AtlasPage() {
               <Bot size={20} className="text-primary" />
             </div>
             <div>
-              <h1 className="font-display text-lg font-semibold text-foreground">Estimator Atlas</h1>
+              <h1 className="font-display text-lg font-semibold text-foreground">Euclid</h1>
               <p className="text-xs text-muted-foreground">Explains the work — traces every number back to its source</p>
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function AtlasPage() {
             <div className="flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-3">
               <input
                 className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                placeholder="Ask Atlas about your estimate..."
+                placeholder="Ask Euclid about your estimate..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}

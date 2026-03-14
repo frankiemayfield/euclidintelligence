@@ -20,13 +20,13 @@ export function AtlasSection() {
             viewport={{ once: true }}>
             
             <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-1.5 text-xs font-semibold text-primary mb-5">
-              <Bot size={14} /> Estimator Atlas
+              <Bot size={14} /> Euclid AI
             </div>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">Your always-available AI estimating expert
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">Your always-available estimating expert
 
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6 max-w-md">
-              Atlas answers practical estimating questions, surfaces risk factors, drafts clarifications, and recommends contingencies — all grounded in your actual project data.
+              Euclid answers practical estimating questions, surfaces risk factors, drafts clarifications, and recommends contingencies — all grounded in your actual project data.
             </p>
             <p className="text-sm text-muted-foreground">
               Not a generic chatbot. A specialized construction estimating assistant built on real project intelligence.
@@ -41,7 +41,7 @@ export function AtlasSection() {
             
             <div className="bg-muted/50 px-5 py-3 border-b border-border flex items-center gap-2">
               <Bot size={16} className="text-primary" />
-              <span className="text-sm font-display font-semibold text-foreground">Estimator Atlas</span>
+              <span className="text-sm font-display font-semibold text-foreground">Euclid</span>
               <span className="text-xs text-muted-foreground ml-auto">Project-Aware</span>
             </div>
             <div className="p-5 space-y-3 max-h-80 overflow-y-auto">
@@ -79,7 +79,7 @@ export function AtlasSection() {
               <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
                 <input
                   className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                  placeholder="Ask Atlas about your estimate..."
+                  placeholder="Ask Euclid about your estimate..."
                   readOnly />
                 
                 <Send size={16} className="text-primary" />

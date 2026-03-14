@@ -121,7 +121,7 @@ export default function UploadPage() {
       <div className="p-6 lg:p-8 max-w-5xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="font-display text-2xl font-bold text-foreground">Document Upload</h1>
-          <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">Upload project files and configure how Bedrock should structure your project before analysis.</p>
+          <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">Upload project files and configure how Euclid should structure your project before analysis.</p>
         </div>
 
         {!transition ? (
@@ -144,7 +144,7 @@ export default function UploadPage() {
             {files.length > 0 && (
               <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
                 <h2 className="font-display text-sm font-semibold text-foreground mb-1">File Classification</h2>
-                <p className="text-xs text-muted-foreground mb-4">Bedrock classifies uploads automatically. Reassign types, mark primary sources, or exclude files.</p>
+                <p className="text-xs text-muted-foreground mb-4">Euclid classifies uploads automatically. Reassign types, mark primary sources, or exclude files.</p>
 
                 <div className="flex gap-1.5 flex-wrap mb-4">
                   {allCategories.map(cat => {
@@ -264,7 +264,7 @@ export default function UploadPage() {
                 </div>
                 <div>
                   <h2 className="font-display text-sm font-semibold text-foreground">Project Structuring</h2>
-                  <p className="text-[11px] text-muted-foreground">Tell Bedrock how to interpret and structure your project data.</p>
+                  <p className="text-[11px] text-muted-foreground">Tell Euclid how to interpret and structure your project data.</p>
                 </div>
               </div>
 
@@ -379,7 +379,7 @@ export default function UploadPage() {
                       Preferred Estimate Structure
                     </label>
                     <div className="bg-background border border-border rounded-xl p-3">
-                      <p className="text-[10px] text-muted-foreground mb-2">Bedrock will organize scope into these sections:</p>
+                      <p className="text-[10px] text-muted-foreground mb-2">Euclid will organize scope into these sections:</p>
                       <div className="flex flex-wrap gap-1.5">
                         {estimateSections.map(sec => (
                           <span key={sec} className="text-[10px] px-2 py-1 rounded-full bg-primary/8 text-primary border border-primary/10 font-medium">

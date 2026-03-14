@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Upload, FileSearch, Table2,
   FileOutput, Scale, TrendingUp, Settings, ChevronLeft, BarChart3, ChevronDown, DollarSign
 } from "lucide-react";
-import bedrockLogo from "@/assets/bedrock-logo-new.png";
+import euclidLogo from "@/assets/euclid-logo.png";
 import { useState } from "react";
 import { AtlasPanel, AtlasToggleButton } from "@/components/app/AtlasPanel";
 
@@ -49,7 +49,7 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
       <header className="h-12 border-b border-border bg-card flex items-center justify-between px-4 shrink-0 z-50">
         <div className="flex items-center gap-6">
           <Link to="/" className="shrink-0">
-            <img src={bedrockLogo} alt="Bedrock" className="h-8 w-auto" />
+            <img src={euclidLogo} alt="Euclid" className="h-8 w-auto" />
           </Link>
           <nav className="flex items-center gap-1">
             <Link to="/sub"
@@ -139,14 +139,14 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
           </aside>
         )}
 
-        {/* Main + Atlas */}
+        {/* Main + Euclid */}
         <main className="flex-1 overflow-y-auto">{children}</main>
 
-        {/* Atlas Panel */}
+        {/* Euclid Panel */}
         {showAtlas && <AtlasPanel isOpen={atlasOpen} onClose={() => setAtlasOpen(false)} />}
       </div>
 
-      {/* Atlas toggle button when panel is closed */}
+      {/* Euclid toggle button when panel is closed */}
       {showAtlas && !atlasOpen && <AtlasToggleButton onClick={() => setAtlasOpen(true)} />}
     </div>
   );

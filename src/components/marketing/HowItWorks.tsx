@@ -5,7 +5,7 @@ const steps = [
   {
     icon: Upload,
     title: "Upload Documents",
-    desc: "Upload project files and configure how Bedrock should structure your project before analysis.",
+    desc: "Upload project files and configure how Euclid should structure your project before analysis.",
   },
   {
     icon: Search,
@@ -98,7 +98,6 @@ export function HowItWorks() {
                 <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
               </motion.div>
 
-              {/* Arrow to next: right arrow for positions 0,1,3,4; down arrow for position 2 */}
               {i < steps.length - 1 && i !== 2 && (
                 <ArrowRight className="absolute -right-4 top-1/2 -translate-y-1/2 text-primary/30" size={18} />
               )}
