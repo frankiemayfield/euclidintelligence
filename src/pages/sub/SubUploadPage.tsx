@@ -137,7 +137,7 @@ export default function SubUploadPage() {
             {/* File Classification */}
             <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
               <h2 className="font-display text-sm font-semibold text-foreground mb-1">File Classification</h2>
-              <p className="text-xs text-muted-foreground mb-4">Bedrock classifies uploads automatically. Reassign types as needed.</p>
+              <p className="text-xs text-muted-foreground mb-4">Euclid classifies uploads automatically. Reassign types as needed.</p>
               <div className="space-y-1.5">
                 {files.map((f, i) => (
                   <div key={i} className="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-muted/20">
