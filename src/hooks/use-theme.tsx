@@ -22,7 +22,7 @@ function getSystemTheme(): "light" | "dark" {
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === "undefined") return "light";
-    return (localStorage.getItem("bedrock-theme") as Theme) || "light";
+    return (localStorage.getItem("euclid-theme") as Theme) || "light";
   });
 
   const resolvedTheme = theme === "system" ? getSystemTheme() : theme;
