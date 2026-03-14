@@ -23,7 +23,7 @@ export default function SignInPage() {
       await signIn(email, password);
       // Routing handled by auth state change in App
       // Check stored account to route correctly
-      const stored = localStorage.getItem(`bedrock-account-${email}`);
+      const stored = localStorage.getItem(`euclid-account-${email}`);
       if (stored) {
         const account = JSON.parse(stored);
         navigate(account.accountTrack === "subcontractor" ? "/sub" : "/app");
