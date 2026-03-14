@@ -151,7 +151,7 @@ export default function SettingsPage() {
                     <button onClick={() => setCompanyLogo("uploaded")} className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
                       <Upload size={14} /> Upload logo
                     </button>
-                    <p className="text-xs text-muted-foreground mt-1">Bedrock branding remains in the sidebar. Your logo is your workspace identity.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Euclid branding remains in the sidebar. Your logo is your workspace identity.</p>
                   </div>
                 </div>
               </SectionCard>
