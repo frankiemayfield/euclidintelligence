@@ -1,7 +1,6 @@
-import { HomeownerLayout } from "@/components/homeowner/HomeownerLayout";
+import { OwnerLayout } from "@/components/homeowner/OwnerLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { proposals } from "@/data/homeownerData";
 
 function fmt(n: number) { return "$" + n.toLocaleString(); }
 
@@ -64,7 +63,7 @@ function RiskBadge({ level }: { level: "Low" | "Medium" | "High" }) {
 
 export default function HomeownerLevelingPage() {
   return (
-    <HomeownerLayout>
+    <OwnerLayout>
       <div className="p-6 space-y-6 max-w-[1400px]">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Proposal Leveling</h1>
@@ -92,7 +91,7 @@ export default function HomeownerLevelingPage() {
                     <p className="font-bold text-foreground text-base">{fmt(ld.original)}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Estimated Comparable</p>
+                    <p className="text-muted-foreground">Est. Comparable</p>
                     <p className="font-bold text-foreground text-base">{fmt(ld.estimatedComparableRange[0])}–{fmt(ld.estimatedComparableRange[1])}</p>
                   </div>
                 </div>
@@ -103,7 +102,6 @@ export default function HomeownerLevelingPage() {
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Confidence</span>
-                  <RiskBadge level={ld.confidence === "High" ? "Low" : ld.confidence === "Low" ? "High" : "Medium"} />
                   <span className="font-medium text-foreground">{ld.confidence}</span>
                 </div>
               </CardContent>
@@ -175,6 +173,6 @@ export default function HomeownerLevelingPage() {
           </CardContent>
         </Card>
       </div>
-    </HomeownerLayout>
+    </OwnerLayout>
   );
 }

@@ -119,6 +119,66 @@ const contextSuggestions: Record<string, string[]> = {
     "Show lessons learned for next bid",
     "Are my framing quotes trending accurate?",
   ],
+  "/owner": [
+    "Summarize project health",
+    "What needs my attention?",
+    "How does projected final compare to budget?",
+    "Show open reviews and pending items",
+  ],
+  "/owner/upload": [
+    "What files have been uploaded?",
+    "Are all proposals extracted?",
+    "Which documents need classification?",
+    "Suggest next steps after upload",
+  ],
+  "/owner/proposals": [
+    "Which proposal is most complete?",
+    "Compare allowance amounts across proposals",
+    "What is missing from Summit Oak's bid?",
+    "Which exclusions should I be concerned about?",
+  ],
+  "/owner/leveling": [
+    "Why is Summit Oak cheaper?",
+    "What is the true comparable range?",
+    "Which proposal has the lowest risk?",
+    "Explain the leveling adjustments",
+  ],
+  "/owner/comparison": [
+    "Show only flagged categories",
+    "Which categories have the most variance?",
+    "What is not mentioned in any proposal?",
+    "Compare fixture allowances side by side",
+  ],
+  "/owner/market-comparison": [
+    "How does this proposal compare to market?",
+    "Which categories are below market?",
+    "Is this pricing competitive for Cincinnati?",
+    "Where is the biggest market deviation?",
+  ],
+  "/owner/documents": [
+    "What documents are uploaded?",
+    "Show contract-related documents",
+    "Are there any missing document types?",
+    "Summarize the signed contract",
+  ],
+  "/owner/budget": [
+    "Which categories are over budget?",
+    "What is driving the projected final increase?",
+    "Show categories that need review",
+    "How much has been paid vs invoiced?",
+  ],
+  "/owner/invoices": [
+    "Which invoices need review?",
+    "Does this invoice align with the contract?",
+    "Are there any overlapping charges?",
+    "Summarize invoice status across categories",
+  ],
+  "/owner/change-orders": [
+    "Is this change order legitimate?",
+    "What caused this change order?",
+    "How much have change orders added to cost?",
+    "Which change orders are owner-driven?",
+  ],
 };
 
 const initialResponses: Record<string, string> = {
@@ -141,6 +201,16 @@ const initialResponses: Record<string, string> = {
   "/sub/market-comparison": "Your quote is benchmarked against similar framing bids in the Midwest. Proposal Score is 82. I can explain variances and positioning.",
   "/sub/proposal": "The proposal has 8 sections — all ready for export. I can help draft exclusions, review completeness, or add clarification notes.",
   "/sub/est-vs-actual": "I can see variance data for completed framing projects. Overall your estimates were 3.2% under actual. I can help identify patterns.",
+  "/owner": "Welcome back, Andrew. Your project is in active construction with Alder Ridge Builders. Projected final is $331,750 — $19,350 above the original contract. 2 invoices and 1 change order need your review. How can I help?",
+  "/owner/upload": "I can see 7 uploaded files — 3 contractor proposals have been extracted and classified. All documents are ready for analysis.",
+  "/owner/proposals": "You have 3 contractor proposals uploaded. Alder Ridge is the most complete at 92%. Summit Oak has 6 scope flags. I can help compare them.",
+  "/owner/leveling": "I've leveled all 3 proposals. Summit Oak's $278,900 headline becomes $318K–$345K once scope gaps are estimated. Alder Ridge remains the most complete.",
+  "/owner/comparison": "Side-by-side comparison loaded. Summit Oak excludes painting, permits, and cleanup. I can filter to show only flagged or missing categories.",
+  "/owner/market-comparison": "Market benchmarks loaded for Cincinnati-area residential renovations. Select a proposal to see category-level positioning against market data.",
+  "/owner/documents": "8 project documents are on file — 3 proposals, 1 signed contract, plans, selections, and receipts. I can help find or summarize any document.",
+  "/owner/budget": "Budget tracking is active. 2 categories are over budget (Structural, Fixtures) and 3 are on watch. Projected final is $331,750.",
+  "/owner/invoices": "10 invoices submitted totaling $187,200. 3 need review — electrical rough-in appears higher than expected and plumbing fixture status needs confirmation.",
+  "/owner/change-orders": "5 change orders totaling $14,850. 4 approved, 1 pending review (CO-005: fixture upgrade, $2,500). I can assess whether each is legitimate.",
 };
 
 interface UploadedFile {

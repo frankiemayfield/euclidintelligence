@@ -1,4 +1,4 @@
-import { HomeownerLayout } from "@/components/homeowner/HomeownerLayout";
+import { OwnerLayout } from "@/components/homeowner/OwnerLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { homeowner, budgetCategories } from "@/data/homeownerData";
@@ -28,14 +28,13 @@ export default function HomeownerBudgetPage() {
   const delta = totals.projected - totals.original;
 
   return (
-    <HomeownerLayout>
+    <OwnerLayout>
       <div className="p-6 space-y-6 max-w-[1400px]">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Budget Tracking</h1>
           <p className="text-sm text-muted-foreground mt-1">Post-award financial tracking for {homeowner.selectedContractor}</p>
         </div>
 
-        {/* Summary Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
           {[
             { label: "Selected Proposal", value: fmt(homeowner.selectedProposalAmount) },
@@ -55,7 +54,6 @@ export default function HomeownerBudgetPage() {
           ))}
         </div>
 
-        {/* Budget Table */}
         <Card>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
@@ -85,7 +83,6 @@ export default function HomeownerBudgetPage() {
                       <td className="p-3 text-center"><StatusBadge status={c.status} /></td>
                     </tr>
                   ))}
-                  {/* Totals */}
                   <tr className="bg-muted/30 font-semibold">
                     <td className="p-3 text-foreground">Total</td>
                     <td className="p-3 text-right text-foreground">{fmt(totals.original)}</td>
@@ -102,6 +99,6 @@ export default function HomeownerBudgetPage() {
           </CardContent>
         </Card>
       </div>
-    </HomeownerLayout>
+    </OwnerLayout>
   );
 }

@@ -1,5 +1,5 @@
-import { HomeownerLayout } from "@/components/homeowner/HomeownerLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OwnerLayout } from "@/components/homeowner/OwnerLayout";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { proposals, homeowner } from "@/data/homeownerData";
 import { useState } from "react";
@@ -11,14 +11,13 @@ export default function HomeownerProposalsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
-    <HomeownerLayout>
+    <OwnerLayout>
       <div className="p-6 space-y-6 max-w-[1400px]">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Proposals</h1>
           <p className="text-sm text-muted-foreground mt-1">All contractor proposals for {homeowner.projectName}</p>
         </div>
 
-        {/* Table */}
         <Card>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
@@ -79,7 +78,6 @@ export default function HomeownerProposalsPage() {
                           <td colSpan={9} className="p-0">
                             <div className="bg-muted/20 border-b border-border p-5">
                               <div className="grid grid-cols-3 gap-6">
-                                {/* Summary */}
                                 <div className="space-y-3">
                                   <h4 className="text-sm font-semibold text-foreground">Summary</h4>
                                   <p className="text-xs text-muted-foreground">{p.notes}</p>
@@ -88,7 +86,6 @@ export default function HomeownerProposalsPage() {
                                     <p className="text-xs text-foreground">{p.paymentSchedule}</p>
                                   </div>
                                 </div>
-                                {/* Allowances */}
                                 <div className="space-y-3">
                                   <h4 className="text-sm font-semibold text-foreground">Allowances</h4>
                                   {p.allowances.map((a, i) => (
@@ -98,7 +95,6 @@ export default function HomeownerProposalsPage() {
                                     </div>
                                   ))}
                                 </div>
-                                {/* Exclusions & Assumptions */}
                                 <div className="space-y-3">
                                   <div>
                                     <h4 className="text-sm font-semibold text-foreground mb-1">Exclusions</h4>
@@ -132,6 +128,6 @@ export default function HomeownerProposalsPage() {
           </CardContent>
         </Card>
       </div>
-    </HomeownerLayout>
+    </OwnerLayout>
   );
 }

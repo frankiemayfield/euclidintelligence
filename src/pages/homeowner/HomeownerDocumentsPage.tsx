@@ -1,9 +1,10 @@
-import { HomeownerLayout } from "@/components/homeowner/HomeownerLayout";
+import { OwnerLayout } from "@/components/homeowner/OwnerLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { documents } from "@/data/homeownerData";
 import { useState } from "react";
-import { FileText, FolderOpen } from "lucide-react";
+import { FileText, FolderOpen, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const docTypes = ["All", "Proposal", "Contract", "Invoice", "Change Order", "Plans", "Selections", "Receipt", "Notes"];
 
@@ -26,14 +27,18 @@ export default function HomeownerDocumentsPage() {
   const filtered = filter === "All" ? documents : documents.filter(d => d.type === filter);
 
   return (
-    <HomeownerLayout>
+    <OwnerLayout>
       <div className="p-6 space-y-6 max-w-[1400px]">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Documents</h1>
-          <p className="text-sm text-muted-foreground mt-1">Project document library organized by type</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Documents</h1>
+            <p className="text-sm text-muted-foreground mt-1">Project document library</p>
+          </div>
+          <Button size="sm" variant="outline" className="gap-2">
+            <Upload size={14} /> Upload Document
+          </Button>
         </div>
 
-        {/* Filters */}
         <div className="flex items-center gap-2 flex-wrap">
           {docTypes.map(t => (
             <button key={t} onClick={() => setFilter(t)}
@@ -88,6 +93,6 @@ export default function HomeownerDocumentsPage() {
           </CardContent>
         </Card>
       </div>
-    </HomeownerLayout>
+    </OwnerLayout>
   );
 }

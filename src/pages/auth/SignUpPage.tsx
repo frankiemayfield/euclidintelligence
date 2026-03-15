@@ -24,9 +24,9 @@ const BUILDER_SUBTYPES: { value: BuilderSubtype; label: string }[] = [
 ];
 
 const ACCOUNT_TYPES: { value: AccountTrack; label: string; icon: typeof Home; desc: string }[] = [
-  { value: "homeowner", label: "Homeowner", icon: Home, desc: "Compare bids, track invoices, monitor change orders" },
-  { value: "subcontractor", label: "Subcontractor", icon: Hammer, desc: "Build estimates, reuse pricing, benchmark jobs" },
-  { value: "builder", label: "Builder / GC", icon: HardHat, desc: "Level bids, compare scope, benchmark budgets" },
+  { value: "homeowner", label: "Homeowner", icon: Home, desc: "Compare contractor proposals, review leveling and market position, then track budget, invoices, and change orders once a project is awarded." },
+  { value: "subcontractor", label: "Subcontractor", icon: Hammer, desc: "Build estimates faster, reuse pricing memory, and benchmark your pricing against similar jobs and market conditions." },
+  { value: "builder", label: "Builder / GC", icon: HardHat, desc: "Upload plans, collect bids, level subcontractor proposals, benchmark against market data, and track estimate vs actual cost behavior." },
 ];
 
 export default function SignUpPage() {

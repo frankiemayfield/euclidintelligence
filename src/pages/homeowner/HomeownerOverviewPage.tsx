@@ -1,4 +1,4 @@
-import { HomeownerLayout } from "@/components/homeowner/HomeownerLayout";
+import { OwnerLayout } from "@/components/homeowner/OwnerLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { homeowner, proposals, openActions, recentActivity, budgetCategories } from "@/data/homeownerData";
@@ -23,7 +23,7 @@ export default function HomeownerOverviewPage() {
   const watchCount = budgetCategories.filter(c => c.status === "Watch").length;
 
   return (
-    <HomeownerLayout>
+    <OwnerLayout>
       <div className="p-6 space-y-6 max-w-[1400px]">
         {/* Header */}
         <div>
@@ -62,8 +62,8 @@ export default function HomeownerOverviewPage() {
             <CardContent className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 rounded-lg bg-muted/30 border border-border">
-                  <p className="text-muted-foreground text-xs">Proposals</p>
-                  <p className="font-semibold text-foreground">3 uploaded · 1 selected</p>
+                  <p className="text-muted-foreground text-xs">Pre-Construction</p>
+                  <p className="font-semibold text-foreground">3 proposals · 1 selected</p>
                 </div>
                 <div className="p-3 rounded-lg bg-muted/30 border border-border">
                   <p className="text-muted-foreground text-xs">Budget Health</p>
@@ -155,6 +155,6 @@ export default function HomeownerOverviewPage() {
           </Card>
         </div>
       </div>
-    </HomeownerLayout>
+    </OwnerLayout>
   );
 }
