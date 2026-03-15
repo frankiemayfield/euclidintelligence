@@ -201,6 +201,16 @@ const initialResponses: Record<string, string> = {
   "/sub/market-comparison": "Your quote is benchmarked against similar framing bids in the Midwest. Proposal Score is 82. I can explain variances and positioning.",
   "/sub/proposal": "The proposal has 8 sections — all ready for export. I can help draft exclusions, review completeness, or add clarification notes.",
   "/sub/est-vs-actual": "I can see variance data for completed framing projects. Overall your estimates were 3.2% under actual. I can help identify patterns.",
+  "/owner": "Welcome back, Andrew. Your project is in active construction with Alder Ridge Builders. Projected final is $331,750 — $19,350 above the original contract. 2 invoices and 1 change order need your review. How can I help?",
+  "/owner/upload": "I can see 7 uploaded files — 3 contractor proposals have been extracted and classified. All documents are ready for analysis.",
+  "/owner/proposals": "You have 3 contractor proposals uploaded. Alder Ridge is the most complete at 92%. Summit Oak has 6 scope flags. I can help compare them.",
+  "/owner/leveling": "I've leveled all 3 proposals. Summit Oak's $278,900 headline becomes $318K–$345K once scope gaps are estimated. Alder Ridge remains the most complete.",
+  "/owner/comparison": "Side-by-side comparison loaded. Summit Oak excludes painting, permits, and cleanup. I can filter to show only flagged or missing categories.",
+  "/owner/market-comparison": "Market benchmarks loaded for Cincinnati-area residential renovations. Select a proposal to see category-level positioning against market data.",
+  "/owner/documents": "8 project documents are on file — 3 proposals, 1 signed contract, plans, selections, and receipts. I can help find or summarize any document.",
+  "/owner/budget": "Budget tracking is active. 2 categories are over budget (Structural, Fixtures) and 3 are on watch. Projected final is $331,750.",
+  "/owner/invoices": "10 invoices submitted totaling $187,200. 3 need review — electrical rough-in appears higher than expected and plumbing fixture status needs confirmation.",
+  "/owner/change-orders": "5 change orders totaling $14,850. 4 approved, 1 pending review (CO-005: fixture upgrade, $2,500). I can assess whether each is legitimate.",
 };
 
 interface UploadedFile {

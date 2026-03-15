@@ -42,9 +42,11 @@ import { SubSettingsProvider } from "./hooks/use-sub-settings";
 
 // Homeowner pages
 import HomeownerOverviewPage from "./pages/homeowner/HomeownerOverviewPage";
+import HomeownerUploadPage from "./pages/homeowner/HomeownerUploadPage";
 import HomeownerProposalsPage from "./pages/homeowner/HomeownerProposalsPage";
 import HomeownerComparisonPage from "./pages/homeowner/HomeownerComparisonPage";
 import HomeownerLevelingPage from "./pages/homeowner/HomeownerLevelingPage";
+import HomeownerMarketComparisonPage from "./pages/homeowner/HomeownerMarketComparisonPage";
 import HomeownerBudgetPage from "./pages/homeowner/HomeownerBudgetPage";
 import HomeownerInvoicesPage from "./pages/homeowner/HomeownerInvoicesPage";
 import HomeownerChangeOrdersPage from "./pages/homeowner/HomeownerChangeOrdersPage";
@@ -110,13 +112,15 @@ const App = () => (
 
                 {/* Homeowner routes */}
                 <Route path="/owner" element={<OwnerGuard><HomeownerOverviewPage /></OwnerGuard>} />
+                <Route path="/owner/upload" element={<OwnerGuard><HomeownerUploadPage /></OwnerGuard>} />
                 <Route path="/owner/proposals" element={<OwnerGuard><HomeownerProposalsPage /></OwnerGuard>} />
                 <Route path="/owner/comparison" element={<OwnerGuard><HomeownerComparisonPage /></OwnerGuard>} />
                 <Route path="/owner/leveling" element={<OwnerGuard><HomeownerLevelingPage /></OwnerGuard>} />
+                <Route path="/owner/market-comparison" element={<OwnerGuard><HomeownerMarketComparisonPage /></OwnerGuard>} />
+                <Route path="/owner/documents" element={<OwnerGuard><HomeownerDocumentsPage /></OwnerGuard>} />
                 <Route path="/owner/budget" element={<OwnerGuard><HomeownerBudgetPage /></OwnerGuard>} />
                 <Route path="/owner/invoices" element={<OwnerGuard><HomeownerInvoicesPage /></OwnerGuard>} />
                 <Route path="/owner/change-orders" element={<OwnerGuard><HomeownerChangeOrdersPage /></OwnerGuard>} />
-                <Route path="/owner/documents" element={<OwnerGuard><HomeownerDocumentsPage /></OwnerGuard>} />
                 <Route path="/owner/settings" element={<OwnerGuard><HomeownerSettingsPage /></OwnerGuard>} />
 
                 {/* Legacy redirects */}
