@@ -40,14 +40,27 @@ import SubEstVsActualPage from "./pages/sub/SubEstVsActualPage";
 import SubSettingsPage from "./pages/sub/SubSettingsPage";
 import { SubSettingsProvider } from "./hooks/use-sub-settings";
 
+// Homeowner pages
+import HomeownerOverviewPage from "./pages/homeowner/HomeownerOverviewPage";
+import HomeownerProposalsPage from "./pages/homeowner/HomeownerProposalsPage";
+import HomeownerComparisonPage from "./pages/homeowner/HomeownerComparisonPage";
+import HomeownerLevelingPage from "./pages/homeowner/HomeownerLevelingPage";
+import HomeownerBudgetPage from "./pages/homeowner/HomeownerBudgetPage";
+import HomeownerInvoicesPage from "./pages/homeowner/HomeownerInvoicesPage";
+import HomeownerChangeOrdersPage from "./pages/homeowner/HomeownerChangeOrdersPage";
+import HomeownerDocumentsPage from "./pages/homeowner/HomeownerDocumentsPage";
+import HomeownerSettingsPage from "./pages/homeowner/HomeownerSettingsPage";
+
 const queryClient = new QueryClient();
 
-// Helper wrappers
 function BuilderGuard({ children }: { children: React.ReactNode }) {
   return <AuthGuard requiredTrack="builder">{children}</AuthGuard>;
 }
 function SubGuard({ children }: { children: React.ReactNode }) {
   return <AuthGuard requiredTrack="subcontractor"><SubSettingsProvider>{children}</SubSettingsProvider></AuthGuard>;
+}
+function OwnerGuard({ children }: { children: React.ReactNode }) {
+  return <AuthGuard requiredTrack="homeowner">{children}</AuthGuard>;
 }
 
 const App = () => (
@@ -94,6 +107,17 @@ const App = () => (
                 <Route path="/sub/proposal" element={<SubGuard><SubProposalExportPage /></SubGuard>} />
                 <Route path="/sub/est-vs-actual" element={<SubGuard><SubEstVsActualPage /></SubGuard>} />
                 <Route path="/sub/settings" element={<SubGuard><SubSettingsPage /></SubGuard>} />
+
+                {/* Homeowner routes */}
+                <Route path="/owner" element={<OwnerGuard><HomeownerOverviewPage /></OwnerGuard>} />
+                <Route path="/owner/proposals" element={<OwnerGuard><HomeownerProposalsPage /></OwnerGuard>} />
+                <Route path="/owner/comparison" element={<OwnerGuard><HomeownerComparisonPage /></OwnerGuard>} />
+                <Route path="/owner/leveling" element={<OwnerGuard><HomeownerLevelingPage /></OwnerGuard>} />
+                <Route path="/owner/budget" element={<OwnerGuard><HomeownerBudgetPage /></OwnerGuard>} />
+                <Route path="/owner/invoices" element={<OwnerGuard><HomeownerInvoicesPage /></OwnerGuard>} />
+                <Route path="/owner/change-orders" element={<OwnerGuard><HomeownerChangeOrdersPage /></OwnerGuard>} />
+                <Route path="/owner/documents" element={<OwnerGuard><HomeownerDocumentsPage /></OwnerGuard>} />
+                <Route path="/owner/settings" element={<OwnerGuard><HomeownerSettingsPage /></OwnerGuard>} />
 
                 {/* Legacy redirects */}
                 <Route path="/app/atlas" element={<BuilderGuard><UploadPage /></BuilderGuard>} />

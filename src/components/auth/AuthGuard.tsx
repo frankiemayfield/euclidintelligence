@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 interface AuthGuardProps {
   children: React.ReactNode;
-  requiredTrack?: "builder" | "subcontractor";
+  requiredTrack?: "builder" | "subcontractor" | "homeowner";
 }
 
 export function AuthGuard({ children, requiredTrack }: AuthGuardProps) {
@@ -15,11 +15,13 @@ export function AuthGuard({ children, requiredTrack }: AuthGuardProps) {
   }
 
   if (requiredTrack && user) {
-    if (requiredTrack === "builder" && user.accountTrack === "subcontractor") {
-      return <Navigate to="/sub" replace />;
-    }
-    if (requiredTrack === "subcontractor" && user.accountTrack === "builder") {
-      return <Navigate to="/app" replace />;
+    const trackRoutes: Record<string, string> = {
+      builder: "/app",
+      subcontractor: "/sub",
+      homeowner: "/owner",
+    };
+    if (user.accountTrack !== requiredTrack) {
+      return <Navigate to={trackRoutes[user.accountTrack] || "/app"} replace />;
     }
   }
 

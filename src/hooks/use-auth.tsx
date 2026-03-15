@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 
 export type BuilderSubtype = "GC" | "Builder" | "Remodeler" | "Developer";
-export type AccountTrack = "subcontractor" | "builder";
+export type AccountTrack = "subcontractor" | "builder" | "homeowner";
 
 export interface AuthUser {
   email: string;
@@ -20,7 +20,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (data: SignUpData) => Promise<void>;
   signOut: () => void;
-  demoSignIn: (track: "sub" | "builder") => void;
+  demoSignIn: (track: "sub" | "builder" | "homeowner") => void;
 }
 
 export interface SignUpData {
@@ -64,12 +64,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const signIn = useCallback(async (email: string, _password: string) => {
-    // Mock: look up stored user by email, or create a minimal one
     const stored = localStorage.getItem(`euclid-account-${email}`);
     if (stored) {
       setUser(JSON.parse(stored));
     } else {
-      // No stored account – they need to pick account type
       setUser({
         email,
         accountTrack: "builder",
@@ -97,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
-  const demoSignIn = useCallback((track: "sub" | "builder") => {
+  const demoSignIn = useCallback((track: "sub" | "builder" | "homeowner") => {
     if (track === "sub") {
       setUser({
         email: "demo@trueframe.com",
@@ -105,6 +103,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         companyName: "TrueFrame Carpentry",
         accountTrack: "subcontractor",
         primaryTrade: "Framing",
+        isFirstRun: false,
+      });
+    } else if (track === "homeowner") {
+      setUser({
+        email: "andrew@osterfeld.com",
+        name: "Andrew Osterfeld",
+        accountTrack: "homeowner",
         isFirstRun: false,
       });
     } else {

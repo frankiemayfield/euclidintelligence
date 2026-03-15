@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { HardHat, Hammer } from "lucide-react";
+import { HardHat, Hammer, Home } from "lucide-react";
 
 export default function SignInPage() {
   const navigate = useNavigate();
@@ -21,12 +21,11 @@ export default function SignInPage() {
     setLoading(true);
     try {
       await signIn(email, password);
-      // Routing handled by auth state change in App
-      // Check stored account to route correctly
       const stored = localStorage.getItem(`euclid-account-${email}`);
       if (stored) {
         const account = JSON.parse(stored);
-        navigate(account.accountTrack === "subcontractor" ? "/sub" : "/app");
+        const routes: Record<string, string> = { subcontractor: "/sub", homeowner: "/owner", builder: "/app" };
+        navigate(routes[account.accountTrack] || "/app");
       } else {
         navigate("/choose-account-type");
       }
@@ -35,9 +34,10 @@ export default function SignInPage() {
     }
   };
 
-  const handleDemo = (track: "sub" | "builder") => {
+  const handleDemo = (track: "sub" | "builder" | "homeowner") => {
     demoSignIn(track);
-    navigate(track === "sub" ? "/sub" : "/app");
+    const routes = { sub: "/sub", builder: "/app", homeowner: "/owner" };
+    navigate(routes[track]);
   };
 
   return (
@@ -57,79 +57,71 @@ export default function SignInPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                <Input id="email" type="email" placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
-
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
+                  <Link to="/forgot-password" className="text-xs text-primary hover:underline">Forgot password?</Link>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
               </div>
-
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Signing in…" : "Sign in"}
               </Button>
             </form>
-
             <div className="mt-4 text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-primary font-medium hover:underline">
-                Create account
-              </Link>
+              <Link to="/signup" className="text-primary font-medium hover:underline">Create account</Link>
             </div>
           </CardContent>
         </Card>
 
-        {/* Demo accounts */}
+        {/* Demo Portals */}
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <Separator className="flex-1" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">Quick demo</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">Explore Demo Portals</span>
             <Separator className="flex-1" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-2">
             <Button
               variant="outline"
               size="sm"
-              className="h-auto py-3 flex flex-col items-center gap-1 text-xs"
-              onClick={() => handleDemo("sub")}
+              className="h-auto py-3 flex items-center gap-3 justify-start text-left"
+              onClick={() => handleDemo("homeowner")}
             >
-              <Hammer className="h-4 w-4 text-primary" />
-              <span className="font-medium">TrueFrame Carpentry</span>
-              <span className="text-muted-foreground">Subcontractor</span>
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <Home className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <span className="font-medium text-foreground text-sm">Demo Homeowner Portal — Andrew Osterfeld</span>
+                <p className="text-[11px] text-muted-foreground">Proposal comparison, leveling, budget tracking</p>
+              </div>
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-auto py-3 flex flex-col items-center gap-1 text-xs"
-              onClick={() => handleDemo("builder")}
-            >
-              <HardHat className="h-4 w-4 text-primary" />
-              <span className="font-medium">Mayfield & Co.</span>
-              <span className="text-muted-foreground">General Contractor</span>
-            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-auto py-3 flex flex-col items-center gap-1 text-xs"
+                onClick={() => handleDemo("sub")}
+              >
+                <Hammer className="h-4 w-4 text-primary" />
+                <span className="font-medium">TrueFrame Carpentry</span>
+                <span className="text-muted-foreground">Subcontractor</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-auto py-3 flex flex-col items-center gap-1 text-xs"
+                onClick={() => handleDemo("builder")}
+              >
+                <HardHat className="h-4 w-4 text-primary" />
+                <span className="font-medium">Mayfield & Co.</span>
+                <span className="text-muted-foreground">General Contractor</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
