@@ -1,4 +1,4 @@
-import { HomeownerLayout } from "@/components/homeowner/HomeownerLayout";
+import { OwnerLayout } from "@/components/homeowner/OwnerLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { invoices } from "@/data/homeownerData";
@@ -24,7 +24,7 @@ export default function HomeownerInvoicesPage() {
   const needsReview = invoices.filter(i => i.status !== "Looks Aligned").length;
 
   return (
-    <HomeownerLayout>
+    <OwnerLayout>
       <div className="p-6 space-y-6 max-w-[1400px]">
         <div className="flex items-center justify-between">
           <div>
@@ -93,6 +93,6 @@ export default function HomeownerInvoicesPage() {
           </CardContent>
         </Card>
       </div>
-    </HomeownerLayout>
+    </OwnerLayout>
   );
 }

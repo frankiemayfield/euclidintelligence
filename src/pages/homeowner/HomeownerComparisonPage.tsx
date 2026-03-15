@@ -1,4 +1,4 @@
-import { HomeownerLayout } from "@/components/homeowner/HomeownerLayout";
+import { OwnerLayout } from "@/components/homeowner/OwnerLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { proposals, scopeCategories, euclidScopeNotes, type ScopeStatus } from "@/data/homeownerData";
@@ -37,7 +37,7 @@ export default function HomeownerComparisonPage() {
   });
 
   return (
-    <HomeownerLayout>
+    <OwnerLayout>
       <div className="p-6 space-y-6 max-w-[1400px]">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Proposal Comparison</h1>
@@ -102,6 +102,6 @@ export default function HomeownerComparisonPage() {
           </CardContent>
         </Card>
       </div>
-    </HomeownerLayout>
+    </OwnerLayout>
   );
 }

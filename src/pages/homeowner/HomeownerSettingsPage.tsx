@@ -1,11 +1,11 @@
-import { HomeownerLayout } from "@/components/homeowner/HomeownerLayout";
+import { OwnerLayout } from "@/components/homeowner/OwnerLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { homeowner } from "@/data/homeownerData";
 
 export default function HomeownerSettingsPage() {
   return (
-    <HomeownerLayout>
+    <OwnerLayout>
       <div className="p-6 space-y-6 max-w-[900px]">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Settings</h1>
@@ -50,6 +50,6 @@ export default function HomeownerSettingsPage() {
           </CardContent>
         </Card>
       </div>
-    </HomeownerLayout>
+    </OwnerLayout>
   );
 }
