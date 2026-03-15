@@ -119,6 +119,66 @@ const contextSuggestions: Record<string, string[]> = {
     "Show lessons learned for next bid",
     "Are my framing quotes trending accurate?",
   ],
+  "/owner": [
+    "Summarize project health",
+    "What needs my attention?",
+    "How does projected final compare to budget?",
+    "Show open reviews and pending items",
+  ],
+  "/owner/upload": [
+    "What files have been uploaded?",
+    "Are all proposals extracted?",
+    "Which documents need classification?",
+    "Suggest next steps after upload",
+  ],
+  "/owner/proposals": [
+    "Which proposal is most complete?",
+    "Compare allowance amounts across proposals",
+    "What is missing from Summit Oak's bid?",
+    "Which exclusions should I be concerned about?",
+  ],
+  "/owner/leveling": [
+    "Why is Summit Oak cheaper?",
+    "What is the true comparable range?",
+    "Which proposal has the lowest risk?",
+    "Explain the leveling adjustments",
+  ],
+  "/owner/comparison": [
+    "Show only flagged categories",
+    "Which categories have the most variance?",
+    "What is not mentioned in any proposal?",
+    "Compare fixture allowances side by side",
+  ],
+  "/owner/market-comparison": [
+    "How does this proposal compare to market?",
+    "Which categories are below market?",
+    "Is this pricing competitive for Cincinnati?",
+    "Where is the biggest market deviation?",
+  ],
+  "/owner/documents": [
+    "What documents are uploaded?",
+    "Show contract-related documents",
+    "Are there any missing document types?",
+    "Summarize the signed contract",
+  ],
+  "/owner/budget": [
+    "Which categories are over budget?",
+    "What is driving the projected final increase?",
+    "Show categories that need review",
+    "How much has been paid vs invoiced?",
+  ],
+  "/owner/invoices": [
+    "Which invoices need review?",
+    "Does this invoice align with the contract?",
+    "Are there any overlapping charges?",
+    "Summarize invoice status across categories",
+  ],
+  "/owner/change-orders": [
+    "Is this change order legitimate?",
+    "What caused this change order?",
+    "How much have change orders added to cost?",
+    "Which change orders are owner-driven?",
+  ],
 };
 
 const initialResponses: Record<string, string> = {
