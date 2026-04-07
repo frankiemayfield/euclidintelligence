@@ -45,7 +45,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     const preconPaths = ["/app/upload", "/app/scope-analyzer", "/app/bid-leveling", "/app/estimate-builder", "/app/estimate-comparison", "/app/market-comparison", "/app/proposal-comparison"];
     if (preconPaths.some(p => location.pathname === p)) return "precon";
     // Active Projects paths
-    const activePaths = ["/app/pricing", "/app/proposal", "/app/est-vs-actual"];
+    const activePaths = ["/app/est-vs-actual"];
     if (activePaths.some(p => location.pathname === p)) return "active";
     return "precon";
   };
