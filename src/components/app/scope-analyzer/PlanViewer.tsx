@@ -445,7 +445,7 @@ function TakeoffOverlay({ activeTool, height, markups, onCreateTakeoff, pageNumb
       record: {
         id: takeoffId,
         linkedLineItemId: selectedLineItemId,
-        method: tool === "rectangle" ? "polygon" : tool,
+        method: tool === "rectangle" ? "polygon" : tool as TakeoffRecord["method"],
         notes: `Manual ${tool} takeoff`,
         quantity,
         sourcePage: `Page ${pageNumber}`,
