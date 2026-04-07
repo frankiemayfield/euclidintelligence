@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,7 +8,7 @@ import { AlertTriangle, ChevronLeft, ChevronRight, FileText, Maximize2, Minimize
 import { cn } from "@/lib/utils";
 import { MAIN_PLAN_FILE_NAME, MAIN_PLAN_FILE_PATH, type TakeoffRecord } from "@/data/scopeAnalyzerData";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 type TakeoffTool = "select" | "linear" | "area" | "count" | "volume" | "rectangle";
 
@@ -85,7 +86,7 @@ export function PlanViewerCompact({ currentPage, onExpand, onPageChange }: PlanV
 
   return (
     <div className="border-b border-border bg-card">
-      <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/20">
+      <div className="flex items-center justify-between border-b border-border bg-muted/20 px-3 py-2">
         <div className="flex items-center gap-2">
           <FileText className="h-3.5 w-3.5 text-primary" />
           <div>
@@ -102,7 +103,7 @@ export function PlanViewerCompact({ currentPage, onExpand, onPageChange }: PlanV
         <PdfViewport compact onDocumentLoad={setNumPages} pageNumber={safePage} />
       </button>
 
-      <div className="flex items-center justify-between px-2 py-1.5 border-t border-border bg-muted/10">
+      <div className="flex items-center justify-between border-t border-border bg-muted/10 px-2 py-1.5">
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="h-5 w-5" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
             <ChevronLeft className="h-2.5 w-2.5" />
@@ -327,6 +328,8 @@ function PdfViewport({
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [pageAspectRatio, setPageAspectRatio] = useState(1.35);
+  const [documentError, setDocumentError] = useState<string | null>(null);
+  const [pageError, setPageError] = useState<string | null>(null);
 
   useEffect(() => {
     const element = viewportRef.current;
@@ -355,25 +358,35 @@ function PdfViewport({
         compact ? "h-[168px] overflow-hidden" : "h-full overflow-auto",
       )}
     >
-      <div className={cn("mx-auto py-2", compact ? "w-full" : "min-w-max")}> 
+      <div className={cn("mx-auto py-2", compact ? "w-full" : "min-w-max")}>
         <Document
           file={MAIN_PLAN_FILE_PATH}
-          loading={<ViewerState compact={compact} label="Loading PDF…" />}
-          error={<ViewerError compact={compact} />}
-          onLoadSuccess={({ numPages }) => onDocumentLoad?.(numPages)}
+          loading={renderViewerState(compact, "Loading PDF…")}
+          error={renderViewerError(compact, documentError)}
+          onLoadSuccess={({ numPages }) => {
+            setDocumentError(null);
+            onDocumentLoad?.(numPages);
+          }}
+          onLoadError={(error) => {
+            setDocumentError(extractPdfErrorMessage(error));
+          }}
         >
           <div className="relative mx-auto overflow-hidden rounded-md border border-border bg-background shadow-sm" style={{ height: renderHeight, width: renderWidth }}>
             <Page
               key={`page-${pageNumber}-${renderWidth}`}
-              error={<ViewerError compact={compact} />}
-              loading={<ViewerState compact={compact} label="Rendering page…" />}
+              error={renderViewerError(compact, pageError)}
+              loading={renderViewerState(compact, "Rendering page…")}
               pageNumber={pageNumber}
               renderAnnotationLayer={false}
               renderTextLayer={false}
               width={renderWidth}
               onLoadSuccess={(page: { getViewport: (args: { scale: number }) => { height: number; width: number } }) => {
+                setPageError(null);
                 const viewport = page.getViewport({ scale: 1 });
                 setPageAspectRatio(viewport.height / viewport.width);
+              }}
+              onLoadError={(error) => {
+                setPageError(extractPdfErrorMessage(error));
               }}
             />
 
@@ -560,9 +573,9 @@ function TakeoffMarkupShape({ draft = false, markup }: { draft?: boolean; markup
   );
 }
 
-function ViewerState({ compact = false, label }: { compact?: boolean; label: string }) {
+function renderViewerState(compact: boolean, label: string) {
   return (
-    <div className={cn("flex items-center justify-center text-muted-foreground", compact ? "h-[152px]" : "h-[280px]")}> 
+    <div className={cn("flex items-center justify-center text-muted-foreground", compact ? "h-[152px]" : "h-[280px]")}>
       <div className="text-center">
         <div className="text-xs font-medium">{label}</div>
       </div>
@@ -570,18 +583,24 @@ function ViewerState({ compact = false, label }: { compact?: boolean; label: str
   );
 }
 
-function ViewerError({ compact = false }: { compact?: boolean }) {
+function renderViewerError(compact: boolean, errorMessage?: string | null) {
   return (
-    <div className={cn("flex items-center justify-center px-6 text-center", compact ? "h-[152px]" : "h-[280px]")}> 
+    <div className={cn("flex items-center justify-center px-6 text-center", compact ? "h-[152px]" : "h-[280px]")}>
       <div className="max-w-xs space-y-2">
         <AlertTriangle className="mx-auto h-5 w-5 text-destructive" />
         <div className="text-xs font-semibold text-foreground">PDF source unavailable</div>
         <p className="text-[10px] leading-relaxed text-muted-foreground">
-          The current project copy of {MAIN_PLAN_FILE_NAME} is empty or invalid, so the in-app viewer cannot render pages yet.
+          {errorMessage || `The current project copy of ${MAIN_PLAN_FILE_NAME} could not be rendered by the in-app viewer.`}
         </p>
       </div>
     </div>
   );
+}
+
+function extractPdfErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === "string") return error;
+  return `The current project copy of ${MAIN_PLAN_FILE_NAME} could not be rendered by the in-app viewer.`;
 }
 
 function getSheetForPage(pageNumber: number) {
