@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,8 +8,7 @@ import { AlertTriangle, ChevronLeft, ChevronRight, FileText, Maximize2, Minimize
 import { cn } from "@/lib/utils";
 import { MAIN_PLAN_FILE_NAME, MAIN_PLAN_FILE_PATH, type TakeoffRecord } from "@/data/scopeAnalyzerData";
 
-const PDF_WORKER_SRC = "/pdf.worker.min.mjs?v=5.4.296-local";
-pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 type TakeoffTool = "select" | "linear" | "area" | "count" | "volume" | "rectangle";
 
