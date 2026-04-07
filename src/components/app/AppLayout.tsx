@@ -11,8 +11,8 @@ import { AtlasPanel, AtlasToggleButton } from "./AtlasPanel";
 const estimatorNavItems = [
   { label: "Document Upload", icon: Upload, path: "/app/upload" },
   { label: "Scope Analyzer", icon: FileSearch, path: "/app/scope-analyzer" },
-  { label: "Bid Leveling", icon: Scale, path: "/app/bid-leveling" },
-  { label: "Estimate Builder", icon: Table2, path: "/app/estimate-builder" },
+  { label: "Bid Packages", icon: Scale, path: "/app/bid-leveling" },
+  { label: "Estimate", icon: Table2, path: "/app/estimate-builder" },
   { label: "Pricing & Margin", icon: DollarSign, path: "/app/pricing" },
   { label: "Proposal Export", icon: FileOutput, path: "/app/proposal" },
   { label: "Market Comparison", icon: BarChart3, path: "/app/estimate-comparison" },
