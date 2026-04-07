@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/app/AppLayout";
 import {
-  AlertTriangle, CheckCircle, FileSearch, Info, XCircle, ChevronDown, ChevronRight,
+  AlertTriangle, CheckCircle, FileSearch, Info, XCircle, ChevronDown, ChevronRight, ChevronLeft,
   Pencil, Flag, Send, Layers, GitMerge, Split, Copy, Trash2, Settings2,
   Package, ClipboardList, ArrowRight, Filter, Eye, Save, Check, Hammer,
   FileText, Bot, Sparkles, Lock, Play
