@@ -75,6 +75,8 @@ export const CSI_DIVISIONS = [
 ] as const;
 
 export const UNITS = ["LF", "SF", "EA", "CY", "LS", "HR", "TON"] as const;
+export const MAIN_PLAN_FILE_NAME = "FinalConstructionSetFregolle.pdf";
+export const MAIN_PLAN_FILE_PATH = `/plans/${MAIN_PLAN_FILE_NAME}`;
 
 export interface LineItem {
   id: string;
@@ -148,8 +150,8 @@ export const companyCostCodes: CompanyCostCode[] = [
 
 // ─── Mock Project Data ───────────────────────────────────────────────────────
 
-function src(fileName: string, page: number, sheet?: string, type: SourceType = "plan", conf: ConfidenceLevel = "High"): Source {
-  return { id: `src-${Math.random().toString(36).slice(2, 8)}`, fileName, pageNumber: page, sheetName: sheet, sourceType: type, confidence: conf };
+function src(_fileName: string, page: number, sheet?: string, type: SourceType = "plan", conf: ConfidenceLevel = "High"): Source {
+  return { id: `src-${Math.random().toString(36).slice(2, 8)}`, fileName: MAIN_PLAN_FILE_NAME, pageNumber: page, sheetName: sheet, sourceType: type, confidence: conf };
 }
 
 function tkoff(qty: number, unit: string, page: string, method: TakeoffMethod, lineItemId: string): TakeoffRecord {
