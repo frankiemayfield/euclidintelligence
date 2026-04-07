@@ -8,17 +8,10 @@ import { ParentScopeView } from "@/components/app/scope-analyzer/ParentScopeView
 import { TradeView } from "@/components/app/scope-analyzer/TradeView";
 import { AssemblyView } from "@/components/app/scope-analyzer/AssemblyView";
 import { ScopeInspector } from "@/components/app/scope-analyzer/ScopeInspector";
-import { PlanViewer } from "@/components/app/scope-analyzer/PlanViewer";
+import { PlanViewerExpanded } from "@/components/app/scope-analyzer/PlanViewer";
 import { mockProject, type ScopeProject, type ParentScope, type Trade, type Assembly, type LineItem } from "@/data/scopeAnalyzerData";
 
 function findNode(project: ScopeProject, sel: TreeSelection) {
-  let parentScope: ParentScope | undefined;
-  let trade: Trade | undefined;
-  let assembly: Assembly | undefined;
-  let lineItem: LineItem | undefined;
-  let parentScopeName = "";
-  let tradeName = "";
-
   for (const ps of project.parentScopes) {
     if (sel.type === "parentScope" && sel.id === ps.id) return { parentScope: ps, parentScopeName: ps.name };
     for (const t of ps.trades) {
@@ -38,7 +31,8 @@ function findNode(project: ScopeProject, sel: TreeSelection) {
 
 export default function ScopeAnalyzerPage() {
   const [selection, setSelection] = useState<TreeSelection>({ type: "project", id: mockProject.id });
-  const [planOpen, setPlanOpen] = useState(false);
+  const [planExpanded, setPlanExpanded] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const node = useMemo(() => findNode(mockProject, selection), [selection]);
 
@@ -56,7 +50,6 @@ export default function ScopeAnalyzerPage() {
         if (node.assembly) return <AssemblyView assembly={node.assembly} parentScopeName={node.parentScopeName || ""} tradeName={node.tradeName || ""} onNavigate={setSelection} />;
         break;
       case "lineItem":
-        // Line item detail shows in inspector; center shows parent assembly
         if (node.assembly) return <AssemblyView assembly={node.assembly} parentScopeName={node.parentScopeName || ""} tradeName={node.tradeName || ""} onNavigate={setSelection} />;
         break;
     }
@@ -69,6 +62,15 @@ export default function ScopeAnalyzerPage() {
         <div className="flex flex-col h-[calc(100vh-48px)]">
           <ScopeHeader project={mockProject} onRunAnalysis={() => {}} onSaveDraft={() => {}} onLockScope={() => {}} />
 
+          {/* Expanded Plan Viewer — landscape above workspace */}
+          {planExpanded && (
+            <PlanViewerExpanded
+              onCollapse={() => setPlanExpanded(false)}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
+          )}
+
           <div className="flex flex-1 min-h-0">
             {/* Left Hierarchy Tree */}
             <div className="w-[280px] shrink-0">
@@ -80,13 +82,16 @@ export default function ScopeAnalyzerPage() {
               {renderCenter()}
             </div>
 
-            {/* Right Inspector */}
-            <div className="w-[260px] shrink-0">
-              <ScopeInspector project={mockProject} selection={selection} />
+            {/* Right Inspector (with compact plan viewer at top) */}
+            <div className="w-[280px] shrink-0">
+              <ScopeInspector
+                project={mockProject}
+                selection={selection}
+                onExpandPlan={() => setPlanExpanded(true)}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
             </div>
-
-            {/* Plan Viewer */}
-            <PlanViewer isOpen={planOpen} onToggle={() => setPlanOpen(!planOpen)} />
           </div>
         </div>
       </TooltipProvider>

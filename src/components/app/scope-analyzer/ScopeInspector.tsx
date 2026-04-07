@@ -3,25 +3,29 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Send, FileText, Ruler, AlertTriangle, CheckCircle2, MessageSquare, Sparkles, ChevronRight } from "lucide-react";
+import { Send, FileText, Ruler, AlertTriangle, Sparkles, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LineItem, Assembly, Trade, ParentScope, ScopeProject } from "@/data/scopeAnalyzerData";
-import { getAllLineItems } from "@/data/scopeAnalyzerData";
 import type { TreeSelection } from "./ScopeHierarchyTree";
+import { PlanViewerCompact } from "./PlanViewer";
 
 interface Props {
   project: ScopeProject;
   selection: TreeSelection;
+  onExpandPlan: () => void;
+  currentPage: number;
+  onPageChange: (page: number) => void;
 }
 
-export function ScopeInspector({ project, selection }: Props) {
+export function ScopeInspector({ project, selection, onExpandPlan, currentPage, onPageChange }: Props) {
   const [assistantInput, setAssistantInput] = useState("");
-
-  // Find selected item context
   const context = findContext(project, selection);
 
   return (
     <div className="flex flex-col h-full border-l border-border bg-card">
+      {/* Plan Viewer compact — always at top */}
+      <PlanViewerCompact onExpand={onExpandPlan} currentPage={currentPage} onPageChange={onPageChange} />
+
       <div className="px-3 py-2 border-b border-border">
         <h3 className="text-xs font-semibold text-foreground">Inspector</h3>
       </div>
@@ -45,7 +49,6 @@ export function ScopeInspector({ project, selection }: Props) {
 
         <Separator className="my-2" />
 
-        {/* Suggested Actions */}
         <div className="px-3 py-2">
           <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Suggested Actions</h4>
           <div className="space-y-1">
@@ -58,7 +61,6 @@ export function ScopeInspector({ project, selection }: Props) {
 
         <Separator className="my-2" />
 
-        {/* Euclid Assistant */}
         <div className="px-3 py-2">
           <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1">
             <Sparkles className="h-3 w-3 text-primary" /> Euclid Assistant
@@ -89,7 +91,6 @@ function LineItemInspector({ li, parentScope, trade, assembly }: { li: LineItem;
         <h4 className="text-sm font-semibold text-foreground">{li.name}</h4>
         <div className="text-[10px] text-muted-foreground mt-1">{parentScope} → {trade} → {assembly}</div>
       </div>
-
       <div className="grid grid-cols-2 gap-2 text-[10px]">
         <DetailField label="Quantity" value={`${li.quantity} ${li.unit}`} />
         <DetailField label="Confidence" value={li.confidence} className={confColor} />
@@ -98,7 +99,6 @@ function LineItemInspector({ li, parentScope, trade, assembly }: { li: LineItem;
         <DetailField label="Company Code" value={li.companyCostCode || "Missing"} className={!li.companyCostCode ? "text-destructive" : ""} />
         <DetailField label="CSI Division" value={li.csiDivision || "Not mapped"} />
       </div>
-
       {li.sources.length > 0 && (
         <div>
           <h5 className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Sources ({li.sources.length})</h5>
@@ -112,7 +112,6 @@ function LineItemInspector({ li, parentScope, trade, assembly }: { li: LineItem;
           ))}
         </div>
       )}
-
       {li.takeoffs.length > 0 && (
         <div>
           <h5 className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Takeoffs ({li.takeoffs.length})</h5>
@@ -126,7 +125,6 @@ function LineItemInspector({ li, parentScope, trade, assembly }: { li: LineItem;
           ))}
         </div>
       )}
-
       {li.issues.length > 0 && (
         <div>
           <h5 className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Issues</h5>
@@ -138,7 +136,6 @@ function LineItemInspector({ li, parentScope, trade, assembly }: { li: LineItem;
           ))}
         </div>
       )}
-
       {li.notes && (
         <div>
           <h5 className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Notes</h5>
@@ -205,7 +202,6 @@ function ContextChip({ label }: { label: string }) {
   );
 }
 
-// Context finder
 function findContext(project: ScopeProject, selection: TreeSelection) {
   let lineItem: LineItem | undefined;
   let assembly: Assembly | undefined;
