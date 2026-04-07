@@ -8,7 +8,7 @@ import { ParentScopeView } from "@/components/app/scope-analyzer/ParentScopeView
 import { TradeView } from "@/components/app/scope-analyzer/TradeView";
 import { AssemblyView } from "@/components/app/scope-analyzer/AssemblyView";
 import { ScopeInspector } from "@/components/app/scope-analyzer/ScopeInspector";
-import { PlanViewerExpanded, type TakeoffLineItemOption, type TakeoffMarkup } from "@/components/app/scope-analyzer/PlanViewer";
+import { PlanViewer, PlanViewerShowButton, type TakeoffLineItemOption, type TakeoffMarkup, type ViewerMode } from "@/components/app/scope-analyzer/PlanViewer";
 import {
   getAllLineItems,
   mockProject,
@@ -59,52 +59,27 @@ function mergeManualTakeoffs(project: ScopeProject, takeoffsByLineItem: Record<s
 
 function getSelectionPage(project: ScopeProject, selection: TreeSelection) {
   const node = findNode(project, selection);
-
   if (selection.type === "lineItem" && node.lineItem) return node.lineItem.sources[0]?.pageNumber;
   if (selection.type === "assembly" && node.assembly) return node.assembly.sources[0]?.pageNumber ?? node.assembly.lineItems[0]?.sources[0]?.pageNumber;
   if (selection.type === "trade" && node.trade) return node.trade.sources[0]?.pageNumber ?? node.trade.assemblies[0]?.sources[0]?.pageNumber;
   if (selection.type === "parentScope" && node.parentScope) {
-    return (
-      node.parentScope.trades[0]?.sources[0]?.pageNumber ??
-      node.parentScope.trades[0]?.assemblies[0]?.sources[0]?.pageNumber ??
-      node.parentScope.trades[0]?.assemblies[0]?.lineItems[0]?.sources[0]?.pageNumber
-    );
+    return node.parentScope.trades[0]?.sources[0]?.pageNumber ?? node.parentScope.trades[0]?.assemblies[0]?.sources[0]?.pageNumber;
   }
-
   return getAllLineItems(project)[0]?.sources[0]?.pageNumber ?? 1;
 }
 
 function getTakeoffLineItemOptions(project: ScopeProject, selection: TreeSelection): TakeoffLineItemOption[] {
   const node = findNode(project, selection);
-
-  if (selection.type === "lineItem" && node.lineItem) {
-    return [{ id: node.lineItem.id, name: node.lineItem.name, unit: node.lineItem.unit }];
-  }
-
-  if (selection.type === "assembly" && node.assembly) {
-    return node.assembly.lineItems.map(lineItem => ({ id: lineItem.id, name: lineItem.name, unit: lineItem.unit }));
-  }
-
-  if (selection.type === "trade" && node.trade) {
-    return node.trade.assemblies.flatMap(assembly =>
-      assembly.lineItems.map(lineItem => ({ id: lineItem.id, name: `${assembly.name} · ${lineItem.name}`, unit: lineItem.unit })),
-    );
-  }
-
-  if (selection.type === "parentScope" && node.parentScope) {
-    return node.parentScope.trades.flatMap(trade =>
-      trade.assemblies.flatMap(assembly =>
-        assembly.lineItems.map(lineItem => ({ id: lineItem.id, name: `${trade.name} · ${lineItem.name}`, unit: lineItem.unit })),
-      ),
-    );
-  }
-
-  return getAllLineItems(project).map(lineItem => ({ id: lineItem.id, name: lineItem.name, unit: lineItem.unit }));
+  if (selection.type === "lineItem" && node.lineItem) return [{ id: node.lineItem.id, name: node.lineItem.name, unit: node.lineItem.unit }];
+  if (selection.type === "assembly" && node.assembly) return node.assembly.lineItems.map(li => ({ id: li.id, name: li.name, unit: li.unit }));
+  if (selection.type === "trade" && node.trade) return node.trade.assemblies.flatMap(a => a.lineItems.map(li => ({ id: li.id, name: `${a.name} · ${li.name}`, unit: li.unit })));
+  if (selection.type === "parentScope" && node.parentScope) return node.parentScope.trades.flatMap(t => t.assemblies.flatMap(a => a.lineItems.map(li => ({ id: li.id, name: `${t.name} · ${li.name}`, unit: li.unit }))));
+  return getAllLineItems(project).map(li => ({ id: li.id, name: li.name, unit: li.unit }));
 }
 
 export default function ScopeAnalyzerPage() {
   const [selection, setSelection] = useState<TreeSelection>({ type: "project", id: mockProject.id });
-  const [planExpanded, setPlanExpanded] = useState(false);
+  const [viewerMode, setViewerMode] = useState<ViewerMode>("embedded");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTakeoffLineItemId, setSelectedTakeoffLineItemId] = useState("");
   const [manualTakeoffs, setManualTakeoffs] = useState<Record<string, TakeoffRecord[]>>({});
@@ -124,81 +99,40 @@ export default function ScopeAnalyzerPage() {
   }, [selection]);
 
   useEffect(() => {
-    if (selection.type === "lineItem") {
-      setSelectedTakeoffLineItemId(selection.id);
-      return;
-    }
-
-    if (!takeoffLineItemOptions.some(option => option.id === selectedTakeoffLineItemId)) {
+    if (selection.type === "lineItem") { setSelectedTakeoffLineItemId(selection.id); return; }
+    if (!takeoffLineItemOptions.some(o => o.id === selectedTakeoffLineItemId)) {
       setSelectedTakeoffLineItemId(takeoffLineItemOptions[0]?.id ?? "");
     }
   }, [selectedTakeoffLineItemId, selection, takeoffLineItemOptions]);
 
   const openPlanViewer = (page?: number) => {
     if (page) setCurrentPage(page);
-    setPlanExpanded(true);
+    setViewerMode("expanded");
   };
 
   const handleCreateTakeoff = ({ markup, record }: { markup: TakeoffMarkup; record: TakeoffRecord }) => {
-    setManualTakeoffs(previous => ({
-      ...previous,
-      [record.linkedLineItemId]: [...(previous[record.linkedLineItemId] ?? []), record],
-    }));
-    setManualMarkups(previous => [...previous, markup]);
+    setManualTakeoffs(prev => ({ ...prev, [record.linkedLineItemId]: [...(prev[record.linkedLineItemId] ?? []), record] }));
+    setManualMarkups(prev => [...prev, markup]);
   };
 
   const handleDeleteTakeoff = (takeoffId: string, lineItemId: string) => {
-    setManualTakeoffs(previous => {
-      const next = { ...previous };
-      const filtered = (next[lineItemId] ?? []).filter(takeoff => takeoff.id !== takeoffId);
-
-      if (filtered.length > 0) next[lineItemId] = filtered;
-      else delete next[lineItemId];
-
+    setManualTakeoffs(prev => {
+      const next = { ...prev };
+      const filtered = (next[lineItemId] ?? []).filter(t => t.id !== takeoffId);
+      if (filtered.length > 0) next[lineItemId] = filtered; else delete next[lineItemId];
       return next;
     });
-
-    setManualMarkups(previous => previous.filter(markup => markup.takeoffId !== takeoffId));
+    setManualMarkups(prev => prev.filter(m => m.takeoffId !== takeoffId));
   };
 
   const renderCenter = () => {
     switch (selection.type) {
-      case "project":
-        return <ProjectOverview project={project} onNavigate={setSelection} />;
-      case "parentScope":
-        if (node.parentScope) return <ParentScopeView parentScope={node.parentScope} onNavigate={setSelection} />;
-        break;
-      case "trade":
-        if (node.trade) return <TradeView trade={node.trade} parentScopeName={node.parentScopeName || ""} onNavigate={setSelection} />;
-        break;
-      case "assembly":
-        if (node.assembly) {
-          return (
-            <AssemblyView
-              assembly={node.assembly}
-              onAddTakeoff={() => openPlanViewer()}
-              onNavigate={setSelection}
-              parentScopeName={node.parentScopeName || ""}
-              tradeName={node.tradeName || ""}
-            />
-          );
-        }
-        break;
-      case "lineItem":
-        if (node.assembly) {
-          return (
-            <AssemblyView
-              assembly={node.assembly}
-              onAddTakeoff={() => openPlanViewer()}
-              onNavigate={setSelection}
-              parentScopeName={node.parentScopeName || ""}
-              tradeName={node.tradeName || ""}
-            />
-          );
-        }
-        break;
+      case "project": return <ProjectOverview project={project} onNavigate={setSelection} />;
+      case "parentScope": if (node.parentScope) return <ParentScopeView parentScope={node.parentScope} onNavigate={setSelection} />; break;
+      case "trade": if (node.trade) return <TradeView trade={node.trade} parentScopeName={node.parentScopeName || ""} onNavigate={setSelection} />; break;
+      case "assembly": if (node.assembly) return <AssemblyView assembly={node.assembly} onAddTakeoff={() => openPlanViewer()} onNavigate={setSelection} parentScopeName={node.parentScopeName || ""} tradeName={node.tradeName || ""} />; break;
+      case "lineItem": if (node.assembly) return <AssemblyView assembly={node.assembly} onAddTakeoff={() => openPlanViewer()} onNavigate={setSelection} parentScopeName={node.parentScopeName || ""} tradeName={node.tradeName || ""} />; break;
     }
-
     return <ProjectOverview project={project} onNavigate={setSelection} />;
   };
 
@@ -208,12 +142,14 @@ export default function ScopeAnalyzerPage() {
         <div className="flex h-[calc(100vh-48px)] flex-col">
           <ScopeHeader project={project} onRunAnalysis={() => {}} onSaveDraft={() => {}} onLockScope={() => {}} />
 
-          {planExpanded ? (
-            <PlanViewerExpanded
+          {/* Expanded plan viewer - landscape above workspace */}
+          {viewerMode === "expanded" && (
+            <PlanViewer
               currentPage={currentPage}
               lineItemOptions={takeoffLineItemOptions}
               markups={manualMarkups}
-              onCollapse={() => setPlanExpanded(false)}
+              mode="expanded"
+              onModeChange={setViewerMode}
               onCreateTakeoff={handleCreateTakeoff}
               onDeleteTakeoff={handleDeleteTakeoff}
               onPageChange={setCurrentPage}
@@ -221,23 +157,51 @@ export default function ScopeAnalyzerPage() {
               selectedLineItemId={selectedTakeoffLineItemId}
               takeoffs={selectedLineItemTakeoffs}
             />
-          ) : null}
+          )}
 
           <div className="flex flex-1 min-h-0">
             <div className="w-[280px] shrink-0">
               <ScopeHierarchyTree project={project} selection={selection} onSelect={setSelection} />
             </div>
 
-            <div className="flex-1 min-w-0 overflow-hidden">{renderCenter()}</div>
+            <div className="flex-1 min-w-0 overflow-hidden">
+              {/* Show viewer button when hidden */}
+              {viewerMode === "hidden" && (
+                <div className="flex items-center justify-end border-b border-border px-3 py-1.5 bg-muted/10">
+                  <PlanViewerShowButton onClick={() => setViewerMode("embedded")} />
+                </div>
+              )}
+              {renderCenter()}
+            </div>
 
-            <div className="w-[320px] shrink-0">
-              <ScopeInspector
-                currentPage={currentPage}
-                onExpandPlan={() => openPlanViewer()}
-                onPageChange={setCurrentPage}
-                project={project}
-                selection={selection}
-              />
+            <div className="w-[320px] shrink-0 flex flex-col">
+              {/* Embedded plan viewer at top of inspector */}
+              {viewerMode === "embedded" && (
+                <div className="shrink-0 max-h-[50%]">
+                  <PlanViewer
+                    currentPage={currentPage}
+                    lineItemOptions={takeoffLineItemOptions}
+                    markups={manualMarkups}
+                    mode="embedded"
+                    onModeChange={setViewerMode}
+                    onCreateTakeoff={handleCreateTakeoff}
+                    onDeleteTakeoff={handleDeleteTakeoff}
+                    onPageChange={setCurrentPage}
+                    onSelectedLineItemChange={setSelectedTakeoffLineItemId}
+                    selectedLineItemId={selectedTakeoffLineItemId}
+                    takeoffs={selectedLineItemTakeoffs}
+                  />
+                </div>
+              )}
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <ScopeInspector
+                  currentPage={currentPage}
+                  onExpandPlan={() => openPlanViewer()}
+                  onPageChange={setCurrentPage}
+                  project={project}
+                  selection={selection}
+                />
+              </div>
             </div>
           </div>
         </div>
