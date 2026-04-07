@@ -7,7 +7,6 @@ import { Send, FileText, Ruler, AlertTriangle, Sparkles, ChevronRight } from "lu
 import { cn } from "@/lib/utils";
 import type { LineItem, Assembly, Trade, ParentScope, ScopeProject } from "@/data/scopeAnalyzerData";
 import type { TreeSelection } from "./ScopeHierarchyTree";
-import { PlanViewerCompact } from "./PlanViewer";
 
 interface Props {
   project: ScopeProject;
