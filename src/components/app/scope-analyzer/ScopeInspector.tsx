@@ -22,8 +22,6 @@ export function ScopeInspector({ project, selection, onExpandPlan, currentPage, 
 
   return (
     <div className="flex h-full flex-col border-l border-border bg-card">
-      <PlanViewerCompact currentPage={currentPage} onExpand={onExpandPlan} onPageChange={onPageChange} />
-
       <div className="border-b border-border px-3 py-2">
         <h3 className="text-xs font-semibold text-foreground">Inspector</h3>
       </div>
