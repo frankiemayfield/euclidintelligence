@@ -28,7 +28,6 @@ interface PlanViewerCompactProps {
   onPageChange: (page: number) => void;
 }
 
-/** Compact PDF thumbnail shown at top of inspector */
 export function PlanViewerCompact({ onExpand, currentPage, onPageChange }: PlanViewerCompactProps) {
   const sheet = MOCK_SHEETS.find(s => s.page === currentPage) || MOCK_SHEETS[0];
   const sheetIndex = MOCK_SHEETS.findIndex(s => s.page === currentPage);
@@ -44,18 +43,24 @@ export function PlanViewerCompact({ onExpand, currentPage, onPageChange }: PlanV
           <Maximize2 className="h-3 w-3" />
         </Button>
       </div>
-      {/* PDF preview area */}
       <div className="relative h-[160px] bg-muted/10 cursor-pointer group" onClick={onExpand}>
-        <iframe
-          src={`${PDF_URL}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0`}
-          className="w-full h-full border-0 pointer-events-none"
-          title="Plan Preview"
-        />
+        <object
+          data={`${PDF_URL}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+          type="application/pdf"
+          className="w-full h-full"
+        >
+          <div className="w-full h-full flex items-center justify-center bg-muted/20">
+            <div className="text-center">
+              <FileText className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
+              <div className="text-[10px] text-muted-foreground font-medium">{sheet.id} — {sheet.name}</div>
+              <div className="text-[9px] text-muted-foreground/60 mt-1">Page {currentPage}</div>
+            </div>
+          </div>
+        </object>
         <div className="absolute inset-0 bg-transparent group-hover:bg-foreground/5 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
           <span className="text-[10px] bg-background/90 px-2 py-1 rounded text-foreground font-medium">Click to expand</span>
         </div>
       </div>
-      {/* Mini controls */}
       <div className="flex items-center justify-between px-2 py-1 bg-muted/20">
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => sheetIndex > 0 && onPageChange(MOCK_SHEETS[sheetIndex - 1].page)}>
@@ -78,9 +83,7 @@ interface PlanViewerExpandedProps {
   onPageChange: (page: number) => void;
 }
 
-/** Expanded landscape PDF viewer that sits above the workspace */
 export function PlanViewerExpanded({ onCollapse, currentPage, onPageChange }: PlanViewerExpandedProps) {
-  const [zoom, setZoom] = useState(100);
   const [activeSheet, setActiveSheet] = useState(
     MOCK_SHEETS.find(s => s.page === currentPage)?.id || MOCK_SHEETS[0].id
   );
@@ -102,7 +105,6 @@ export function PlanViewerExpanded({ onCollapse, currentPage, onPageChange }: Pl
 
   return (
     <div className="border-b border-border bg-card flex flex-col" style={{ height: "320px" }}>
-      {/* Header bar */}
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-border shrink-0">
         <div className="flex items-center gap-2">
           <FileText className="h-3.5 w-3.5 text-primary" />
@@ -110,7 +112,6 @@ export function PlanViewerExpanded({ onCollapse, currentPage, onPageChange }: Pl
           <span className="text-[10px] text-muted-foreground">— {sheet.name}</span>
         </div>
         <div className="flex items-center gap-1">
-          {/* Sheet tabs */}
           <div className="flex items-center gap-0.5 mr-2 overflow-x-auto max-w-[400px]">
             {MOCK_SHEETS.map(s => (
               <button key={s.id} onClick={() => handleSheetChange(s.id)}
@@ -120,7 +121,6 @@ export function PlanViewerExpanded({ onCollapse, currentPage, onPageChange }: Pl
               </button>
             ))}
           </div>
-          {/* Nav */}
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleNav(-1)}>
             <ChevronLeft className="h-3 w-3" />
           </Button>
@@ -128,28 +128,28 @@ export function PlanViewerExpanded({ onCollapse, currentPage, onPageChange }: Pl
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleNav(1)}>
             <ChevronRight className="h-3 w-3" />
           </Button>
-          {/* Zoom */}
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setZoom(Math.max(50, zoom - 10))}>
-            <ZoomOut className="h-3 w-3" />
-          </Button>
-          <span className="text-[10px] text-muted-foreground w-8 text-center">{zoom}%</span>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setZoom(Math.min(200, zoom + 10))}>
-            <ZoomIn className="h-3 w-3" />
-          </Button>
-          {/* Collapse */}
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onCollapse} title="Collapse">
             <Minimize2 className="h-3 w-3" />
           </Button>
         </div>
       </div>
-      {/* PDF iframe */}
       <div className="flex-1 min-h-0 bg-muted/10">
-        <iframe
-          src={`${PDF_URL}#page=${sheet.page}&toolbar=0&navpanes=0`}
-          className="w-full h-full border-0"
-          title="Plan Viewer"
-          style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top left", width: `${10000 / zoom}%`, height: `${10000 / zoom}%` }}
-        />
+        <object
+          data={`${PDF_URL}#page=${sheet.page}&toolbar=0&navpanes=0&view=FitH`}
+          type="application/pdf"
+          className="w-full h-full"
+        >
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="text-center">
+              <FileText className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+              <div className="text-sm text-muted-foreground font-medium">{sheet.id} — {sheet.name}</div>
+              <div className="text-xs text-muted-foreground/60 mt-1">Page {sheet.page}</div>
+              <a href={PDF_URL} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline mt-2 inline-block">
+                Open PDF in new tab
+              </a>
+            </div>
+          </div>
+        </object>
       </div>
     </div>
   );
