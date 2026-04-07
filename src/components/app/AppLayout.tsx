@@ -14,12 +14,12 @@ const preconNavItems = [
   { label: "Scope Analyzer", icon: FileSearch, path: "/app/scope-analyzer" },
   { label: "Bid Packages", icon: Scale, path: "/app/bid-leveling" },
   { label: "Estimate", icon: Table2, path: "/app/estimate-builder" },
+  { label: "Pricing & Margin", icon: DollarSign, path: "/app/pricing" },
+  { label: "Proposal Export", icon: FileOutput, path: "/app/proposal" },
   { label: "Market Comparison", icon: BarChart3, path: "/app/estimate-comparison" },
 ];
 
 const activeProjectNavItems = [
-  { label: "Pricing & Margin", icon: DollarSign, path: "/app/pricing" },
-  { label: "Proposal Export", icon: FileOutput, path: "/app/proposal" },
   { label: "Est. vs Actual", icon: TrendingUp, path: "/app/est-vs-actual" },
 ];
 
