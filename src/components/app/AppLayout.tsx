@@ -1,21 +1,25 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Upload, FileSearch, Table2,
-  FileOutput, Scale, TrendingUp, Settings, ChevronLeft, BarChart3, ChevronDown, DollarSign
+  FileOutput, Scale, TrendingUp, Settings, ChevronLeft, BarChart3, ChevronDown, DollarSign,
+  FolderOpen, Hammer
 } from "lucide-react";
 import euclidLogo from "@/assets/euclid-logo.png";
 import companyLogo from "@/assets/company-logo.jpg";
 import { useState } from "react";
 import { AtlasPanel, AtlasToggleButton } from "./AtlasPanel";
 
-const estimatorNavItems = [
+const preconNavItems = [
   { label: "Document Upload", icon: Upload, path: "/app/upload" },
   { label: "Scope Analyzer", icon: FileSearch, path: "/app/scope-analyzer" },
   { label: "Bid Packages", icon: Scale, path: "/app/bid-leveling" },
   { label: "Estimate", icon: Table2, path: "/app/estimate-builder" },
+  { label: "Market Comparison", icon: BarChart3, path: "/app/estimate-comparison" },
+];
+
+const activeProjectNavItems = [
   { label: "Pricing & Margin", icon: DollarSign, path: "/app/pricing" },
   { label: "Proposal Export", icon: FileOutput, path: "/app/proposal" },
-  { label: "Market Comparison", icon: BarChart3, path: "/app/estimate-comparison" },
   { label: "Est. vs Actual", icon: TrendingUp, path: "/app/est-vs-actual" },
 ];
 
@@ -25,7 +29,7 @@ const recentProjects = [
   { name: "Downtown TI - Suite 400", id: "downtown" },
 ];
 
-type GlobalSection = "dashboard" | "estimator" | "settings";
+type GlobalSection = "dashboard" | "precon" | "active" | "settings";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -37,12 +41,19 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const getSection = (): GlobalSection => {
     if (location.pathname === "/app" || location.pathname === "/app/") return "dashboard";
     if (location.pathname === "/app/settings") return "settings";
-    return "estimator";
+    // Pre-Construction paths
+    const preconPaths = ["/app/upload", "/app/scope-analyzer", "/app/bid-leveling", "/app/estimate-builder", "/app/estimate-comparison", "/app/market-comparison", "/app/proposal-comparison"];
+    if (preconPaths.some(p => location.pathname === p)) return "precon";
+    // Active Projects paths
+    const activePaths = ["/app/pricing", "/app/proposal", "/app/est-vs-actual"];
+    if (activePaths.some(p => location.pathname === p)) return "active";
+    return "precon";
   };
   const section = getSection();
-  const isEstimator = section === "estimator";
-  const isDashboard = section === "dashboard";
-  const showAtlas = isEstimator || isDashboard;
+  const hasSidebar = section === "precon" || section === "active";
+  const sidebarItems = section === "precon" ? preconNavItems : section === "active" ? activeProjectNavItems : [];
+  const sidebarTitle = section === "precon" ? "Pre-Construction" : "Active Projects";
+  const showAtlas = section !== "settings";
 
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
@@ -58,8 +69,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               Dashboard
             </Link>
             <Link to="/app/upload"
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isEstimator ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
-              Estimator
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${section === "precon" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+              Pre-Construction
+            </Link>
+            <Link to="/app/pricing"
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${section === "active" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+              Active Projects
             </Link>
             <Link to="/app/settings"
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${section === "settings" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
@@ -68,7 +83,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          {isEstimator && (
+          {(hasSidebar || section === "dashboard") && (
             <div className="relative">
               <button onClick={() => setProjectMenuOpen(!projectMenuOpen)}
                 className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors">
@@ -103,22 +118,24 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Estimator Sidebar */}
-        {isEstimator && (
+        {/* Sidebar */}
+        {hasSidebar && (
           <aside className={`${collapsed ? "w-14" : "w-56"} bg-card border-r border-border flex flex-col shrink-0 transition-all duration-200`}>
             <div className={`px-3 py-3 border-b border-border ${collapsed ? "px-2" : ""}`}>
               {!collapsed && (
                 <>
-                  <p className="text-sm font-semibold text-foreground">Estimator</p>
+                  <p className="text-sm font-semibold text-foreground">{sidebarTitle}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">Project Workspace</p>
                 </>
               )}
               {collapsed && (
-                <p className="text-[10px] text-muted-foreground font-medium text-center">Est</p>
+                <p className="text-[10px] text-muted-foreground font-medium text-center">
+                  {section === "precon" ? "Pre" : "Act"}
+                </p>
               )}
             </div>
             <nav className="flex-1 py-2 px-1.5 space-y-0.5 overflow-y-auto">
-              {estimatorNavItems.map((item) => {
+              {sidebarItems.map((item) => {
                 const active = location.pathname === item.path;
                 return (
                   <Link key={item.path} to={item.path}
@@ -143,7 +160,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Main + Euclid */}
         <main className="flex-1 overflow-y-auto">{children}</main>
 
-        {/* Euclid Panel - persistent across estimator + dashboard */}
+        {/* Euclid Panel */}
         {showAtlas && <AtlasPanel isOpen={atlasOpen} onClose={() => setAtlasOpen(false)} />}
       </div>
 
