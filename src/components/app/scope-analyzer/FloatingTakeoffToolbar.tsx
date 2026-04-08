@@ -94,7 +94,7 @@ export function FloatingTakeoffToolbar({
 
   if (!visible) return null;
 
-  const isDrawingTool = activeTool !== "select" && activeTool !== "pan";
+  const isDrawingTool = activeTool !== "select";
 
   return (
     <div
