@@ -317,10 +317,14 @@ export function PlanViewer({
             <div className="p-3 h-full">
               <PdfViewport
                 activeTool={tool}
+                geoShapes={geoShapes}
                 markups={markups}
                 onCreateTakeoff={handleCreateTakeoffInternal}
                 onDocumentLoad={setNumPages}
                 onDrawingChange={setIsDrawing}
+                onGeoShapeCreated={handleGeoShapeCreated}
+                onGeoShapeUpdated={handleGeoShapeUpdated}
+                onGeoShapeDeleted={handleGeoShapeDeleted}
                 onLiveMeasurement={setLiveMeasurement}
                 pageNumber={safePage}
                 selectedLineItemId={selectedLineItemId}
