@@ -134,14 +134,12 @@ export function PlanViewer({
   const [showFsInspector, setShowFsInspector] = useState(true);
   const [showFsLog, setShowFsLog] = useState(true);
   const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
-  const [countSession, setCountSession] = useState<{ lineItemId: string; count: number } | null>(null);
 
   const handleGeoShapeCreated = (shape: TakeoffShape) => setGeoShapes(prev => [...prev, shape]);
   const handleGeoShapeUpdated = (shape: TakeoffShape) => setGeoShapes(prev => prev.map(s => s.id === shape.id ? shape : s));
   const handleGeoShapeDeleted = (shapeId: string) => {
     setGeoShapes(prev => prev.filter(s => s.id !== shapeId));
     if (selectedShapeId === shapeId) setSelectedShapeId(null);
-    // Also delete from takeoff records
     const shape = geoShapes.find(s => s.id === shapeId);
     if (shape) {
       onDeleteTakeoff(shapeId, shape.lineItemId);
@@ -168,6 +166,7 @@ export function PlanViewer({
   const isEmbedded = mode === "embedded";
   const pageCal = getPageCalibration(calibrationStore, safePage);
   const isCalibrated = pageCal.status === "calibrated";
+  const selectedLineItemName = lineItemOptions.find(o => o.id === selectedLineItemId)?.name;
 
   const handleCalibrate = (scale: string, method: "preset" | "manual") => {
     setCalibrationStore(prev => setPageCalibration(prev, safePage, { status: "calibrated", scale, method, verified: false }));
@@ -179,18 +178,25 @@ export function PlanViewer({
   };
 
   const handleToolChange = (newTool: TakeoffTool) => {
-    // End count session when switching away from count
-    if (tool === "count" && newTool !== "count" && countSession) {
-      setCountSession(null);
-      setIsDrawing(false);
-      setLiveMeasurement(null);
-    }
     if (newTool !== "select" && newTool !== "pan" && !isCalibrated && pageCal.status !== "not-to-scale") {
       setShowUncalibratedWarning(true);
       return;
     }
     setTool(newTool);
     setSelectedShapeId(null);
+    // Reset drawing state when switching tools
+    setIsDrawing(false);
+    setLiveMeasurement(null);
+  };
+
+  const handleFinishSession = () => {
+    setIsDrawing(false);
+    setLiveMeasurement(null);
+  };
+
+  const handleCancelSession = () => {
+    setIsDrawing(false);
+    setLiveMeasurement(null);
   };
 
   const handleUndo = () => {
@@ -204,7 +210,7 @@ export function PlanViewer({
   };
 
   const handleCreateTakeoffInternal = (payload: TakeoffCreatePayload) => {
-    // For count tool, don't show completion card - just save directly
+    // For count tool, accumulate silently — no completion card per click
     if (payload.record.method === "count") {
       onCreateTakeoff(payload);
       return;
@@ -225,10 +231,6 @@ export function PlanViewer({
       record: { ...pendingCompletion.record, linkedLineItemId: lineItemId },
     });
     setPendingCompletion(null);
-  };
-
-  const handleCountSessionUpdate = (session: { lineItemId: string; count: number; shapes: TakeoffShape[] }) => {
-    setCountSession({ lineItemId: session.lineItemId, count: session.count });
   };
 
   // Default dock position per mode
@@ -255,11 +257,11 @@ export function PlanViewer({
       window.addEventListener("keydown", handleKey);
       return () => window.removeEventListener("keydown", handleKey);
     }
-  }, [mode, isCalibrated, pageCal.status, tool, countSession]);
+  }, [mode, isCalibrated, pageCal.status, tool]);
 
   if (mode === "hidden") return null;
 
-  /* ── EMBEDDED: compact landscape preview in right column ── */
+  /* ── EMBEDDED: compact landscape preview ── */
   if (isEmbedded) {
     return (
       <div className="shrink-0 border-b border-border bg-card">
@@ -313,9 +315,18 @@ export function PlanViewer({
     />
   );
 
+  // Unified live session box — replaces separate HUD + count session box
   const sharedOverlays = (
     <>
-      <MeasurementHUD tool={tool} isDrawing={isDrawing} currentMeasurement={liveMeasurement} visible />
+      <MeasurementHUD
+        tool={tool}
+        isDrawing={isDrawing}
+        currentMeasurement={liveMeasurement}
+        visible
+        linkedLineItemName={selectedLineItemName}
+        onFinish={handleFinishSession}
+        onCancel={handleCancelSession}
+      />
       {pendingCompletion && (
         <TakeoffCompletionCard
           quantity={pendingCompletion.quantity}
@@ -326,31 +337,6 @@ export function PlanViewer({
           onSave={handleCompletionSave}
           onCancel={() => setPendingCompletion(null)}
         />
-      )}
-      {/* Count session indicator */}
-      {tool === "count" && countSession && countSession.count > 0 && (
-        <div className="absolute bottom-4 left-4 z-50 rounded-lg border border-primary/30 bg-card/95 shadow-lg backdrop-blur-md px-3 py-2">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">Count Session</span>
-          </div>
-          <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-lg font-bold text-foreground font-mono tabular-nums">{countSession.count}</span>
-            <span className="text-[9px] text-muted-foreground">EA</span>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-1.5 h-6 text-[10px] w-full"
-            onClick={() => {
-              setCountSession(null);
-              setIsDrawing(false);
-              setLiveMeasurement(null);
-            }}
-          >
-            Finish Counting
-          </Button>
-        </div>
       )}
       <CalibrationDialog
         open={showCalibration}
@@ -369,12 +355,11 @@ export function PlanViewer({
     </>
   );
 
-  /* ── FULLSCREEN: immersive takeoff workspace ── */
+  /* ── FULLSCREEN ── */
   if (isFullscreen) {
     const selectedOpt = lineItemOptions.find(o => o.id === selectedLineItemId);
     return (
       <div className="fixed inset-0 z-[100] flex flex-col bg-background">
-        {/* Top bar */}
         <div className="flex items-center justify-between border-b border-border px-4 py-2 shrink-0 bg-card">
           <div className="flex items-center gap-3">
             <FileText className="h-4 w-4 text-primary" />
@@ -383,7 +368,6 @@ export function PlanViewer({
             {calibrationBadge}
           </div>
 
-          {/* Page nav center */}
           <div className="flex items-center gap-1.5">
             <Button variant="ghost" size="icon" className="h-7 w-7" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
               <ChevronLeft className="h-3.5 w-3.5" />
@@ -420,7 +404,6 @@ export function PlanViewer({
           </div>
         </div>
 
-        {/* Target line item strip */}
         <div className="flex items-center gap-3 border-b border-border bg-muted/20 px-4 py-1.5 shrink-0">
           <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Target</span>
           <Select value={selectedLineItemId} onValueChange={onSelectedLineItemChange}>
@@ -438,7 +421,6 @@ export function PlanViewer({
           )}
         </div>
 
-        {/* Main content area */}
         <div className="flex flex-1 min-h-0 relative">
           <div className="flex-1 min-w-0 relative bg-muted/5 overflow-auto">
             {sharedToolbar}
@@ -462,8 +444,6 @@ export function PlanViewer({
                 selectedShapeId={selectedShapeId}
                 onSelectedShapeChange={handleSelectedShapeChange}
                 visibilityMode={visibilityMode}
-                countSession={countSession}
-                onCountSessionUpdate={handleCountSessionUpdate}
               />
             </div>
           </div>
@@ -502,7 +482,7 @@ export function PlanViewer({
                   <h4 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">Inspector</h4>
                   {lineItemOptions.find(o => o.id === selectedLineItemId) ? (
                     <div className="space-y-2">
-                      <div className="text-xs font-medium text-foreground">{lineItemOptions.find(o => o.id === selectedLineItemId)?.name}</div>
+                      <div className="text-xs font-medium text-foreground">{selectedLineItemName}</div>
                       <div className="text-[10px] text-muted-foreground">Unit: {lineItemOptions.find(o => o.id === selectedLineItemId)?.unit}</div>
                       <div className="text-[10px] text-muted-foreground">Takeoffs: {takeoffs.length}</div>
                       <div className="text-[10px] text-muted-foreground">
@@ -532,10 +512,9 @@ export function PlanViewer({
     );
   }
 
-  /* ── EXPANDED: full workspace viewer ── */
+  /* ── EXPANDED ── */
   return (
     <div className="flex flex-col border-b border-border bg-card h-[520px] shadow-md transition-all duration-300">
-      {/* Header bar */}
       <div className="flex items-center justify-between gap-3 border-b border-border px-3 py-2 shrink-0">
         <div className="min-w-0 flex items-center gap-2">
           <FileText className="h-3.5 w-3.5 text-primary shrink-0" />
@@ -548,7 +527,6 @@ export function PlanViewer({
           {calibrationBadge}
         </div>
 
-        {/* Visibility + Page nav center */}
         <div className="flex items-center gap-2">
           <TakeoffVisibilityToggle mode={visibilityMode} onChange={setVisibilityMode} />
           <div className="w-px h-5 bg-border" />
@@ -584,7 +562,6 @@ export function PlanViewer({
         </div>
       </div>
 
-      {/* Sheet tabs */}
       <div className="flex items-center gap-1 overflow-x-auto border-b border-border bg-muted/10 px-3 py-1.5 shrink-0">
         {SHEET_PRESETS.map(s => (
           <button
@@ -603,7 +580,6 @@ export function PlanViewer({
         ))}
       </div>
 
-      {/* Main viewport area */}
       <div className="flex flex-1 min-h-0 relative">
         <div className="flex-1 min-w-0 relative bg-muted/5 overflow-auto">
           {sharedToolbar}
@@ -627,13 +603,10 @@ export function PlanViewer({
               selectedShapeId={selectedShapeId}
               onSelectedShapeChange={handleSelectedShapeChange}
               visibilityMode={visibilityMode}
-              countSession={countSession}
-              onCountSessionUpdate={handleCountSessionUpdate}
             />
           </div>
         </div>
 
-        {/* Takeoff sidebar */}
         <div className="w-[280px] shrink-0 flex flex-col border-l border-border bg-background">
           <div className="p-3 border-b border-border space-y-3">
             <div>
@@ -649,7 +622,6 @@ export function PlanViewer({
                 </SelectContent>
               </Select>
             </div>
-            {/* Quantity summary */}
             {takeoffs.length > 0 && (
               <div className="rounded-md bg-muted/30 px-2.5 py-1.5">
                 <div className="text-[9px] uppercase tracking-wide text-muted-foreground">Total Quantity</div>
@@ -764,8 +736,6 @@ interface PdfViewportProps {
   externalZoom?: number;
   onExternalZoomChange?: (zoom: number) => void;
   visibilityMode?: VisibilityMode;
-  countSession?: { lineItemId: string; count: number } | null;
-  onCountSessionUpdate?: (session: { lineItemId: string; count: number; shapes: TakeoffShape[] }) => void;
 }
 
 function PdfViewport({
@@ -788,8 +758,6 @@ function PdfViewport({
   externalZoom,
   onExternalZoomChange,
   visibilityMode = "all",
-  countSession,
-  onCountSessionUpdate,
 }: PdfViewportProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -825,7 +793,6 @@ function PdfViewport({
   const renderWidth = Math.round(baseWidth);
   const renderHeight = Math.max(140, Math.round(renderWidth * pageAspectRatio));
 
-  // Pan tool or Space+drag: use grab cursor
   const showGrab = activeTool === "pan" || isPanning;
 
   return (
@@ -834,7 +801,7 @@ function PdfViewport({
       className={cn(
         "relative w-full bg-background",
         compact ? "h-[140px] overflow-hidden" : "h-full overflow-hidden rounded-lg border border-border",
-        showGrab && !compact ? "cursor-grabbing" : "",
+        showGrab && !compact ? (isPanning ? "cursor-grabbing" : "cursor-grab") : "",
       )}
       onMouseDown={compact ? undefined : navHandlers.onMouseDown}
       onMouseMove={compact ? undefined : navHandlers.onMouseMove}
@@ -898,8 +865,6 @@ function PdfViewport({
                 onLiveMeasurement={onLiveMeasurement}
                 markups={markups}
                 visibilityMode={visibilityMode}
-                countSession={countSession}
-                onCountSessionUpdate={onCountSessionUpdate}
               />
             )}
           </div>
