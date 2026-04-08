@@ -111,9 +111,7 @@ export function FloatingTakeoffToolbar({
       <div
         className="flex cursor-grab items-center justify-center border-b border-border px-1 py-1.5 active:cursor-grabbing"
         onMouseDown={handleDragStart}
-      >
-        <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
-      </div>
+      />
 
       {collapsed ? (
         <div className="p-1">
