@@ -79,6 +79,18 @@ export function GeometryOverlay({
   const [runningCount, setRunningCount] = useState(0);
   const [draggingCountId, setDraggingCountId] = useState<string | null>(null);
 
+  // Calibration drawing state
+  const [calStart, setCalStart] = useState<{ x: number; y: number } | null>(null);
+  const [calCursor, setCalCursor] = useState<{ x: number; y: number } | null>(null);
+
+  // Reset calibration state when mode changes
+  useEffect(() => {
+    if (!calibrationDrawMode) {
+      setCalStart(null);
+      setCalCursor(null);
+    }
+  }, [calibrationDrawMode]);
+
   useEffect(() => {
     setDrawing(INITIAL_DRAWING_STATE);
     onDrawingChange?.(false);
