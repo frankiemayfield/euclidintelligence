@@ -91,7 +91,7 @@ export function GeometryOverlay({
       record: {
         id: takeoffId,
         linkedLineItemId: selectedLineItemId,
-        method: shape.tool === "rectangle" ? "polygon" : shape.tool === "linear" ? "linear" : shape.tool === "count" ? "count" : shape.tool === "volume" ? "volume" : "area",
+        method: shape.tool === "rectangle" ? "polygon" : shape.tool === "linear" ? "linear" : shape.tool === "count" ? "count" : "area",
         notes: `${shape.type} takeoff — ${shape.vertices.length} vertices`,
         quantity,
         sourcePage: `Page ${pageNumber}`,
