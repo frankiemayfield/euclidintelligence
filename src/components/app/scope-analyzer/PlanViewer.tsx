@@ -749,6 +749,18 @@ export function PlanViewer({
               ))}
             </div>
           </div>
+          <TakeoffContextActions
+            selectedShape={selectedShape}
+            isEditing={editingShapeId === selectedShapeId && !!selectedShapeId}
+            onEnterEditMode={() => setEditingShapeId(selectedShapeId)}
+            onExitEditMode={() => setEditingShapeId(null)}
+            onDelete={handleDeleteSelected}
+            onReassign={handleReassignShape}
+            onContinueMeasuring={handleContinueMeasuring}
+            onIsolateSelection={handleIsolateSelection}
+            lineItemOptions={lineItemOptions}
+            currentLineItemId={selectedLineItemId}
+          />
         </div>
       </div>
     </div>
