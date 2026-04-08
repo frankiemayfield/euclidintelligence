@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,7 @@ import { TakeoffCompletionCard } from "./TakeoffCompletionCard";
 import { CalibrationDialog } from "./CalibrationDialog";
 import { GeometryOverlay } from "./takeoff/GeometryOverlay";
 import type { TakeoffShape } from "./takeoff/geometry";
+import { useCanvasNavigation } from "./takeoff/useCanvasNavigation";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
