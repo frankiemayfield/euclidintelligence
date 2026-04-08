@@ -118,6 +118,10 @@ export function PlanViewer({
   } | null>(null);
   const [geoShapes, setGeoShapes] = useState<TakeoffShape[]>([]);
 
+  const handleGeoShapeCreated = (shape: TakeoffShape) => setGeoShapes(prev => [...prev, shape]);
+  const handleGeoShapeUpdated = (shape: TakeoffShape) => setGeoShapes(prev => prev.map(s => s.id === shape.id ? shape : s));
+  const handleGeoShapeDeleted = (shapeId: string) => setGeoShapes(prev => prev.filter(s => s.id !== shapeId));
+
   const safePage = clamp(currentPage, 1, numPages || 1);
   const sheet = getSheetForPage(safePage);
   const isExpanded = mode === "expanded";
