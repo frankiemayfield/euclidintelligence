@@ -517,7 +517,8 @@ function ShapeRenderer({
     return (
       <g
         onClick={(e) => onShapeClick(shape.id, e as unknown as MouseEvent)}
-        className="cursor-pointer"
+        onMouseDown={isSelected ? (e) => { e.stopPropagation(); onCountMarkerDragStart?.(shape.id, e as unknown as MouseEvent); } : undefined}
+        className={isSelected ? "cursor-move" : "cursor-pointer"}
         opacity={opacity}
       >
         <circle
