@@ -486,6 +486,7 @@ function ShapeRenderer({
   onVertexMouseDown,
   onEdgeClick,
   onVertexDelete,
+  onCountMarkerDragStart,
 }: {
   shape: TakeoffShape;
   width: number;
@@ -498,6 +499,7 @@ function ShapeRenderer({
   onVertexMouseDown: (vertexId: string, shapeId: string, e: MouseEvent) => void;
   onEdgeClick: (edgeIndex: number, shapeId: string, e: MouseEvent) => void;
   onVertexDelete: (vertexId: string, shapeId: string) => void;
+  onCountMarkerDragStart?: (shapeId: string, e: MouseEvent) => void;
 }) {
   const verts = shape.vertices;
   if (verts.length === 0) return null;
