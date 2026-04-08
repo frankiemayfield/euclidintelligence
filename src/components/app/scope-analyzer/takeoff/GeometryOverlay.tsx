@@ -257,6 +257,11 @@ export function GeometryOverlay({
   const handleMouseMove = useCallback((e: MouseEvent<SVGSVGElement>) => {
     const pt = getNormalized(e);
 
+    // Calibration cursor tracking
+    if (calibrationDrawMode && calStart) {
+      setCalCursor(pt);
+      return;
+    }
     // Count marker dragging
     if (draggingCountId) {
       const shape = shapes.find(s => s.id === draggingCountId);
