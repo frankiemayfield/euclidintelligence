@@ -563,10 +563,14 @@ function TakeoffLogEntry({ takeoff, onDelete }: { takeoff: TakeoffRecord; onDele
 interface PdfViewportProps {
   activeTool?: TakeoffTool;
   compact?: boolean;
+  geoShapes?: TakeoffShape[];
   markups?: TakeoffMarkup[];
   onCreateTakeoff?: (payload: TakeoffCreatePayload) => void;
   onDocumentLoad?: (numPages: number) => void;
   onDrawingChange?: (drawing: boolean) => void;
+  onGeoShapeCreated?: (shape: TakeoffShape) => void;
+  onGeoShapeUpdated?: (shape: TakeoffShape) => void;
+  onGeoShapeDeleted?: (shapeId: string) => void;
   onLiveMeasurement?: (m: { width: number; height: number; area: number; perimeter: number; length: number; count: number; volume: number } | null) => void;
   pageNumber: number;
   selectedLineItemId?: string;
@@ -576,10 +580,14 @@ interface PdfViewportProps {
 function PdfViewport({
   activeTool = "select",
   compact = false,
+  geoShapes = [],
   markups = [],
   onCreateTakeoff,
   onDocumentLoad,
   onDrawingChange,
+  onGeoShapeCreated,
+  onGeoShapeUpdated,
+  onGeoShapeDeleted,
   onLiveMeasurement,
   pageNumber,
   selectedLineItemId,
@@ -602,8 +610,6 @@ function PdfViewport({
     return () => obs.disconnect();
   }, []);
 
-  // For compact (embedded strip), render wide and use container width
-  // For expanded, render at full scale
   const baseWidth = compact ? Math.max(400, containerWidth - 12 || 400) : Math.max(760, containerWidth - 12 || 760);
   const renderWidth = Math.round(baseWidth * zoom);
   const renderHeight = Math.max(140, Math.round(renderWidth * pageAspectRatio));
@@ -647,17 +653,21 @@ function PdfViewport({
               onLoadError={(err) => setPageError(extractPdfErrorMessage(err))}
             />
 
-            {!compact && onCreateTakeoff && (
-              <TakeoffOverlay
+            {!compact && onCreateTakeoff && onGeoShapeCreated && onGeoShapeUpdated && onGeoShapeDeleted && (
+              <GeometryOverlay
                 activeTool={activeTool}
+                width={renderWidth}
                 height={renderHeight}
-                markups={markups.filter(m => m.pageNumber === pageNumber)}
+                pageNumber={pageNumber}
+                selectedLineItemId={selectedLineItemId}
+                shapes={geoShapes}
+                onShapeCreated={onGeoShapeCreated}
+                onShapeUpdated={onGeoShapeUpdated}
+                onShapeDeleted={onGeoShapeDeleted}
                 onCreateTakeoff={onCreateTakeoff}
                 onDrawingChange={onDrawingChange}
                 onLiveMeasurement={onLiveMeasurement}
-                pageNumber={pageNumber}
-                selectedLineItemId={selectedLineItemId}
-                width={renderWidth}
+                markups={markups}
               />
             )}
           </div>
