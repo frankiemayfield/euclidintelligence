@@ -328,6 +328,7 @@ export function PlanViewer({
                 onGeoShapeDeleted={handleGeoShapeDeleted}
                 onLiveMeasurement={setLiveMeasurement}
                 onZoomChange={setZoom}
+                externalZoom={zoom}
                 pageNumber={safePage}
                 selectedLineItemId={selectedLineItemId}
               />
