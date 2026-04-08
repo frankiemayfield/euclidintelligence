@@ -1,7 +1,6 @@
-import { useState, useMemo } from "react";
-import { ChevronRight, ChevronDown, Search, Filter, AlertTriangle, Package, Layers, Box, FileText, Building2 } from "lucide-react";
+import { useState } from "react";
+import { ChevronRight, ChevronDown, ChevronLeft, Search, Package, Layers, Box, FileText, Building2, PanelLeftClose, PanelLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -17,6 +16,8 @@ interface Props {
   project: ScopeProject;
   selection: TreeSelection;
   onSelect: (sel: TreeSelection) => void;
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 type QuickFilter = "missingCostCodes" | "missingTakeoffs" | "needsReview" | "lowConfidence" | "riskFlags";
@@ -42,7 +43,7 @@ function countIssuesInTrade(t: Trade): number {
   return c;
 }
 
-export function ScopeHierarchyTree({ project, selection, onSelect }: Props) {
+export function ScopeHierarchyTree({ project, selection, onSelect, collapsed = false, onCollapsedChange }: Props) {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["proj-001", project.parentScopes[0]?.id]));
   const [activeFilters, setActiveFilters] = useState<Set<QuickFilter>>(new Set());
@@ -70,7 +71,6 @@ export function ScopeHierarchyTree({ project, selection, onSelect }: Props) {
   };
   const collapseAll = () => setExpanded(new Set([project.id]));
 
-  // Filter matching
   const matchesSearch = (name: string) => !search || name.toLowerCase().includes(search.toLowerCase());
 
   const filterArray = Array.from(activeFilters);
@@ -87,13 +87,50 @@ export function ScopeHierarchyTree({ project, selection, onSelect }: Props) {
     { key: "riskFlags", label: "Risk Flags" },
   ];
 
+  /* ── Collapsed rail ── */
+  if (collapsed) {
+    return (
+      <div className="flex flex-col h-full border-r border-border bg-card w-full items-center py-2 gap-1">
+        <Button variant="ghost" size="icon" className="h-7 w-7 mb-2" onClick={() => onCollapsedChange?.(false)} title="Expand panel">
+          <PanelLeft className="h-3.5 w-3.5" />
+        </Button>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button className={cn("p-1.5 rounded-md transition-colors", selection.type === "project" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted")} onClick={() => onSelect({ type: "project", id: project.id })}>
+              <Building2 className="h-4 w-4" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="text-xs">{project.name}</TooltipContent>
+        </Tooltip>
+
+        {project.parentScopes.map(ps => (
+          <Tooltip key={ps.id}>
+            <TooltipTrigger asChild>
+              <button className={cn("p-1.5 rounded-md transition-colors", selection.type === "parentScope" && selection.id === ps.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted")} onClick={() => onSelect({ type: "parentScope", id: ps.id })}>
+                <Package className="h-3.5 w-3.5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="text-xs">{ps.name}</TooltipContent>
+          </Tooltip>
+        ))}
+      </div>
+    );
+  }
+
+  /* ── Full tree ── */
   return (
     <div className="flex flex-col h-full border-r border-border bg-card">
-      {/* Search & Filter Header */}
+      {/* Header with collapse button */}
       <div className="p-3 border-b border-border space-y-2">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-          <Input placeholder="Search scope…" value={search} onChange={e => setSearch(e.target.value)} className="pl-8 h-8 text-xs" />
+        <div className="flex items-center justify-between gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+            <Input placeholder="Search scope…" value={search} onChange={e => setSearch(e.target.value)} className="pl-8 h-8 text-xs" />
+          </div>
+          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => onCollapsedChange?.(true)} title="Collapse panel">
+            <PanelLeftClose className="h-3.5 w-3.5" />
+          </Button>
         </div>
         <div className="flex flex-wrap gap-1">
           {filters.map(f => (
@@ -113,7 +150,6 @@ export function ScopeHierarchyTree({ project, selection, onSelect }: Props) {
 
       {/* Tree */}
       <div className="flex-1 overflow-y-auto py-1">
-        {/* Project Node */}
         <TreeNode icon={<Building2 className="h-3.5 w-3.5 text-primary" />} label={project.name} depth={0} isExpanded={expanded.has(project.id)}
           isSelected={selection.type === "project" && selection.id === project.id}
           onToggle={() => toggleExpand(project.id)} onSelect={() => onSelect({ type: "project", id: project.id })} hasChildren />
