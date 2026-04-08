@@ -867,6 +867,8 @@ function PdfViewport({
   externalZoom,
   onExternalZoomChange,
   visibilityMode = "all",
+  calibrationDrawMode = false,
+  onCalibrationLineComplete,
 }: PdfViewportProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
