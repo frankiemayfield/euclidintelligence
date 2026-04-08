@@ -112,7 +112,7 @@ export function PlanViewer({
 
   const safePage = clamp(currentPage, 1, numPages || 1);
   const sheet = getSheetForPage(safePage);
-  const isViewerActive = mode !== "hidden";
+  const isExpanded = mode === "expanded";
 
   const handleCalibrate = (scale: string) => {
     setCalibrationScale(scale);
