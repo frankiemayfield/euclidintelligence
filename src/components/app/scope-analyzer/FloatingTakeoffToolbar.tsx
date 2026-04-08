@@ -187,6 +187,11 @@ export function FloatingTakeoffToolbar({
               </div>
             </div>
           )}
+
+          {/* Navigation hint */}
+          <div className="px-1 pt-1 text-[7px] text-muted-foreground/60 text-center leading-tight">
+            Space+drag to pan · Scroll to zoom
+          </div>
         </div>
       )}
     </div>
