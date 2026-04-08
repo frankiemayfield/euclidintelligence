@@ -23,6 +23,7 @@ import {
   PanelRight,
   PanelTop,
   PanelBottom,
+  Hexagon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +54,7 @@ const NAV_TOOLS = [
 const CREATION_TOOLS = [
   { id: "count" as const, label: "Count (EA)", icon: Circle, shortcut: "C" },
   { id: "linear" as const, label: "Linear (LF)", icon: Ruler, shortcut: "L" },
-  { id: "area" as const, label: "Area (SF)", icon: Square, shortcut: "A" },
+  { id: "area" as const, label: "Area (SF)", icon: Hexagon, shortcut: "A" },
   { id: "rectangle" as const, label: "Rectangle (SF)", icon: Square, shortcut: "R" },
   { id: "polygon" as const, label: "Polygon (SF)", icon: Pentagon, shortcut: "P" },
   { id: "volume" as const, label: "Volume (CY)", icon: Box, shortcut: "U" },

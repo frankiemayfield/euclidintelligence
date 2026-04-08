@@ -39,9 +39,6 @@ interface GeometryOverlayProps {
   } | null) => void;
   markups: TakeoffMarkup[];
   visibilityMode?: VisibilityMode;
-  // For continuous count session
-  countSession?: { lineItemId: string; count: number } | null;
-  onCountSessionUpdate?: (session: { lineItemId: string; count: number; shapes: TakeoffShape[] }) => void;
 }
 
 const VERTEX_RADIUS = 5;
@@ -65,21 +62,21 @@ export function GeometryOverlay({
   onLiveMeasurement,
   markups,
   visibilityMode = "all",
-  countSession,
-  onCountSessionUpdate,
 }: GeometryOverlayProps) {
   const [drawing, setDrawing] = useState<DrawingState>(INITIAL_DRAWING_STATE);
   const isCreationTool = activeTool !== "select" && activeTool !== "pan";
   const isDrawingEnabled = isCreationTool && Boolean(selectedLineItemId);
   const isSelectMode = activeTool === "select";
 
+  const [runningCount, setRunningCount] = useState(0);
+
   useEffect(() => {
     setDrawing(INITIAL_DRAWING_STATE);
     onDrawingChange?.(false);
     onLiveMeasurement?.(null);
+    setRunningCount(0);
   }, [activeTool, pageNumber]);
 
-  // Reset drawing state when line item changes (but not for count sessions)
   useEffect(() => {
     if (activeTool !== "count") {
       setDrawing(INITIAL_DRAWING_STATE);
@@ -128,7 +125,6 @@ export function GeometryOverlay({
   }, [selectedLineItemId, pageNumber, onShapeCreated, onCreateTakeoff, onDrawingChange, onLiveMeasurement]);
 
   const handleClick = useCallback((e: MouseEvent<SVGSVGElement>) => {
-    // Select mode: click empty space to deselect
     if (isSelectMode) {
       onSelectedShapeChange?.(null);
       setDrawing(prev => ({ ...prev, editingShapeId: null }));
@@ -138,7 +134,6 @@ export function GeometryOverlay({
     if (!isDrawingEnabled) return;
     const pt = getNormalized(e);
 
-    // Count tool: continuous placement
     if (activeTool === "count") {
       const shape: TakeoffShape = {
         id: `shape-${generateId()}`,
@@ -149,21 +144,14 @@ export function GeometryOverlay({
         lineItemId: selectedLineItemId!,
         tool: "count",
       };
-      const committed = commitShape(shape);
-      // Update live measurement for running count
-      if (committed) {
-        const currentCount = (countSession?.count ?? 0) + 1;
-        onLiveMeasurement?.({
-          width: 0, height: 0, area: 0, perimeter: 0, length: 0,
-          count: currentCount, volume: 0,
-        });
-        onDrawingChange?.(true); // Keep HUD visible
-        onCountSessionUpdate?.({
-          lineItemId: selectedLineItemId!,
-          count: currentCount,
-          shapes: [...(shapes.filter(s => s.tool === "count" && s.lineItemId === selectedLineItemId && s.pageNumber === pageNumber)), committed],
-        });
-      }
+      commitShape(shape);
+      const newCount = runningCount + 1;
+      setRunningCount(newCount);
+      onLiveMeasurement?.({
+        width: 0, height: 0, area: 0, perimeter: 0, length: 0,
+        count: newCount, volume: 0,
+      });
+      onDrawingChange?.(true);
       return;
     }
 
@@ -203,7 +191,7 @@ export function GeometryOverlay({
 
     const m = computeShapeMeasurements(updated.vertices, null, false, updated.tool);
     onLiveMeasurement?.(m);
-  }, [isSelectMode, isDrawingEnabled, activeTool, drawing.activeShape, selectedLineItemId, pageNumber, getNormalized, commitShape, onDrawingChange, onLiveMeasurement, onSelectedShapeChange, countSession, onCountSessionUpdate, shapes]);
+  }, [isSelectMode, isDrawingEnabled, activeTool, drawing.activeShape, selectedLineItemId, pageNumber, getNormalized, commitShape, onDrawingChange, onLiveMeasurement, onSelectedShapeChange, runningCount]);
 
   const handleDoubleClick = useCallback((e: MouseEvent<SVGSVGElement>) => {
     e.preventDefault();
@@ -309,7 +297,6 @@ export function GeometryOverlay({
     const shape = shapes.find(s => s.id === shapeId);
     const isAlreadySelected = selectedShapeId === shapeId;
     if (isAlreadySelected) {
-      // Toggle into edit mode
       setDrawing(prev => ({
         ...prev,
         editingShapeId: prev.editingShapeId === shapeId ? null : shapeId,
@@ -382,7 +369,6 @@ export function GeometryOverlay({
 
   const pageShapes = shapes.filter(s => s.pageNumber === pageNumber);
 
-  // Filter by visibility
   const visibleShapes = visibilityMode === "hidden"
     ? []
     : visibilityMode === "selected"
@@ -397,7 +383,6 @@ export function GeometryOverlay({
         ? "cursor-crosshair"
         : "cursor-not-allowed";
 
-  // Pan tool: overlay should not capture events
   if (activeTool === "pan") {
     return (
       <svg
@@ -471,8 +456,6 @@ export function GeometryOverlay({
   );
 }
 
-/* ─── Shape Renderer ─── */
-
 function ShapeRenderer({
   shape,
   width,
@@ -501,9 +484,8 @@ function ShapeRenderer({
   const verts = shape.vertices;
   if (verts.length === 0) return null;
 
-  // Assembly color - use lineItemId as a proxy for assembly grouping
   const assemblyColor = getAssemblyColor(shape.lineItemId);
-  const strokeColor = isSelected ? assemblyColor.stroke : assemblyColor.stroke;
+  const strokeColor = assemblyColor.stroke;
   const fillColor = isSelected
     ? assemblyColor.fill.replace("0.15", "0.3")
     : assemblyColor.fill;
@@ -605,7 +587,6 @@ function ShapeRenderer({
         </>
       )}
 
-      {/* Selected glow */}
       {isSelected && !isEditing && verts.length >= 2 && (
         <path
           d={pathStr}
@@ -634,8 +615,6 @@ function ShapeRenderer({
     </g>
   );
 }
-
-/* ─── Active Shape (being drawn) ─── */
 
 function ActiveShapeRenderer({
   shape,
