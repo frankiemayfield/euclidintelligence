@@ -843,6 +843,8 @@ interface PdfViewportProps {
   externalZoom?: number;
   onExternalZoomChange?: (zoom: number) => void;
   visibilityMode?: VisibilityMode;
+  calibrationDrawMode?: boolean;
+  onCalibrationLineComplete?: (line: import("./CalibrationDialog").CalibrationLine) => void;
 }
 
 function PdfViewport({
