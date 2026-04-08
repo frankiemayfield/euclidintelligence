@@ -30,6 +30,8 @@ import { TakeoffCompletionCard } from "./TakeoffCompletionCard";
 import { CalibrationDialog, UncalibratedWarning } from "./CalibrationDialog";
 import { GeometryOverlay } from "./takeoff/GeometryOverlay";
 import type { TakeoffShape } from "./takeoff/geometry";
+import { getShapeQuantity, getShapeUnit } from "./takeoff/geometry";
+import { TakeoffContextActions } from "./TakeoffContextActions";
 import { useCanvasNavigation } from "./takeoff/useCanvasNavigation";
 import { TakeoffVisibilityToggle, type VisibilityMode } from "./takeoff/TakeoffVisibility";
 import {
@@ -134,12 +136,39 @@ export function PlanViewer({
   const [showFsInspector, setShowFsInspector] = useState(true);
   const [showFsLog, setShowFsLog] = useState(true);
   const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
+  const [editingShapeId, setEditingShapeId] = useState<string | null>(null);
+
+  const selectedShape = geoShapes.find(s => s.id === selectedShapeId) ?? null;
 
   const handleGeoShapeCreated = (shape: TakeoffShape) => setGeoShapes(prev => [...prev, shape]);
-  const handleGeoShapeUpdated = (shape: TakeoffShape) => setGeoShapes(prev => prev.map(s => s.id === shape.id ? shape : s));
+  const handleGeoShapeUpdated = (shape: TakeoffShape) => {
+    setGeoShapes(prev => prev.map(s => s.id === shape.id ? shape : s));
+    // Live recalculation: update the takeoff record quantity
+    const quantity = getShapeQuantity(shape);
+    const unit = getShapeUnit(shape.tool);
+    onCreateTakeoff({
+      markup: {
+        takeoffId: shape.id,
+        lineItemId: shape.lineItemId,
+        pageNumber: shape.pageNumber,
+        tool: shape.tool as TakeoffTool,
+        x: 0, y: 0, width: 0, height: 0,
+      },
+      record: {
+        id: shape.id,
+        linkedLineItemId: shape.lineItemId,
+        method: shape.tool === "rectangle" ? "polygon" : shape.tool === "linear" ? "linear" : shape.tool === "count" ? "count" : shape.tool === "volume" ? "volume" : "area",
+        notes: `Updated — ${shape.vertices.length} vertices`,
+        quantity,
+        sourcePage: `Page ${shape.pageNumber}`,
+        timestamp: new Date().toLocaleString(),
+        unit,
+      },
+    });
+  };
   const handleGeoShapeDeleted = (shapeId: string) => {
     setGeoShapes(prev => prev.filter(s => s.id !== shapeId));
-    if (selectedShapeId === shapeId) setSelectedShapeId(null);
+    if (selectedShapeId === shapeId) { setSelectedShapeId(null); setEditingShapeId(null); }
     const shape = geoShapes.find(s => s.id === shapeId);
     if (shape) {
       onDeleteTakeoff(shapeId, shape.lineItemId);
@@ -148,6 +177,7 @@ export function PlanViewer({
 
   const handleSelectedShapeChange = (shapeId: string | null, lineItemId?: string) => {
     setSelectedShapeId(shapeId);
+    if (!shapeId) setEditingShapeId(null);
     if (shapeId && lineItemId) {
       onSelectedLineItemChange(lineItemId);
     }
@@ -157,6 +187,55 @@ export function PlanViewer({
     if (selectedShapeId) {
       handleGeoShapeDeleted(selectedShapeId);
     }
+  };
+
+  const handleReassignShape = (newLineItemId: string) => {
+    if (!selectedShape) return;
+    const oldLineItemId = selectedShape.lineItemId;
+    const updated = { ...selectedShape, lineItemId: newLineItemId };
+    setGeoShapes(prev => prev.map(s => s.id === updated.id ? updated : s));
+    // Remove from old line item
+    onDeleteTakeoff(selectedShape.id, oldLineItemId);
+    // Create under new line item
+    const quantity = getShapeQuantity(updated);
+    const unit = getShapeUnit(updated.tool);
+    onCreateTakeoff({
+      markup: {
+        takeoffId: updated.id,
+        lineItemId: newLineItemId,
+        pageNumber: updated.pageNumber,
+        tool: updated.tool as TakeoffTool,
+        x: 0, y: 0, width: 0, height: 0,
+      },
+      record: {
+        id: updated.id,
+        linkedLineItemId: newLineItemId,
+        method: updated.tool === "rectangle" ? "polygon" : updated.tool === "linear" ? "linear" : updated.tool === "count" ? "count" : updated.tool === "volume" ? "volume" : "area",
+        notes: `Reassigned from ${oldLineItemId}`,
+        quantity,
+        sourcePage: `Page ${updated.pageNumber}`,
+        timestamp: new Date().toLocaleString(),
+        unit,
+      },
+    });
+    onSelectedLineItemChange(newLineItemId);
+  };
+
+  const handleContinueMeasuring = () => {
+    if (!selectedShape) return;
+    onSelectedLineItemChange(selectedShape.lineItemId);
+    setSelectedShapeId(null);
+    setEditingShapeId(null);
+    // Switch to the same tool type
+    const toolMap: Record<string, TakeoffTool> = {
+      linear: "linear", area: "area", rectangle: "rectangle",
+      polygon: "polygon", volume: "volume", count: "count",
+    };
+    setTool(toolMap[selectedShape.tool] ?? "area");
+  };
+
+  const handleIsolateSelection = () => {
+    setVisibilityMode("selected");
   };
 
   const safePage = clamp(currentPage, 1, numPages || 1);
@@ -503,6 +582,18 @@ export function PlanViewer({
                   ) : (
                     <div className="text-[10px] text-muted-foreground">Select a line item to see details.</div>
                   )}
+                  <TakeoffContextActions
+                    selectedShape={selectedShape}
+                    isEditing={editingShapeId === selectedShapeId && !!selectedShapeId}
+                    onEnterEditMode={() => setEditingShapeId(selectedShapeId)}
+                    onExitEditMode={() => setEditingShapeId(null)}
+                    onDelete={handleDeleteSelected}
+                    onReassign={handleReassignShape}
+                    onContinueMeasuring={handleContinueMeasuring}
+                    onIsolateSelection={handleIsolateSelection}
+                    lineItemOptions={lineItemOptions}
+                    currentLineItemId={selectedLineItemId}
+                  />
                 </div>
               )}
             </div>
@@ -658,6 +749,18 @@ export function PlanViewer({
               ))}
             </div>
           </div>
+          <TakeoffContextActions
+            selectedShape={selectedShape}
+            isEditing={editingShapeId === selectedShapeId && !!selectedShapeId}
+            onEnterEditMode={() => setEditingShapeId(selectedShapeId)}
+            onExitEditMode={() => setEditingShapeId(null)}
+            onDelete={handleDeleteSelected}
+            onReassign={handleReassignShape}
+            onContinueMeasuring={handleContinueMeasuring}
+            onIsolateSelection={handleIsolateSelection}
+            lineItemOptions={lineItemOptions}
+            currentLineItemId={selectedLineItemId}
+          />
         </div>
       </div>
     </div>
