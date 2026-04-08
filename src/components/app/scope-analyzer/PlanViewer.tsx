@@ -243,7 +243,7 @@ export function PlanViewer({
             isCalibrated={isCalibrated}
             collapsed={toolbarCollapsed}
             onCollapsedChange={setToolbarCollapsed}
-            visible={isViewerActive}
+            visible={isExpanded}
           />
 
           {/* Measurement HUD */}
@@ -251,7 +251,7 @@ export function PlanViewer({
             tool={tool}
             isDrawing={isDrawing}
             currentMeasurement={liveMeasurement}
-            visible={isViewerActive}
+            visible={isExpanded}
           />
 
           {/* Completion card */}
