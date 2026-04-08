@@ -582,6 +582,18 @@ export function PlanViewer({
                   ) : (
                     <div className="text-[10px] text-muted-foreground">Select a line item to see details.</div>
                   )}
+                  <TakeoffContextActions
+                    selectedShape={selectedShape}
+                    isEditing={editingShapeId === selectedShapeId && !!selectedShapeId}
+                    onEnterEditMode={() => setEditingShapeId(selectedShapeId)}
+                    onExitEditMode={() => setEditingShapeId(null)}
+                    onDelete={handleDeleteSelected}
+                    onReassign={handleReassignShape}
+                    onContinueMeasuring={handleContinueMeasuring}
+                    onIsolateSelection={handleIsolateSelection}
+                    lineItemOptions={lineItemOptions}
+                    currentLineItemId={selectedLineItemId}
+                  />
                 </div>
               )}
             </div>
