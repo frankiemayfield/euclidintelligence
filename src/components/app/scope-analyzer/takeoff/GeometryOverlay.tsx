@@ -331,6 +331,11 @@ export function GeometryOverlay({
     setDrawing(prev => ({ ...prev, editingShapeId: shapeId, draggingVertexId: vertexId }));
   }, [isSelectMode]);
 
+  const handleCountMarkerDragStart = useCallback((shapeId: string, _e: MouseEvent) => {
+    if (!isSelectMode) return;
+    setDraggingCountId(shapeId);
+  }, [isSelectMode]);
+
   const handleEdgeClick = useCallback((edgeIndex: number, shapeId: string, e: MouseEvent) => {
     e.stopPropagation();
     if (!isSelectMode) return;
