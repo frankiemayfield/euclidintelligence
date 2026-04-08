@@ -165,12 +165,6 @@ export default function ScopeAnalyzerPage() {
             </div>
 
             <div className="flex-1 min-w-0 overflow-hidden">
-              {/* Show viewer button when hidden */}
-              {viewerMode === "hidden" && (
-                <div className="flex items-center justify-end border-b border-border px-3 py-1.5 bg-muted/10">
-                  <PlanViewerShowButton onClick={() => setViewerMode("embedded")} />
-                </div>
-              )}
               {renderCenter()}
             </div>
 
