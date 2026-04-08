@@ -34,15 +34,9 @@ interface FloatingTakeoffToolbarProps {
 
 const TOOL_GROUPS = [
   {
-    label: "Navigation",
-    tools: [
-      { id: "select" as const, label: "Select", icon: MousePointer2, shortcut: "V" },
-      { id: "pan" as const, label: "Pan", icon: Move, shortcut: "H" },
-    ],
-  },
-  {
     label: "Takeoff Tools",
     tools: [
+      { id: "select" as const, label: "Select / Edit", icon: MousePointer2, shortcut: "V" },
       { id: "linear" as const, label: "Linear (LF)", icon: Ruler, shortcut: "L" },
       { id: "area" as const, label: "Area (SF)", icon: Square, shortcut: "A" },
       { id: "count" as const, label: "Count (EA)", icon: Circle, shortcut: "C" },
