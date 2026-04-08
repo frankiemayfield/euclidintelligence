@@ -56,7 +56,7 @@ export function GeometryOverlay({
   markups,
 }: GeometryOverlayProps) {
   const [drawing, setDrawing] = useState<DrawingState>(INITIAL_DRAWING_STATE);
-  const isDrawingEnabled = activeTool !== "select" && activeTool !== "pan" && Boolean(selectedLineItemId);
+  const isDrawingEnabled = activeTool !== "select" && Boolean(selectedLineItemId);
   const isSelectMode = activeTool === "select";
 
   useEffect(() => {
@@ -124,7 +124,7 @@ export function GeometryOverlay({
     if (activeTool === "rectangle") return;
 
     if (!drawing.activeShape) {
-      const isClosedTool = activeTool === "area" || activeTool === "polygon" || activeTool === "volume";
+      const isClosedTool = activeTool === "area";
       const newShape: TakeoffShape = {
         id: `shape-${generateId()}`,
         type: isClosedTool ? "polygon" : "polyline",
@@ -326,16 +326,14 @@ export function GeometryOverlay({
 
   const cursorClass = activeTool === "select"
     ? "cursor-default"
-    : activeTool === "pan"
-      ? "cursor-grab"
-      : isDrawingEnabled
-        ? "cursor-crosshair"
-        : "cursor-not-allowed";
+    : isDrawingEnabled
+      ? "cursor-crosshair"
+      : "cursor-not-allowed";
 
   return (
     <svg
       className={cn("absolute inset-0 w-full h-full", cursorClass,
-        (activeTool === "select" || activeTool === "pan") && !drawing.editingShapeId ? "pointer-events-none" : "pointer-events-auto"
+        activeTool === "select" && !drawing.editingShapeId ? "pointer-events-none" : "pointer-events-auto"
       )}
       viewBox={`0 0 ${width} ${height}`}
       onClick={handleClick}
@@ -368,7 +366,7 @@ export function GeometryOverlay({
         />
       )}
 
-      {activeTool !== "select" && activeTool !== "pan" && !selectedLineItemId && (
+      {activeTool !== "select" && !selectedLineItemId && (
         <foreignObject x={16} y={16} width={220} height={40}>
           <div className="rounded-md border border-destructive/20 bg-background/95 px-3 py-2 text-[10px] text-muted-foreground shadow-sm">
             Select a line item before drawing.
