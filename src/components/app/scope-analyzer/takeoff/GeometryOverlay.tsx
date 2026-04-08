@@ -39,6 +39,12 @@ interface GeometryOverlayProps {
   } | null) => void;
   markups: TakeoffMarkup[];
   visibilityMode?: VisibilityMode;
+  calibrationDrawMode?: boolean;
+  onCalibrationLineComplete?: (line: {
+    startX: number; startY: number;
+    endX: number; endY: number;
+    normalizedLength: number;
+  }) => void;
 }
 
 const VERTEX_RADIUS = 5;
@@ -62,6 +68,8 @@ export function GeometryOverlay({
   onLiveMeasurement,
   markups,
   visibilityMode = "all",
+  calibrationDrawMode = false,
+  onCalibrationLineComplete,
 }: GeometryOverlayProps) {
   const [drawing, setDrawing] = useState<DrawingState>(INITIAL_DRAWING_STATE);
   const isCreationTool = activeTool !== "select" && activeTool !== "pan";

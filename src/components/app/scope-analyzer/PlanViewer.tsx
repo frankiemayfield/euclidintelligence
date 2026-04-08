@@ -527,6 +527,8 @@ export function PlanViewer({
                 selectedShapeId={selectedShapeId}
                 onSelectedShapeChange={handleSelectedShapeChange}
                 visibilityMode={visibilityMode}
+                calibrationDrawMode={calibrationDrawMode}
+                onCalibrationLineComplete={(line) => { setCalibrationLine(line); setCalibrationDrawMode(false); setShowCalibration(true); }}
               />
             </div>
           </div>
@@ -698,6 +700,8 @@ export function PlanViewer({
               selectedShapeId={selectedShapeId}
               onSelectedShapeChange={handleSelectedShapeChange}
               visibilityMode={visibilityMode}
+              calibrationDrawMode={calibrationDrawMode}
+              onCalibrationLineComplete={(line) => { setCalibrationLine(line); setCalibrationDrawMode(false); setShowCalibration(true); }}
             />
           </div>
         </div>
