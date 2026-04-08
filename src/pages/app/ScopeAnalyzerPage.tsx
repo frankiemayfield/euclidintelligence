@@ -8,7 +8,7 @@ import { ParentScopeView } from "@/components/app/scope-analyzer/ParentScopeView
 import { TradeView } from "@/components/app/scope-analyzer/TradeView";
 import { AssemblyView } from "@/components/app/scope-analyzer/AssemblyView";
 import { ScopeInspector } from "@/components/app/scope-analyzer/ScopeInspector";
-import { PlanViewer, PlanViewerShowButton, type TakeoffLineItemOption, type TakeoffMarkup, type ViewerMode } from "@/components/app/scope-analyzer/PlanViewer";
+import { PlanViewer, type TakeoffLineItemOption, type TakeoffMarkup, type ViewerMode } from "@/components/app/scope-analyzer/PlanViewer";
 import {
   getAllLineItems,
   mockProject,
