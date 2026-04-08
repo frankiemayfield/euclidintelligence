@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   MousePointer2,
-  Move,
   Ruler,
   Square,
   Circle,
@@ -34,15 +33,9 @@ interface FloatingTakeoffToolbarProps {
 
 const TOOL_GROUPS = [
   {
-    label: "Navigation",
-    tools: [
-      { id: "select" as const, label: "Select", icon: MousePointer2, shortcut: "V" },
-      { id: "pan" as const, label: "Pan", icon: Move, shortcut: "H" },
-    ],
-  },
-  {
     label: "Takeoff Tools",
     tools: [
+      { id: "select" as const, label: "Select / Edit", icon: MousePointer2, shortcut: "V" },
       { id: "linear" as const, label: "Linear (LF)", icon: Ruler, shortcut: "L" },
       { id: "area" as const, label: "Area (SF)", icon: Square, shortcut: "A" },
       { id: "count" as const, label: "Count (EA)", icon: Circle, shortcut: "C" },
@@ -101,7 +94,7 @@ export function FloatingTakeoffToolbar({
 
   if (!visible) return null;
 
-  const isDrawingTool = activeTool !== "select" && activeTool !== "pan";
+  const isDrawingTool = activeTool !== "select";
 
   return (
     <div
@@ -193,6 +186,11 @@ export function FloatingTakeoffToolbar({
               </div>
             </div>
           )}
+
+          {/* Navigation hint */}
+          <div className="px-1 pt-1 text-[7px] text-muted-foreground/60 text-center leading-tight">
+            Space+drag to pan · Scroll to zoom
+          </div>
         </div>
       )}
     </div>

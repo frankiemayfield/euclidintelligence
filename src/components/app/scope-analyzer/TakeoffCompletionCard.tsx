@@ -10,6 +10,7 @@ interface TakeoffCompletionCardProps {
   toolType: string;
   linkedLineItemId: string;
   lineItemOptions: TakeoffLineItemOption[];
+  existingQuantity?: number;
   onSave: (lineItemId: string, mode: "save" | "add" | "replace") => void;
   onCancel: () => void;
 }
@@ -20,10 +21,12 @@ export function TakeoffCompletionCard({
   toolType,
   linkedLineItemId,
   lineItemOptions,
+  existingQuantity = 0,
   onSave,
   onCancel,
 }: TakeoffCompletionCardProps) {
   const [selectedLineItem, setSelectedLineItem] = useState(linkedLineItemId);
+  const resultTotal = existingQuantity + quantity;
 
   return (
     <div className="absolute bottom-4 right-4 z-50 w-[280px] rounded-xl border border-border bg-card shadow-xl animate-in fade-in slide-in-from-bottom-3 duration-300">
@@ -37,15 +40,42 @@ export function TakeoffCompletionCard({
       </div>
 
       <div className="px-4 py-3 space-y-3">
-        <div className="flex items-baseline justify-between rounded-lg bg-muted/50 px-3 py-2.5">
-          <div>
-            <div className="text-lg font-bold text-foreground font-mono tabular-nums">
-              {quantity.toLocaleString(undefined, { maximumFractionDigits: 1 })}
+        {/* Aggregation breakdown */}
+        <div className="rounded-lg bg-muted/50 px-3 py-2.5 space-y-1.5">
+          {existingQuantity > 0 && (
+            <div className="flex items-baseline justify-between text-[10px] text-muted-foreground">
+              <span>Existing</span>
+              <span className="font-mono tabular-nums">
+                {existingQuantity.toLocaleString(undefined, { maximumFractionDigits: 1 })} {unit}
+              </span>
             </div>
-            <div className="text-[9px] text-muted-foreground uppercase">{unit}</div>
+          )}
+          <div className="flex items-baseline justify-between">
+            <span className="text-[10px] text-muted-foreground">
+              {existingQuantity > 0 ? "New" : "Measured"}
+            </span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-lg font-bold text-foreground font-mono tabular-nums">
+                {quantity.toLocaleString(undefined, { maximumFractionDigits: 1 })}
+              </span>
+              <span className="text-[9px] text-muted-foreground uppercase">{unit}</span>
+            </div>
           </div>
-          <div className="rounded-md bg-primary/10 px-2 py-1 text-[9px] font-semibold text-primary capitalize">
-            {toolType}
+          {existingQuantity > 0 && (
+            <>
+              <div className="h-px bg-border" />
+              <div className="flex items-baseline justify-between">
+                <span className="text-[10px] font-semibold text-foreground">Result</span>
+                <span className="text-sm font-bold text-primary font-mono tabular-nums">
+                  {resultTotal.toLocaleString(undefined, { maximumFractionDigits: 1 })} {unit}
+                </span>
+              </div>
+            </>
+          )}
+          <div className="flex justify-end">
+            <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[9px] font-semibold text-primary capitalize">
+              {toolType}
+            </span>
           </div>
         </div>
 
