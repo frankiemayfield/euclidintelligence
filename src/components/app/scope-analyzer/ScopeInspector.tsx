@@ -3,10 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Send, FileText, Ruler, AlertTriangle, Sparkles, ChevronRight } from "lucide-react";
+import { Send, FileText, Ruler, AlertTriangle, Sparkles, ChevronRight, Maximize2, Minimize2, EyeOff, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LineItem, Assembly, Trade, ParentScope, ScopeProject } from "@/data/scopeAnalyzerData";
 import type { TreeSelection } from "./ScopeHierarchyTree";
+import type { ViewerMode } from "./PlanViewer";
 
 interface Props {
   project: ScopeProject;
@@ -14,16 +15,38 @@ interface Props {
   onExpandPlan: () => void;
   currentPage: number;
   onPageChange: (page: number) => void;
+  viewerMode: ViewerMode;
+  onViewerModeChange: (mode: ViewerMode) => void;
 }
 
-export function ScopeInspector({ project, selection, onExpandPlan, currentPage, onPageChange }: Props) {
+export function ScopeInspector({ project, selection, onExpandPlan, currentPage, onPageChange, viewerMode, onViewerModeChange }: Props) {
   const [assistantInput, setAssistantInput] = useState("");
   const context = findContext(project, selection);
 
   return (
     <div className="flex h-full flex-col border-l border-border bg-card">
-      <div className="border-b border-border px-3 py-2">
+      <div className="flex items-center justify-between border-b border-border px-3 py-2">
         <h3 className="text-xs font-semibold text-foreground">Inspector</h3>
+        <div className="flex items-center gap-0.5">
+          {viewerMode === "hidden" ? (
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("embedded")} title="Show viewer">
+              <Eye className="h-3 w-3" />
+            </Button>
+          ) : viewerMode === "embedded" ? (
+            <>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("expanded")} title="Expand viewer">
+                <Maximize2 className="h-3 w-3" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("hidden")} title="Hide viewer">
+                <EyeOff className="h-3 w-3" />
+              </Button>
+            </>
+          ) : (
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("embedded")} title="Minimize viewer">
+              <Minimize2 className="h-3 w-3" />
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">

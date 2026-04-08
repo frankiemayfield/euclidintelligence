@@ -112,7 +112,7 @@ export function PlanViewer({
 
   const safePage = clamp(currentPage, 1, numPages || 1);
   const sheet = getSheetForPage(safePage);
-  const isViewerActive = mode !== "hidden";
+  const isExpanded = mode === "expanded";
 
   const handleCalibrate = (scale: string) => {
     setCalibrationScale(scale);
@@ -149,8 +149,6 @@ export function PlanViewer({
 
   if (mode === "hidden") return null;
 
-  const isExpanded = mode === "expanded";
-
   return (
     <div className={cn(
       "flex flex-col border-b border-border bg-card transition-all duration-300",
@@ -178,7 +176,7 @@ export function PlanViewer({
           <Button variant="ghost" size="icon" className="h-7 w-7" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
             <ChevronLeft className="h-3 w-3" />
           </Button>
-          <span className="w-14 text-center text-[10px] text-muted-foreground">{safePage}/{numPages || 1}</span>
+          <span className="w-16 text-center text-[10px] text-muted-foreground">Page {safePage} / {numPages || 1}</span>
           <Button variant="ghost" size="icon" className="h-7 w-7" disabled={safePage >= (numPages || 1)} onClick={() => onPageChange(safePage + 1)}>
             <ChevronRight className="h-3 w-3" />
           </Button>
@@ -194,42 +192,41 @@ export function PlanViewer({
             <ZoomIn className="h-3 w-3" />
           </Button>
 
-          <div className="w-px h-5 bg-border mx-1" />
-
-          {/* Mode toggles */}
-          {isExpanded ? (
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("embedded")} title="Minimize viewer">
-              <Minimize2 className="h-3 w-3" />
-            </Button>
-          ) : (
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("expanded")} title="Expand viewer">
-              <Maximize2 className="h-3 w-3" />
-            </Button>
+          {/* Mode toggles - only show in expanded */}
+          {isExpanded && (
+            <>
+              <div className="w-px h-5 bg-border mx-1" />
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("embedded")} title="Minimize viewer">
+                <Minimize2 className="h-3 w-3" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("hidden")} title="Hide viewer">
+                <EyeOff className="h-3 w-3" />
+              </Button>
+            </>
           )}
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("hidden")} title="Hide viewer">
-            <EyeOff className="h-3 w-3" />
-          </Button>
         </div>
       </div>
 
-      {/* Sheet tabs */}
-      <div className="flex items-center gap-1 overflow-x-auto border-b border-border bg-muted/10 px-3 py-1.5 shrink-0">
-        {SHEET_PRESETS.map(s => (
-          <button
-            key={`${s.id}-${s.page}`}
-            type="button"
-            onClick={() => onPageChange(s.page)}
-            className={cn(
-              "rounded-md px-2 py-1 text-[10px] whitespace-nowrap transition-colors",
-              safePage === s.page
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            {s.id}
-          </button>
-        ))}
-      </div>
+      {/* Sheet tabs - only in expanded mode */}
+      {isExpanded && (
+        <div className="flex items-center gap-1 overflow-x-auto border-b border-border bg-muted/10 px-3 py-1.5 shrink-0">
+          {SHEET_PRESETS.map(s => (
+            <button
+              key={`${s.id}-${s.page}`}
+              type="button"
+              onClick={() => onPageChange(s.page)}
+              className={cn(
+                "rounded-md px-2 py-1 text-[10px] whitespace-nowrap transition-colors",
+                safePage === s.page
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              {s.id}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Main viewport area */}
       <div className="flex flex-1 min-h-0 relative">
@@ -245,7 +242,7 @@ export function PlanViewer({
             isCalibrated={isCalibrated}
             collapsed={toolbarCollapsed}
             onCollapsedChange={setToolbarCollapsed}
-            visible={isViewerActive}
+            visible={isExpanded}
           />
 
           {/* Measurement HUD */}
@@ -253,7 +250,7 @@ export function PlanViewer({
             tool={tool}
             isDrawing={isDrawing}
             currentMeasurement={liveMeasurement}
-            visible={isViewerActive}
+            visible={isExpanded}
           />
 
           {/* Completion card */}

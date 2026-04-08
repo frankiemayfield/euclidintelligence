@@ -8,7 +8,7 @@ import { ParentScopeView } from "@/components/app/scope-analyzer/ParentScopeView
 import { TradeView } from "@/components/app/scope-analyzer/TradeView";
 import { AssemblyView } from "@/components/app/scope-analyzer/AssemblyView";
 import { ScopeInspector } from "@/components/app/scope-analyzer/ScopeInspector";
-import { PlanViewer, PlanViewerShowButton, type TakeoffLineItemOption, type TakeoffMarkup, type ViewerMode } from "@/components/app/scope-analyzer/PlanViewer";
+import { PlanViewer, type TakeoffLineItemOption, type TakeoffMarkup, type ViewerMode } from "@/components/app/scope-analyzer/PlanViewer";
 import {
   getAllLineItems,
   mockProject,
@@ -165,12 +165,6 @@ export default function ScopeAnalyzerPage() {
             </div>
 
             <div className="flex-1 min-w-0 overflow-hidden">
-              {/* Show viewer button when hidden */}
-              {viewerMode === "hidden" && (
-                <div className="flex items-center justify-end border-b border-border px-3 py-1.5 bg-muted/10">
-                  <PlanViewerShowButton onClick={() => setViewerMode("embedded")} />
-                </div>
-              )}
               {renderCenter()}
             </div>
 
@@ -200,6 +194,8 @@ export default function ScopeAnalyzerPage() {
                   onPageChange={setCurrentPage}
                   project={project}
                   selection={selection}
+                  viewerMode={viewerMode}
+                  onViewerModeChange={setViewerMode}
                 />
               </div>
             </div>
