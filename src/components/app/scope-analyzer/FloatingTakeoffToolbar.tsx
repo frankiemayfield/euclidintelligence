@@ -1,6 +1,12 @@
-import { useState, useRef, useEffect, type MouseEvent } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   MousePointer2,
   Ruler,
@@ -11,13 +17,17 @@ import {
   Crosshair,
   Undo2,
   Trash2,
-  ChevronLeft,
-  ChevronRight,
-  GripVertical,
+  Settings2,
+  EyeOff,
+  PanelLeft,
+  PanelRight,
+  PanelTop,
+  PanelBottom,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type TakeoffTool = "select" | "pan" | "linear" | "area" | "count" | "rectangle" | "polygon" | "volume";
+export type DockPosition = "left" | "right" | "top" | "bottom";
 
 interface FloatingTakeoffToolbarProps {
   activeTool: TakeoffTool;
@@ -29,21 +39,31 @@ interface FloatingTakeoffToolbarProps {
   collapsed: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
   visible: boolean;
+  dockPosition?: DockPosition;
+  onDockPositionChange?: (pos: DockPosition) => void;
 }
 
-const TOOL_GROUPS = [
-  {
-    label: "Takeoff Tools",
-    tools: [
-      { id: "select" as const, label: "Select / Edit", icon: MousePointer2, shortcut: "V" },
-      { id: "linear" as const, label: "Linear (LF)", icon: Ruler, shortcut: "L" },
-      { id: "area" as const, label: "Area (SF)", icon: Square, shortcut: "A" },
-      { id: "count" as const, label: "Count (EA)", icon: Circle, shortcut: "C" },
-      { id: "rectangle" as const, label: "Rectangle (SF)", icon: Square, shortcut: "R" },
-      { id: "polygon" as const, label: "Polygon (SF)", icon: Pentagon, shortcut: "P" },
-      { id: "volume" as const, label: "Volume (CY)", icon: Box, shortcut: "U" },
-    ],
-  },
+const TOOLS = [
+  { id: "select" as const, label: "Select", icon: MousePointer2, shortcut: "V" },
+  { id: "linear" as const, label: "Linear (LF)", icon: Ruler, shortcut: "L" },
+  { id: "area" as const, label: "Area (SF)", icon: Square, shortcut: "A" },
+  { id: "count" as const, label: "Count (EA)", icon: Circle, shortcut: "C" },
+  { id: "rectangle" as const, label: "Rectangle (SF)", icon: Square, shortcut: "R" },
+  { id: "polygon" as const, label: "Polygon (SF)", icon: Pentagon, shortcut: "P" },
+  { id: "volume" as const, label: "Volume (CY)", icon: Box, shortcut: "U" },
+];
+
+const UTILS = [
+  { id: "calibrate" as const, label: "Calibration", icon: Crosshair },
+  { id: "undo" as const, label: "Undo", icon: Undo2 },
+  { id: "clear" as const, label: "Clear", icon: Trash2 },
+];
+
+const DOCK_OPTIONS: { pos: DockPosition; label: string; icon: React.ElementType }[] = [
+  { pos: "left", label: "Dock Left", icon: PanelLeft },
+  { pos: "right", label: "Dock Right", icon: PanelRight },
+  { pos: "top", label: "Dock Top", icon: PanelTop },
+  { pos: "bottom", label: "Dock Bottom", icon: PanelBottom },
 ];
 
 export function FloatingTakeoffToolbar({
@@ -56,155 +76,96 @@ export function FloatingTakeoffToolbar({
   collapsed,
   onCollapsedChange,
   visible,
+  dockPosition = "left",
+  onDockPositionChange,
 }: FloatingTakeoffToolbarProps) {
-  const [position, setPosition] = useState({ x: 16, y: 80 });
-  const [dragging, setDragging] = useState(false);
-  const [idle, setIdle] = useState(false);
-  const dragOffset = useRef({ x: 0, y: 0 });
-  const idleTimer = useRef<ReturnType<typeof setTimeout>>();
+  if (!visible || collapsed) return null;
 
-  useEffect(() => {
-    if (!visible) return;
-    resetIdleTimer();
-    return () => clearTimeout(idleTimer.current);
-  }, [visible, activeTool]);
+  const isHorizontal = dockPosition === "top" || dockPosition === "bottom";
 
-  const resetIdleTimer = () => {
-    setIdle(false);
-    clearTimeout(idleTimer.current);
-    idleTimer.current = setTimeout(() => setIdle(true), 4000);
+  const positionClasses = {
+    left: "absolute left-2 top-1/2 -translate-y-1/2 z-50 flex-col",
+    right: "absolute right-2 top-1/2 -translate-y-1/2 z-50 flex-col",
+    top: "absolute top-2 left-1/2 -translate-x-1/2 z-50 flex-row",
+    bottom: "absolute bottom-2 left-1/2 -translate-x-1/2 z-50 flex-row",
   };
-
-  const handleDragStart = (e: MouseEvent) => {
-    e.preventDefault();
-    setDragging(true);
-    dragOffset.current = { x: e.clientX - position.x, y: e.clientY - position.y };
-
-    const onMove = (ev: globalThis.MouseEvent) => {
-      setPosition({ x: ev.clientX - dragOffset.current.x, y: ev.clientY - dragOffset.current.y });
-    };
-    const onUp = () => {
-      setDragging(false);
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-  };
-
-  if (!visible) return null;
-
-  const isDrawingTool = activeTool !== "select";
 
   return (
     <div
       className={cn(
-        "absolute z-50 flex flex-col rounded-xl border border-border bg-card/95 shadow-lg backdrop-blur-md transition-all duration-200",
-        idle && !dragging && "opacity-40 hover:opacity-100",
-        dragging && "shadow-xl scale-[1.02]",
+        "flex items-center gap-0.5 rounded-lg border border-border bg-card/95 shadow-md backdrop-blur-md p-1 transition-all duration-200",
+        positionClasses[dockPosition],
       )}
-      style={{ left: position.x, top: position.y }}
-      onMouseEnter={resetIdleTimer}
-      onMouseMove={resetIdleTimer}
     >
-      {/* Drag handle */}
-      <div
-        className="flex cursor-grab items-center justify-center border-b border-border px-1 py-1.5 active:cursor-grabbing"
-        onMouseDown={handleDragStart}
+      {/* Tools */}
+      {TOOLS.map((tool) => (
+        <ToolBtn
+          key={tool.id}
+          active={activeTool === tool.id}
+          icon={<tool.icon className="h-3.5 w-3.5" />}
+          label={`${tool.label} (${tool.shortcut})`}
+          onClick={() => onToolChange(tool.id)}
+          horizontal={isHorizontal}
+        />
+      ))}
+
+      {/* Separator */}
+      <div className={cn(isHorizontal ? "w-px h-5 bg-border mx-0.5" : "h-px w-5 bg-border my-0.5")} />
+
+      {/* Utilities */}
+      <ToolBtn
+        active={false}
+        icon={<Crosshair className={cn("h-3.5 w-3.5", isCalibrated ? "text-green-500" : "text-destructive")} />}
+        label={isCalibrated ? "Calibrated ✓" : "Set Calibration"}
+        onClick={onCalibrationClick}
+        horizontal={isHorizontal}
       />
+      <ToolBtn active={false} icon={<Undo2 className="h-3.5 w-3.5" />} label="Undo" onClick={onUndo} horizontal={isHorizontal} />
+      <ToolBtn active={false} icon={<Trash2 className="h-3.5 w-3.5" />} label="Clear" onClick={onClearCurrent} horizontal={isHorizontal} />
 
-      {collapsed ? (
-        <div className="p-1">
-          <ToolbarIconButton
-            active={false}
-            icon={<ChevronRight className="h-3.5 w-3.5" />}
-            label="Expand toolbar"
-            onClick={() => onCollapsedChange(false)}
-          />
-        </div>
-      ) : (
-        <div className="p-1.5 space-y-1.5">
-          {TOOL_GROUPS.map((group, gi) => (
-            <div key={gi}>
-              <div className="px-1 pb-1 text-[8px] font-semibold uppercase tracking-widest text-muted-foreground">
-                {group.label}
-              </div>
-              <div className="space-y-0.5">
-                {group.tools.map((tool) => (
-                  <ToolbarIconButton
-                    key={tool.id}
-                    active={activeTool === tool.id}
-                    icon={<tool.icon className="h-3.5 w-3.5" />}
-                    label={`${tool.label} (${tool.shortcut})`}
-                    onClick={() => {
-                      onToolChange(tool.id);
-                      resetIdleTimer();
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
+      {/* Separator */}
+      <div className={cn(isHorizontal ? "w-px h-5 bg-border mx-0.5" : "h-px w-5 bg-border my-0.5")} />
+
+      {/* Settings */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+            <Settings2 className="h-3.5 w-3.5" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="text-xs">
+          {DOCK_OPTIONS.map((opt) => (
+            <DropdownMenuItem
+              key={opt.pos}
+              onClick={() => onDockPositionChange?.(opt.pos)}
+              className={cn("text-xs gap-2", dockPosition === opt.pos && "bg-accent")}
+            >
+              <opt.icon className="h-3.5 w-3.5" />
+              {opt.label}
+            </DropdownMenuItem>
           ))}
-
-          {/* Separator */}
-          <div className="h-px bg-border" />
-
-          {/* Utilities */}
-          <div>
-            <div className="px-1 pb-1 text-[8px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Utilities
-            </div>
-            <div className="space-y-0.5">
-              <ToolbarIconButton
-                active={false}
-                icon={<Crosshair className={cn("h-3.5 w-3.5", isCalibrated ? "text-green-500" : "text-destructive")} />}
-                label={isCalibrated ? "Calibrated ✓" : "Set Calibration"}
-                onClick={onCalibrationClick}
-              />
-              <ToolbarIconButton active={false} icon={<Undo2 className="h-3.5 w-3.5" />} label="Undo" onClick={onUndo} />
-              <ToolbarIconButton active={false} icon={<Trash2 className="h-3.5 w-3.5" />} label="Clear measurement" onClick={onClearCurrent} />
-            </div>
-          </div>
-
-          {/* Collapse */}
-          <div className="h-px bg-border" />
-          <ToolbarIconButton
-            active={false}
-            icon={<ChevronLeft className="h-3.5 w-3.5" />}
-            label="Collapse toolbar"
-            onClick={() => onCollapsedChange(true)}
-          />
-
-          {/* Active tool indicator */}
-          {isDrawingTool && (
-            <div className="rounded-md bg-primary/10 border border-primary/20 px-2 py-1.5 text-center">
-              <div className="text-[9px] font-semibold text-primary capitalize">{activeTool}</div>
-              <div className="text-[8px] text-muted-foreground">
-                {activeTool === "linear" ? "LF" : activeTool === "area" || activeTool === "rectangle" || activeTool === "polygon" ? "SF" : activeTool === "count" ? "EA" : "CY"}
-              </div>
-            </div>
-          )}
-
-          {/* Navigation hint */}
-          <div className="px-1 pt-1 text-[7px] text-muted-foreground/60 text-center leading-tight">
-            Space+drag to pan · Scroll to zoom
-          </div>
-        </div>
-      )}
+          <DropdownMenuItem onClick={() => onCollapsedChange(true)} className="text-xs gap-2">
+            <EyeOff className="h-3.5 w-3.5" />
+            Hide Toolbar
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
 
-function ToolbarIconButton({
+function ToolBtn({
   active,
   icon,
   label,
   onClick,
+  horizontal = false,
 }: {
   active: boolean;
   icon: React.ReactNode;
   label: string;
   onClick: () => void;
+  horizontal?: boolean;
 }) {
   return (
     <Tooltip>
@@ -222,7 +183,7 @@ function ToolbarIconButton({
           {icon}
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="right" className="text-[10px]">
+      <TooltipContent side={horizontal ? "bottom" : "right"} className="text-[10px]">
         {label}
       </TooltipContent>
     </Tooltip>
