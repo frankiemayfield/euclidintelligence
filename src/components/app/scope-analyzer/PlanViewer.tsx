@@ -48,7 +48,7 @@ interface TakeoffCreatePayload {
   record: TakeoffRecord;
 }
 
-export type ViewerMode = "embedded" | "expanded" | "hidden";
+export type ViewerMode = "embedded" | "expanded" | "fullscreen" | "hidden";
 
 interface PlanViewerProps {
   currentPage: number;
@@ -112,6 +112,9 @@ export function PlanViewer({
   const safePage = clamp(currentPage, 1, numPages || 1);
   const sheet = getSheetForPage(safePage);
   const isExpanded = mode === "expanded";
+  const isFullscreen = mode === "fullscreen";
+  const [showFsInspector, setShowFsInspector] = useState(true);
+  const [showFsLog, setShowFsLog] = useState(true);
   const isEmbedded = mode === "embedded";
 
   const handleCalibrate = (scale: string) => {
