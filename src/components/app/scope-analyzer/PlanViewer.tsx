@@ -116,6 +116,7 @@ export function PlanViewer({
   const [pendingCompletion, setPendingCompletion] = useState<{
     quantity: number; unit: string; toolType: string; markup: TakeoffMarkup; record: TakeoffRecord;
   } | null>(null);
+  const [geoShapes, setGeoShapes] = useState<TakeoffShape[]>([]);
 
   const safePage = clamp(currentPage, 1, numPages || 1);
   const sheet = getSheetForPage(safePage);
