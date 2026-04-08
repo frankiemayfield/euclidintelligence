@@ -4,9 +4,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import {
   MousePointer2,
   Ruler,
-  Pentagon,
-  Circle,
   Square,
+  Circle,
+  Pentagon,
+  Box,
   Crosshair,
   Undo2,
   Trash2,
@@ -16,7 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type TakeoffTool = "select" | "linear" | "area" | "count" | "rectangle";
+export type TakeoffTool = "select" | "pan" | "linear" | "area" | "count" | "rectangle" | "polygon" | "volume";
 
 interface FloatingTakeoffToolbarProps {
   activeTool: TakeoffTool;
@@ -30,12 +31,19 @@ interface FloatingTakeoffToolbarProps {
   visible: boolean;
 }
 
-const GEOMETRY_TOOLS = [
-  { id: "select" as const, label: "Select / Edit", icon: MousePointer2, shortcut: "V", hint: "Select, move, and edit shapes" },
-  { id: "linear" as const, label: "Linear (Polyline)", icon: Ruler, shortcut: "L", hint: "Click points to draw a polyline · Double-click to finish" },
-  { id: "area" as const, label: "Area (Polygon)", icon: Pentagon, shortcut: "A", hint: "Click vertices to draw a polygon · Close to finish" },
-  { id: "count" as const, label: "Count", icon: Circle, shortcut: "C", hint: "Click to place count markers" },
-  { id: "rectangle" as const, label: "Rectangle", icon: Square, shortcut: "R", hint: "Click + drag to draw a rectangle" },
+const TOOL_GROUPS = [
+  {
+    label: "Takeoff Tools",
+    tools: [
+      { id: "select" as const, label: "Select / Edit", icon: MousePointer2, shortcut: "V" },
+      { id: "linear" as const, label: "Linear (LF)", icon: Ruler, shortcut: "L" },
+      { id: "area" as const, label: "Area (SF)", icon: Square, shortcut: "A" },
+      { id: "count" as const, label: "Count (EA)", icon: Circle, shortcut: "C" },
+      { id: "rectangle" as const, label: "Rectangle (SF)", icon: Square, shortcut: "R" },
+      { id: "polygon" as const, label: "Polygon (SF)", icon: Pentagon, shortcut: "P" },
+      { id: "volume" as const, label: "Volume (CY)", icon: Box, shortcut: "U" },
+    ],
+  },
 ];
 
 export function FloatingTakeoffToolbar({
@@ -87,7 +95,6 @@ export function FloatingTakeoffToolbar({
   if (!visible) return null;
 
   const isDrawingTool = activeTool !== "select";
-  const activeDef = GEOMETRY_TOOLS.find(t => t.id === activeTool);
 
   return (
     <div
@@ -119,26 +126,27 @@ export function FloatingTakeoffToolbar({
         </div>
       ) : (
         <div className="p-1.5 space-y-1.5">
-          {/* Geometry tools */}
-          <div>
-            <div className="px-1 pb-1 text-[8px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Geometry
+          {TOOL_GROUPS.map((group, gi) => (
+            <div key={gi}>
+              <div className="px-1 pb-1 text-[8px] font-semibold uppercase tracking-widest text-muted-foreground">
+                {group.label}
+              </div>
+              <div className="space-y-0.5">
+                {group.tools.map((tool) => (
+                  <ToolbarIconButton
+                    key={tool.id}
+                    active={activeTool === tool.id}
+                    icon={<tool.icon className="h-3.5 w-3.5" />}
+                    label={`${tool.label} (${tool.shortcut})`}
+                    onClick={() => {
+                      onToolChange(tool.id);
+                      resetIdleTimer();
+                    }}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="space-y-0.5">
-              {GEOMETRY_TOOLS.map((tool) => (
-                <ToolbarIconButton
-                  key={tool.id}
-                  active={activeTool === tool.id}
-                  icon={<tool.icon className="h-3.5 w-3.5" />}
-                  label={`${tool.label} (${tool.shortcut})`}
-                  onClick={() => {
-                    onToolChange(tool.id);
-                    resetIdleTimer();
-                  }}
-                />
-              ))}
-            </div>
-          </div>
+          ))}
 
           {/* Separator */}
           <div className="h-px bg-border" />
@@ -170,17 +178,18 @@ export function FloatingTakeoffToolbar({
           />
 
           {/* Active tool indicator */}
-          {isDrawingTool && activeDef && (
-            <div className="rounded-md bg-primary/10 border border-primary/20 px-2 py-1.5">
-              <div className="text-[9px] font-semibold text-primary">{activeDef.label}</div>
-              <div className="text-[8px] text-muted-foreground leading-snug mt-0.5">{activeDef.hint}</div>
+          {isDrawingTool && (
+            <div className="rounded-md bg-primary/10 border border-primary/20 px-2 py-1.5 text-center">
+              <div className="text-[9px] font-semibold text-primary capitalize">{activeTool}</div>
+              <div className="text-[8px] text-muted-foreground">
+                {activeTool === "linear" ? "LF" : activeTool === "area" || activeTool === "rectangle" || activeTool === "polygon" ? "SF" : activeTool === "count" ? "EA" : "CY"}
+              </div>
             </div>
           )}
 
-          {/* Modifier hint */}
-          <div className="px-1 pt-0.5 text-[7px] text-muted-foreground/60 text-center leading-tight space-y-0.5">
-            <div>Space+drag to pan · Scroll to zoom</div>
-            <div>Height/depth/slope → Inspector</div>
+          {/* Navigation hint */}
+          <div className="px-1 pt-1 text-[7px] text-muted-foreground/60 text-center leading-tight">
+            Space+drag to pan · Scroll to zoom
           </div>
         </div>
       )}

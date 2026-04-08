@@ -17,7 +17,7 @@ interface MeasurementHUDProps {
 }
 
 export function MeasurementHUD({ tool, isDrawing, currentMeasurement, visible }: MeasurementHUDProps) {
-  if (!visible || !isDrawing || !currentMeasurement || tool === "select") return null;
+  if (!visible || !isDrawing || !currentMeasurement || tool === "select" || tool === "pan") return null;
 
   return (
     <div className="absolute bottom-4 left-4 z-50 rounded-lg border border-primary/30 bg-card/95 shadow-lg backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200">
@@ -38,7 +38,7 @@ export function MeasurementHUD({ tool, isDrawing, currentMeasurement, visible }:
           </>
         )}
 
-        {(tool === "area" || tool === "rectangle") && (
+        {(tool === "area" || tool === "rectangle" || tool === "polygon") && (
           <>
             <MeasurementRow label="Area" value={currentMeasurement.area} unit="SF" primary />
             <MeasurementRow label="Perimeter" value={currentMeasurement.perimeter} unit="LF" />
@@ -47,6 +47,14 @@ export function MeasurementHUD({ tool, isDrawing, currentMeasurement, visible }:
 
         {tool === "count" && (
           <MeasurementRow label="Count" value={currentMeasurement.count} unit="EA" primary />
+        )}
+
+        {tool === "volume" && (
+          <>
+            <MeasurementRow label="Area" value={currentMeasurement.area} unit="SF" />
+            <MeasurementRow label="Depth" value={0.33} unit="FT" />
+            <MeasurementRow label="Volume" value={currentMeasurement.volume} unit="CY" primary />
+          </>
         )}
       </div>
     </div>
