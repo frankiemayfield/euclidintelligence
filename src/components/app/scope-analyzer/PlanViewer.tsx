@@ -176,7 +176,7 @@ export function PlanViewer({
           <Button variant="ghost" size="icon" className="h-7 w-7" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
             <ChevronLeft className="h-3 w-3" />
           </Button>
-          <span className="w-14 text-center text-[10px] text-muted-foreground">{safePage}/{numPages || 1}</span>
+          <span className="w-16 text-center text-[10px] text-muted-foreground">Page {safePage} / {numPages || 1}</span>
           <Button variant="ghost" size="icon" className="h-7 w-7" disabled={safePage >= (numPages || 1)} onClick={() => onPageChange(safePage + 1)}>
             <ChevronRight className="h-3 w-3" />
           </Button>
