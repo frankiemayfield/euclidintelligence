@@ -69,6 +69,7 @@ export function GeometryOverlay({
   const isSelectMode = activeTool === "select";
 
   const [runningCount, setRunningCount] = useState(0);
+  const [draggingCountId, setDraggingCountId] = useState<string | null>(null);
 
   useEffect(() => {
     setDrawing(INITIAL_DRAWING_STATE);
@@ -213,6 +214,19 @@ export function GeometryOverlay({
   const handleMouseMove = useCallback((e: MouseEvent<SVGSVGElement>) => {
     const pt = getNormalized(e);
 
+    // Count marker dragging
+    if (draggingCountId) {
+      const shape = shapes.find(s => s.id === draggingCountId);
+      if (shape && shape.type === "count") {
+        const updated: TakeoffShape = {
+          ...shape,
+          vertices: [{ ...shape.vertices[0], x: pt.x, y: pt.y }],
+        };
+        onShapeUpdated(updated);
+      }
+      return;
+    }
+
     if (drawing.draggingVertexId && drawing.editingShapeId) {
       const shape = shapes.find(s => s.id === drawing.editingShapeId);
       if (shape) {
@@ -286,10 +300,14 @@ export function GeometryOverlay({
       setDrawing(INITIAL_DRAWING_STATE);
       return;
     }
+    if (draggingCountId) {
+      setDraggingCountId(null);
+      return;
+    }
     if (drawing.draggingVertexId) {
       setDrawing(prev => ({ ...prev, draggingVertexId: null }));
     }
-  }, [activeTool, drawing, commitShape]);
+  }, [activeTool, drawing, commitShape, draggingCountId]);
 
   const handleShapeClick = useCallback((shapeId: string, e: MouseEvent) => {
     e.stopPropagation();
