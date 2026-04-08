@@ -137,6 +137,8 @@ export function PlanViewer({
   const [showFsLog, setShowFsLog] = useState(true);
   const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
   const [editingShapeId, setEditingShapeId] = useState<string | null>(null);
+  const [calibrationDrawMode, setCalibrationDrawMode] = useState(false);
+  const [calibrationLine, setCalibrationLine] = useState<import("./CalibrationDialog").CalibrationLine | null>(null);
 
   const selectedShape = geoShapes.find(s => s.id === selectedShapeId) ?? null;
 
