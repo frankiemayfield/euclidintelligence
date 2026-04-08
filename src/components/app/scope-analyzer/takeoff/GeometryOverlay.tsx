@@ -235,7 +235,7 @@ export function GeometryOverlay({
 
     const m = computeShapeMeasurements(updated.vertices, null, false, updated.tool);
     onLiveMeasurement?.(m);
-  }, [isSelectMode, isDrawingEnabled, activeTool, drawing.activeShape, selectedLineItemId, pageNumber, getNormalized, commitShape, onDrawingChange, onLiveMeasurement, onSelectedShapeChange, runningCount]);
+  }, [isSelectMode, isDrawingEnabled, activeTool, drawing.activeShape, selectedLineItemId, pageNumber, getNormalized, commitShape, onDrawingChange, onLiveMeasurement, onSelectedShapeChange, runningCount, calibrationDrawMode, calStart, onCalibrationLineComplete]);
 
   const handleDoubleClick = useCallback((e: MouseEvent<SVGSVGElement>) => {
     e.preventDefault();
@@ -324,7 +324,7 @@ export function GeometryOverlay({
         }
       }
     }
-  }, [drawing, activeTool, shapes, isSelectMode, getNormalized, onLiveMeasurement, onShapeUpdated]);
+  }, [drawing, activeTool, shapes, isSelectMode, getNormalized, onLiveMeasurement, onShapeUpdated, calibrationDrawMode, calStart, draggingCountId]);
 
   const handleMouseDown = useCallback((e: MouseEvent<SVGSVGElement>) => {
     if (activeTool !== "rectangle" || !isDrawingEnabled) return;
