@@ -585,9 +585,11 @@ interface PdfViewportProps {
   onGeoShapeUpdated?: (shape: TakeoffShape) => void;
   onGeoShapeDeleted?: (shapeId: string) => void;
   onLiveMeasurement?: (m: { width: number; height: number; area: number; perimeter: number; length: number; count: number; volume: number } | null) => void;
+  onZoomChange?: (zoom: number) => void;
   pageNumber: number;
   selectedLineItemId?: string;
-  zoom?: number;
+  externalZoom?: number;
+  onExternalZoomChange?: (zoom: number) => void;
 }
 
 function PdfViewport({
@@ -602,15 +604,32 @@ function PdfViewport({
   onGeoShapeUpdated,
   onGeoShapeDeleted,
   onLiveMeasurement,
+  onZoomChange,
   pageNumber,
   selectedLineItemId,
-  zoom = 1,
+  externalZoom,
+  onExternalZoomChange,
 }: PdfViewportProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [pageAspectRatio, setPageAspectRatio] = useState(1.35);
   const [documentError, setDocumentError] = useState<string | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
+
+  const { transform, isPanning, setZoom, resetView, handlers: navHandlers } = useCanvasNavigation(viewportRef);
+
+  // Sync external zoom controls
+  useEffect(() => {
+    if (externalZoom !== undefined && Math.abs(externalZoom - transform.zoom) > 0.01) {
+      setZoom(externalZoom);
+    }
+  }, [externalZoom]);
+
+  // Report zoom changes back to parent
+  useEffect(() => {
+    onZoomChange?.(transform.zoom);
+    onExternalZoomChange?.(transform.zoom);
+  }, [transform.zoom]);
 
   useEffect(() => {
     const el = viewportRef.current;
@@ -624,7 +643,7 @@ function PdfViewport({
   }, []);
 
   const baseWidth = compact ? Math.max(400, containerWidth - 12 || 400) : Math.max(760, containerWidth - 12 || 760);
-  const renderWidth = Math.round(baseWidth * zoom);
+  const renderWidth = Math.round(baseWidth);
   const renderHeight = Math.max(140, Math.round(renderWidth * pageAspectRatio));
 
   return (
@@ -632,10 +651,23 @@ function PdfViewport({
       ref={viewportRef}
       className={cn(
         "relative w-full bg-background",
-        compact ? "h-[140px] overflow-hidden" : "h-full overflow-auto rounded-lg border border-border",
+        compact ? "h-[140px] overflow-hidden" : "h-full overflow-hidden rounded-lg border border-border",
+        isPanning && !compact ? "cursor-grabbing" : "",
       )}
+      onMouseDown={compact ? undefined : navHandlers.onMouseDown}
+      onMouseMove={compact ? undefined : navHandlers.onMouseMove}
+      onMouseUp={compact ? undefined : navHandlers.onMouseUp}
+      onMouseLeave={compact ? undefined : navHandlers.onMouseUp}
     >
-      <div className={cn("mx-auto", compact ? "w-full h-full" : "min-w-max py-2")}>
+      <div
+        className={cn("mx-auto", compact ? "w-full h-full" : "origin-top-left")}
+        style={compact ? undefined : {
+          transform: `translate(${transform.panX}px, ${transform.panY}px) scale(${transform.zoom})`,
+          transformOrigin: "0 0",
+          width: renderWidth,
+          minHeight: renderHeight,
+        }}
+      >
         <Document
           file={MAIN_PLAN_FILE_PATH}
           loading={renderViewerState(compact, "Loading PDF…")}
@@ -666,7 +698,7 @@ function PdfViewport({
               onLoadError={(err) => setPageError(extractPdfErrorMessage(err))}
             />
 
-            {!compact && onCreateTakeoff && onGeoShapeCreated && onGeoShapeUpdated && onGeoShapeDeleted && (
+            {!compact && onCreateTakeoff && onGeoShapeCreated && onGeoShapeUpdated && onGeoShapeDeleted && !isPanning && (
               <GeometryOverlay
                 activeTool={activeTool}
                 width={renderWidth}
@@ -686,6 +718,18 @@ function PdfViewport({
           </div>
         </Document>
       </div>
+
+      {/* Zoom indicator - click to reset */}
+      {!compact && (
+        <button
+          type="button"
+          onClick={resetView}
+          className="absolute top-2 right-2 z-20 rounded-md bg-card/90 border border-border px-2 py-1 text-[10px] font-mono font-bold text-foreground shadow-sm backdrop-blur-sm hover:bg-muted transition-colors"
+          title="Click to reset zoom"
+        >
+          {Math.round(transform.zoom * 100)}%
+        </button>
+      )}
     </div>
   );
 }
