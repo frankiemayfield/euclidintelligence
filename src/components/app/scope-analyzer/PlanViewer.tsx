@@ -30,6 +30,8 @@ import { TakeoffCompletionCard } from "./TakeoffCompletionCard";
 import { CalibrationDialog, UncalibratedWarning } from "./CalibrationDialog";
 import { GeometryOverlay } from "./takeoff/GeometryOverlay";
 import type { TakeoffShape } from "./takeoff/geometry";
+import { getShapeQuantity, getShapeUnit } from "./takeoff/geometry";
+import { TakeoffContextActions } from "./TakeoffContextActions";
 import { useCanvasNavigation } from "./takeoff/useCanvasNavigation";
 import { TakeoffVisibilityToggle, type VisibilityMode } from "./takeoff/TakeoffVisibility";
 import {
