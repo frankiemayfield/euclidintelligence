@@ -207,24 +207,26 @@ export function PlanViewer({
         </div>
       </div>
 
-      {/* Sheet tabs */}
-      <div className="flex items-center gap-1 overflow-x-auto border-b border-border bg-muted/10 px-3 py-1.5 shrink-0">
-        {SHEET_PRESETS.map(s => (
-          <button
-            key={`${s.id}-${s.page}`}
-            type="button"
-            onClick={() => onPageChange(s.page)}
-            className={cn(
-              "rounded-md px-2 py-1 text-[10px] whitespace-nowrap transition-colors",
-              safePage === s.page
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            {s.id}
-          </button>
-        ))}
-      </div>
+      {/* Sheet tabs - only in expanded mode */}
+      {isExpanded && (
+        <div className="flex items-center gap-1 overflow-x-auto border-b border-border bg-muted/10 px-3 py-1.5 shrink-0">
+          {SHEET_PRESETS.map(s => (
+            <button
+              key={`${s.id}-${s.page}`}
+              type="button"
+              onClick={() => onPageChange(s.page)}
+              className={cn(
+                "rounded-md px-2 py-1 text-[10px] whitespace-nowrap transition-colors",
+                safePage === s.page
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              {s.id}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Main viewport area */}
       <div className="flex flex-1 min-h-0 relative">
