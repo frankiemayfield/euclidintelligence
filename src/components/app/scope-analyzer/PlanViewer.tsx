@@ -27,6 +27,8 @@ import { FloatingTakeoffToolbar, type TakeoffTool } from "./FloatingTakeoffToolb
 import { MeasurementHUD } from "./MeasurementHUD";
 import { TakeoffCompletionCard } from "./TakeoffCompletionCard";
 import { CalibrationDialog } from "./CalibrationDialog";
+import { GeometryOverlay } from "./takeoff/GeometryOverlay";
+import type { TakeoffShape } from "./takeoff/geometry";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
