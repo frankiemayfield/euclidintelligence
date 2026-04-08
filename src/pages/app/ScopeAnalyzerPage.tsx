@@ -157,11 +157,6 @@ export default function ScopeAnalyzerPage() {
             <PlanViewer {...planViewerProps} mode="expanded" />
           )}
 
-          {/* Embedded plan viewer - horizontal landscape strip */}
-          {viewerMode === "embedded" && (
-            <PlanViewer {...planViewerProps} mode="embedded" />
-          )}
-
           <div className="flex flex-1 min-h-0">
             {/* Collapsible hierarchy panel */}
             <div className={`shrink-0 transition-all duration-200 ${hierarchyCollapsed ? "w-[48px]" : "w-[280px]"}`}>
@@ -174,11 +169,18 @@ export default function ScopeAnalyzerPage() {
               />
             </div>
 
+            {/* Center workspace */}
             <div className="flex-1 min-w-0 overflow-hidden">
               {renderCenter()}
             </div>
 
+            {/* Right column: embedded viewer (above) + inspector (below) */}
             <div className="w-[320px] shrink-0 flex flex-col">
+              {/* Embedded viewer sits here, above inspector */}
+              {viewerMode === "embedded" && (
+                <PlanViewer {...planViewerProps} mode="embedded" />
+              )}
+
               <div className="flex-1 min-h-0 overflow-hidden">
                 <ScopeInspector
                   currentPage={currentPage}
