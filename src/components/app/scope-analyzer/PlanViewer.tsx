@@ -960,7 +960,9 @@ function PdfViewport({
 
             {!compact && onCreateTakeoff && onGeoShapeCreated && onGeoShapeUpdated && onGeoShapeDeleted && (
               <GeometryOverlay
-                activeTool={isPanning ? "pan" : activeTool}
+                activeTool={calibrationDrawMode ? "select" : isPanning ? "pan" : activeTool}
+                calibrationDrawMode={calibrationDrawMode}
+                onCalibrationLineComplete={onCalibrationLineComplete}
                 width={renderWidth}
                 height={renderHeight}
                 pageNumber={pageNumber}
