@@ -149,44 +149,29 @@ export function PlanViewer({
 
   if (mode === "hidden") return null;
 
-  /* ── EMBEDDED: horizontal landscape strip ── */
+  /* ── EMBEDDED: compact landscape preview in right column ── */
   if (isEmbedded) {
     return (
       <div className="shrink-0 border-b border-border bg-card">
-        {/* Minimal header with centered page nav */}
-        <div className="flex items-center justify-between px-3 py-1.5">
-          <div className="flex items-center gap-2 min-w-0">
-            <FileText className="h-3 w-3 text-primary shrink-0" />
-            <span className="text-[10px] font-medium text-muted-foreground truncate">
-              {sheet ? `${sheet.id} — ${sheet.name}` : MAIN_PLAN_FILE_NAME}
-            </span>
-          </div>
-
-          {/* Centered page nav */}
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-6 w-6" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
-              <ChevronLeft className="h-3 w-3" />
-            </Button>
-            <span className="text-xs font-semibold text-foreground min-w-[80px] text-center">
-              Page {safePage} / {numPages || 1}
-            </span>
-            <Button variant="ghost" size="icon" className="h-6 w-6" disabled={safePage >= (numPages || 1)} onClick={() => onPageChange(safePage + 1)}>
-              <ChevronRight className="h-3 w-3" />
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-0.5">
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onModeChange("expanded")} title="Expand viewer">
-              <Maximize2 className="h-3 w-3" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onModeChange("hidden")} title="Hide viewer">
-              <EyeOff className="h-3 w-3" />
-            </Button>
-          </div>
+        {/* Minimal page nav anchored inside viewer */}
+        <div className="flex items-center justify-center gap-1 px-2 py-1 bg-muted/20">
+          <Button variant="ghost" size="icon" className="h-5 w-5" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
+            <ChevronLeft className="h-3 w-3" />
+          </Button>
+          <span className="text-[10px] font-semibold text-foreground min-w-[70px] text-center">
+            Page {safePage} / {numPages || 1}
+          </span>
+          <Button variant="ghost" size="icon" className="h-5 w-5" disabled={safePage >= (numPages || 1)} onClick={() => onPageChange(safePage + 1)}>
+            <ChevronRight className="h-3 w-3" />
+          </Button>
+          <div className="w-px h-3 bg-border mx-0.5" />
+          <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onModeChange("expanded")} title="Expand viewer">
+            <Maximize2 className="h-2.5 w-2.5" />
+          </Button>
         </div>
 
-        {/* Landscape strip preview — wide and shallow */}
-        <div className="h-[140px] overflow-hidden cursor-pointer" onClick={() => onModeChange("expanded")}>
+        {/* Landscape preview — clean, no clutter */}
+        <div className="h-[160px] overflow-hidden cursor-pointer" onClick={() => onModeChange("expanded")}>
           <PdfViewport
             compact
             onDocumentLoad={setNumPages}

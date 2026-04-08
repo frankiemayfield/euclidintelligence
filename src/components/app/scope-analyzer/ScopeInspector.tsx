@@ -34,14 +34,24 @@ export function ScopeInspector({ project, selection, onExpandPlan, currentPage, 
             </Button>
           )}
           {viewerMode === "embedded" && (
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("expanded")} title="Expand viewer">
-              <Maximize2 className="h-3 w-3" />
-            </Button>
+            <>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("expanded")} title="Expand viewer">
+                <Maximize2 className="h-3 w-3" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("hidden")} title="Hide viewer">
+                <EyeOff className="h-3 w-3" />
+              </Button>
+            </>
           )}
           {viewerMode === "expanded" && (
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("embedded")} title="Minimize viewer">
-              <Minimize2 className="h-3 w-3" />
-            </Button>
+            <>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("embedded")} title="Minimize viewer">
+                <Minimize2 className="h-3 w-3" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("hidden")} title="Hide viewer">
+                <EyeOff className="h-3 w-3" />
+              </Button>
+            </>
           )}
         </div>
       </div>
