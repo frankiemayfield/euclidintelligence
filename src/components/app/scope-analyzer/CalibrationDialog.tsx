@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Crosshair, X, Check, AlertTriangle, ShieldCheck, Ban } from "lucide-react";
+import { Crosshair, X, Check, AlertTriangle, ShieldCheck, Ban, Ruler } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PageCalibration, CalibrationStatus } from "./takeoff/calibrationState";
 import { getCalibrationBadgeBg, getCalibrationBadgeColor, getCalibrationLabel } from "./takeoff/calibrationState";
@@ -20,24 +20,38 @@ const STANDARD_SCALES = [
   '3" = 1\'-0"',
 ];
 
+export interface CalibrationLine {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  /** Pixel length (normalized 0-1 coord distance) */
+  normalizedLength: number;
+}
+
 interface CalibrationDialogProps {
   open: boolean;
   onClose: () => void;
   onCalibrate: (scale: string, method: "preset" | "manual") => void;
   onMarkNotToScale: () => void;
+  onEnterCalibrationDraw: () => void;
   currentCalibration: PageCalibration;
   pageNumber: number;
+  /** The drawn calibration line, set when user finishes drawing */
+  calibrationLine: CalibrationLine | null;
 }
 
-type Step = "method" | "configure" | "confirm" | "verify";
+type Step = "method" | "configure" | "confirm" | "verify" | "waiting-draw" | "dimension-input";
 
 export function CalibrationDialog({
   open,
   onClose,
   onCalibrate,
   onMarkNotToScale,
+  onEnterCalibrationDraw,
   currentCalibration,
   pageNumber,
+  calibrationLine,
 }: CalibrationDialogProps) {
   const [step, setStep] = useState<Step>("method");
   const [method, setMethod] = useState<"preset" | "manual">("preset");
@@ -47,12 +61,41 @@ export function CalibrationDialog({
   const [verifyValue, setVerifyValue] = useState("");
   const [verifyExpected, setVerifyExpected] = useState("");
 
-  if (!open) return null;
+  // When calibration line arrives from drawing, move to dimension input step
+  useEffect(() => {
+    if (calibrationLine && step === "waiting-draw") {
+      setStep("dimension-input");
+    }
+  }, [calibrationLine, step]);
 
-  const handleApply = () => {
-    const scale = method === "preset" ? selectedScale : `${manualValue} ${manualUnit}`;
-    onCalibrate(scale, method);
+  // Reset step when dialog opens
+  useEffect(() => {
+    if (open) {
+      setStep("method");
+    }
+  }, [open]);
+
+  if (!open && step !== "waiting-draw" && step !== "dimension-input") return null;
+
+  const handleApplyPreset = () => {
+    onCalibrate(selectedScale, "preset");
     setStep("verify");
+  };
+
+  const handleApplyManual = () => {
+    if (!calibrationLine || !manualValue) return;
+    // Build a scale string from the drawn line
+    const realDim = Number(manualValue);
+    if (realDim <= 0) return;
+    const scaleLabel = `${realDim} ${manualUnit} (manual)`;
+    onCalibrate(scaleLabel, "manual");
+    setStep("verify");
+  };
+
+  const handleStartDraw = () => {
+    setMethod("manual");
+    setStep("waiting-draw");
+    onEnterCalibrationDraw();
   };
 
   const handleVerify = () => {
@@ -65,6 +108,99 @@ export function CalibrationDialog({
     setStep("method");
   };
 
+  const handleCancel = () => {
+    onClose();
+    setStep("method");
+  };
+
+  // During drawing mode, show a floating instruction instead of the full dialog
+  if (step === "waiting-draw") {
+    return (
+      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-[60] animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-card/95 shadow-lg backdrop-blur-md px-4 py-3">
+          <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+          <div>
+            <div className="text-xs font-semibold text-foreground">Calibration Mode</div>
+            <div className="text-[10px] text-muted-foreground">Click two points to define a known distance</div>
+          </div>
+          <Button variant="ghost" size="sm" className="h-7 text-[10px] ml-2" onClick={handleCancel}>
+            Cancel
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Dimension input after drawing
+  if (step === "dimension-input" && calibrationLine) {
+    const pxLen = calibrationLine.normalizedLength;
+    return (
+      <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm">
+        <div className="w-[380px] rounded-xl border border-border bg-card shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <div className="flex items-center gap-2">
+              <Ruler className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">Enter Known Dimension</h3>
+            </div>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}>
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+
+          <div className="px-4 py-4 space-y-4">
+            <div className="rounded-md bg-primary/5 border border-primary/20 px-3 py-2">
+              <div className="flex items-center gap-2">
+                <Check className="h-3.5 w-3.5 text-primary" />
+                <span className="text-[10px] text-primary font-medium">Reference line drawn</span>
+              </div>
+              <div className="text-[9px] text-muted-foreground mt-1">
+                Normalized length: {pxLen.toFixed(4)} units
+              </div>
+            </div>
+
+            <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              What is the real-world length of this line?
+            </div>
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                className="h-9 text-xs flex-1"
+                value={manualValue}
+                onChange={(e) => setManualValue(e.target.value)}
+                placeholder="Length"
+                autoFocus
+              />
+              <Select value={manualUnit} onValueChange={setManualUnit}>
+                <SelectTrigger className="h-9 w-20 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ft" className="text-xs">ft</SelectItem>
+                  <SelectItem value="in" className="text-xs">in</SelectItem>
+                  <SelectItem value="m" className="text-xs">m</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="flex-1 h-8 text-[10px]" onClick={handleCancel}>Cancel</Button>
+              <Button
+                size="sm"
+                className="flex-1 h-8 text-[10px]"
+                disabled={!manualValue || Number(manualValue) <= 0}
+                onClick={handleApplyManual}
+              >
+                Apply Calibration
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard dialog flow
+  if (!open) return null;
+
   return (
     <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm">
       <div className="w-[380px] rounded-xl border border-border bg-card shadow-2xl animate-in fade-in zoom-in-95 duration-200">
@@ -76,7 +212,7 @@ export function CalibrationDialog({
               Calibrate Page {pageNumber}
             </h3>
           </div>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { onClose(); setStep("method"); }}>
+          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}>
             <X className="h-3.5 w-3.5" />
           </Button>
         </div>
@@ -109,11 +245,12 @@ export function CalibrationDialog({
                   <div className="text-[10px] text-muted-foreground mt-1">Pick from common architectural scales</div>
                 </button>
                 <button
-                  onClick={() => { setMethod("manual"); setStep("configure"); }}
+                  onClick={handleStartDraw}
                   className="rounded-lg border border-border bg-muted/30 p-3 text-left hover:bg-muted/60 transition-colors"
                 >
+                  <Ruler className="h-4 w-4 text-primary mb-1" />
                   <div className="text-xs font-semibold text-foreground">Known Dimension</div>
-                  <div className="text-[10px] text-muted-foreground mt-1">Draw a reference line and enter actual length</div>
+                  <div className="text-[10px] text-muted-foreground mt-1">Draw a line on the plan → enter real length</div>
                 </button>
               </div>
               <button
@@ -143,41 +280,7 @@ export function CalibrationDialog({
               </Select>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" className="flex-1 h-8 text-[10px]" onClick={() => setStep("method")}>Back</Button>
-                <Button size="sm" className="flex-1 h-8 text-[10px]" onClick={handleApply}>Apply Calibration</Button>
-              </div>
-            </>
-          )}
-
-          {step === "configure" && method === "manual" && (
-            <>
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                Enter known dimension
-              </div>
-              <div className="text-[10px] text-muted-foreground">
-                Draw a reference line on the plan, then enter the real-world length.
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  className="h-9 text-xs flex-1"
-                  value={manualValue}
-                  onChange={(e) => setManualValue(e.target.value)}
-                  placeholder="Length"
-                />
-                <Select value={manualUnit} onValueChange={setManualUnit}>
-                  <SelectTrigger className="h-9 w-20 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ft" className="text-xs">ft</SelectItem>
-                    <SelectItem value="in" className="text-xs">in</SelectItem>
-                    <SelectItem value="m" className="text-xs">m</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1 h-8 text-[10px]" onClick={() => setStep("method")}>Back</Button>
-                <Button size="sm" className="flex-1 h-8 text-[10px]" onClick={handleApply}>Apply Calibration</Button>
+                <Button size="sm" className="flex-1 h-8 text-[10px]" onClick={handleApplyPreset}>Apply Calibration</Button>
               </div>
             </>
           )}
