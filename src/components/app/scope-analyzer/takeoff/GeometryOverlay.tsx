@@ -418,6 +418,11 @@ export function GeometryOverlay({
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        if (calibrationDrawMode) {
+          setCalStart(null);
+          setCalCursor(null);
+          return;
+        }
         if (drawing.activeShape) {
           setDrawing(INITIAL_DRAWING_STATE);
           onDrawingChange?.(false);
