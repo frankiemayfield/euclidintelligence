@@ -10,8 +10,14 @@ import {
   ChevronRight,
   EyeOff,
   FileText,
+  Maximize,
   Maximize2,
   Minimize2,
+  PanelRightClose,
+  PanelRightOpen,
+  List,
+  ListX,
+  X,
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
@@ -48,7 +54,7 @@ interface TakeoffCreatePayload {
   record: TakeoffRecord;
 }
 
-export type ViewerMode = "embedded" | "expanded" | "hidden";
+export type ViewerMode = "embedded" | "expanded" | "fullscreen" | "hidden";
 
 interface PlanViewerProps {
   currentPage: number;
@@ -112,6 +118,9 @@ export function PlanViewer({
   const safePage = clamp(currentPage, 1, numPages || 1);
   const sheet = getSheetForPage(safePage);
   const isExpanded = mode === "expanded";
+  const isFullscreen = mode === "fullscreen";
+  const [showFsInspector, setShowFsInspector] = useState(true);
+  const [showFsLog, setShowFsLog] = useState(true);
   const isEmbedded = mode === "embedded";
 
   const handleCalibrate = (scale: string) => {
@@ -182,6 +191,182 @@ export function PlanViewer({
     );
   }
 
+  /* ── FULLSCREEN: immersive takeoff workspace ── */
+  if (isFullscreen) {
+    const selectedOpt = lineItemOptions.find(o => o.id === selectedLineItemId);
+    return (
+      <div className="fixed inset-0 z-[100] flex flex-col bg-background">
+        {/* Top bar */}
+        <div className="flex items-center justify-between border-b border-border px-4 py-2 shrink-0 bg-card">
+          <div className="flex items-center gap-3">
+            <FileText className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold text-foreground">Full Screen Takeoff</span>
+            <span className="text-xs text-muted-foreground">{sheet ? `${sheet.id} — ${sheet.name}` : MAIN_PLAN_FILE_NAME}</span>
+          </div>
+
+          {/* Page nav center */}
+          <div className="flex items-center gap-1.5">
+            <Button variant="ghost" size="icon" className="h-7 w-7" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </Button>
+            <span className="text-sm font-bold text-foreground min-w-[100px] text-center">
+              Page {safePage} / {numPages || 1}
+            </span>
+            <Button variant="ghost" size="icon" className="h-7 w-7" disabled={safePage >= (numPages || 1)} onClick={() => onPageChange(safePage + 1)}>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-1">
+            {/* Zoom */}
+            <Button variant="ghost" size="icon" className="h-7 w-7" disabled={zoom <= 0.5} onClick={() => setZoom(v => Math.max(0.5, round(v - 0.2, 1)))}>
+              <ZoomOut className="h-3 w-3" />
+            </Button>
+            <span className="w-10 text-center text-[10px] text-muted-foreground">{Math.round(zoom * 100)}%</span>
+            <Button variant="ghost" size="icon" className="h-7 w-7" disabled={zoom >= 3} onClick={() => setZoom(v => Math.min(3, round(v + 0.2, 1)))}>
+              <ZoomIn className="h-3 w-3" />
+            </Button>
+
+            <div className="w-px h-5 bg-border mx-1" />
+
+            {/* Panel toggles */}
+            <Button variant={showFsLog ? "secondary" : "ghost"} size="icon" className="h-7 w-7" onClick={() => setShowFsLog(v => !v)} title={showFsLog ? "Hide takeoff log" : "Show takeoff log"}>
+              {showFsLog ? <ListX className="h-3 w-3" /> : <List className="h-3 w-3" />}
+            </Button>
+            <Button variant={showFsInspector ? "secondary" : "ghost"} size="icon" className="h-7 w-7" onClick={() => setShowFsInspector(v => !v)} title={showFsInspector ? "Hide inspector" : "Show inspector"}>
+              {showFsInspector ? <PanelRightClose className="h-3 w-3" /> : <PanelRightOpen className="h-3 w-3" />}
+            </Button>
+
+            <div className="w-px h-5 bg-border mx-1" />
+
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("expanded")} title="Exit full screen">
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Target line item strip */}
+        <div className="flex items-center gap-3 border-b border-border bg-muted/20 px-4 py-1.5 shrink-0">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Target</span>
+          <Select value={selectedLineItemId} onValueChange={onSelectedLineItemChange}>
+            <SelectTrigger className="h-7 max-w-[360px] text-xs">
+              <SelectValue placeholder="Select a line item" />
+            </SelectTrigger>
+            <SelectContent>
+              {lineItemOptions.map(opt => (
+                <SelectItem key={opt.id} value={opt.id} className="text-xs">{opt.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {selectedOpt && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Badge variant="outline" className="text-[9px] px-1.5 py-0">{selectedOpt.unit}</Badge>
+            </div>
+          )}
+        </div>
+
+        {/* Main content area */}
+        <div className="flex flex-1 min-h-0 relative">
+          {/* Plan viewport - dominant */}
+          <div className="flex-1 min-w-0 relative bg-muted/5 overflow-auto">
+            <FloatingTakeoffToolbar
+              activeTool={tool}
+              onToolChange={setTool}
+              onUndo={handleUndo}
+              onClearCurrent={() => setPendingCompletion(null)}
+              onCalibrationClick={() => setShowCalibration(true)}
+              isCalibrated={isCalibrated}
+              collapsed={toolbarCollapsed}
+              onCollapsedChange={setToolbarCollapsed}
+              visible
+            />
+
+            <MeasurementHUD
+              tool={tool}
+              isDrawing={isDrawing}
+              currentMeasurement={liveMeasurement}
+              visible
+            />
+
+            {pendingCompletion && (
+              <TakeoffCompletionCard
+                quantity={pendingCompletion.quantity}
+                unit={pendingCompletion.unit}
+                toolType={pendingCompletion.toolType}
+                linkedLineItemId={selectedLineItemId}
+                lineItemOptions={lineItemOptions}
+                onSave={handleCompletionSave}
+                onCancel={() => setPendingCompletion(null)}
+              />
+            )}
+
+            <CalibrationDialog
+              open={showCalibration}
+              onClose={() => setShowCalibration(false)}
+              onCalibrate={handleCalibrate}
+              currentScale={calibrationScale}
+            />
+
+            <div className="p-3 h-full">
+              <PdfViewport
+                activeTool={tool}
+                markups={markups}
+                onCreateTakeoff={handleCreateTakeoffInternal}
+                onDocumentLoad={setNumPages}
+                onDrawingChange={setIsDrawing}
+                onLiveMeasurement={setLiveMeasurement}
+                pageNumber={safePage}
+                selectedLineItemId={selectedLineItemId}
+                zoom={zoom}
+              />
+            </div>
+          </div>
+
+          {/* Right panel: inspector + takeoff log */}
+          {(showFsInspector || showFsLog) && (
+            <div className="w-[280px] shrink-0 flex flex-col border-l border-border bg-card">
+              {/* Takeoff log */}
+              {showFsLog && (
+                <div className={cn("overflow-y-auto p-3 border-b border-border", showFsInspector ? "max-h-[50%]" : "flex-1")}>
+                  <div className="mb-2 flex items-center justify-between">
+                    <h4 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Takeoff Log</h4>
+                    <Badge variant="outline" className="h-5 rounded-sm px-1.5 text-[9px]">{takeoffs.length}</Badge>
+                  </div>
+                  <div className="space-y-1.5">
+                    {takeoffs.length === 0 ? (
+                      <div className="rounded-md border border-dashed border-border px-3 py-4 text-[10px] text-muted-foreground text-center">
+                        No takeoffs linked yet
+                      </div>
+                    ) : takeoffs.map(t => (
+                      <TakeoffLogEntry key={t.id} takeoff={t} onDelete={onDeleteTakeoff} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Mini inspector */}
+              {showFsInspector && (
+                <div className="flex-1 overflow-y-auto p-3">
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">Inspector</h4>
+                  {selectedOpt ? (
+                    <div className="space-y-2">
+                      <div className="text-xs font-medium text-foreground">{selectedOpt.name}</div>
+                      <div className="text-[10px] text-muted-foreground">Unit: {selectedOpt.unit}</div>
+                      <div className="text-[10px] text-muted-foreground">Takeoffs: {takeoffs.length}</div>
+                      <div className="text-[10px] text-muted-foreground">Page: {safePage}</div>
+                    </div>
+                  ) : (
+                    <div className="text-[10px] text-muted-foreground">Select a line item to see details.</div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   /* ── EXPANDED: full workspace viewer ── */
   return (
     <div className="flex flex-col border-b border-border bg-card h-[520px] shadow-md transition-all duration-300">
@@ -224,6 +409,9 @@ export function PlanViewer({
 
           <div className="w-px h-5 bg-border mx-1" />
 
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("fullscreen")} title="Full screen takeoff">
+            <Maximize className="h-3 w-3" />
+          </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("embedded")} title="Minimize viewer">
             <Minimize2 className="h-3 w-3" />
           </Button>
