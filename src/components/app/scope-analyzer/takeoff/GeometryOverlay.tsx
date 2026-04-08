@@ -146,6 +146,29 @@ export function GeometryOverlay({
   }, [selectedLineItemId, pageNumber, onShapeCreated, onCreateTakeoff, onDrawingChange, onLiveMeasurement]);
 
   const handleClick = useCallback((e: MouseEvent<SVGSVGElement>) => {
+    // Calibration drawing mode takes priority
+    if (calibrationDrawMode) {
+      const pt = getNormalized(e);
+      if (!calStart) {
+        setCalStart(pt);
+        return;
+      }
+      // Second click: complete the calibration line
+      const dx = pt.x - calStart.x;
+      const dy = pt.y - calStart.y;
+      const normalizedLength = Math.sqrt(dx * dx + dy * dy);
+      onCalibrationLineComplete?.({
+        startX: calStart.x,
+        startY: calStart.y,
+        endX: pt.x,
+        endY: pt.y,
+        normalizedLength,
+      });
+      setCalStart(null);
+      setCalCursor(null);
+      return;
+    }
+
     if (isSelectMode) {
       onSelectedShapeChange?.(null);
       setDrawing(prev => ({ ...prev, editingShapeId: null }));
