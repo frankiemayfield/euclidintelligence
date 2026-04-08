@@ -28,20 +28,17 @@ export function ScopeInspector({ project, selection, onExpandPlan, currentPage, 
       <div className="flex items-center justify-between border-b border-border px-3 py-2">
         <h3 className="text-xs font-semibold text-foreground">Inspector</h3>
         <div className="flex items-center gap-0.5">
-          {viewerMode === "hidden" ? (
+          {viewerMode === "hidden" && (
             <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("embedded")} title="Show viewer">
               <Eye className="h-3 w-3" />
             </Button>
-          ) : viewerMode === "embedded" ? (
-            <>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("expanded")} title="Expand viewer">
-                <Maximize2 className="h-3 w-3" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("hidden")} title="Hide viewer">
-                <EyeOff className="h-3 w-3" />
-              </Button>
-            </>
-          ) : (
+          )}
+          {viewerMode === "embedded" && (
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("expanded")} title="Expand viewer">
+              <Maximize2 className="h-3 w-3" />
+            </Button>
+          )}
+          {viewerMode === "expanded" && (
             <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onViewerModeChange("embedded")} title="Minimize viewer">
               <Minimize2 className="h-3 w-3" />
             </Button>

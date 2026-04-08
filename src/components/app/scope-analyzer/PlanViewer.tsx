@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,6 @@ import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
-  Eye,
   EyeOff,
   FileText,
   Maximize2,
@@ -113,6 +112,7 @@ export function PlanViewer({
   const safePage = clamp(currentPage, 1, numPages || 1);
   const sheet = getSheetForPage(safePage);
   const isExpanded = mode === "expanded";
+  const isEmbedded = mode === "embedded";
 
   const handleCalibrate = (scale: string) => {
     setCalibrationScale(scale);
@@ -149,11 +149,57 @@ export function PlanViewer({
 
   if (mode === "hidden") return null;
 
+  /* ── EMBEDDED: horizontal landscape strip ── */
+  if (isEmbedded) {
+    return (
+      <div className="shrink-0 border-b border-border bg-card">
+        {/* Minimal header with centered page nav */}
+        <div className="flex items-center justify-between px-3 py-1.5">
+          <div className="flex items-center gap-2 min-w-0">
+            <FileText className="h-3 w-3 text-primary shrink-0" />
+            <span className="text-[10px] font-medium text-muted-foreground truncate">
+              {sheet ? `${sheet.id} — ${sheet.name}` : MAIN_PLAN_FILE_NAME}
+            </span>
+          </div>
+
+          {/* Centered page nav */}
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-6 w-6" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
+              <ChevronLeft className="h-3 w-3" />
+            </Button>
+            <span className="text-xs font-semibold text-foreground min-w-[80px] text-center">
+              Page {safePage} / {numPages || 1}
+            </span>
+            <Button variant="ghost" size="icon" className="h-6 w-6" disabled={safePage >= (numPages || 1)} onClick={() => onPageChange(safePage + 1)}>
+              <ChevronRight className="h-3 w-3" />
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-0.5">
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onModeChange("expanded")} title="Expand viewer">
+              <Maximize2 className="h-3 w-3" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onModeChange("hidden")} title="Hide viewer">
+              <EyeOff className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Landscape strip preview — wide and shallow */}
+        <div className="h-[140px] overflow-hidden cursor-pointer" onClick={() => onModeChange("expanded")}>
+          <PdfViewport
+            compact
+            onDocumentLoad={setNumPages}
+            pageNumber={safePage}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  /* ── EXPANDED: full workspace viewer ── */
   return (
-    <div className={cn(
-      "flex flex-col border-b border-border bg-card transition-all duration-300",
-      isExpanded ? "h-[520px] shadow-md" : "h-full",
-    )}>
+    <div className="flex flex-col border-b border-border bg-card h-[520px] shadow-md transition-all duration-300">
       {/* Header bar */}
       <div className="flex items-center justify-between gap-3 border-b border-border px-3 py-2 shrink-0">
         <div className="min-w-0 flex items-center gap-2">
@@ -161,9 +207,6 @@ export function PlanViewer({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-foreground">Main Source Print</span>
-              <Badge variant="outline" className="h-5 rounded-sm px-1.5 text-[9px] font-medium">
-                {safePage}/{numPages || 1}
-              </Badge>
             </div>
             <div className="text-[10px] text-muted-foreground truncate">
               {sheet ? `${sheet.id} — ${sheet.name}` : MAIN_PLAN_FILE_NAME}
@@ -171,18 +214,20 @@ export function PlanViewer({
           </div>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
-          {/* Page nav */}
+        {/* Centered page nav */}
+        <div className="flex items-center gap-1.5">
           <Button variant="ghost" size="icon" className="h-7 w-7" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
-            <ChevronLeft className="h-3 w-3" />
+            <ChevronLeft className="h-3.5 w-3.5" />
           </Button>
-          <span className="w-16 text-center text-[10px] text-muted-foreground">Page {safePage} / {numPages || 1}</span>
+          <span className="text-sm font-bold text-foreground min-w-[100px] text-center">
+            Page {safePage} / {numPages || 1}
+          </span>
           <Button variant="ghost" size="icon" className="h-7 w-7" disabled={safePage >= (numPages || 1)} onClick={() => onPageChange(safePage + 1)}>
-            <ChevronRight className="h-3 w-3" />
+            <ChevronRight className="h-3.5 w-3.5" />
           </Button>
+        </div>
 
-          <div className="w-px h-5 bg-border mx-1" />
-
+        <div className="flex items-center gap-1 shrink-0">
           {/* Zoom */}
           <Button variant="ghost" size="icon" className="h-7 w-7" disabled={zoom <= 0.5} onClick={() => setZoom(v => Math.max(0.5, round(v - 0.2, 1)))}>
             <ZoomOut className="h-3 w-3" />
@@ -192,47 +237,39 @@ export function PlanViewer({
             <ZoomIn className="h-3 w-3" />
           </Button>
 
-          {/* Mode toggles - only show in expanded */}
-          {isExpanded && (
-            <>
-              <div className="w-px h-5 bg-border mx-1" />
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("embedded")} title="Minimize viewer">
-                <Minimize2 className="h-3 w-3" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("hidden")} title="Hide viewer">
-                <EyeOff className="h-3 w-3" />
-              </Button>
-            </>
-          )}
+          <div className="w-px h-5 bg-border mx-1" />
+
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("embedded")} title="Minimize viewer">
+            <Minimize2 className="h-3 w-3" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("hidden")} title="Hide viewer">
+            <EyeOff className="h-3 w-3" />
+          </Button>
         </div>
       </div>
 
-      {/* Sheet tabs - only in expanded mode */}
-      {isExpanded && (
-        <div className="flex items-center gap-1 overflow-x-auto border-b border-border bg-muted/10 px-3 py-1.5 shrink-0">
-          {SHEET_PRESETS.map(s => (
-            <button
-              key={`${s.id}-${s.page}`}
-              type="button"
-              onClick={() => onPageChange(s.page)}
-              className={cn(
-                "rounded-md px-2 py-1 text-[10px] whitespace-nowrap transition-colors",
-                safePage === s.page
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
-            >
-              {s.id}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Sheet tabs */}
+      <div className="flex items-center gap-1 overflow-x-auto border-b border-border bg-muted/10 px-3 py-1.5 shrink-0">
+        {SHEET_PRESETS.map(s => (
+          <button
+            key={`${s.id}-${s.page}`}
+            type="button"
+            onClick={() => onPageChange(s.page)}
+            className={cn(
+              "rounded-md px-2 py-1 text-[10px] whitespace-nowrap transition-colors",
+              safePage === s.page
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            )}
+          >
+            {s.id}
+          </button>
+        ))}
+      </div>
 
       {/* Main viewport area */}
       <div className="flex flex-1 min-h-0 relative">
-        {/* PDF content */}
         <div className="flex-1 min-w-0 relative bg-muted/5 overflow-auto">
-          {/* Floating toolbar */}
           <FloatingTakeoffToolbar
             activeTool={tool}
             onToolChange={setTool}
@@ -242,18 +279,16 @@ export function PlanViewer({
             isCalibrated={isCalibrated}
             collapsed={toolbarCollapsed}
             onCollapsedChange={setToolbarCollapsed}
-            visible={isExpanded}
+            visible
           />
 
-          {/* Measurement HUD */}
           <MeasurementHUD
             tool={tool}
             isDrawing={isDrawing}
             currentMeasurement={liveMeasurement}
-            visible={isExpanded}
+            visible
           />
 
-          {/* Completion card */}
           {pendingCompletion && (
             <TakeoffCompletionCard
               quantity={pendingCompletion.quantity}
@@ -266,7 +301,6 @@ export function PlanViewer({
             />
           )}
 
-          {/* Calibration dialog */}
           <CalibrationDialog
             open={showCalibration}
             onClose={() => setShowCalibration(false)}
@@ -289,42 +323,40 @@ export function PlanViewer({
           </div>
         </div>
 
-        {/* Takeoff sidebar - only in expanded mode */}
-        {isExpanded && (
-          <div className="w-[280px] shrink-0 flex flex-col border-l border-border bg-background">
-            <div className="p-3 border-b border-border space-y-3">
-              <div>
-                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Target Line Item</div>
-                <Select value={selectedLineItemId} onValueChange={onSelectedLineItemChange}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Select a line item" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {lineItemOptions.map(opt => (
-                      <SelectItem key={opt.id} value={opt.id} className="text-xs">{opt.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-3">
-              <div className="mb-2 flex items-center justify-between">
-                <h4 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Takeoff Log</h4>
-                <Badge variant="outline" className="h-5 rounded-sm px-1.5 text-[9px]">{takeoffs.length}</Badge>
-              </div>
-              <div className="space-y-1.5">
-                {takeoffs.length === 0 ? (
-                  <div className="rounded-md border border-dashed border-border px-3 py-4 text-[10px] text-muted-foreground text-center">
-                    No takeoffs linked yet
-                  </div>
-                ) : takeoffs.map(t => (
-                  <TakeoffLogEntry key={t.id} takeoff={t} onDelete={onDeleteTakeoff} />
-                ))}
-              </div>
+        {/* Takeoff sidebar */}
+        <div className="w-[280px] shrink-0 flex flex-col border-l border-border bg-background">
+          <div className="p-3 border-b border-border space-y-3">
+            <div>
+              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Target Line Item</div>
+              <Select value={selectedLineItemId} onValueChange={onSelectedLineItemChange}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Select a line item" />
+                </SelectTrigger>
+                <SelectContent>
+                  {lineItemOptions.map(opt => (
+                    <SelectItem key={opt.id} value={opt.id} className="text-xs">{opt.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        )}
+
+          <div className="flex-1 overflow-y-auto p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <h4 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Takeoff Log</h4>
+              <Badge variant="outline" className="h-5 rounded-sm px-1.5 text-[9px]">{takeoffs.length}</Badge>
+            </div>
+            <div className="space-y-1.5">
+              {takeoffs.length === 0 ? (
+                <div className="rounded-md border border-dashed border-border px-3 py-4 text-[10px] text-muted-foreground text-center">
+                  No takeoffs linked yet
+                </div>
+              ) : takeoffs.map(t => (
+                <TakeoffLogEntry key={t.id} takeoff={t} onDelete={onDeleteTakeoff} />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -347,69 +379,6 @@ function TakeoffLogEntry({ takeoff, onDelete }: { takeoff: TakeoffRecord; onDele
         )}
       </div>
     </div>
-  );
-}
-
-/* ─── Compact viewer for inspector panel ─── */
-
-interface PlanViewerCompactProps {
-  currentPage: number;
-  onExpand: () => void;
-  onPageChange: (page: number) => void;
-}
-
-export function PlanViewerCompact({ currentPage, onExpand, onPageChange }: PlanViewerCompactProps) {
-  const [numPages, setNumPages] = useState(1);
-  const safePage = clamp(currentPage, 1, numPages || 1);
-  const sheet = getSheetForPage(safePage);
-
-  return (
-    <div className="border-b border-border bg-card">
-      <div className="flex items-center justify-between border-b border-border bg-muted/20 px-3 py-2">
-        <div className="flex items-center gap-2">
-          <FileText className="h-3.5 w-3.5 text-primary" />
-          <div>
-            <div className="text-[10px] font-semibold text-foreground">Main Source Print</div>
-            <div className="text-[9px] text-muted-foreground">{sheet?.id ?? "PDF"} · Page {safePage}</div>
-          </div>
-        </div>
-        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onExpand} title="Expand PDF viewer">
-          <Maximize2 className="h-3 w-3" />
-        </Button>
-      </div>
-
-      <button type="button" className="block w-full p-2 text-left" onClick={onExpand}>
-        <PdfViewport compact onDocumentLoad={setNumPages} pageNumber={safePage} />
-      </button>
-
-      <div className="flex items-center justify-between border-t border-border bg-muted/10 px-2 py-1.5">
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-5 w-5" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
-            <ChevronLeft className="h-2.5 w-2.5" />
-          </Button>
-          <span className="text-[9px] text-muted-foreground">{sheet?.name ?? "Plan set"}</span>
-          <Button variant="ghost" size="icon" className="h-5 w-5" disabled={safePage >= (numPages || 1)} onClick={() => onPageChange(safePage + 1)}>
-            <ChevronRight className="h-2.5 w-2.5" />
-          </Button>
-        </div>
-        <Badge variant="outline" className="h-5 rounded-sm px-1.5 text-[9px] font-medium">{safePage}/{numPages || 1}</Badge>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Show viewer button when hidden ─── */
-
-export function PlanViewerShowButton({ onClick }: { onClick: () => void }) {
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      className="gap-1.5 text-[10px] h-7"
-      onClick={onClick}
-    >
-      <Eye className="h-3 w-3" /> Show Plan Viewer
-    </Button>
   );
 }
 
@@ -457,19 +426,21 @@ function PdfViewport({
     return () => obs.disconnect();
   }, []);
 
-  const baseWidth = compact ? Math.max(220, containerWidth - 12 || 220) : Math.max(760, containerWidth - 12 || 760);
+  // For compact (embedded strip), render wide and use container width
+  // For expanded, render at full scale
+  const baseWidth = compact ? Math.max(400, containerWidth - 12 || 400) : Math.max(760, containerWidth - 12 || 760);
   const renderWidth = Math.round(baseWidth * zoom);
-  const renderHeight = Math.max(220, Math.round(renderWidth * pageAspectRatio));
+  const renderHeight = Math.max(140, Math.round(renderWidth * pageAspectRatio));
 
   return (
     <div
       ref={viewportRef}
       className={cn(
-        "relative w-full rounded-lg border border-border bg-background",
-        compact ? "h-[168px] overflow-hidden" : "h-full overflow-auto",
+        "relative w-full bg-background",
+        compact ? "h-[140px] overflow-hidden" : "h-full overflow-auto rounded-lg border border-border",
       )}
     >
-      <div className={cn("mx-auto py-2", compact ? "w-full" : "min-w-max")}>
+      <div className={cn("mx-auto", compact ? "w-full h-full" : "min-w-max py-2")}>
         <Document
           file={MAIN_PLAN_FILE_PATH}
           loading={renderViewerState(compact, "Loading PDF…")}
@@ -477,7 +448,13 @@ function PdfViewport({
           onLoadSuccess={({ numPages: n }) => { setDocumentError(null); onDocumentLoad?.(n); }}
           onLoadError={(err) => setDocumentError(extractPdfErrorMessage(err))}
         >
-          <div className="relative mx-auto overflow-hidden rounded-md border border-border bg-background shadow-sm" style={{ height: renderHeight, width: renderWidth }}>
+          <div
+            className={cn(
+              "relative mx-auto overflow-hidden bg-background shadow-sm",
+              compact ? "h-full" : "rounded-md border border-border",
+            )}
+            style={compact ? undefined : { height: renderHeight, width: renderWidth }}
+          >
             <Page
               key={`page-${pageNumber}-${renderWidth}`}
               error={renderViewerError(compact, pageError)}
@@ -485,7 +462,7 @@ function PdfViewport({
               pageNumber={pageNumber}
               renderAnnotationLayer={false}
               renderTextLayer={false}
-              width={renderWidth}
+              width={compact ? containerWidth || 800 : renderWidth}
               onLoadSuccess={(page: { getViewport: (a: { scale: number }) => { height: number; width: number } }) => {
                 setPageError(null);
                 const vp = page.getViewport({ scale: 1 });
@@ -645,12 +622,12 @@ function TakeoffMarkupShape({ draft = false, markup }: { draft?: boolean; markup
 /* ─── Utilities ─── */
 
 function renderViewerState(compact: boolean, label: string) {
-  return <div className={cn("flex items-center justify-center text-muted-foreground", compact ? "h-[152px]" : "h-[280px]")}><div className="text-xs font-medium">{label}</div></div>;
+  return <div className={cn("flex items-center justify-center text-muted-foreground", compact ? "h-[130px]" : "h-[280px]")}><div className="text-xs font-medium">{label}</div></div>;
 }
 
 function renderViewerError(compact: boolean, errorMessage?: string | null) {
   return (
-    <div className={cn("flex items-center justify-center px-6 text-center", compact ? "h-[152px]" : "h-[280px]")}>
+    <div className={cn("flex items-center justify-center px-6 text-center", compact ? "h-[130px]" : "h-[280px]")}>
       <div className="max-w-xs space-y-2">
         <AlertTriangle className="mx-auto h-5 w-5 text-destructive" />
         <div className="text-xs font-semibold text-foreground">PDF source unavailable</div>

@@ -12,12 +12,8 @@ import { PlanViewer, type TakeoffLineItemOption, type TakeoffMarkup, type Viewer
 import {
   getAllLineItems,
   mockProject,
-  type Assembly,
-  type LineItem,
-  type ParentScope,
   type ScopeProject,
   type TakeoffRecord,
-  type Trade,
 } from "@/data/scopeAnalyzerData";
 
 function findNode(project: ScopeProject, sel: TreeSelection) {
@@ -84,6 +80,7 @@ export default function ScopeAnalyzerPage() {
   const [selectedTakeoffLineItemId, setSelectedTakeoffLineItemId] = useState("");
   const [manualTakeoffs, setManualTakeoffs] = useState<Record<string, TakeoffRecord[]>>({});
   const [manualMarkups, setManualMarkups] = useState<TakeoffMarkup[]>([]);
+  const [hierarchyCollapsed, setHierarchyCollapsed] = useState(false);
 
   const project = useMemo(() => mergeManualTakeoffs(mockProject, manualTakeoffs), [manualTakeoffs]);
   const node = useMemo(() => findNode(project, selection), [project, selection]);
@@ -136,6 +133,19 @@ export default function ScopeAnalyzerPage() {
     return <ProjectOverview project={project} onNavigate={setSelection} />;
   };
 
+  const planViewerProps = {
+    currentPage,
+    lineItemOptions: takeoffLineItemOptions,
+    markups: manualMarkups,
+    onModeChange: setViewerMode,
+    onCreateTakeoff: handleCreateTakeoff,
+    onDeleteTakeoff: handleDeleteTakeoff,
+    onPageChange: setCurrentPage,
+    onSelectedLineItemChange: setSelectedTakeoffLineItemId,
+    selectedLineItemId: selectedTakeoffLineItemId,
+    takeoffs: selectedLineItemTakeoffs,
+  };
+
   return (
     <AppLayout>
       <TooltipProvider>
@@ -144,24 +154,24 @@ export default function ScopeAnalyzerPage() {
 
           {/* Expanded plan viewer - landscape above workspace */}
           {viewerMode === "expanded" && (
-            <PlanViewer
-              currentPage={currentPage}
-              lineItemOptions={takeoffLineItemOptions}
-              markups={manualMarkups}
-              mode="expanded"
-              onModeChange={setViewerMode}
-              onCreateTakeoff={handleCreateTakeoff}
-              onDeleteTakeoff={handleDeleteTakeoff}
-              onPageChange={setCurrentPage}
-              onSelectedLineItemChange={setSelectedTakeoffLineItemId}
-              selectedLineItemId={selectedTakeoffLineItemId}
-              takeoffs={selectedLineItemTakeoffs}
-            />
+            <PlanViewer {...planViewerProps} mode="expanded" />
+          )}
+
+          {/* Embedded plan viewer - horizontal landscape strip */}
+          {viewerMode === "embedded" && (
+            <PlanViewer {...planViewerProps} mode="embedded" />
           )}
 
           <div className="flex flex-1 min-h-0">
-            <div className="w-[280px] shrink-0">
-              <ScopeHierarchyTree project={project} selection={selection} onSelect={setSelection} />
+            {/* Collapsible hierarchy panel */}
+            <div className={`shrink-0 transition-all duration-200 ${hierarchyCollapsed ? "w-[48px]" : "w-[280px]"}`}>
+              <ScopeHierarchyTree
+                project={project}
+                selection={selection}
+                onSelect={setSelection}
+                collapsed={hierarchyCollapsed}
+                onCollapsedChange={setHierarchyCollapsed}
+              />
             </div>
 
             <div className="flex-1 min-w-0 overflow-hidden">
@@ -169,24 +179,6 @@ export default function ScopeAnalyzerPage() {
             </div>
 
             <div className="w-[320px] shrink-0 flex flex-col">
-              {/* Embedded plan viewer at top of inspector */}
-              {viewerMode === "embedded" && (
-                <div className="shrink-0 max-h-[50%]">
-                  <PlanViewer
-                    currentPage={currentPage}
-                    lineItemOptions={takeoffLineItemOptions}
-                    markups={manualMarkups}
-                    mode="embedded"
-                    onModeChange={setViewerMode}
-                    onCreateTakeoff={handleCreateTakeoff}
-                    onDeleteTakeoff={handleDeleteTakeoff}
-                    onPageChange={setCurrentPage}
-                    onSelectedLineItemChange={setSelectedTakeoffLineItemId}
-                    selectedLineItemId={selectedTakeoffLineItemId}
-                    takeoffs={selectedLineItemTakeoffs}
-                  />
-                </div>
-              )}
               <div className="flex-1 min-h-0 overflow-hidden">
                 <ScopeInspector
                   currentPage={currentPage}
