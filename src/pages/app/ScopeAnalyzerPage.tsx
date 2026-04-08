@@ -194,6 +194,8 @@ export default function ScopeAnalyzerPage() {
                   onPageChange={setCurrentPage}
                   project={project}
                   selection={selection}
+                  viewerMode={viewerMode}
+                  onViewerModeChange={setViewerMode}
                 />
               </div>
             </div>
