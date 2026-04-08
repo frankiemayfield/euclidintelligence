@@ -505,9 +505,9 @@ export function PlanViewer({
               onGeoShapeUpdated={handleGeoShapeUpdated}
               onGeoShapeDeleted={handleGeoShapeDeleted}
               onLiveMeasurement={setLiveMeasurement}
+              onZoomChange={setZoom}
               pageNumber={safePage}
               selectedLineItemId={selectedLineItemId}
-              zoom={zoom}
             />
           </div>
         </div>
