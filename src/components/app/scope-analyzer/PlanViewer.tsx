@@ -421,11 +421,13 @@ export function PlanViewer({
       )}
       <CalibrationDialog
         open={showCalibration}
-        onClose={() => setShowCalibration(false)}
-        onCalibrate={handleCalibrate}
+        onClose={() => { setShowCalibration(false); setCalibrationDrawMode(false); setCalibrationLine(null); }}
+        onCalibrate={(scale, method) => { handleCalibrate(scale, method); setCalibrationDrawMode(false); setCalibrationLine(null); }}
         onMarkNotToScale={handleMarkNotToScale}
+        onEnterCalibrationDraw={() => { setShowCalibration(false); setCalibrationDrawMode(true); setCalibrationLine(null); }}
         currentCalibration={pageCal}
         pageNumber={safePage}
+        calibrationLine={calibrationLine}
       />
       <UncalibratedWarning
         open={showUncalibratedWarning}
