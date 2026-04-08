@@ -20,16 +20,27 @@ import {
   X,
   ZoomIn,
   ZoomOut,
+  Crosshair,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MAIN_PLAN_FILE_NAME, MAIN_PLAN_FILE_PATH, type TakeoffRecord } from "@/data/scopeAnalyzerData";
-import { FloatingTakeoffToolbar, type TakeoffTool } from "./FloatingTakeoffToolbar";
+import { FloatingTakeoffToolbar, type TakeoffTool, type DockPosition } from "./FloatingTakeoffToolbar";
 import { MeasurementHUD } from "./MeasurementHUD";
 import { TakeoffCompletionCard } from "./TakeoffCompletionCard";
-import { CalibrationDialog } from "./CalibrationDialog";
+import { CalibrationDialog, UncalibratedWarning } from "./CalibrationDialog";
 import { GeometryOverlay } from "./takeoff/GeometryOverlay";
 import type { TakeoffShape } from "./takeoff/geometry";
 import { useCanvasNavigation } from "./takeoff/useCanvasNavigation";
+import { TakeoffVisibilityToggle, type VisibilityMode } from "./takeoff/TakeoffVisibility";
+import {
+  type CalibrationStore,
+  INITIAL_CALIBRATION_STORE,
+  getPageCalibration,
+  setPageCalibration,
+  getCalibrationBadgeColor,
+  getCalibrationBadgeBg,
+  getCalibrationLabel,
+} from "./takeoff/calibrationState";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
@@ -107,8 +118,7 @@ export function PlanViewer({
   const [tool, setTool] = useState<TakeoffTool>("select");
   const [zoom, setZoom] = useState(1);
   const [toolbarCollapsed, setToolbarCollapsed] = useState(false);
-  const [isCalibrated, setIsCalibrated] = useState(false);
-  const [calibrationScale, setCalibrationScale] = useState<string | null>(null);
+  const [dockPosition, setDockPosition] = useState<DockPosition>("left");
   const [showCalibration, setShowCalibration] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [liveMeasurement, setLiveMeasurement] = useState<{
@@ -118,6 +128,11 @@ export function PlanViewer({
     quantity: number; unit: string; toolType: string; markup: TakeoffMarkup; record: TakeoffRecord;
   } | null>(null);
   const [geoShapes, setGeoShapes] = useState<TakeoffShape[]>([]);
+  const [visibilityMode, setVisibilityMode] = useState<VisibilityMode>("all");
+  const [calibrationStore, setCalibrationStore] = useState<CalibrationStore>(INITIAL_CALIBRATION_STORE);
+  const [showUncalibratedWarning, setShowUncalibratedWarning] = useState(false);
+  const [showFsInspector, setShowFsInspector] = useState(true);
+  const [showFsLog, setShowFsLog] = useState(true);
 
   const handleGeoShapeCreated = (shape: TakeoffShape) => setGeoShapes(prev => [...prev, shape]);
   const handleGeoShapeUpdated = (shape: TakeoffShape) => setGeoShapes(prev => prev.map(s => s.id === shape.id ? shape : s));
@@ -127,13 +142,25 @@ export function PlanViewer({
   const sheet = getSheetForPage(safePage);
   const isExpanded = mode === "expanded";
   const isFullscreen = mode === "fullscreen";
-  const [showFsInspector, setShowFsInspector] = useState(true);
-  const [showFsLog, setShowFsLog] = useState(true);
   const isEmbedded = mode === "embedded";
+  const pageCal = getPageCalibration(calibrationStore, safePage);
+  const isCalibrated = pageCal.status === "calibrated";
 
-  const handleCalibrate = (scale: string) => {
-    setCalibrationScale(scale);
-    setIsCalibrated(true);
+  const handleCalibrate = (scale: string, method: "preset" | "manual") => {
+    setCalibrationStore(prev => setPageCalibration(prev, safePage, { status: "calibrated", scale, method, verified: false }));
+  };
+
+  const handleMarkNotToScale = () => {
+    setCalibrationStore(prev => setPageCalibration(prev, safePage, { status: "not-to-scale", scale: null, method: "preset", verified: false }));
+    setShowCalibration(false);
+  };
+
+  const handleToolChange = (newTool: TakeoffTool) => {
+    if (newTool !== "select" && !isCalibrated && pageCal.status !== "not-to-scale") {
+      setShowUncalibratedWarning(true);
+      return;
+    }
+    setTool(newTool);
   };
 
   const handleUndo = () => {
@@ -164,13 +191,18 @@ export function PlanViewer({
     setPendingCompletion(null);
   };
 
+  // Default dock position per mode
+  useEffect(() => {
+    if (isFullscreen) setDockPosition("bottom");
+    else setDockPosition("left");
+  }, [isFullscreen]);
+
   if (mode === "hidden") return null;
 
   /* ── EMBEDDED: compact landscape preview in right column ── */
   if (isEmbedded) {
     return (
       <div className="shrink-0 border-b border-border bg-card">
-        {/* Minimal page nav anchored inside viewer */}
         <div className="flex items-center justify-center gap-1 px-2 py-1 bg-muted/20">
           <Button variant="ghost" size="icon" className="h-5 w-5" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
             <ChevronLeft className="h-3 w-3" />
@@ -186,18 +218,22 @@ export function PlanViewer({
             <Maximize2 className="h-2.5 w-2.5" />
           </Button>
         </div>
-
-        {/* Landscape preview — clean, no clutter */}
         <div className="h-[160px] overflow-hidden cursor-pointer" onClick={() => onModeChange("expanded")}>
-          <PdfViewport
-            compact
-            onDocumentLoad={setNumPages}
-            pageNumber={safePage}
-          />
+          <PdfViewport compact onDocumentLoad={setNumPages} pageNumber={safePage} />
         </div>
       </div>
     );
   }
+
+  const calibrationBadge = (
+    <button
+      onClick={() => setShowCalibration(true)}
+      className={cn("flex items-center gap-1.5 rounded-md border px-2 py-1 text-[9px] font-medium transition-colors hover:opacity-80", getCalibrationBadgeBg(pageCal.status))}
+    >
+      <Crosshair className={cn("h-3 w-3", getCalibrationBadgeColor(pageCal.status))} />
+      <span className={getCalibrationBadgeColor(pageCal.status)}>{getCalibrationLabel(pageCal)}</span>
+    </button>
+  );
 
   /* ── FULLSCREEN: immersive takeoff workspace ── */
   if (isFullscreen) {
@@ -210,6 +246,7 @@ export function PlanViewer({
             <FileText className="h-4 w-4 text-primary" />
             <span className="text-sm font-semibold text-foreground">Full Screen Takeoff</span>
             <span className="text-xs text-muted-foreground">{sheet ? `${sheet.id} — ${sheet.name}` : MAIN_PLAN_FILE_NAME}</span>
+            {calibrationBadge}
           </div>
 
           {/* Page nav center */}
@@ -226,7 +263,8 @@ export function PlanViewer({
           </div>
 
           <div className="flex items-center gap-1">
-            {/* Zoom */}
+            <TakeoffVisibilityToggle mode={visibilityMode} onChange={setVisibilityMode} />
+            <div className="w-px h-5 bg-border mx-1" />
             <Button variant="ghost" size="icon" className="h-7 w-7" disabled={zoom <= 0.5} onClick={() => setZoom(v => Math.max(0.5, round(v - 0.2, 1)))}>
               <ZoomOut className="h-3 w-3" />
             </Button>
@@ -234,20 +272,15 @@ export function PlanViewer({
             <Button variant="ghost" size="icon" className="h-7 w-7" disabled={zoom >= 3} onClick={() => setZoom(v => Math.min(3, round(v + 0.2, 1)))}>
               <ZoomIn className="h-3 w-3" />
             </Button>
-
             <div className="w-px h-5 bg-border mx-1" />
-
-            {/* Panel toggles */}
-            <Button variant={showFsLog ? "secondary" : "ghost"} size="icon" className="h-7 w-7" onClick={() => setShowFsLog(v => !v)} title={showFsLog ? "Hide takeoff log" : "Show takeoff log"}>
+            <Button variant={showFsLog ? "secondary" : "ghost"} size="icon" className="h-7 w-7" onClick={() => setShowFsLog(v => !v)}>
               {showFsLog ? <ListX className="h-3 w-3" /> : <List className="h-3 w-3" />}
             </Button>
-            <Button variant={showFsInspector ? "secondary" : "ghost"} size="icon" className="h-7 w-7" onClick={() => setShowFsInspector(v => !v)} title={showFsInspector ? "Hide inspector" : "Show inspector"}>
+            <Button variant={showFsInspector ? "secondary" : "ghost"} size="icon" className="h-7 w-7" onClick={() => setShowFsInspector(v => !v)}>
               {showFsInspector ? <PanelRightClose className="h-3 w-3" /> : <PanelRightOpen className="h-3 w-3" />}
             </Button>
-
             <div className="w-px h-5 bg-border mx-1" />
-
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("expanded")} title="Exit full screen">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("expanded")}>
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -267,19 +300,16 @@ export function PlanViewer({
             </SelectContent>
           </Select>
           {selectedOpt && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Badge variant="outline" className="text-[9px] px-1.5 py-0">{selectedOpt.unit}</Badge>
-            </div>
+            <Badge variant="outline" className="text-[9px] px-1.5 py-0">{selectedOpt.unit}</Badge>
           )}
         </div>
 
         {/* Main content area */}
         <div className="flex flex-1 min-h-0 relative">
-          {/* Plan viewport - dominant */}
           <div className="flex-1 min-w-0 relative bg-muted/5 overflow-auto">
             <FloatingTakeoffToolbar
               activeTool={tool}
-              onToolChange={setTool}
+              onToolChange={handleToolChange}
               onUndo={handleUndo}
               onClearCurrent={() => setPendingCompletion(null)}
               onCalibrationClick={() => setShowCalibration(true)}
@@ -287,15 +317,10 @@ export function PlanViewer({
               collapsed={toolbarCollapsed}
               onCollapsedChange={setToolbarCollapsed}
               visible
+              dockPosition={dockPosition}
+              onDockPositionChange={setDockPosition}
             />
-
-            <MeasurementHUD
-              tool={tool}
-              isDrawing={isDrawing}
-              currentMeasurement={liveMeasurement}
-              visible
-            />
-
+            <MeasurementHUD tool={tool} isDrawing={isDrawing} currentMeasurement={liveMeasurement} visible />
             {pendingCompletion && (
               <TakeoffCompletionCard
                 quantity={pendingCompletion.quantity}
@@ -307,14 +332,20 @@ export function PlanViewer({
                 onCancel={() => setPendingCompletion(null)}
               />
             )}
-
             <CalibrationDialog
               open={showCalibration}
               onClose={() => setShowCalibration(false)}
               onCalibrate={handleCalibrate}
-              currentScale={calibrationScale}
+              onMarkNotToScale={handleMarkNotToScale}
+              currentCalibration={pageCal}
+              pageNumber={safePage}
             />
-
+            <UncalibratedWarning
+              open={showUncalibratedWarning}
+              onCalibrate={() => { setShowUncalibratedWarning(false); setShowCalibration(true); }}
+              onContinue={() => { setShowUncalibratedWarning(false); setTool(tool === "select" ? "linear" : tool); }}
+              onCancel={() => setShowUncalibratedWarning(false)}
+            />
             <div className="p-3 h-full">
               <PdfViewport
                 activeTool={tool}
@@ -331,14 +362,13 @@ export function PlanViewer({
                 externalZoom={zoom}
                 pageNumber={safePage}
                 selectedLineItemId={selectedLineItemId}
+                visibilityMode={visibilityMode}
               />
             </div>
           </div>
 
-          {/* Right panel: inspector + takeoff log */}
           {(showFsInspector || showFsLog) && (
             <div className="w-[280px] shrink-0 flex flex-col border-l border-border bg-card">
-              {/* Takeoff log */}
               {showFsLog && (
                 <div className={cn("overflow-y-auto p-3 border-b border-border", showFsInspector ? "max-h-[50%]" : "flex-1")}>
                   <div className="mb-2 flex items-center justify-between">
@@ -351,20 +381,18 @@ export function PlanViewer({
                         No takeoffs linked yet
                       </div>
                     ) : takeoffs.map(t => (
-                      <TakeoffLogEntry key={t.id} takeoff={t} onDelete={onDeleteTakeoff} />
+                      <TakeoffLogEntry key={t.id} takeoff={t} onDelete={onDeleteTakeoff} calibrationStatus={pageCal.status} />
                     ))}
                   </div>
                 </div>
               )}
-
-              {/* Mini inspector */}
               {showFsInspector && (
                 <div className="flex-1 overflow-y-auto p-3">
                   <h4 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">Inspector</h4>
-                  {selectedOpt ? (
+                  {lineItemOptions.find(o => o.id === selectedLineItemId) ? (
                     <div className="space-y-2">
-                      <div className="text-xs font-medium text-foreground">{selectedOpt.name}</div>
-                      <div className="text-[10px] text-muted-foreground">Unit: {selectedOpt.unit}</div>
+                      <div className="text-xs font-medium text-foreground">{lineItemOptions.find(o => o.id === selectedLineItemId)?.name}</div>
+                      <div className="text-[10px] text-muted-foreground">Unit: {lineItemOptions.find(o => o.id === selectedLineItemId)?.unit}</div>
                       <div className="text-[10px] text-muted-foreground">Takeoffs: {takeoffs.length}</div>
                       <div className="text-[10px] text-muted-foreground">Page: {safePage}</div>
                     </div>
@@ -388,17 +416,18 @@ export function PlanViewer({
         <div className="min-w-0 flex items-center gap-2">
           <FileText className="h-3.5 w-3.5 text-primary shrink-0" />
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-foreground">Main Source Print</span>
-            </div>
+            <span className="text-xs font-semibold text-foreground">Main Source Print</span>
             <div className="text-[10px] text-muted-foreground truncate">
               {sheet ? `${sheet.id} — ${sheet.name}` : MAIN_PLAN_FILE_NAME}
             </div>
           </div>
+          {calibrationBadge}
         </div>
 
-        {/* Centered page nav */}
-        <div className="flex items-center gap-1.5">
+        {/* Visibility + Page nav center */}
+        <div className="flex items-center gap-2">
+          <TakeoffVisibilityToggle mode={visibilityMode} onChange={setVisibilityMode} />
+          <div className="w-px h-5 bg-border" />
           <Button variant="ghost" size="icon" className="h-7 w-7" disabled={safePage <= 1} onClick={() => onPageChange(safePage - 1)}>
             <ChevronLeft className="h-3.5 w-3.5" />
           </Button>
@@ -411,7 +440,6 @@ export function PlanViewer({
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
-          {/* Zoom */}
           <Button variant="ghost" size="icon" className="h-7 w-7" disabled={zoom <= 0.5} onClick={() => setZoom(v => Math.max(0.5, round(v - 0.2, 1)))}>
             <ZoomOut className="h-3 w-3" />
           </Button>
@@ -419,9 +447,7 @@ export function PlanViewer({
           <Button variant="ghost" size="icon" className="h-7 w-7" disabled={zoom >= 3} onClick={() => setZoom(v => Math.min(3, round(v + 0.2, 1)))}>
             <ZoomIn className="h-3 w-3" />
           </Button>
-
           <div className="w-px h-5 bg-border mx-1" />
-
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("fullscreen")} title="Full screen takeoff">
             <Maximize className="h-3 w-3" />
           </Button>
@@ -458,7 +484,7 @@ export function PlanViewer({
         <div className="flex-1 min-w-0 relative bg-muted/5 overflow-auto">
           <FloatingTakeoffToolbar
             activeTool={tool}
-            onToolChange={setTool}
+            onToolChange={handleToolChange}
             onUndo={handleUndo}
             onClearCurrent={() => setPendingCompletion(null)}
             onCalibrationClick={() => setShowCalibration(true)}
@@ -466,15 +492,10 @@ export function PlanViewer({
             collapsed={toolbarCollapsed}
             onCollapsedChange={setToolbarCollapsed}
             visible
+            dockPosition={dockPosition}
+            onDockPositionChange={setDockPosition}
           />
-
-          <MeasurementHUD
-            tool={tool}
-            isDrawing={isDrawing}
-            currentMeasurement={liveMeasurement}
-            visible
-          />
-
+          <MeasurementHUD tool={tool} isDrawing={isDrawing} currentMeasurement={liveMeasurement} visible />
           {pendingCompletion && (
             <TakeoffCompletionCard
               quantity={pendingCompletion.quantity}
@@ -486,14 +507,20 @@ export function PlanViewer({
               onCancel={() => setPendingCompletion(null)}
             />
           )}
-
           <CalibrationDialog
             open={showCalibration}
             onClose={() => setShowCalibration(false)}
             onCalibrate={handleCalibrate}
-            currentScale={calibrationScale}
+            onMarkNotToScale={handleMarkNotToScale}
+            currentCalibration={pageCal}
+            pageNumber={safePage}
           />
-
+          <UncalibratedWarning
+            open={showUncalibratedWarning}
+            onCalibrate={() => { setShowUncalibratedWarning(false); setShowCalibration(true); }}
+            onContinue={() => { setShowUncalibratedWarning(false); }}
+            onCancel={() => setShowUncalibratedWarning(false)}
+          />
           <div className="p-3 h-full">
             <PdfViewport
               activeTool={tool}
@@ -510,6 +537,7 @@ export function PlanViewer({
               externalZoom={zoom}
               pageNumber={safePage}
               selectedLineItemId={selectedLineItemId}
+              visibilityMode={visibilityMode}
             />
           </div>
         </div>
@@ -543,7 +571,7 @@ export function PlanViewer({
                   No takeoffs linked yet
                 </div>
               ) : takeoffs.map(t => (
-                <TakeoffLogEntry key={t.id} takeoff={t} onDelete={onDeleteTakeoff} />
+                <TakeoffLogEntry key={t.id} takeoff={t} onDelete={onDeleteTakeoff} calibrationStatus={pageCal.status} />
               ))}
             </div>
           </div>
@@ -553,14 +581,27 @@ export function PlanViewer({
   );
 }
 
-function TakeoffLogEntry({ takeoff, onDelete }: { takeoff: TakeoffRecord; onDelete: (id: string, liId: string) => void }) {
+/* ─── Takeoff Log Entry ─── */
+
+function TakeoffLogEntry({
+  takeoff,
+  onDelete,
+  calibrationStatus,
+}: {
+  takeoff: TakeoffRecord;
+  onDelete: (id: string, liId: string) => void;
+  calibrationStatus: string;
+}) {
   const isManual = takeoff.id.startsWith("tk-manual-");
+  const calLabel = takeoff.unit === "EA" ? "" : calibrationStatus === "calibrated" ? "Calibrated" : calibrationStatus === "warning" ? "Custom cal." : "No calibration";
+
   return (
     <div className="rounded-md border border-border bg-card px-2.5 py-2 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="text-xs font-medium text-foreground">{takeoff.quantity} {takeoff.unit}</div>
           <div className="truncate text-[10px] capitalize text-muted-foreground">{takeoff.method} · {takeoff.sourcePage}</div>
+          {calLabel && <div className="text-[9px] text-muted-foreground/70">{calLabel}</div>}
           <div className="text-[9px] text-muted-foreground/70">{takeoff.timestamp}</div>
         </div>
         {isManual && (
@@ -592,6 +633,7 @@ interface PdfViewportProps {
   selectedLineItemId?: string;
   externalZoom?: number;
   onExternalZoomChange?: (zoom: number) => void;
+  visibilityMode?: VisibilityMode;
 }
 
 function PdfViewport({
@@ -611,6 +653,7 @@ function PdfViewport({
   selectedLineItemId,
   externalZoom,
   onExternalZoomChange,
+  visibilityMode = "all",
 }: PdfViewportProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -620,14 +663,12 @@ function PdfViewport({
 
   const { transform, isPanning, setZoom, resetView, handlers: navHandlers } = useCanvasNavigation(viewportRef);
 
-  // Sync external zoom controls
   useEffect(() => {
     if (externalZoom !== undefined && Math.abs(externalZoom - transform.zoom) > 0.01) {
       setZoom(externalZoom);
     }
   }, [externalZoom]);
 
-  // Report zoom changes back to parent
   useEffect(() => {
     onZoomChange?.(transform.zoom);
     onExternalZoomChange?.(transform.zoom);
@@ -647,6 +688,9 @@ function PdfViewport({
   const baseWidth = compact ? Math.max(400, containerWidth - 12 || 400) : Math.max(760, containerWidth - 12 || 760);
   const renderWidth = Math.round(baseWidth);
   const renderHeight = Math.max(140, Math.round(renderWidth * pageAspectRatio));
+
+  // Filter shapes by visibility mode
+  const filteredShapes = visibilityMode === "hidden" ? [] : geoShapes;
 
   return (
     <div
@@ -707,7 +751,7 @@ function PdfViewport({
                 height={renderHeight}
                 pageNumber={pageNumber}
                 selectedLineItemId={selectedLineItemId}
-                shapes={geoShapes}
+                shapes={filteredShapes}
                 onShapeCreated={onGeoShapeCreated}
                 onShapeUpdated={onGeoShapeUpdated}
                 onShapeDeleted={onGeoShapeDeleted}
@@ -721,7 +765,6 @@ function PdfViewport({
         </Document>
       </div>
 
-      {/* Zoom indicator - click to reset */}
       {!compact && (
         <button
           type="button"
