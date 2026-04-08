@@ -27,6 +27,8 @@ import { FloatingTakeoffToolbar, type TakeoffTool } from "./FloatingTakeoffToolb
 import { MeasurementHUD } from "./MeasurementHUD";
 import { TakeoffCompletionCard } from "./TakeoffCompletionCard";
 import { CalibrationDialog } from "./CalibrationDialog";
+import { GeometryOverlay } from "./takeoff/GeometryOverlay";
+import type { TakeoffShape } from "./takeoff/geometry";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
@@ -114,6 +116,11 @@ export function PlanViewer({
   const [pendingCompletion, setPendingCompletion] = useState<{
     quantity: number; unit: string; toolType: string; markup: TakeoffMarkup; record: TakeoffRecord;
   } | null>(null);
+  const [geoShapes, setGeoShapes] = useState<TakeoffShape[]>([]);
+
+  const handleGeoShapeCreated = (shape: TakeoffShape) => setGeoShapes(prev => [...prev, shape]);
+  const handleGeoShapeUpdated = (shape: TakeoffShape) => setGeoShapes(prev => prev.map(s => s.id === shape.id ? shape : s));
+  const handleGeoShapeDeleted = (shapeId: string) => setGeoShapes(prev => prev.filter(s => s.id !== shapeId));
 
   const safePage = clamp(currentPage, 1, numPages || 1);
   const sheet = getSheetForPage(safePage);
@@ -310,10 +317,14 @@ export function PlanViewer({
             <div className="p-3 h-full">
               <PdfViewport
                 activeTool={tool}
+                geoShapes={geoShapes}
                 markups={markups}
                 onCreateTakeoff={handleCreateTakeoffInternal}
                 onDocumentLoad={setNumPages}
                 onDrawingChange={setIsDrawing}
+                onGeoShapeCreated={handleGeoShapeCreated}
+                onGeoShapeUpdated={handleGeoShapeUpdated}
+                onGeoShapeDeleted={handleGeoShapeDeleted}
                 onLiveMeasurement={setLiveMeasurement}
                 pageNumber={safePage}
                 selectedLineItemId={selectedLineItemId}
@@ -484,10 +495,14 @@ export function PlanViewer({
           <div className="p-3 h-full">
             <PdfViewport
               activeTool={tool}
+              geoShapes={geoShapes}
               markups={markups}
               onCreateTakeoff={handleCreateTakeoffInternal}
               onDocumentLoad={setNumPages}
               onDrawingChange={setIsDrawing}
+              onGeoShapeCreated={handleGeoShapeCreated}
+              onGeoShapeUpdated={handleGeoShapeUpdated}
+              onGeoShapeDeleted={handleGeoShapeDeleted}
               onLiveMeasurement={setLiveMeasurement}
               pageNumber={safePage}
               selectedLineItemId={selectedLineItemId}
@@ -560,10 +575,14 @@ function TakeoffLogEntry({ takeoff, onDelete }: { takeoff: TakeoffRecord; onDele
 interface PdfViewportProps {
   activeTool?: TakeoffTool;
   compact?: boolean;
+  geoShapes?: TakeoffShape[];
   markups?: TakeoffMarkup[];
   onCreateTakeoff?: (payload: TakeoffCreatePayload) => void;
   onDocumentLoad?: (numPages: number) => void;
   onDrawingChange?: (drawing: boolean) => void;
+  onGeoShapeCreated?: (shape: TakeoffShape) => void;
+  onGeoShapeUpdated?: (shape: TakeoffShape) => void;
+  onGeoShapeDeleted?: (shapeId: string) => void;
   onLiveMeasurement?: (m: { width: number; height: number; area: number; perimeter: number; length: number; count: number; volume: number } | null) => void;
   pageNumber: number;
   selectedLineItemId?: string;
@@ -573,10 +592,14 @@ interface PdfViewportProps {
 function PdfViewport({
   activeTool = "select",
   compact = false,
+  geoShapes = [],
   markups = [],
   onCreateTakeoff,
   onDocumentLoad,
   onDrawingChange,
+  onGeoShapeCreated,
+  onGeoShapeUpdated,
+  onGeoShapeDeleted,
   onLiveMeasurement,
   pageNumber,
   selectedLineItemId,
@@ -599,8 +622,6 @@ function PdfViewport({
     return () => obs.disconnect();
   }, []);
 
-  // For compact (embedded strip), render wide and use container width
-  // For expanded, render at full scale
   const baseWidth = compact ? Math.max(400, containerWidth - 12 || 400) : Math.max(760, containerWidth - 12 || 760);
   const renderWidth = Math.round(baseWidth * zoom);
   const renderHeight = Math.max(140, Math.round(renderWidth * pageAspectRatio));
@@ -644,150 +665,26 @@ function PdfViewport({
               onLoadError={(err) => setPageError(extractPdfErrorMessage(err))}
             />
 
-            {!compact && onCreateTakeoff && (
-              <TakeoffOverlay
+            {!compact && onCreateTakeoff && onGeoShapeCreated && onGeoShapeUpdated && onGeoShapeDeleted && (
+              <GeometryOverlay
                 activeTool={activeTool}
+                width={renderWidth}
                 height={renderHeight}
-                markups={markups.filter(m => m.pageNumber === pageNumber)}
+                pageNumber={pageNumber}
+                selectedLineItemId={selectedLineItemId}
+                shapes={geoShapes}
+                onShapeCreated={onGeoShapeCreated}
+                onShapeUpdated={onGeoShapeUpdated}
+                onShapeDeleted={onGeoShapeDeleted}
                 onCreateTakeoff={onCreateTakeoff}
                 onDrawingChange={onDrawingChange}
                 onLiveMeasurement={onLiveMeasurement}
-                pageNumber={pageNumber}
-                selectedLineItemId={selectedLineItemId}
-                width={renderWidth}
+                markups={markups}
               />
             )}
           </div>
         </Document>
       </div>
-    </div>
-  );
-}
-
-/* ─── Takeoff Overlay ─── */
-
-interface TakeoffOverlayProps {
-  activeTool: TakeoffTool;
-  height: number;
-  markups: TakeoffMarkup[];
-  onCreateTakeoff: (payload: TakeoffCreatePayload) => void;
-  onDrawingChange?: (drawing: boolean) => void;
-  onLiveMeasurement?: (m: { width: number; height: number; area: number; perimeter: number; length: number; count: number; volume: number } | null) => void;
-  pageNumber: number;
-  selectedLineItemId?: string;
-  width: number;
-}
-
-function TakeoffOverlay({ activeTool, height, markups, onCreateTakeoff, onDrawingChange, onLiveMeasurement, pageNumber, selectedLineItemId, width }: TakeoffOverlayProps) {
-  const [draft, setDraft] = useState<TakeoffMarkup | null>(null);
-  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null);
-  const isDrawingEnabled = activeTool !== "select" && activeTool !== "pan" && Boolean(selectedLineItemId);
-
-  useEffect(() => {
-    setDraft(null);
-    setStartPoint(null);
-    onDrawingChange?.(false);
-    onLiveMeasurement?.(null);
-  }, [activeTool, pageNumber, selectedLineItemId]);
-
-  const getRelativePoint = (e: MouseEvent<HTMLDivElement>) => {
-    const b = e.currentTarget.getBoundingClientRect();
-    return { x: clamp(e.clientX - b.left, 0, b.width), y: clamp(e.clientY - b.top, 0, b.height) };
-  };
-
-  const computeMeasurement = (rect: { width: number; height: number }) => {
-    const wR = rect.width / width;
-    const hR = rect.height / height;
-    const length = round(Math.max(wR, hR) * 240, 1);
-    const area = round(wR * hR * 4200, 1);
-    const perimeter = round((wR + hR) * 2 * 120, 1);
-    const volume = round(wR * hR * 36, 2);
-    return { width: rect.width, height: rect.height, area, perimeter, length, count: 1, volume };
-  };
-
-  const commitTakeoff = (tool: TakeoffTool, rect: { x: number; y: number; width: number; height: number }) => {
-    if (!selectedLineItemId) return;
-    const quantity = getTakeoffQuantity(tool, rect.width / width, rect.height / height);
-    const unit = getTakeoffUnit(tool);
-    const takeoffId = `tk-manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    onCreateTakeoff({
-      markup: { takeoffId, lineItemId: selectedLineItemId, pageNumber, tool, x: rect.x / width, y: rect.y / height, width: rect.width / width, height: rect.height / height },
-      record: { id: takeoffId, linkedLineItemId: selectedLineItemId, method: tool === "rectangle" ? "polygon" : tool === "pan" || tool === "select" ? "area" : tool as TakeoffRecord["method"], notes: `Manual ${tool} takeoff`, quantity, sourcePage: `Page ${pageNumber}`, timestamp: new Date().toLocaleString(), unit },
-    });
-    onDrawingChange?.(false);
-    onLiveMeasurement?.(null);
-  };
-
-  const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
-    if (!isDrawingEnabled) return;
-    const point = getRelativePoint(e);
-    if (activeTool === "count") {
-      commitTakeoff("count", { x: point.x - 9, y: point.y - 9, width: 18, height: 18 });
-      return;
-    }
-    setStartPoint(point);
-    setDraft({ takeoffId: "draft", lineItemId: selectedLineItemId!, pageNumber, tool: activeTool, x: point.x / width, y: point.y / height, width: 0, height: 0 });
-    onDrawingChange?.(true);
-  };
-
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!startPoint || !selectedLineItemId) return;
-    const point = getRelativePoint(e);
-    const rect = normalizeRect(startPoint, point, width, height);
-    setDraft({ takeoffId: "draft", lineItemId: selectedLineItemId, pageNumber, tool: activeTool, x: rect.x / width, y: rect.y / height, width: rect.width / width, height: rect.height / height });
-    onLiveMeasurement?.(computeMeasurement(rect));
-  };
-
-  const handleMouseUp = (e: MouseEvent<HTMLDivElement>) => {
-    if (!startPoint || !selectedLineItemId) return;
-    const point = getRelativePoint(e);
-    const rect = normalizeRect(startPoint, point, width, height);
-    if (rect.width > 8 || rect.height > 8) commitTakeoff(activeTool, rect);
-    setDraft(null);
-    setStartPoint(null);
-  };
-
-  return (
-    <div
-      className={cn(
-        "absolute inset-0",
-        activeTool === "select" || activeTool === "pan" ? "pointer-events-none" : "pointer-events-auto",
-        isDrawingEnabled ? "cursor-crosshair" : activeTool !== "select" && activeTool !== "pan" ? "cursor-not-allowed" : "",
-      )}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-    >
-      {markups.map(m => <TakeoffMarkupShape key={m.takeoffId} markup={m} />)}
-      {draft && <TakeoffMarkupShape draft markup={draft} />}
-      {activeTool !== "select" && activeTool !== "pan" && !selectedLineItemId && (
-        <div className="absolute left-4 top-4 rounded-md border border-destructive/20 bg-background/95 px-3 py-2 text-[10px] text-muted-foreground shadow-sm">
-          Select a line item before drawing.
-        </div>
-      )}
-    </div>
-  );
-}
-
-function TakeoffMarkupShape({ draft = false, markup }: { draft?: boolean; markup: TakeoffMarkup }) {
-  const isCount = markup.tool === "count";
-  return (
-    <div
-      className={cn(
-        "absolute border border-primary/70 bg-primary/10 shadow-sm",
-        isCount ? "rounded-full" : "rounded-sm",
-        draft && "border-dashed",
-      )}
-      style={{
-        height: `${Math.max(markup.height * 100, isCount ? 2.2 : 0.8)}%`,
-        left: `${markup.x * 100}%`,
-        top: `${markup.y * 100}%`,
-        width: `${Math.max(markup.width * 100, isCount ? 2.2 : 0.8)}%`,
-      }}
-    >
-      <span className="absolute -top-5 left-0 rounded-sm bg-background px-1 py-0.5 text-[9px] font-medium text-foreground shadow-sm">
-        {markup.tool}
-      </span>
     </div>
   );
 }
@@ -818,35 +715,6 @@ function extractPdfErrorMessage(error: unknown) {
 
 function getSheetForPage(pageNumber: number) {
   return SHEET_PRESETS.find(s => s.page === pageNumber);
-}
-
-function getTakeoffQuantity(tool: TakeoffTool, wR: number, hR: number) {
-  switch (tool) {
-    case "linear": return round(Math.max(wR, hR) * 240, 1);
-    case "area": case "rectangle": case "polygon": return round(wR * hR * 4200, 1);
-    case "volume": return round(wR * hR * 36, 2);
-    case "count": return 1;
-    default: return 0;
-  }
-}
-
-function getTakeoffUnit(tool: TakeoffTool) {
-  switch (tool) {
-    case "linear": return "LF";
-    case "area": case "rectangle": case "polygon": return "SF";
-    case "volume": return "CY";
-    case "count": return "EA";
-    default: return "LS";
-  }
-}
-
-function normalizeRect(start: { x: number; y: number }, end: { x: number; y: number }, maxW: number, maxH: number) {
-  return {
-    x: clamp(Math.min(start.x, end.x), 0, maxW),
-    y: clamp(Math.min(start.y, end.y), 0, maxH),
-    width: clamp(Math.abs(end.x - start.x), 0, maxW),
-    height: clamp(Math.abs(end.y - start.y), 0, maxH),
-  };
 }
 
 function clamp(v: number, min: number, max: number) { return Math.min(Math.max(v, min), max); }
