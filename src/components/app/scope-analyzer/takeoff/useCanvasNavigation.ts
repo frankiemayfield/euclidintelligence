@@ -21,27 +21,25 @@ export function useCanvasNavigation(containerRef: React.RefObject<HTMLDivElement
     const el = containerRef.current;
     if (!el) return;
     const handleWheel = (e: WheelEvent) => {
-      if (e.ctrlKey || e.metaKey || Math.abs(e.deltaY) > 0) {
-        // Only zoom if it looks like a pinch or scroll (not horizontal scroll)
-        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-        e.preventDefault();
-        const rect = el.getBoundingClientRect();
-        const cursorX = e.clientX - rect.left;
-        const cursorY = e.clientY - rect.top;
+      // Zoom on any scroll (vertical)
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const cursorX = e.clientX - rect.left;
+      const cursorY = e.clientY - rect.top;
 
-        setTransform(prev => {
-          const direction = e.deltaY < 0 ? 1 : -1;
-          const factor = 1 + ZOOM_STEP * direction;
-          const newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, prev.zoom * factor));
-          const scale = newZoom / prev.zoom;
+      setTransform(prev => {
+        const direction = e.deltaY < 0 ? 1 : -1;
+        const factor = 1 + ZOOM_STEP * direction;
+        const newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, prev.zoom * factor));
+        const scale = newZoom / prev.zoom;
 
-          // Zoom toward cursor position
-          const newPanX = cursorX - scale * (cursorX - prev.panX);
-          const newPanY = cursorY - scale * (cursorY - prev.panY);
+        // Zoom toward cursor position
+        const newPanX = cursorX - scale * (cursorX - prev.panX);
+        const newPanY = cursorY - scale * (cursorY - prev.panY);
 
-          return { zoom: newZoom, panX: newPanX, panY: newPanY };
-        });
-      }
+        return { zoom: newZoom, panX: newPanX, panY: newPanY };
+      });
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
     return () => el.removeEventListener("wheel", handleWheel);
@@ -96,14 +94,6 @@ export function useCanvasNavigation(containerRef: React.RefObject<HTMLDivElement
       panStart.current = null;
     }
   }, [isPanning]);
-
-  // Double-click: zoom to fit (reset)
-  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
-    // Only if space held or no active drawing tool context
-    if (e.detail === 2) {
-      setTransform({ zoom: 1, panX: 0, panY: 0 });
-    }
-  }, []);
 
   const setZoom = useCallback((newZoom: number | ((prev: number) => number)) => {
     setTransform(prev => {

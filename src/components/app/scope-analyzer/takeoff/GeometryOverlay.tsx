@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import type { TakeoffTool } from "../FloatingTakeoffToolbar";
 import type { TakeoffMarkup } from "../PlanViewer";
 import type { TakeoffRecord } from "@/data/scopeAnalyzerData";
+import type { VisibilityMode } from "./TakeoffVisibility";
 import {
   type TakeoffShape,
   type DrawingState,
@@ -16,6 +17,7 @@ import {
   getShapeQuantity,
   getShapeUnit,
 } from "./geometry";
+import { getAssemblyColor } from "./assemblyColors";
 
 interface GeometryOverlayProps {
   activeTool: TakeoffTool;
@@ -23,6 +25,8 @@ interface GeometryOverlayProps {
   height: number;
   pageNumber: number;
   selectedLineItemId?: string;
+  selectedShapeId?: string | null;
+  onSelectedShapeChange?: (shapeId: string | null, lineItemId?: string) => void;
   shapes: TakeoffShape[];
   onShapeCreated: (shape: TakeoffShape) => void;
   onShapeUpdated: (shape: TakeoffShape) => void;
@@ -34,6 +38,10 @@ interface GeometryOverlayProps {
     perimeter: number; length: number; count: number; volume: number;
   } | null) => void;
   markups: TakeoffMarkup[];
+  visibilityMode?: VisibilityMode;
+  // For continuous count session
+  countSession?: { lineItemId: string; count: number } | null;
+  onCountSessionUpdate?: (session: { lineItemId: string; count: number; shapes: TakeoffShape[] }) => void;
 }
 
 const VERTEX_RADIUS = 5;
@@ -46,6 +54,8 @@ export function GeometryOverlay({
   height,
   pageNumber,
   selectedLineItemId,
+  selectedShapeId,
+  onSelectedShapeChange,
   shapes,
   onShapeCreated,
   onShapeUpdated,
@@ -54,16 +64,29 @@ export function GeometryOverlay({
   onDrawingChange,
   onLiveMeasurement,
   markups,
+  visibilityMode = "all",
+  countSession,
+  onCountSessionUpdate,
 }: GeometryOverlayProps) {
   const [drawing, setDrawing] = useState<DrawingState>(INITIAL_DRAWING_STATE);
-  const isDrawingEnabled = activeTool !== "select" && activeTool !== "pan" && Boolean(selectedLineItemId);
+  const isCreationTool = activeTool !== "select" && activeTool !== "pan";
+  const isDrawingEnabled = isCreationTool && Boolean(selectedLineItemId);
   const isSelectMode = activeTool === "select";
 
   useEffect(() => {
     setDrawing(INITIAL_DRAWING_STATE);
     onDrawingChange?.(false);
     onLiveMeasurement?.(null);
-  }, [activeTool, pageNumber, selectedLineItemId]);
+  }, [activeTool, pageNumber]);
+
+  // Reset drawing state when line item changes (but not for count sessions)
+  useEffect(() => {
+    if (activeTool !== "count") {
+      setDrawing(INITIAL_DRAWING_STATE);
+      onDrawingChange?.(false);
+      onLiveMeasurement?.(null);
+    }
+  }, [selectedLineItemId]);
 
   const getNormalized = useCallback((e: MouseEvent<SVGSVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -101,12 +124,21 @@ export function GeometryOverlay({
     });
     onDrawingChange?.(false);
     onLiveMeasurement?.(null);
+    return finalShape;
   }, [selectedLineItemId, pageNumber, onShapeCreated, onCreateTakeoff, onDrawingChange, onLiveMeasurement]);
 
   const handleClick = useCallback((e: MouseEvent<SVGSVGElement>) => {
+    // Select mode: click empty space to deselect
+    if (isSelectMode) {
+      onSelectedShapeChange?.(null);
+      setDrawing(prev => ({ ...prev, editingShapeId: null }));
+      return;
+    }
+
     if (!isDrawingEnabled) return;
     const pt = getNormalized(e);
 
+    // Count tool: continuous placement
     if (activeTool === "count") {
       const shape: TakeoffShape = {
         id: `shape-${generateId()}`,
@@ -117,7 +149,21 @@ export function GeometryOverlay({
         lineItemId: selectedLineItemId!,
         tool: "count",
       };
-      commitShape(shape);
+      const committed = commitShape(shape);
+      // Update live measurement for running count
+      if (committed) {
+        const currentCount = (countSession?.count ?? 0) + 1;
+        onLiveMeasurement?.({
+          width: 0, height: 0, area: 0, perimeter: 0, length: 0,
+          count: currentCount, volume: 0,
+        });
+        onDrawingChange?.(true); // Keep HUD visible
+        onCountSessionUpdate?.({
+          lineItemId: selectedLineItemId!,
+          count: currentCount,
+          shapes: [...(shapes.filter(s => s.tool === "count" && s.lineItemId === selectedLineItemId && s.pageNumber === pageNumber)), committed],
+        });
+      }
       return;
     }
 
@@ -157,7 +203,7 @@ export function GeometryOverlay({
 
     const m = computeShapeMeasurements(updated.vertices, null, false, updated.tool);
     onLiveMeasurement?.(m);
-  }, [isDrawingEnabled, activeTool, drawing.activeShape, selectedLineItemId, pageNumber, getNormalized, commitShape, onDrawingChange, onLiveMeasurement]);
+  }, [isSelectMode, isDrawingEnabled, activeTool, drawing.activeShape, selectedLineItemId, pageNumber, getNormalized, commitShape, onDrawingChange, onLiveMeasurement, onSelectedShapeChange, countSession, onCountSessionUpdate, shapes]);
 
   const handleDoubleClick = useCallback((e: MouseEvent<SVGSVGElement>) => {
     e.preventDefault();
@@ -260,11 +306,19 @@ export function GeometryOverlay({
   const handleShapeClick = useCallback((shapeId: string, e: MouseEvent) => {
     e.stopPropagation();
     if (!isSelectMode) return;
-    setDrawing(prev => ({
-      ...prev,
-      editingShapeId: prev.editingShapeId === shapeId ? null : shapeId,
-    }));
-  }, [isSelectMode]);
+    const shape = shapes.find(s => s.id === shapeId);
+    const isAlreadySelected = selectedShapeId === shapeId;
+    if (isAlreadySelected) {
+      // Toggle into edit mode
+      setDrawing(prev => ({
+        ...prev,
+        editingShapeId: prev.editingShapeId === shapeId ? null : shapeId,
+      }));
+    } else {
+      onSelectedShapeChange?.(shapeId, shape?.lineItemId);
+      setDrawing(prev => ({ ...prev, editingShapeId: null }));
+    }
+  }, [isSelectMode, selectedShapeId, shapes, onSelectedShapeChange]);
 
   const handleVertexMouseDown = useCallback((vertexId: string, shapeId: string, e: MouseEvent) => {
     e.stopPropagation();
@@ -297,10 +351,11 @@ export function GeometryOverlay({
     if (newVerts.length < 2) {
       onShapeDeleted(shapeId);
       setDrawing(prev => ({ ...prev, editingShapeId: null }));
+      onSelectedShapeChange?.(null);
     } else {
       onShapeUpdated({ ...shape, vertices: newVerts });
     }
-  }, [shapes, onShapeUpdated, onShapeDeleted]);
+  }, [shapes, onShapeUpdated, onShapeDeleted, onSelectedShapeChange]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -309,20 +364,30 @@ export function GeometryOverlay({
           setDrawing(INITIAL_DRAWING_STATE);
           onDrawingChange?.(false);
           onLiveMeasurement?.(null);
-        } else if (drawing.editingShapeId) {
+        } else if (selectedShapeId || drawing.editingShapeId) {
           setDrawing(prev => ({ ...prev, editingShapeId: null }));
+          onSelectedShapeChange?.(null);
         }
       }
-      if ((e.key === "Delete" || e.key === "Backspace") && drawing.editingShapeId && !drawing.activeShape) {
-        onShapeDeleted(drawing.editingShapeId);
+      if ((e.key === "Delete" || e.key === "Backspace") && selectedShapeId && !drawing.activeShape) {
+        e.preventDefault();
+        onShapeDeleted(selectedShapeId);
+        onSelectedShapeChange?.(null);
         setDrawing(prev => ({ ...prev, editingShapeId: null }));
       }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [drawing, onDrawingChange, onLiveMeasurement, onShapeDeleted]);
+  }, [drawing, selectedShapeId, onDrawingChange, onLiveMeasurement, onShapeDeleted, onSelectedShapeChange]);
 
   const pageShapes = shapes.filter(s => s.pageNumber === pageNumber);
+
+  // Filter by visibility
+  const visibleShapes = visibilityMode === "hidden"
+    ? []
+    : visibilityMode === "selected"
+      ? pageShapes.filter(s => s.lineItemId === selectedLineItemId)
+      : pageShapes;
 
   const cursorClass = activeTool === "select"
     ? "cursor-default"
@@ -332,11 +397,36 @@ export function GeometryOverlay({
         ? "cursor-crosshair"
         : "cursor-not-allowed";
 
+  // Pan tool: overlay should not capture events
+  if (activeTool === "pan") {
+    return (
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        viewBox={`0 0 ${width} ${height}`}
+      >
+        {visibleShapes.map(shape => (
+          <ShapeRenderer
+            key={shape.id}
+            shape={shape}
+            width={width}
+            height={height}
+            isEditing={false}
+            isSelected={selectedShapeId === shape.id}
+            isDimmed={!!selectedShapeId && selectedShapeId !== shape.id}
+            hoverEdgeIndex={null}
+            onShapeClick={() => {}}
+            onVertexMouseDown={() => {}}
+            onEdgeClick={() => {}}
+            onVertexDelete={() => {}}
+          />
+        ))}
+      </svg>
+    );
+  }
+
   return (
     <svg
-      className={cn("absolute inset-0 w-full h-full", cursorClass,
-        (activeTool === "select" || activeTool === "pan") && !drawing.editingShapeId ? "pointer-events-none" : "pointer-events-auto"
-      )}
+      className={cn("absolute inset-0 w-full h-full pointer-events-auto", cursorClass)}
       viewBox={`0 0 ${width} ${height}`}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
@@ -344,13 +434,15 @@ export function GeometryOverlay({
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
     >
-      {pageShapes.map(shape => (
+      {visibleShapes.map(shape => (
         <ShapeRenderer
           key={shape.id}
           shape={shape}
           width={width}
           height={height}
           isEditing={drawing.editingShapeId === shape.id}
+          isSelected={selectedShapeId === shape.id}
+          isDimmed={!!selectedShapeId && selectedShapeId !== shape.id}
           hoverEdgeIndex={drawing.editingShapeId === shape.id ? drawing.hoverEdgeIndex : null}
           onShapeClick={handleShapeClick}
           onVertexMouseDown={handleVertexMouseDown}
@@ -368,7 +460,7 @@ export function GeometryOverlay({
         />
       )}
 
-      {activeTool !== "select" && activeTool !== "pan" && !selectedLineItemId && (
+      {isCreationTool && !selectedLineItemId && (
         <foreignObject x={16} y={16} width={220} height={40}>
           <div className="rounded-md border border-destructive/20 bg-background/95 px-3 py-2 text-[10px] text-muted-foreground shadow-sm">
             Select a line item before drawing.
@@ -379,11 +471,15 @@ export function GeometryOverlay({
   );
 }
 
+/* ─── Shape Renderer ─── */
+
 function ShapeRenderer({
   shape,
   width,
   height,
   isEditing,
+  isSelected,
+  isDimmed,
   hoverEdgeIndex,
   onShapeClick,
   onVertexMouseDown,
@@ -394,6 +490,8 @@ function ShapeRenderer({
   width: number;
   height: number;
   isEditing: boolean;
+  isSelected: boolean;
+  isDimmed: boolean;
   hoverEdgeIndex: number | null;
   onShapeClick: (id: string, e: MouseEvent) => void;
   onVertexMouseDown: (vertexId: string, shapeId: string, e: MouseEvent) => void;
@@ -403,29 +501,44 @@ function ShapeRenderer({
   const verts = shape.vertices;
   if (verts.length === 0) return null;
 
+  // Assembly color - use lineItemId as a proxy for assembly grouping
+  const assemblyColor = getAssemblyColor(shape.lineItemId);
+  const strokeColor = isSelected ? assemblyColor.stroke : assemblyColor.stroke;
+  const fillColor = isSelected
+    ? assemblyColor.fill.replace("0.15", "0.3")
+    : assemblyColor.fill;
+  const strokeWidth = isSelected ? 2.5 : isEditing ? 2 : 1.5;
+  const opacity = isDimmed ? 0.3 : 1;
+
   if (shape.type === "count") {
     const v = verts[0];
     return (
-      <g onClick={(e) => onShapeClick(shape.id, e as unknown as MouseEvent)} className="cursor-pointer">
+      <g
+        onClick={(e) => onShapeClick(shape.id, e as unknown as MouseEvent)}
+        className="cursor-pointer"
+        opacity={opacity}
+      >
         <circle
           cx={v.x * width}
           cy={v.y * height}
-          r={8}
-          className="fill-primary/20 stroke-primary"
-          strokeWidth={2}
+          r={isSelected ? 10 : 8}
+          fill={fillColor}
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
         />
         <circle
           cx={v.x * width}
           cy={v.y * height}
           r={3}
-          className="fill-primary"
+          fill={strokeColor}
         />
-        {isEditing && (
+        {isSelected && (
           <circle
             cx={v.x * width}
             cy={v.y * height}
-            r={12}
-            className="fill-none stroke-primary"
+            r={14}
+            fill="none"
+            stroke={strokeColor}
             strokeWidth={1}
             strokeDasharray="3 3"
           />
@@ -440,14 +553,15 @@ function ShapeRenderer({
     : `M ${points.join(" L ")}`;
 
   return (
-    <g onClick={(e) => onShapeClick(shape.id, e as unknown as MouseEvent)} className="cursor-pointer">
+    <g
+      onClick={(e) => onShapeClick(shape.id, e as unknown as MouseEvent)}
+      className="cursor-pointer"
+      opacity={opacity}
+    >
       {shape.closed && (
         <path
           d={pathStr}
-          className={cn(
-            "fill-primary/10",
-            isEditing && "fill-primary/20",
-          )}
+          fill={fillColor}
           stroke="none"
         />
       )}
@@ -461,10 +575,8 @@ function ShapeRenderer({
               y1={edge.from.y * height}
               x2={edge.to.x * width}
               y2={edge.to.y * height}
-              className={cn(
-                "stroke-primary",
-                hoverEdgeIndex === i ? "stroke-[3]" : "stroke-[1.5]",
-              )}
+              stroke={strokeColor}
+              strokeWidth={hoverEdgeIndex === i ? 3 : strokeWidth}
               strokeLinecap="round"
               onClick={isEditing ? (e) => { e.stopPropagation(); onEdgeClick(i, shape.id, e as unknown as MouseEvent); } : undefined}
               style={isEditing ? { cursor: "copy" } : undefined}
@@ -493,31 +605,37 @@ function ShapeRenderer({
         </>
       )}
 
+      {/* Selected glow */}
+      {isSelected && !isEditing && verts.length >= 2 && (
+        <path
+          d={pathStr}
+          fill="none"
+          stroke={strokeColor}
+          strokeWidth={1}
+          strokeDasharray="4 3"
+          opacity={0.5}
+        />
+      )}
+
       {isEditing && verts.map(v => (
         <g key={v.id}>
           <circle
             cx={v.x * width}
             cy={v.y * height}
             r={VERTEX_RADIUS}
-            className="fill-background stroke-primary stroke-[2] cursor-move"
+            className="fill-background cursor-move"
+            stroke={strokeColor}
+            strokeWidth={2}
             onMouseDown={(e) => { e.stopPropagation(); onVertexMouseDown(v.id, shape.id, e as unknown as MouseEvent); }}
             onDoubleClick={(e) => { e.stopPropagation(); onVertexDelete(v.id, shape.id); }}
           />
         </g>
       ))}
-
-      {verts.length >= 1 && (
-        <text
-          x={verts[0].x * width}
-          y={verts[0].y * height - 10}
-          className="fill-foreground text-[9px] font-semibold"
-        >
-          {shape.tool}
-        </text>
-      )}
     </g>
   );
 }
+
+/* ─── Active Shape (being drawn) ─── */
 
 function ActiveShapeRenderer({
   shape,
