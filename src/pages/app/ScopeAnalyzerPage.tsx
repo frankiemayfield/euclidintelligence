@@ -146,6 +146,15 @@ export default function ScopeAnalyzerPage() {
     takeoffs: selectedLineItemTakeoffs,
   };
 
+  /* Fullscreen mode: only the PlanViewer is rendered */
+  if (viewerMode === "fullscreen") {
+    return (
+      <TooltipProvider>
+        <PlanViewer {...planViewerProps} mode="fullscreen" />
+      </TooltipProvider>
+    );
+  }
+
   return (
     <AppLayout>
       <TooltipProvider>
@@ -176,7 +185,6 @@ export default function ScopeAnalyzerPage() {
 
             {/* Right column: embedded viewer (above) + inspector (below) */}
             <div className="w-[320px] shrink-0 flex flex-col">
-              {/* Embedded viewer sits here, above inspector */}
               {viewerMode === "embedded" && (
                 <PlanViewer {...planViewerProps} mode="embedded" />
               )}
