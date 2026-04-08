@@ -39,6 +39,12 @@ interface GeometryOverlayProps {
   } | null) => void;
   markups: TakeoffMarkup[];
   visibilityMode?: VisibilityMode;
+  calibrationDrawMode?: boolean;
+  onCalibrationLineComplete?: (line: {
+    startX: number; startY: number;
+    endX: number; endY: number;
+    normalizedLength: number;
+  }) => void;
 }
 
 const VERTEX_RADIUS = 5;
@@ -62,6 +68,8 @@ export function GeometryOverlay({
   onLiveMeasurement,
   markups,
   visibilityMode = "all",
+  calibrationDrawMode = false,
+  onCalibrationLineComplete,
 }: GeometryOverlayProps) {
   const [drawing, setDrawing] = useState<DrawingState>(INITIAL_DRAWING_STATE);
   const isCreationTool = activeTool !== "select" && activeTool !== "pan";
@@ -70,6 +78,18 @@ export function GeometryOverlay({
 
   const [runningCount, setRunningCount] = useState(0);
   const [draggingCountId, setDraggingCountId] = useState<string | null>(null);
+
+  // Calibration drawing state
+  const [calStart, setCalStart] = useState<{ x: number; y: number } | null>(null);
+  const [calCursor, setCalCursor] = useState<{ x: number; y: number } | null>(null);
+
+  // Reset calibration state when mode changes
+  useEffect(() => {
+    if (!calibrationDrawMode) {
+      setCalStart(null);
+      setCalCursor(null);
+    }
+  }, [calibrationDrawMode]);
 
   useEffect(() => {
     setDrawing(INITIAL_DRAWING_STATE);
@@ -126,6 +146,29 @@ export function GeometryOverlay({
   }, [selectedLineItemId, pageNumber, onShapeCreated, onCreateTakeoff, onDrawingChange, onLiveMeasurement]);
 
   const handleClick = useCallback((e: MouseEvent<SVGSVGElement>) => {
+    // Calibration drawing mode takes priority
+    if (calibrationDrawMode) {
+      const pt = getNormalized(e);
+      if (!calStart) {
+        setCalStart(pt);
+        return;
+      }
+      // Second click: complete the calibration line
+      const dx = pt.x - calStart.x;
+      const dy = pt.y - calStart.y;
+      const normalizedLength = Math.sqrt(dx * dx + dy * dy);
+      onCalibrationLineComplete?.({
+        startX: calStart.x,
+        startY: calStart.y,
+        endX: pt.x,
+        endY: pt.y,
+        normalizedLength,
+      });
+      setCalStart(null);
+      setCalCursor(null);
+      return;
+    }
+
     if (isSelectMode) {
       onSelectedShapeChange?.(null);
       setDrawing(prev => ({ ...prev, editingShapeId: null }));
@@ -214,6 +257,11 @@ export function GeometryOverlay({
   const handleMouseMove = useCallback((e: MouseEvent<SVGSVGElement>) => {
     const pt = getNormalized(e);
 
+    // Calibration cursor tracking
+    if (calibrationDrawMode && calStart) {
+      setCalCursor(pt);
+      return;
+    }
     // Count marker dragging
     if (draggingCountId) {
       const shape = shapes.find(s => s.id === draggingCountId);
@@ -370,6 +418,11 @@ export function GeometryOverlay({
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        if (calibrationDrawMode) {
+          setCalStart(null);
+          setCalCursor(null);
+          return;
+        }
         if (drawing.activeShape) {
           setDrawing(INITIAL_DRAWING_STATE);
           onDrawingChange?.(false);
@@ -398,13 +451,15 @@ export function GeometryOverlay({
       ? pageShapes.filter(s => s.lineItemId === selectedLineItemId)
       : pageShapes;
 
-  const cursorClass = activeTool === "select"
-    ? "cursor-default"
-    : activeTool === "pan"
-      ? "cursor-grab"
-      : isDrawingEnabled
-        ? "cursor-crosshair"
-        : "cursor-not-allowed";
+  const cursorClass = calibrationDrawMode
+    ? "cursor-crosshair"
+    : activeTool === "select"
+      ? "cursor-default"
+      : activeTool === "pan"
+        ? "cursor-grab"
+        : isDrawingEnabled
+          ? "cursor-crosshair"
+          : "cursor-not-allowed";
 
   if (activeTool === "pan") {
     return (
@@ -468,6 +523,59 @@ export function GeometryOverlay({
           width={width}
           height={height}
         />
+      )}
+
+      {/* Calibration line overlay */}
+      {calibrationDrawMode && calStart && (
+        <g>
+          {/* Start point */}
+          <circle
+            cx={calStart.x * width}
+            cy={calStart.y * height}
+            r={5}
+            className="fill-primary stroke-primary-foreground"
+            strokeWidth={2}
+          />
+          {/* Preview line to cursor */}
+          {calCursor && (
+            <>
+              <line
+                x1={calStart.x * width}
+                y1={calStart.y * height}
+                x2={calCursor.x * width}
+                y2={calCursor.y * height}
+                className="stroke-primary"
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                strokeLinecap="round"
+              />
+              <circle
+                cx={calCursor.x * width}
+                cy={calCursor.y * height}
+                r={4}
+                className="fill-primary/60"
+              />
+              {/* Length label */}
+              {(() => {
+                const mx = ((calStart.x + calCursor.x) / 2) * width;
+                const my = ((calStart.y + calCursor.y) / 2) * height;
+                const dx = calCursor.x - calStart.x;
+                const dy = calCursor.y - calStart.y;
+                const pxDist = Math.sqrt((dx * width) ** 2 + (dy * height) ** 2);
+                return (
+                  <text
+                    x={mx}
+                    y={my - 8}
+                    className="fill-primary text-[10px] font-mono font-bold"
+                    textAnchor="middle"
+                  >
+                    {Math.round(pxDist)} px
+                  </text>
+                );
+              })()}
+            </>
+          )}
+        </g>
       )}
 
       {isCreationTool && !selectedLineItemId && (

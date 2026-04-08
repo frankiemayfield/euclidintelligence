@@ -137,6 +137,8 @@ export function PlanViewer({
   const [showFsLog, setShowFsLog] = useState(true);
   const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
   const [editingShapeId, setEditingShapeId] = useState<string | null>(null);
+  const [calibrationDrawMode, setCalibrationDrawMode] = useState(false);
+  const [calibrationLine, setCalibrationLine] = useState<import("./CalibrationDialog").CalibrationLine | null>(null);
 
   const selectedShape = geoShapes.find(s => s.id === selectedShapeId) ?? null;
 
@@ -419,11 +421,13 @@ export function PlanViewer({
       )}
       <CalibrationDialog
         open={showCalibration}
-        onClose={() => setShowCalibration(false)}
-        onCalibrate={handleCalibrate}
+        onClose={() => { setShowCalibration(false); setCalibrationDrawMode(false); setCalibrationLine(null); }}
+        onCalibrate={(scale, method) => { handleCalibrate(scale, method); setCalibrationDrawMode(false); setCalibrationLine(null); }}
         onMarkNotToScale={handleMarkNotToScale}
+        onEnterCalibrationDraw={() => { setShowCalibration(false); setCalibrationDrawMode(true); setCalibrationLine(null); }}
         currentCalibration={pageCal}
         pageNumber={safePage}
+        calibrationLine={calibrationLine}
       />
       <UncalibratedWarning
         open={showUncalibratedWarning}
@@ -523,6 +527,8 @@ export function PlanViewer({
                 selectedShapeId={selectedShapeId}
                 onSelectedShapeChange={handleSelectedShapeChange}
                 visibilityMode={visibilityMode}
+                calibrationDrawMode={calibrationDrawMode}
+                onCalibrationLineComplete={(line) => { setCalibrationLine(line); setCalibrationDrawMode(false); setShowCalibration(true); }}
               />
             </div>
           </div>
@@ -694,6 +700,8 @@ export function PlanViewer({
               selectedShapeId={selectedShapeId}
               onSelectedShapeChange={handleSelectedShapeChange}
               visibilityMode={visibilityMode}
+              calibrationDrawMode={calibrationDrawMode}
+              onCalibrationLineComplete={(line) => { setCalibrationLine(line); setCalibrationDrawMode(false); setShowCalibration(true); }}
             />
           </div>
         </div>
@@ -839,6 +847,8 @@ interface PdfViewportProps {
   externalZoom?: number;
   onExternalZoomChange?: (zoom: number) => void;
   visibilityMode?: VisibilityMode;
+  calibrationDrawMode?: boolean;
+  onCalibrationLineComplete?: (line: import("./CalibrationDialog").CalibrationLine) => void;
 }
 
 function PdfViewport({
@@ -861,6 +871,8 @@ function PdfViewport({
   externalZoom,
   onExternalZoomChange,
   visibilityMode = "all",
+  calibrationDrawMode = false,
+  onCalibrationLineComplete,
 }: PdfViewportProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -952,7 +964,9 @@ function PdfViewport({
 
             {!compact && onCreateTakeoff && onGeoShapeCreated && onGeoShapeUpdated && onGeoShapeDeleted && (
               <GeometryOverlay
-                activeTool={isPanning ? "pan" : activeTool}
+                activeTool={calibrationDrawMode ? "select" : isPanning ? "pan" : activeTool}
+                calibrationDrawMode={calibrationDrawMode}
+                onCalibrationLineComplete={onCalibrationLineComplete}
                 width={renderWidth}
                 height={renderHeight}
                 pageNumber={pageNumber}
