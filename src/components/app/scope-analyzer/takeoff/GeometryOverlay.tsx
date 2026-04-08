@@ -426,6 +426,7 @@ export function GeometryOverlay({
             onVertexMouseDown={() => {}}
             onEdgeClick={() => {}}
             onVertexDelete={() => {}}
+            onCountMarkerDragStart={() => {}}
           />
         ))}
       </svg>
@@ -456,6 +457,7 @@ export function GeometryOverlay({
           onVertexMouseDown={handleVertexMouseDown}
           onEdgeClick={handleEdgeClick}
           onVertexDelete={handleVertexDelete}
+          onCountMarkerDragStart={handleCountMarkerDragStart}
         />
       ))}
 
