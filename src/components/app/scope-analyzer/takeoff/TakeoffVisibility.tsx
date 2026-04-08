@@ -1,8 +1,8 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Eye, EyeOff, Layers, Target } from "lucide-react";
+import { Eye, EyeOff, Target } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-export type VisibilityMode = "all" | "assembly" | "lineItem" | "hidden";
+export type VisibilityMode = "all" | "selected" | "hidden";
 
 interface TakeoffVisibilityProps {
   mode: VisibilityMode;
@@ -11,8 +11,7 @@ interface TakeoffVisibilityProps {
 
 const modes: { value: VisibilityMode; label: string; icon: React.ReactNode }[] = [
   { value: "all", label: "All Takeoffs", icon: <Eye className="h-3 w-3" /> },
-  { value: "assembly", label: "Assembly Only", icon: <Layers className="h-3 w-3" /> },
-  { value: "lineItem", label: "Line Item Only", icon: <Target className="h-3 w-3" /> },
+  { value: "selected", label: "Selected Line Item Only", icon: <Target className="h-3 w-3" /> },
   { value: "hidden", label: "Hide Takeoffs", icon: <EyeOff className="h-3 w-3" /> },
 ];
 

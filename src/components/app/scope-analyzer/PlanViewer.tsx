@@ -133,10 +133,33 @@ export function PlanViewer({
   const [showUncalibratedWarning, setShowUncalibratedWarning] = useState(false);
   const [showFsInspector, setShowFsInspector] = useState(true);
   const [showFsLog, setShowFsLog] = useState(true);
+  const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
+  const [countSession, setCountSession] = useState<{ lineItemId: string; count: number } | null>(null);
 
   const handleGeoShapeCreated = (shape: TakeoffShape) => setGeoShapes(prev => [...prev, shape]);
   const handleGeoShapeUpdated = (shape: TakeoffShape) => setGeoShapes(prev => prev.map(s => s.id === shape.id ? shape : s));
-  const handleGeoShapeDeleted = (shapeId: string) => setGeoShapes(prev => prev.filter(s => s.id !== shapeId));
+  const handleGeoShapeDeleted = (shapeId: string) => {
+    setGeoShapes(prev => prev.filter(s => s.id !== shapeId));
+    if (selectedShapeId === shapeId) setSelectedShapeId(null);
+    // Also delete from takeoff records
+    const shape = geoShapes.find(s => s.id === shapeId);
+    if (shape) {
+      onDeleteTakeoff(shapeId, shape.lineItemId);
+    }
+  };
+
+  const handleSelectedShapeChange = (shapeId: string | null, lineItemId?: string) => {
+    setSelectedShapeId(shapeId);
+    if (shapeId && lineItemId) {
+      onSelectedLineItemChange(lineItemId);
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedShapeId) {
+      handleGeoShapeDeleted(selectedShapeId);
+    }
+  };
 
   const safePage = clamp(currentPage, 1, numPages || 1);
   const sheet = getSheetForPage(safePage);
@@ -156,11 +179,18 @@ export function PlanViewer({
   };
 
   const handleToolChange = (newTool: TakeoffTool) => {
-    if (newTool !== "select" && !isCalibrated && pageCal.status !== "not-to-scale") {
+    // End count session when switching away from count
+    if (tool === "count" && newTool !== "count" && countSession) {
+      setCountSession(null);
+      setIsDrawing(false);
+      setLiveMeasurement(null);
+    }
+    if (newTool !== "select" && newTool !== "pan" && !isCalibrated && pageCal.status !== "not-to-scale") {
       setShowUncalibratedWarning(true);
       return;
     }
     setTool(newTool);
+    setSelectedShapeId(null);
   };
 
   const handleUndo = () => {
@@ -168,11 +198,17 @@ export function PlanViewer({
       const last = takeoffs[takeoffs.length - 1];
       if (last.id.startsWith("tk-manual-")) {
         onDeleteTakeoff(last.id, last.linkedLineItemId);
+        setGeoShapes(prev => prev.filter(s => s.id !== last.id));
       }
     }
   };
 
   const handleCreateTakeoffInternal = (payload: TakeoffCreatePayload) => {
+    // For count tool, don't show completion card - just save directly
+    if (payload.record.method === "count") {
+      onCreateTakeoff(payload);
+      return;
+    }
     setPendingCompletion({
       quantity: payload.record.quantity,
       unit: payload.record.unit,
@@ -191,11 +227,35 @@ export function PlanViewer({
     setPendingCompletion(null);
   };
 
+  const handleCountSessionUpdate = (session: { lineItemId: string; count: number; shapes: TakeoffShape[] }) => {
+    setCountSession({ lineItemId: session.lineItemId, count: session.count });
+  };
+
   // Default dock position per mode
   useEffect(() => {
     if (isFullscreen) setDockPosition("bottom");
     else setDockPosition("left");
   }, [isFullscreen]);
+
+  // Keyboard shortcuts for tools
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) return;
+      const key = e.key.toLowerCase();
+      if (key === "v") handleToolChange("select");
+      else if (key === "h") handleToolChange("pan");
+      else if (key === "c") handleToolChange("count");
+      else if (key === "l") handleToolChange("linear");
+      else if (key === "a") handleToolChange("area");
+      else if (key === "r") handleToolChange("rectangle");
+      else if (key === "p") handleToolChange("polygon");
+      else if (key === "u") handleToolChange("volume");
+    };
+    if (mode === "expanded" || mode === "fullscreen") {
+      window.addEventListener("keydown", handleKey);
+      return () => window.removeEventListener("keydown", handleKey);
+    }
+  }, [mode, isCalibrated, pageCal.status, tool, countSession]);
 
   if (mode === "hidden") return null;
 
@@ -233,6 +293,80 @@ export function PlanViewer({
       <Crosshair className={cn("h-3 w-3", getCalibrationBadgeColor(pageCal.status))} />
       <span className={getCalibrationBadgeColor(pageCal.status)}>{getCalibrationLabel(pageCal)}</span>
     </button>
+  );
+
+  const sharedToolbar = (
+    <FloatingTakeoffToolbar
+      activeTool={tool}
+      onToolChange={handleToolChange}
+      onUndo={handleUndo}
+      onClearCurrent={() => setPendingCompletion(null)}
+      onCalibrationClick={() => setShowCalibration(true)}
+      onDeleteSelected={handleDeleteSelected}
+      isCalibrated={isCalibrated}
+      hasSelection={!!selectedShapeId}
+      collapsed={toolbarCollapsed}
+      onCollapsedChange={setToolbarCollapsed}
+      visible
+      dockPosition={dockPosition}
+      onDockPositionChange={setDockPosition}
+    />
+  );
+
+  const sharedOverlays = (
+    <>
+      <MeasurementHUD tool={tool} isDrawing={isDrawing} currentMeasurement={liveMeasurement} visible />
+      {pendingCompletion && (
+        <TakeoffCompletionCard
+          quantity={pendingCompletion.quantity}
+          unit={pendingCompletion.unit}
+          toolType={pendingCompletion.toolType}
+          linkedLineItemId={selectedLineItemId}
+          lineItemOptions={lineItemOptions}
+          onSave={handleCompletionSave}
+          onCancel={() => setPendingCompletion(null)}
+        />
+      )}
+      {/* Count session indicator */}
+      {tool === "count" && countSession && countSession.count > 0 && (
+        <div className="absolute bottom-4 left-4 z-50 rounded-lg border border-primary/30 bg-card/95 shadow-lg backdrop-blur-md px-3 py-2">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">Count Session</span>
+          </div>
+          <div className="flex items-baseline gap-1 mt-1">
+            <span className="text-lg font-bold text-foreground font-mono tabular-nums">{countSession.count}</span>
+            <span className="text-[9px] text-muted-foreground">EA</span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-1.5 h-6 text-[10px] w-full"
+            onClick={() => {
+              setCountSession(null);
+              setIsDrawing(false);
+              setLiveMeasurement(null);
+            }}
+          >
+            Finish Counting
+          </Button>
+        </div>
+      )}
+      <CalibrationDialog
+        open={showCalibration}
+        onClose={() => setShowCalibration(false)}
+        onCalibrate={handleCalibrate}
+        onMarkNotToScale={handleMarkNotToScale}
+        currentCalibration={pageCal}
+        pageNumber={safePage}
+      />
+      <UncalibratedWarning
+        open={showUncalibratedWarning}
+        onCalibrate={() => { setShowUncalibratedWarning(false); setShowCalibration(true); }}
+        onContinue={() => { setShowUncalibratedWarning(false); }}
+        onCancel={() => setShowUncalibratedWarning(false)}
+      />
+    </>
   );
 
   /* ── FULLSCREEN: immersive takeoff workspace ── */
@@ -307,45 +441,8 @@ export function PlanViewer({
         {/* Main content area */}
         <div className="flex flex-1 min-h-0 relative">
           <div className="flex-1 min-w-0 relative bg-muted/5 overflow-auto">
-            <FloatingTakeoffToolbar
-              activeTool={tool}
-              onToolChange={handleToolChange}
-              onUndo={handleUndo}
-              onClearCurrent={() => setPendingCompletion(null)}
-              onCalibrationClick={() => setShowCalibration(true)}
-              isCalibrated={isCalibrated}
-              collapsed={toolbarCollapsed}
-              onCollapsedChange={setToolbarCollapsed}
-              visible
-              dockPosition={dockPosition}
-              onDockPositionChange={setDockPosition}
-            />
-            <MeasurementHUD tool={tool} isDrawing={isDrawing} currentMeasurement={liveMeasurement} visible />
-            {pendingCompletion && (
-              <TakeoffCompletionCard
-                quantity={pendingCompletion.quantity}
-                unit={pendingCompletion.unit}
-                toolType={pendingCompletion.toolType}
-                linkedLineItemId={selectedLineItemId}
-                lineItemOptions={lineItemOptions}
-                onSave={handleCompletionSave}
-                onCancel={() => setPendingCompletion(null)}
-              />
-            )}
-            <CalibrationDialog
-              open={showCalibration}
-              onClose={() => setShowCalibration(false)}
-              onCalibrate={handleCalibrate}
-              onMarkNotToScale={handleMarkNotToScale}
-              currentCalibration={pageCal}
-              pageNumber={safePage}
-            />
-            <UncalibratedWarning
-              open={showUncalibratedWarning}
-              onCalibrate={() => { setShowUncalibratedWarning(false); setShowCalibration(true); }}
-              onContinue={() => { setShowUncalibratedWarning(false); setTool(tool === "select" ? "linear" : tool); }}
-              onCancel={() => setShowUncalibratedWarning(false)}
-            />
+            {sharedToolbar}
+            {sharedOverlays}
             <div className="p-3 h-full">
               <PdfViewport
                 activeTool={tool}
@@ -362,7 +459,11 @@ export function PlanViewer({
                 externalZoom={zoom}
                 pageNumber={safePage}
                 selectedLineItemId={selectedLineItemId}
+                selectedShapeId={selectedShapeId}
+                onSelectedShapeChange={handleSelectedShapeChange}
                 visibilityMode={visibilityMode}
+                countSession={countSession}
+                onCountSessionUpdate={handleCountSessionUpdate}
               />
             </div>
           </div>
@@ -381,7 +482,17 @@ export function PlanViewer({
                         No takeoffs linked yet
                       </div>
                     ) : takeoffs.map(t => (
-                      <TakeoffLogEntry key={t.id} takeoff={t} onDelete={onDeleteTakeoff} calibrationStatus={pageCal.status} />
+                      <TakeoffLogEntry
+                        key={t.id}
+                        takeoff={t}
+                        onDelete={onDeleteTakeoff}
+                        calibrationStatus={pageCal.status}
+                        isSelected={selectedShapeId === t.id}
+                        onSelect={(id) => {
+                          setSelectedShapeId(id);
+                          setTool("select");
+                        }}
+                      />
                     ))}
                   </div>
                 </div>
@@ -394,7 +505,20 @@ export function PlanViewer({
                       <div className="text-xs font-medium text-foreground">{lineItemOptions.find(o => o.id === selectedLineItemId)?.name}</div>
                       <div className="text-[10px] text-muted-foreground">Unit: {lineItemOptions.find(o => o.id === selectedLineItemId)?.unit}</div>
                       <div className="text-[10px] text-muted-foreground">Takeoffs: {takeoffs.length}</div>
+                      <div className="text-[10px] text-muted-foreground">
+                        Total: {takeoffs.reduce((sum, t) => sum + t.quantity, 0).toLocaleString(undefined, { maximumFractionDigits: 1 })} {takeoffs[0]?.unit ?? ""}
+                      </div>
                       <div className="text-[10px] text-muted-foreground">Page: {safePage}</div>
+                      {selectedShapeId && (
+                        <div className="mt-2 rounded-md border border-primary/20 bg-primary/5 px-2 py-1.5">
+                          <div className="text-[9px] font-semibold text-primary uppercase">Selected Takeoff</div>
+                          <div className="text-[10px] text-foreground mt-0.5">
+                            {takeoffs.find(t => t.id === selectedShapeId)?.quantity ?? 0}{" "}
+                            {takeoffs.find(t => t.id === selectedShapeId)?.unit ?? ""} ·{" "}
+                            {takeoffs.find(t => t.id === selectedShapeId)?.method ?? ""}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-[10px] text-muted-foreground">Select a line item to see details.</div>
@@ -482,45 +606,8 @@ export function PlanViewer({
       {/* Main viewport area */}
       <div className="flex flex-1 min-h-0 relative">
         <div className="flex-1 min-w-0 relative bg-muted/5 overflow-auto">
-          <FloatingTakeoffToolbar
-            activeTool={tool}
-            onToolChange={handleToolChange}
-            onUndo={handleUndo}
-            onClearCurrent={() => setPendingCompletion(null)}
-            onCalibrationClick={() => setShowCalibration(true)}
-            isCalibrated={isCalibrated}
-            collapsed={toolbarCollapsed}
-            onCollapsedChange={setToolbarCollapsed}
-            visible
-            dockPosition={dockPosition}
-            onDockPositionChange={setDockPosition}
-          />
-          <MeasurementHUD tool={tool} isDrawing={isDrawing} currentMeasurement={liveMeasurement} visible />
-          {pendingCompletion && (
-            <TakeoffCompletionCard
-              quantity={pendingCompletion.quantity}
-              unit={pendingCompletion.unit}
-              toolType={pendingCompletion.toolType}
-              linkedLineItemId={selectedLineItemId}
-              lineItemOptions={lineItemOptions}
-              onSave={handleCompletionSave}
-              onCancel={() => setPendingCompletion(null)}
-            />
-          )}
-          <CalibrationDialog
-            open={showCalibration}
-            onClose={() => setShowCalibration(false)}
-            onCalibrate={handleCalibrate}
-            onMarkNotToScale={handleMarkNotToScale}
-            currentCalibration={pageCal}
-            pageNumber={safePage}
-          />
-          <UncalibratedWarning
-            open={showUncalibratedWarning}
-            onCalibrate={() => { setShowUncalibratedWarning(false); setShowCalibration(true); }}
-            onContinue={() => { setShowUncalibratedWarning(false); }}
-            onCancel={() => setShowUncalibratedWarning(false)}
-          />
+          {sharedToolbar}
+          {sharedOverlays}
           <div className="p-3 h-full">
             <PdfViewport
               activeTool={tool}
@@ -537,7 +624,11 @@ export function PlanViewer({
               externalZoom={zoom}
               pageNumber={safePage}
               selectedLineItemId={selectedLineItemId}
+              selectedShapeId={selectedShapeId}
+              onSelectedShapeChange={handleSelectedShapeChange}
               visibilityMode={visibilityMode}
+              countSession={countSession}
+              onCountSessionUpdate={handleCountSessionUpdate}
             />
           </div>
         </div>
@@ -558,6 +649,16 @@ export function PlanViewer({
                 </SelectContent>
               </Select>
             </div>
+            {/* Quantity summary */}
+            {takeoffs.length > 0 && (
+              <div className="rounded-md bg-muted/30 px-2.5 py-1.5">
+                <div className="text-[9px] uppercase tracking-wide text-muted-foreground">Total Quantity</div>
+                <div className="text-sm font-bold text-foreground font-mono tabular-nums">
+                  {takeoffs.reduce((sum, t) => sum + t.quantity, 0).toLocaleString(undefined, { maximumFractionDigits: 1 })}{" "}
+                  <span className="text-[10px] text-muted-foreground">{takeoffs[0]?.unit}</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex-1 overflow-y-auto p-3">
@@ -571,7 +672,17 @@ export function PlanViewer({
                   No takeoffs linked yet
                 </div>
               ) : takeoffs.map(t => (
-                <TakeoffLogEntry key={t.id} takeoff={t} onDelete={onDeleteTakeoff} calibrationStatus={pageCal.status} />
+                <TakeoffLogEntry
+                  key={t.id}
+                  takeoff={t}
+                  onDelete={onDeleteTakeoff}
+                  calibrationStatus={pageCal.status}
+                  isSelected={selectedShapeId === t.id}
+                  onSelect={(id) => {
+                    setSelectedShapeId(id);
+                    setTool("select");
+                  }}
+                />
               ))}
             </div>
           </div>
@@ -587,16 +698,28 @@ function TakeoffLogEntry({
   takeoff,
   onDelete,
   calibrationStatus,
+  isSelected = false,
+  onSelect,
 }: {
   takeoff: TakeoffRecord;
   onDelete: (id: string, liId: string) => void;
   calibrationStatus: string;
+  isSelected?: boolean;
+  onSelect?: (id: string) => void;
 }) {
   const isManual = takeoff.id.startsWith("tk-manual-");
   const calLabel = takeoff.unit === "EA" ? "" : calibrationStatus === "calibrated" ? "Calibrated" : calibrationStatus === "warning" ? "Custom cal." : "No calibration";
 
   return (
-    <div className="rounded-md border border-border bg-card px-2.5 py-2 shadow-sm">
+    <div
+      className={cn(
+        "rounded-md border px-2.5 py-2 shadow-sm cursor-pointer transition-colors",
+        isSelected
+          ? "border-primary bg-primary/5"
+          : "border-border bg-card hover:bg-muted/30",
+      )}
+      onClick={() => onSelect?.(takeoff.id)}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="text-xs font-medium text-foreground">{takeoff.quantity} {takeoff.unit}</div>
@@ -605,7 +728,12 @@ function TakeoffLogEntry({
           <div className="text-[9px] text-muted-foreground/70">{takeoff.timestamp}</div>
         </div>
         {isManual && (
-          <Button variant="ghost" size="icon" className="h-5 w-5 shrink-0 text-muted-foreground" onClick={() => onDelete(takeoff.id, takeoff.linkedLineItemId)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 shrink-0 text-muted-foreground hover:text-destructive"
+            onClick={(e) => { e.stopPropagation(); onDelete(takeoff.id, takeoff.linkedLineItemId); }}
+          >
             <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
           </Button>
         )}
@@ -631,9 +759,13 @@ interface PdfViewportProps {
   onZoomChange?: (zoom: number) => void;
   pageNumber: number;
   selectedLineItemId?: string;
+  selectedShapeId?: string | null;
+  onSelectedShapeChange?: (shapeId: string | null, lineItemId?: string) => void;
   externalZoom?: number;
   onExternalZoomChange?: (zoom: number) => void;
   visibilityMode?: VisibilityMode;
+  countSession?: { lineItemId: string; count: number } | null;
+  onCountSessionUpdate?: (session: { lineItemId: string; count: number; shapes: TakeoffShape[] }) => void;
 }
 
 function PdfViewport({
@@ -651,9 +783,13 @@ function PdfViewport({
   onZoomChange,
   pageNumber,
   selectedLineItemId,
+  selectedShapeId,
+  onSelectedShapeChange,
   externalZoom,
   onExternalZoomChange,
   visibilityMode = "all",
+  countSession,
+  onCountSessionUpdate,
 }: PdfViewportProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -689,8 +825,8 @@ function PdfViewport({
   const renderWidth = Math.round(baseWidth);
   const renderHeight = Math.max(140, Math.round(renderWidth * pageAspectRatio));
 
-  // Filter shapes by visibility mode
-  const filteredShapes = visibilityMode === "hidden" ? [] : geoShapes;
+  // Pan tool or Space+drag: use grab cursor
+  const showGrab = activeTool === "pan" || isPanning;
 
   return (
     <div
@@ -698,7 +834,7 @@ function PdfViewport({
       className={cn(
         "relative w-full bg-background",
         compact ? "h-[140px] overflow-hidden" : "h-full overflow-hidden rounded-lg border border-border",
-        isPanning && !compact ? "cursor-grabbing" : "",
+        showGrab && !compact ? "cursor-grabbing" : "",
       )}
       onMouseDown={compact ? undefined : navHandlers.onMouseDown}
       onMouseMove={compact ? undefined : navHandlers.onMouseMove}
@@ -744,14 +880,16 @@ function PdfViewport({
               onLoadError={(err) => setPageError(extractPdfErrorMessage(err))}
             />
 
-            {!compact && onCreateTakeoff && onGeoShapeCreated && onGeoShapeUpdated && onGeoShapeDeleted && !isPanning && (
+            {!compact && onCreateTakeoff && onGeoShapeCreated && onGeoShapeUpdated && onGeoShapeDeleted && (
               <GeometryOverlay
-                activeTool={activeTool}
+                activeTool={isPanning ? "pan" : activeTool}
                 width={renderWidth}
                 height={renderHeight}
                 pageNumber={pageNumber}
                 selectedLineItemId={selectedLineItemId}
-                shapes={filteredShapes}
+                selectedShapeId={selectedShapeId}
+                onSelectedShapeChange={onSelectedShapeChange}
+                shapes={geoShapes}
                 onShapeCreated={onGeoShapeCreated}
                 onShapeUpdated={onGeoShapeUpdated}
                 onShapeDeleted={onGeoShapeDeleted}
@@ -759,6 +897,9 @@ function PdfViewport({
                 onDrawingChange={onDrawingChange}
                 onLiveMeasurement={onLiveMeasurement}
                 markups={markups}
+                visibilityMode={visibilityMode}
+                countSession={countSession}
+                onCountSessionUpdate={onCountSessionUpdate}
               />
             )}
           </div>

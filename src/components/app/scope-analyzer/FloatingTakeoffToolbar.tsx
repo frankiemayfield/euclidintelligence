@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -9,6 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   MousePointer2,
+  Hand,
   Ruler,
   Square,
   Circle,
@@ -35,7 +35,9 @@ interface FloatingTakeoffToolbarProps {
   onUndo: () => void;
   onClearCurrent: () => void;
   onCalibrationClick: () => void;
+  onDeleteSelected?: () => void;
   isCalibrated: boolean;
+  hasSelection?: boolean;
   collapsed: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
   visible: boolean;
@@ -43,20 +45,18 @@ interface FloatingTakeoffToolbarProps {
   onDockPositionChange?: (pos: DockPosition) => void;
 }
 
-const TOOLS = [
+const NAV_TOOLS = [
   { id: "select" as const, label: "Select", icon: MousePointer2, shortcut: "V" },
+  { id: "pan" as const, label: "Pan / Grab", icon: Hand, shortcut: "H" },
+];
+
+const CREATION_TOOLS = [
+  { id: "count" as const, label: "Count (EA)", icon: Circle, shortcut: "C" },
   { id: "linear" as const, label: "Linear (LF)", icon: Ruler, shortcut: "L" },
   { id: "area" as const, label: "Area (SF)", icon: Square, shortcut: "A" },
-  { id: "count" as const, label: "Count (EA)", icon: Circle, shortcut: "C" },
   { id: "rectangle" as const, label: "Rectangle (SF)", icon: Square, shortcut: "R" },
   { id: "polygon" as const, label: "Polygon (SF)", icon: Pentagon, shortcut: "P" },
   { id: "volume" as const, label: "Volume (CY)", icon: Box, shortcut: "U" },
-];
-
-const UTILS = [
-  { id: "calibrate" as const, label: "Calibration", icon: Crosshair },
-  { id: "undo" as const, label: "Undo", icon: Undo2 },
-  { id: "clear" as const, label: "Clear", icon: Trash2 },
 ];
 
 const DOCK_OPTIONS: { pos: DockPosition; label: string; icon: React.ElementType }[] = [
@@ -72,7 +72,9 @@ export function FloatingTakeoffToolbar({
   onUndo,
   onClearCurrent,
   onCalibrationClick,
+  onDeleteSelected,
   isCalibrated,
+  hasSelection = false,
   collapsed,
   onCollapsedChange,
   visible,
@@ -90,6 +92,10 @@ export function FloatingTakeoffToolbar({
     bottom: "absolute bottom-2 left-1/2 -translate-x-1/2 z-50 flex-row",
   };
 
+  const Sep = () => (
+    <div className={cn(isHorizontal ? "w-px h-5 bg-border mx-0.5" : "h-px w-5 bg-border my-0.5")} />
+  );
+
   return (
     <div
       className={cn(
@@ -97,8 +103,8 @@ export function FloatingTakeoffToolbar({
         positionClasses[dockPosition],
       )}
     >
-      {/* Tools */}
-      {TOOLS.map((tool) => (
+      {/* Navigation tools */}
+      {NAV_TOOLS.map((tool) => (
         <ToolBtn
           key={tool.id}
           active={activeTool === tool.id}
@@ -109,10 +115,23 @@ export function FloatingTakeoffToolbar({
         />
       ))}
 
-      {/* Separator */}
-      <div className={cn(isHorizontal ? "w-px h-5 bg-border mx-0.5" : "h-px w-5 bg-border my-0.5")} />
+      <Sep />
 
-      {/* Utilities */}
+      {/* Creation tools */}
+      {CREATION_TOOLS.map((tool) => (
+        <ToolBtn
+          key={tool.id}
+          active={activeTool === tool.id}
+          icon={<tool.icon className="h-3.5 w-3.5" />}
+          label={`${tool.label} (${tool.shortcut})`}
+          onClick={() => onToolChange(tool.id)}
+          horizontal={isHorizontal}
+        />
+      ))}
+
+      <Sep />
+
+      {/* Management */}
       <ToolBtn
         active={false}
         icon={<Crosshair className={cn("h-3.5 w-3.5", isCalibrated ? "text-green-500" : "text-destructive")} />}
@@ -120,11 +139,17 @@ export function FloatingTakeoffToolbar({
         onClick={onCalibrationClick}
         horizontal={isHorizontal}
       />
+      <ToolBtn
+        active={false}
+        icon={<Trash2 className={cn("h-3.5 w-3.5", hasSelection ? "text-destructive" : "")} />}
+        label="Delete Selected"
+        onClick={() => onDeleteSelected?.()}
+        disabled={!hasSelection}
+        horizontal={isHorizontal}
+      />
       <ToolBtn active={false} icon={<Undo2 className="h-3.5 w-3.5" />} label="Undo" onClick={onUndo} horizontal={isHorizontal} />
-      <ToolBtn active={false} icon={<Trash2 className="h-3.5 w-3.5" />} label="Clear" onClick={onClearCurrent} horizontal={isHorizontal} />
 
-      {/* Separator */}
-      <div className={cn(isHorizontal ? "w-px h-5 bg-border mx-0.5" : "h-px w-5 bg-border my-0.5")} />
+      <Sep />
 
       {/* Settings */}
       <DropdownMenu>
@@ -160,12 +185,14 @@ function ToolBtn({
   label,
   onClick,
   horizontal = false,
+  disabled = false,
 }: {
   active: boolean;
   icon: React.ReactNode;
   label: string;
   onClick: () => void;
   horizontal?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <Tooltip>
@@ -176,9 +203,11 @@ function ToolBtn({
           className={cn(
             "h-7 w-7",
             active && "bg-primary text-primary-foreground shadow-sm",
-            !active && "text-muted-foreground hover:text-foreground",
+            !active && !disabled && "text-muted-foreground hover:text-foreground",
+            disabled && "opacity-40 cursor-not-allowed",
           )}
           onClick={onClick}
+          disabled={disabled}
         >
           {icon}
         </Button>
