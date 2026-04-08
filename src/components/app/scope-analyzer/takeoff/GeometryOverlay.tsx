@@ -446,13 +446,15 @@ export function GeometryOverlay({
       ? pageShapes.filter(s => s.lineItemId === selectedLineItemId)
       : pageShapes;
 
-  const cursorClass = activeTool === "select"
-    ? "cursor-default"
-    : activeTool === "pan"
-      ? "cursor-grab"
-      : isDrawingEnabled
-        ? "cursor-crosshair"
-        : "cursor-not-allowed";
+  const cursorClass = calibrationDrawMode
+    ? "cursor-crosshair"
+    : activeTool === "select"
+      ? "cursor-default"
+      : activeTool === "pan"
+        ? "cursor-grab"
+        : isDrawingEnabled
+          ? "cursor-crosshair"
+          : "cursor-not-allowed";
 
   if (activeTool === "pan") {
     return (
@@ -516,6 +518,59 @@ export function GeometryOverlay({
           width={width}
           height={height}
         />
+      )}
+
+      {/* Calibration line overlay */}
+      {calibrationDrawMode && calStart && (
+        <g>
+          {/* Start point */}
+          <circle
+            cx={calStart.x * width}
+            cy={calStart.y * height}
+            r={5}
+            className="fill-primary stroke-primary-foreground"
+            strokeWidth={2}
+          />
+          {/* Preview line to cursor */}
+          {calCursor && (
+            <>
+              <line
+                x1={calStart.x * width}
+                y1={calStart.y * height}
+                x2={calCursor.x * width}
+                y2={calCursor.y * height}
+                className="stroke-primary"
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                strokeLinecap="round"
+              />
+              <circle
+                cx={calCursor.x * width}
+                cy={calCursor.y * height}
+                r={4}
+                className="fill-primary/60"
+              />
+              {/* Length label */}
+              {(() => {
+                const mx = ((calStart.x + calCursor.x) / 2) * width;
+                const my = ((calStart.y + calCursor.y) / 2) * height;
+                const dx = calCursor.x - calStart.x;
+                const dy = calCursor.y - calStart.y;
+                const pxDist = Math.sqrt((dx * width) ** 2 + (dy * height) ** 2);
+                return (
+                  <text
+                    x={mx}
+                    y={my - 8}
+                    className="fill-primary text-[10px] font-mono font-bold"
+                    textAnchor="middle"
+                  >
+                    {Math.round(pxDist)} px
+                  </text>
+                );
+              })()}
+            </>
+          )}
+        </g>
       )}
 
       {isCreationTool && !selectedLineItemId && (
