@@ -192,21 +192,18 @@ export function PlanViewer({
             <ZoomIn className="h-3 w-3" />
           </Button>
 
-          <div className="w-px h-5 bg-border mx-1" />
-
-          {/* Mode toggles */}
-          {isExpanded ? (
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("embedded")} title="Minimize viewer">
-              <Minimize2 className="h-3 w-3" />
-            </Button>
-          ) : (
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("expanded")} title="Expand viewer">
-              <Maximize2 className="h-3 w-3" />
-            </Button>
+          {/* Mode toggles - only show in expanded */}
+          {isExpanded && (
+            <>
+              <div className="w-px h-5 bg-border mx-1" />
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("embedded")} title="Minimize viewer">
+                <Minimize2 className="h-3 w-3" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("hidden")} title="Hide viewer">
+                <EyeOff className="h-3 w-3" />
+              </Button>
+            </>
           )}
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onModeChange("hidden")} title="Hide viewer">
-            <EyeOff className="h-3 w-3" />
-          </Button>
         </div>
       </div>
 
