@@ -149,8 +149,6 @@ export function PlanViewer({
 
   if (mode === "hidden") return null;
 
-  const isExpanded = mode === "expanded";
-
   return (
     <div className={cn(
       "flex flex-col border-b border-border bg-card transition-all duration-300",
