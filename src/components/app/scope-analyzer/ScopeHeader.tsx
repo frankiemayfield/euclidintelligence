@@ -84,14 +84,6 @@ export function ScopeHeader({ project, onRunAnalysis, onSaveDraft, onLockScope }
         </div>
       </div>
 
-      {/* Stats strip */}
-      <div className="flex items-center gap-1 px-4 pb-2 flex-wrap">
-        {pills.map(p => (
-          <span key={p.label} className={`text-[10px] px-2 py-0.5 rounded-full border ${p.warn ? "border-warning/40 bg-warning/10 text-warning" : "border-border bg-muted/40 text-muted-foreground"}`}>
-            <span className="font-medium">{p.value}</span> {p.label}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }
