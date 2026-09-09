@@ -4,7 +4,8 @@ import { CheckCircle2, FileText, Loader2, Search, Upload, X } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
-import { complianceCompanies, complianceSummary, complianceTone, fmtDate, nextExpiration, type ComplianceState, type NetworkCompany } from "@/data/networkData";
+import { applyComplianceUpdates, complianceCompanies, complianceSummary, complianceTone, daysUntil, fmtDate, nextExpiration, type ComplianceState, type ComplianceUpdate, type NetworkCompany } from "@/data/networkData";
+import { useTrack as useTrackHook } from "@/components/app/TrackShell";
 
 const mark = (status?: ComplianceState) => {
   if (!status) return <span className="text-muted-foreground">—</span>;
@@ -26,6 +27,7 @@ const processingSteps = [
 interface IntakeResult {
   file: string; type: string; detected: string; matchId?: string; match?: string; confidence: number;
   fields: [string, string][]; result: ComplianceState; reason: string; alternatives?: string[];
+  update?: Omit<ComplianceUpdate, "companyId" | "status" | "source">;
 }
 
 const sampleResults: IntakeResult[] = [
@@ -33,27 +35,32 @@ const sampleResults: IntakeResult[] = [
     file: "TrueFrame_COI_2026.pdf", type: "General Liability / COI", detected: "TrueFrame Carpentry LLC", matchId: "trueframe", match: "TrueFrame Carpentry", confidence: 98,
     fields: [["Named insured", "TrueFrame Carpentry LLC"], ["Carrier", "Cincinnati Insurance"], ["Policy number", "GL-4471203"], ["Effective", "01/01/26"], ["Expires", "01/01/27"], ["Each occurrence", "$1,000,000"], ["Aggregate", "$2,000,000"], ["Additional insured", "Yes"], ["Waiver of subrogation", "Yes"], ["Certificate holder", "Mayfield & Co."]],
     result: "In Compliance", reason: "Meets all Mayfield general liability requirements with active dates.",
+    update: { key: "gl", label: "General Liability", carrier: "Cincinnati Insurance", policyNumber: "GL-4471203", effective: "2026-01-01", expires: "2027-01-01", details: "$1M each occurrence / $2M aggregate" },
   },
   {
     file: "Spark_WorkersComp_2025.pdf", type: "Workers' Compensation", detected: "Spark Electric Co.", matchId: "spark-electric", match: "Spark Electric Co.", confidence: 96,
     fields: [["Carrier", "Ohio BWC"], ["Policy number", "WC-220041"], ["Effective", "09/01/25"], ["Expires", "08/31/26"], ["Coverage", "Statutory"]],
     result: "Out of Compliance", reason: "Workers Compensation policy expired 9 days ago.",
+    update: { key: "wc", label: "Workers Compensation", carrier: "Ohio BWC", policyNumber: "WC-220041", effective: "2025-09-01", expires: "2026-08-31", details: "Statutory coverage" },
   },
   {
     file: "Riverstone_W9.pdf", type: "W-9", detected: "Riverstone Concrete Co.", matchId: "riverstone-concrete", match: "Riverstone Concrete", confidence: 91,
     fields: [["Legal name", "Riverstone Concrete Co."], ["Entity classification", "C-Corp"], ["Address", "215 River Rd, Cincinnati, OH"], ["Signed", "08/28/2026"]],
     result: "In Compliance", reason: "Current W-9 received — resolves the missing tax document.",
+    update: { key: "w9", label: "W-9", effective: "2026-08-28", details: "C-Corp — signed 08/28/2026" },
   },
   {
     file: "AquaFlow_Auto_Cert.pdf", type: "Commercial Auto", detected: "AquaFlow Plumbing Inc.", matchId: "aquaflow", match: "AquaFlow Plumbing", confidence: 94,
     fields: [["Carrier", "Grange"], ["Policy number", "CA-91002"], ["Effective", "05/01/26"], ["Expires", "05/01/27"], ["Combined single limit", "$1,000,000"]],
     result: "In Compliance", reason: "Meets $1M CSL commercial auto requirement.",
+    update: { key: "auto", label: "Commercial Auto", carrier: "Grange", policyNumber: "CA-91002", effective: "2026-05-01", expires: "2027-05-01", details: "$1M combined single limit" },
   },
   {
     file: "ClimateWorks_Endorsement.pdf", type: "Endorsement", detected: "ClimateWorks Mechanical LLC", matchId: "climateworks", match: "ClimateWorks Mechanical", confidence: 72,
     fields: [["Referenced policy", "GL-88342"], ["Endorsement", "Additional insured (referenced)"], ["Attachment", "Not included in upload"]],
     result: "Needs Review", reason: "Additional insured endorsement referenced but not included in uploaded document.",
     alternatives: ["ClimateWorks Mechanical", "Climate Works HVAC Services"],
+    update: { key: "gl", label: "General Liability", details: "Additional insured endorsement referenced but not attached" },
   },
 ];
 
@@ -67,6 +74,13 @@ export default function CompliancePage() {
   const [trade, setTrade] = useState("All trades");
   const [expiry, setExpiry] = useState("Any");
   const [intakeOpen, setIntakeOpen] = useState(false);
+  const [, setVersion] = useState(0);
+
+  useEffect(() => {
+    const bump = () => setVersion(v => v + 1);
+    window.addEventListener("euclid-network-updated", bump);
+    return () => window.removeEventListener("euclid-network-updated", bump);
+  }, []);
 
   const trades = useMemo(() => ["All trades", ...Array.from(new Set(companies.map(c => c.trade)))], [companies]);
 
@@ -74,6 +88,7 @@ export default function CompliancePage() {
     (status === "All" || c.complianceOverall === status)
     && (relationship === "All" || (relationship === "Subs" ? c.relationship === "Subcontractor" : c.relationship === "Vendor"))
     && (trade === "All trades" || c.trade === trade)
+    && (expiry === "Any" || (() => { const d = daysUntil(nextExpiration(c)); const limit = Number(expiry.replace(/\D/g, "")); return d !== null && d <= limit; })())
     && c.name.toLowerCase().includes(query.toLowerCase()));
 
   const cards: { label: string; value: number; filter: string }[] = [
@@ -151,6 +166,7 @@ export default function CompliancePage() {
 }
 
 function ComplianceIntake({ onClose }: { onClose: () => void }) {
+  const track = useTrackHook();
   const [phase, setPhase] = useState<"upload" | "processing" | "review">("upload");
   const [files, setFiles] = useState<string[]>([]);
   const [step, setStep] = useState(0);
@@ -240,7 +256,13 @@ function ComplianceIntake({ onClose }: { onClose: () => void }) {
         {phase === "review" && (
           <div className="flex justify-end gap-2 border-t border-border/60 px-5 py-3">
             <Button variant="ghost" size="sm" onClick={onClose}>Close</Button>
-            <Button size="sm" onClick={onClose}>Apply to Network</Button>
+            <Button size="sm" onClick={() => {
+              const updates = sampleResults
+                .filter(r => r.matchId && r.update && confirmed[r.file])
+                .map(r => ({ ...r.update!, companyId: r.matchId!, status: r.result, source: r.file }));
+              applyComplianceUpdates(track, updates);
+              onClose();
+            }}>Apply to Network ({Object.values(confirmed).filter(Boolean).length})</Button>
           </div>
         )}
       </div>
