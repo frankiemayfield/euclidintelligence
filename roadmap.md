@@ -6,4 +6,4 @@
 - [x] Add persisted Light/Dark/System and Da Vinci/Brunelleschi/Euclid appearance controls
 - [x] Verify dashboard, overlays, messenger, and themes
 
-- [ ] Fix all preview typecheck errors from observability logs
+- [x] Fix all preview typecheck errors from observability logs
