@@ -38,3 +38,12 @@
 - [x] Give all six projects distinct documents, bids, estimate totals, pricing, proposals, benchmarks, and actual-cost states
 - [x] Preserve Fregolle’s real plan/takeoff experience while differentiating other scope records
 - [x] Verify all twelve stage endpoints and representative project-specific records
+
+# Dashboards, Network & Compliance
+- [x] Rebuild Builder home around projects, attention, what's next, bid pipeline, cost performance, market pulse, activity
+- [x] Rebuild Subcontractor home around quotes/jobs, attention, deadlines, pipeline, pricing, job performance, activity
+- [x] Add Network directory with client/sub/vendor profiles and relationship-specific tabs
+- [x] Add Compliance page with AI document intake that updates Network records
+- [x] Add Settings → Compliance Requirements
+- [x] Add More menu (Network, Compliance, Activity, Settings) and shared routes
+- [x] Link compliance into Bid Packages and cost sources into Network profiles
