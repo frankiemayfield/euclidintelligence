@@ -131,11 +131,11 @@ export default function SubProposalExportPage() {
               {/* Cover */}
               <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid #e5e5e5" }}>
                 <div style={{ fontSize: "1.4em", fontWeight: 700, marginBottom: 4 }}>TrueFrame Carpentry</div>
-                <div style={{ fontSize: "0.85em", color: "#666", marginBottom: 8 }}>Framing Subcontractor · Midwest</div>
+                <div style={{ fontSize: "0.85em", color: "#666", marginBottom: 8 }}>Framing Subcontractor · Cincinnati, Ohio</div>
                 <div style={{ fontSize: "1.1em", fontWeight: 600, marginBottom: 4 }}>Framing Quote</div>
                 <div style={{ fontSize: "0.85em", color: "#666" }}>Project: {project.name}</div>
                 <div style={{ fontSize: "0.85em", color: "#666" }}>GC: Mayfield & Co.</div>
-                <div style={{ fontSize: "0.85em", color: "#666" }}>Date: March 6, 2026</div>
+                <div style={{ fontSize: "0.85em", color: "#666" }}>Date: September 9, 2026</div>
               </div>
 
               {/* Sections */}

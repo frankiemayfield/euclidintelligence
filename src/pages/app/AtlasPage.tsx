@@ -7,7 +7,7 @@ type Message = { role: "atlas" | "user"; content: string; references?: { label: 
 const initialMessages: Message[] = [
   {
     role: "atlas",
-    content: "I've loaded the Maple St. Kitchen Remodel project. I can see 4 uploaded documents, 10 takeoff items, and 10 estimate line items. 4 items need review and 2 have low confidence. How can I help?",
+    content: "I've loaded the Fregolle Residence project. I can see 4 uploaded documents, 10 takeoff items, and 10 estimate line items. 4 items need review and 2 have low confidence. How can I help?",
   },
 ];
 
@@ -21,7 +21,7 @@ const suggestions = [
 ];
 
 const contextItems = [
-  { label: "Current Project", value: "Maple St. Kitchen Remodel", icon: FileText },
+  { label: "Current Project", value: "Fregolle Residence", icon: FileText },
   { label: "Files Loaded", value: "4 documents", icon: FileText },
   { label: "Takeoff Items", value: "10 items", icon: Ruler },
   { label: "Estimate Lines", value: "10 items", icon: BarChart3 },
