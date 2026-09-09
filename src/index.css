@@ -211,29 +211,36 @@
     backdrop-filter: blur(28px) saturate(140%);
   }
 
+  /* The page-level environment wash already handles readability at the top,
+     so the header itself stays completely seamless — no card, no seam. */
   .odyssey-header {
     border: 0;
-    background: linear-gradient(180deg, hsl(var(--card) / 0.92) 0%, hsl(var(--card) / 0.55) 64%, transparent 100%);
+    background: transparent;
     box-shadow: none;
-    backdrop-filter: blur(12px) saturate(115%);
-  }
-
-  .dark .odyssey-header {
-    background: linear-gradient(180deg, hsl(var(--background) / 0.94) 0%, hsl(var(--background) / 0.6) 64%, transparent 100%);
+    backdrop-filter: none;
   }
 
   .odyssey-header-control {
     color: hsl(var(--muted-foreground));
     border: 1px solid transparent;
     border-radius: 0.55rem;
+    transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
   }
 
   .odyssey-header-control:hover,
   .odyssey-header-control.is-active {
-    color: hsl(var(--foreground));
-    border-color: hsl(var(--border) / 0.5);
-    background: hsl(var(--card) / 0.52);
+    color: hsl(var(--env-accent));
+    border-color: hsl(var(--env-accent) / 0.3);
+    background: hsl(var(--env-accent) / 0.1);
   }
+
+  /* environment-reactive nav link */
+  .odyssey-nav-link[data-active="true"] {
+    color: hsl(var(--env-accent));
+    background: hsl(var(--env-accent) / 0.12);
+    border-color: hsl(var(--env-accent) / 0.28);
+  }
+
 
   .odyssey-counter {
     position: absolute;
