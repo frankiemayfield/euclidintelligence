@@ -1,7 +1,9 @@
 import { SubLayout } from "@/components/sub/SubLayout";
 import { Button } from "@/components/ui/button";
 import { Download, Eye, Save, Lock, Pencil, Check, GripVertical, Send } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDemoProject } from "@/hooks/use-demo-project";
+import { companies } from "@/data/demoUniverse";
 
 interface QuoteSection {
   id: string; title: string; included: boolean; editing: boolean; content: string;
@@ -9,7 +11,7 @@ interface QuoteSection {
 
 const initialSections: QuoteSection[] = [
   { id: "summary", title: "Quote Summary", included: true, editing: false,
-    content: "TrueFrame Carpentry\nFraming Quote for Maple St. Kitchen Remodel\nGC: Mayfield & Co.\n\nTotal Bid Price: $35,049\nValid Through: April 3, 2026\nEstimated Duration: 2–3 weeks" },
+    content: "TrueFrame Carpentry\nFraming Quote\nGC: Mayfield & Co.\n\nCurrent quote linked to the selected project.\nValid for 30 days." },
   { id: "scope", title: "Scope Summary", included: true, editing: false,
     content: "• Exterior wall framing — 2x4 @ 16\" OC\n• Interior bearing walls — 2x6 @ 16\" OC\n• Floor joists — I-joists @ 16\" OC\n• Roof trusses — pre-engineered (22 EA)\n• Wall sheathing — 7/16\" OSB\n• Roof sheathing — 7/16\" OSB\n• Blocking — cabinets, TV, handrails\n• Hardware — hangers, clips, straps\n• LVL header install (material by GC)\n• Temporary shoring during demo" },
   { id: "cost", title: "Cost Breakdown", included: true, editing: false,
@@ -27,7 +29,9 @@ const initialSections: QuoteSection[] = [
 ];
 
 export default function SubProposalExportPage() {
+  const { project, quote } = useDemoProject();
   const [sections, setSections] = useState(initialSections);
+  useEffect(() => { setSections(initialSections.map(section => section.id === "summary" ? { ...section, content: `TrueFrame Carpentry\nFraming Quote for ${project.name}\nGC: ${companies.mayfield.name}\n\nTotal Bid Price: ${quote.currentAmount ? `$${quote.currentAmount.toLocaleString()}` : "Preliminary"}\nRevision: ${quote.revisions.at(-1)?.version ?? "Draft"}\nValid for 30 days` } : section)); }, [project.id, project.name, quote.currentAmount, quote.revisions]);
   const [locked, setLocked] = useState(false);
   const [previewZoom, setPreviewZoom] = useState(100);
 
@@ -65,7 +69,7 @@ export default function SubProposalExportPage() {
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h1 className="font-display text-xl font-bold text-foreground">Proposal Export</h1>
-                <p className="text-xs text-muted-foreground mt-0.5">Framing quote for Maple St. Kitchen Remodel</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Framing quote for {project.name}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setLocked(!locked)} className="gap-1.5">
@@ -129,7 +133,7 @@ export default function SubProposalExportPage() {
                 <div style={{ fontSize: "1.4em", fontWeight: 700, marginBottom: 4 }}>TrueFrame Carpentry</div>
                 <div style={{ fontSize: "0.85em", color: "#666", marginBottom: 8 }}>Framing Subcontractor · Midwest</div>
                 <div style={{ fontSize: "1.1em", fontWeight: 600, marginBottom: 4 }}>Framing Quote</div>
-                <div style={{ fontSize: "0.85em", color: "#666" }}>Project: Maple St. Kitchen Remodel</div>
+                <div style={{ fontSize: "0.85em", color: "#666" }}>Project: {project.name}</div>
                 <div style={{ fontSize: "0.85em", color: "#666" }}>GC: Mayfield & Co.</div>
                 <div style={{ fontSize: "0.85em", color: "#666" }}>Date: March 6, 2026</div>
               </div>
