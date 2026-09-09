@@ -73,7 +73,7 @@ function getTakeoffLineItemOptions(project: ScopeProject, selection: TreeSelecti
   return getAllLineItems(project).map(li => ({ id: li.id, name: li.name, unit: li.unit }));
 }
 
-export default function ScopeAnalyzerPage() {
+export function ScopeAnalyzerWorkspace({ Layout }: { Layout: React.ComponentType<{ children: React.ReactNode }> }) {
   const [selection, setSelection] = useState<TreeSelection>({ type: "project", id: mockProject.id });
   const [viewerMode, setViewerMode] = useState<ViewerMode>("embedded");
   const [currentPage, setCurrentPage] = useState(1);
@@ -156,7 +156,7 @@ export default function ScopeAnalyzerPage() {
   }
 
   return (
-    <AppLayout>
+    <Layout>
       <TooltipProvider>
         <div className="flex h-[calc(100vh-48px)] flex-col">
           <ScopeHeader project={project} onRunAnalysis={() => {}} onSaveDraft={() => {}} onLockScope={() => {}} />
@@ -204,6 +204,10 @@ export default function ScopeAnalyzerPage() {
           </div>
         </div>
       </TooltipProvider>
-    </AppLayout>
+    </Layout>
   );
+}
+
+export default function ScopeAnalyzerPage() {
+  return <ScopeAnalyzerWorkspace Layout={AppLayout} />;
 }
