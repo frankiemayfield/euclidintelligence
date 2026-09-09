@@ -19,6 +19,7 @@ interface ThemeContextType {
   previewWorkspaceAppearance: WorkspaceAppearance | null;
   setPreviewWorkspaceAppearance: (appearance: WorkspaceAppearance | null) => void;
   workspaceBackground: string;
+  environment: WorkspaceEnvironment;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -30,6 +31,7 @@ const ThemeContext = createContext<ThemeContextType>({
   previewWorkspaceAppearance: null,
   setPreviewWorkspaceAppearance: () => {},
   workspaceBackground: workspaceBackgrounds.euclid,
+  environment: environmentByValue.euclid,
 });
 
 function getSystemTheme(): "light" | "dark" {
