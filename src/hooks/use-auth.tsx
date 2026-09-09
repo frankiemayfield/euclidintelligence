@@ -98,8 +98,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const demoSignIn = useCallback((track: "sub" | "builder" | "homeowner") => {
     if (track === "sub") {
       setUser({
-        email: "demo@trueframe.com",
-        name: "Alex Rivera",
+        email: "tyler@trueframe.co",
+        name: "Tyler Reed",
         companyName: "TrueFrame Carpentry",
         accountTrack: "subcontractor",
         primaryTrade: "Framing",
@@ -114,11 +114,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     } else {
       setUser({
-        email: "demo@mayfield.com",
-        name: "Sarah Chen",
+        email: "frankie@mayfield.co",
+        name: "Frankie Mayfield",
         companyName: "Mayfield & Co.",
         accountTrack: "builder",
         builderSubtype: "GC",
+        region: "Cincinnati, Ohio",
         isFirstRun: false,
       });
     }

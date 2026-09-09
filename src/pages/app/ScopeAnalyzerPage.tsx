@@ -8,6 +8,7 @@ import { BidPackageView, QuantityTakeoffView, ReviewView, StructureView, type Re
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 import { cn } from "@/lib/utils";
 import { getAllLineItems, mockProject, type IssueFlag, type LineItem, type ReviewStatus, type ScopeProject, type TakeoffRecord } from "@/data/scopeAnalyzerData";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 interface WorkspaceProps { Layout: React.ComponentType<{ children: React.ReactNode }>; track?: ScopeTrack; }
 
@@ -20,7 +21,8 @@ function updateLineItem(project: ScopeProject, id: string, update: (item: LineIt
 }
 
 export function ScopeAnalyzerWorkspace({ Layout, track = "builder" }: WorkspaceProps) {
-  const [baseProject, setBaseProject] = useState(mockProject);
+  const { project: activeProject, quote } = useDemoProject();
+  const [baseProject, setBaseProject] = useState(() => ({ ...mockProject, id: activeProject.id, name: activeProject.name }));
   const [activeTab, setActiveTab] = useState<ScopeTab>("takeoff");
   const [viewerMode, setViewerMode] = useState<ViewerMode>("hidden");
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,10 +46,15 @@ export function ScopeAnalyzerWorkspace({ Layout, track = "builder" }: WorkspaceP
   const tabs: { value: ScopeTab; label: string }[] = track === "builder" ? [{ value: "takeoff", label: "Quantity Takeoff" }, { value: "review", label: "Review" }, { value: "structure", label: "Scope Structure" }] : [{ value: "takeoff", label: "Quantity Takeoff" }, { value: "review", label: "Review" }, { value: "structure", label: "Quote Structure" }, { value: "package", label: "Bid Package" }];
 
   useEffect(() => {
+    setBaseProject({ ...mockProject, id: activeProject.id, name: activeProject.name });
+    setManualTakeoffs({}); setManualMarkups([]); setDecisions([]); setStructure({});
+  }, [activeProject.id, activeProject.name]);
+
+  useEffect(() => {
     setSelected(new Set());
-    const detail = activeTab === "takeoff" ? `${needsReview} takeoff items still need review. ${scaleDerived} were derived from scale.` : activeTab === "review" ? `${Math.max(0, openIssues)} review items remain unresolved.` : activeTab === "structure" ? `${structured} of ${items.length} items are mapped into ${track === "builder" ? "estimate" : "quote"} line items.` : `Your package contains ${decisions.filter(decision => decision.action === "Exclude").length} exclusions and ${decisions.filter(decision => decision.action === "Clarify").length} clarifications.`;
+    const detail = activeTab === "takeoff" ? `I'm reviewing ${activeProject.name}. ${needsReview} takeoff items still need review and ${scaleDerived} were derived from the project plans.` : activeTab === "review" ? `${activeProject.name} has ${Math.max(0, openIssues)} review items remaining.` : activeTab === "structure" ? `${structured} of ${items.length} ${activeProject.name} items are mapped into ${track === "builder" ? "estimate" : "quote"} line items.` : `${track === "sub" ? `TrueFrame's current quote is ${quote.currentAmount ? `$${quote.currentAmount.toLocaleString()}` : "preliminary"}. ` : ""}The package contains ${decisions.filter(decision => decision.action === "Exclude").length} exclusions and ${decisions.filter(decision => decision.action === "Clarify").length} clarifications.`;
     window.dispatchEvent(new CustomEvent("euclid-scope-context", { detail: { tab: activeTab, track, summary: detail } }));
-  }, [activeTab, decisions, items.length, needsReview, openIssues, scaleDerived, structured, track]);
+  }, [activeProject.name, activeTab, decisions, items.length, needsReview, openIssues, quote.currentAmount, scaleDerived, structured, track]);
 
   useEffect(() => { if (!selectedLineItemId && items[0]) setSelectedLineItemId(items[0].id); }, [items, selectedLineItemId]);
 
