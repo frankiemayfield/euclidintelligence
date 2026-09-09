@@ -134,6 +134,19 @@
     letter-spacing: 0;
   }
 
+  html,
+  body,
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
   }
@@ -228,6 +241,12 @@
     backdrop-filter: none;
   }
 
+  /* Content softly disappears as it travels beneath the seamless header. */
+  .header-scroll-fade {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 2rem, black 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, black 2rem, black 100%);
+  }
+
   .odyssey-header-control {
     color: hsl(var(--muted-foreground));
     border: 1px solid transparent;
@@ -277,18 +296,16 @@
   }
 
   .euclid-assistant-launcher {
-    border: 1px solid hsl(var(--env-accent) / 0.35);
-    background:
-      linear-gradient(150deg, hsl(var(--env-tint) / 0.65), hsl(var(--card) / 0.8));
-    box-shadow: 0 10px 30px -12px hsl(var(--env-accent) / 0.55), var(--shadow-card);
-    backdrop-filter: blur(20px) saturate(140%);
-    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    transition: transform 180ms ease;
   }
 
   .euclid-assistant-launcher:hover {
     transform: translateY(-1px) scale(1.03);
-    border-color: hsl(var(--env-accent) / 0.6);
-    box-shadow: 0 14px 36px -12px hsl(var(--env-accent) / 0.7), var(--shadow-card);
+    box-shadow: none;
   }
 
   .odyssey-surface {
