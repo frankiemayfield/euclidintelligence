@@ -1,4 +1,5 @@
-import { Send, X, FileText, XCircle, Scale, Minus } from "lucide-react";
+import { Send, X, FileText, XCircle, Minus } from "lucide-react";
+import { EuclidCompass } from "./EuclidBrand";
 import { useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -291,7 +292,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
       <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center shadow-sm">
-              <Scale size={15} className="text-background" />
+              <EuclidCompass className="h-5 w-5 brightness-0 invert" />
           </div>
           <p className="text-sm font-bold text-foreground font-display">Euclid</p>
         </div>
@@ -325,7 +326,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
           <div key={i} className={`flex gap-3 ${m.role === "user" ? "justify-end" : ""}`}>
             {m.role === "euclid" && (
               <div className="w-7 h-7 rounded-full bg-foreground flex items-center justify-center shrink-0 mt-1">
-                <Scale size={12} className="text-background" />
+                <EuclidCompass className="h-4 w-4 brightness-0 invert" />
               </div>
             )}
             <div className={`max-w-[85%] ${m.role === "user" ? "" : ""}`}>
@@ -389,7 +390,7 @@ export function AtlasToggleButton({ onClick }: { onClick: () => void }) {
       className="fixed right-5 bottom-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-background shadow-lg transition-transform hover:scale-105"
       aria-label="Open Euclid"
     >
-      <Scale size={18} />
+      <EuclidCompass className="h-7 w-7 brightness-0 invert" />
     </button>
   );
 }
