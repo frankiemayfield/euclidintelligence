@@ -75,6 +75,7 @@ export default function ProposalPage() {
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   useEffect(() => {
     setClientName(project.client); setProjectName(project.name); setProjectAddress(project.location); setPricingRows(pricingFor(project.builderCost, project.clientPrice));
+    setProposalTitle(`${project.name} Proposal`); setProposalNumber(`P-${project.jobNumber}`); setProposalState(project.builderStatus.includes("Ready") ? "Ready for Review" : "Draft");
     setSections(current => current.map(section => section.id === "summary" ? { ...section, content: `This proposal covers the complete ${project.name} scope documented in the current estimate and issued construction documents. Client price: ${project.clientPrice ? `$${project.clientPrice.toLocaleString()}` : "pending"}.` } : section.id === "cost" ? { ...section, content: `Builder Cost ..... ${project.builderCost ? `$${project.builderCost.toLocaleString()}` : "Pending"}\nGross Profit ..... ${project.builderCost && project.clientPrice ? `$${(project.clientPrice-project.builderCost).toLocaleString()}` : "Pending"}\nClient Price ..... ${project.clientPrice ? `$${project.clientPrice.toLocaleString()}` : "Pending"}\nMarkup ..... ${project.markup ?? 0}%` } : section));
   }, [project.id, project.name, project.client, project.location, project.builderCost, project.clientPrice, project.markup]);
 

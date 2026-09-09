@@ -1,6 +1,6 @@
 import { SubLayout } from "@/components/sub/SubLayout";
 import { TrendingUp, TrendingDown, AlertTriangle, Download, Filter, Target, ShieldCheck, Gauge } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useDemoProject } from "@/hooks/use-demo-project";
 
@@ -20,13 +20,21 @@ export default function SubMarketComparisonPage() {
   const { project, quote } = useDemoProject();
   const [filter, setFilter] = useState<"all" | "above" | "below" | "in-range">("all");
 
-  const totalSell = tradeCategories.reduce((s, t) => s + t.yourSell, 0);
-  const totalBench = tradeCategories.reduce((s, t) => s + t.benchmark, 0);
-  const totalCost = tradeCategories.reduce((s, t) => s + t.yourCost, 0);
+  const sourceSell = tradeCategories.reduce((sum, category) => sum + category.yourSell, 0);
+  const projectCategories = useMemo(() => tradeCategories.map(category => {
+    const yourSell = Math.round(category.yourSell * ((quote.currentAmount ?? quote.preliminaryAmount ?? sourceSell) / sourceSell));
+    const yourCost = Math.round(yourSell / 1.25);
+    const benchmarkTotal = project.benchmark.low && project.benchmark.high ? ((project.benchmark.low + project.benchmark.high) / 2) * 0.1 : (quote.currentAmount ?? sourceSell) * 0.97;
+    const benchmark = Math.round(category.benchmark * (benchmarkTotal / tradeCategories.reduce((sum, item) => sum + item.benchmark, 0)));
+    return { ...category, yourCost, yourSell, benchmark, variance: ((yourSell - benchmark) / benchmark) * 100 };
+  }), [project.id, project.benchmark.high, project.benchmark.low, quote.currentAmount, quote.preliminaryAmount, sourceSell]);
+  const totalSell = projectCategories.reduce((s, t) => s + t.yourSell, 0);
+  const totalBench = projectCategories.reduce((s, t) => s + t.benchmark, 0);
+  const totalCost = projectCategories.reduce((s, t) => s + t.yourCost, 0);
   const totalVariance = ((totalSell - totalBench) / totalBench * 100).toFixed(1);
   const grossMargin = ((totalSell - totalCost) / totalSell * 100).toFixed(1);
 
-  const filtered = tradeCategories.filter(t => {
+  const filtered = projectCategories.filter(t => {
     if (filter === "above") return t.variance > 5;
     if (filter === "below") return t.variance < -5;
     if (filter === "in-range") return Math.abs(t.variance) <= 5;
@@ -75,8 +83,8 @@ export default function SubMarketComparisonPage() {
         {/* Summary Strip */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
-            { label: "Above Benchmark", value: String(tradeCategories.filter(t => t.variance > 5).length), color: "text-warning" },
-            { label: "In Range", value: String(tradeCategories.filter(t => Math.abs(t.variance) <= 5).length), color: "text-primary" },
+             { label: "Above Benchmark", value: String(projectCategories.filter(t => t.variance > 5).length), color: "text-warning" },
+             { label: "In Range", value: String(projectCategories.filter(t => Math.abs(t.variance) <= 5).length), color: "text-primary" },
             { label: "Overall Variance", value: `+${totalVariance}%`, color: "text-warning" },
             { label: "Gross Margin", value: `${grossMargin}%`, color: "text-primary" },
             { label: "Market Position", value: sensitivityLabel, color: sensitivityColor },
