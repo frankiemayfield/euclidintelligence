@@ -1,4 +1,6 @@
 # Odyssey interface completion
+- [x] Restore the exact original Euclid logo proportions with environment-reactive color
+- [x] Add header-edge scroll fading and hide scrollbar chrome across the app
 - [x] Match shared header and menu behavior
 - [x] Add three-column construction messenger
 - [x] Fix notification overlay stacking and structure

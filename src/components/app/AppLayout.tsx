@@ -84,7 +84,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         )}
 
         {/* Main + Euclid */}
-        <main data-dense-workspace={location.pathname.includes("scope-analyzer") || location.pathname.includes("estimate-builder") || location.pathname.includes("bid-leveling") || location.pathname.includes("market-comparison") || location.pathname.includes("estimate-comparison") ? "true" : undefined} className="min-w-0 flex-1 overflow-y-auto rounded-2xl">{children}</main>
+        <main data-dense-workspace={location.pathname.includes("scope-analyzer") || location.pathname.includes("estimate-builder") || location.pathname.includes("bid-leveling") || location.pathname.includes("market-comparison") || location.pathname.includes("estimate-comparison") ? "true" : undefined} className="header-scroll-fade min-w-0 flex-1 overflow-y-auto rounded-2xl">{children}</main>
 
         {/* Euclid Panel - persistent across estimator + dashboard */}
         {showAtlas && <AtlasPanel isOpen={atlasOpen} onClose={() => setAtlasOpen(false)} />}

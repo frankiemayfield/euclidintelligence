@@ -1,43 +1,47 @@
+import euclidLogo from "@/assets/euclid-logo.png";
+import compassAsset from "@/assets/euclid-compass.png.asset.json";
 import { cn } from "@/lib/utils";
 
 /**
- * Single dynamic brand source. The compass mark and the wordmark both take their
- * color from the active environment accent token (--env-accent), so header,
- * assistant launcher, assistant window, loading and empty states always match.
+ * The original Euclid artwork is used as a mask so its exact proportions stay
+ * intact while its color follows the selected workspace environment.
  */
 export function EuclidCompass({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 48 48"
-      role="img"
+    <span
       aria-hidden="true"
-      className={cn("block shrink-0 text-[hsl(var(--env-accent))] transition-colors duration-300", className)}
-    >
-      <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-        {/* hinge */}
-        <circle cx="24" cy="9.5" r="5" strokeWidth="2.6" />
-        <path d="M24 1.5v3.2" strokeWidth="2.6" />
-        {/* legs */}
-        <path d="M21.4 13.6 8.5 45.5" strokeWidth="3.2" />
-        <path d="M26.6 13.6 39.5 45.5" strokeWidth="3.2" />
-        {/* horizon rule + tick */}
-        <path d="M10.5 24.5h27" strokeWidth="1.6" opacity=".9" />
-        <path d="M24 20.5v8" strokeWidth="1.6" opacity=".9" />
-      </g>
-    </svg>
+      className={cn("block shrink-0 bg-[hsl(var(--env-accent))] transition-colors duration-300", className)}
+      style={{
+        WebkitMaskImage: `url(${compassAsset.url})`,
+        maskImage: `url(${compassAsset.url})`,
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+      }}
+    />
   );
 }
 
 export function EuclidWordmark({ className, markClassName }: { className?: string; markClassName?: string }) {
   return (
-    <span className={cn("flex items-center gap-2.5", className)}>
-      <EuclidCompass className={cn("h-8 w-8", markClassName)} />
+    <span className={cn("relative block h-[44px] w-32 shrink-0", className)}>
       <span
         aria-hidden="true"
-        className="font-display text-[19px] font-bold uppercase leading-none tracking-[0.34em] text-[hsl(var(--env-accent))] transition-colors duration-300"
-      >
-        Euclid
-      </span>
+        className={cn("absolute inset-0 block bg-[hsl(var(--env-accent))] transition-colors duration-300", markClassName)}
+        style={{
+          WebkitMaskImage: `url(${euclidLogo})`,
+          maskImage: `url(${euclidLogo})`,
+          WebkitMaskPosition: "center",
+          maskPosition: "center",
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskSize: "contain",
+          maskSize: "contain",
+        }}
+      />
       <span className="sr-only">Euclid</span>
     </span>
   );
