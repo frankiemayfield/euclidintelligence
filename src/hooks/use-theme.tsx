@@ -1,8 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import {
+  environmentByValue,
   isWorkspaceAppearance,
   workspaceBackgrounds,
   type WorkspaceAppearance,
+  type WorkspaceEnvironment,
 } from "@/components/app/workspaceEnvironments";
 
 export type Theme = "light" | "dark" | "system";
@@ -17,6 +19,7 @@ interface ThemeContextType {
   previewWorkspaceAppearance: WorkspaceAppearance | null;
   setPreviewWorkspaceAppearance: (appearance: WorkspaceAppearance | null) => void;
   workspaceBackground: string;
+  environment: WorkspaceEnvironment;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -28,6 +31,7 @@ const ThemeContext = createContext<ThemeContextType>({
   previewWorkspaceAppearance: null,
   setPreviewWorkspaceAppearance: () => {},
   workspaceBackground: workspaceBackgrounds.euclid,
+  environment: environmentByValue.euclid,
 });
 
 function getSystemTheme(): "light" | "dark" {
@@ -61,6 +65,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => localStorage.setItem("euclid-workspace-appearance", workspaceAppearance), [workspaceAppearance]);
   const activeWorkspaceAppearance = previewWorkspaceAppearance ?? workspaceAppearance;
+  const environment = environmentByValue[activeWorkspaceAppearance];
+
+  // Publish the environment token set once, at the root. Every shared component
+  // reads these variables instead of hard-coding per-environment colors.
+  useEffect(() => {
+    const root = document.documentElement;
+    const dark = resolvedTheme === "dark";
+    root.style.setProperty("--env-accent", dark ? environment.accentDarkMode : environment.accentLight);
+    root.style.setProperty("--env-accent-soft", dark ? environment.secondaryDarkMode : environment.secondaryLight);
+    root.style.setProperty("--env-tint", dark ? environment.tintDarkMode : environment.tintLight);
+    root.style.setProperty("--env-position", environment.position);
+    root.style.setProperty("--env-position-mobile", environment.positionMobile);
+    root.dataset.environment = environment.value;
+  }, [environment, resolvedTheme]);
+
   const value = useMemo(() => ({
     theme,
     setTheme,
@@ -70,7 +89,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     previewWorkspaceAppearance,
     setPreviewWorkspaceAppearance,
     workspaceBackground: workspaceBackgrounds[activeWorkspaceAppearance],
-  }), [theme, resolvedTheme, workspaceAppearance, previewWorkspaceAppearance, activeWorkspaceAppearance]);
+    environment,
+  }), [theme, resolvedTheme, workspaceAppearance, previewWorkspaceAppearance, activeWorkspaceAppearance, environment]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 

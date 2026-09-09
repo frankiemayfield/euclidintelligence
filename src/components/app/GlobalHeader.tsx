@@ -33,18 +33,18 @@ export function GlobalHeader({ track }: { track: Track }) {
   const activeItems=[{label:config.activeLabel,to:config.active,icon:HardHat},{label:"Schedule",to:config.schedule,icon:CalendarRange},{label:"Time Clock",to:config.time,icon:Clock3}];
   const moreItems=[{label:"Network",to:"/network",icon:Building2},{label:"Compliance",to:"/compliance",icon:ShieldCheck},{label:"Estimate vs Actual",to:track==="sub"?"/sub/est-vs-actual":"/app/est-vs-actual",icon:Activity}];
   return <>
-    <header className="odyssey-header relative z-[70] flex h-[72px] shrink-0 items-center justify-between px-7 lg:px-[9%]">
-      <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark className="h-auto w-[132px]"/></Link>
+    <header className="odyssey-header relative z-[70] flex h-[76px] shrink-0 items-center justify-between px-6 lg:px-[7%]">
+      <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark markClassName="h-9 w-9"/></Link>
       <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
-        {navItems.map(item=><Link key={item.id} to={item.to} className={cn("rounded-full px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",section===item.id&&"bg-card/70 text-foreground shadow-sm backdrop-blur-md")}>{item.label}</Link>)}
+        {navItems.map(item=><Link key={item.id} to={item.to} data-active={section===item.id} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">{item.label}</Link>)}
         <div className="relative">
-          <button onClick={()=>{setActiveOpen(v=>!v);setMoreOpen(false);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)}} className={cn("flex items-center gap-1 rounded-full px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",section==="active"&&"bg-card/70 text-foreground shadow-sm backdrop-blur-md")}>{config.activeLabel} <ChevronDown size={13}/></button>
+          <button data-active={section==="active"} onClick={()=>{setActiveOpen(v=>!v);setMoreOpen(false);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">{config.activeLabel} <ChevronDown size={13}/></button>
           {activeOpen&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
             {activeItems.map(item=><Link key={item.label} to={item.to} onClick={()=>setActiveOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground"><item.icon size={14}/>{item.label}</Link>)}
           </div>}
         </div>
         <div className="relative">
-          <button onClick={()=>{setMoreOpen(v=>!v);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)}} className={cn("flex items-center gap-1 rounded-full px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",section==="more"&&"bg-card/70 text-foreground shadow-sm backdrop-blur-md")}>More <ChevronDown size={13}/></button>
+          <button data-active={section==="more"} onClick={()=>{setMoreOpen(v=>!v);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">More <ChevronDown size={13}/></button>
           {moreOpen&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
             {moreItems.map(item=><Link key={item.to} to={item.to} onClick={()=>setMoreOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground"><item.icon size={14}/>{item.label}</Link>)}
             <div className="my-1 h-px bg-border/60"/>

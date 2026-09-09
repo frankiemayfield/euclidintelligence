@@ -327,7 +327,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
       {/* Header */}
       <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/15">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[hsl(var(--env-accent)/0.12)] ring-1 ring-[hsl(var(--env-accent)/0.25)]">
               <EuclidCompass className="h-6 w-6" />
           </div>
           <div><p className="font-display text-sm font-bold text-foreground">Euclid AI</p><p className="text-[9px] text-muted-foreground">Construction assistant</p></div>
@@ -423,7 +423,7 @@ export function AtlasToggleButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-card/90 shadow-lg ring-1 ring-border/60 backdrop-blur-xl transition-transform hover:scale-105"
+      className="euclid-assistant-launcher fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full"
       aria-label="Open Euclid"
     >
       <EuclidCompass className="h-8 w-8" />
