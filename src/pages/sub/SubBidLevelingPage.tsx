@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle, AlertTriangle, Send, FileText, ChevronDown } from "lucide-react";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 import { useState } from "react";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 interface QuoteVersion {
   version: string;
@@ -73,7 +74,9 @@ const coverageItems = [
 const fmt = (n: number) => `$${n.toLocaleString()}`;
 
 export default function SubBidLevelingPage() {
-  const [expandedVersion, setExpandedVersion] = useState<string | null>("v2 — Revised Quote");
+  const { project, quote } = useDemoProject();
+  const projectVersions: QuoteVersion[] = quote.revisions.length ? quote.revisions.map((revision, index) => ({ version: `${revision.version} — ${index === quote.revisions.length - 1 ? "Current Quote" : "Base Quote"}`, date: revision.date, total: revision.amount, coverage: index === quote.revisions.length - 1 ? project.scopeCoverage : Math.max(80, project.scopeCoverage - 6), missingScopeCount: index === quote.revisions.length - 1 ? 0 : 2, clarificationsCount: index === quote.revisions.length - 1 ? project.openRfis : 3, exclusions: [{ item: "Engineered lumber supply", disposition: "Carried by GC" }], addBacks: index === 0 ? 0 : revision.amount - quote.revisions[0].amount, notes: revision.reason, status: index === quote.revisions.length - 1 ? "Current" : "Submitted" })) : quoteVersions;
+  const [expandedVersion, setExpandedVersion] = useState<string | null>(null);
   const [transition, setTransition] = useState(false);
 
   return (
@@ -82,7 +85,7 @@ export default function SubBidLevelingPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground">Bid Leveling</h1>
-            <p className="text-sm text-muted-foreground mt-1">GC package vs your quote coverage — clarifications & revision tracking</p>
+            <p className="text-sm text-muted-foreground mt-1">{project.name} — GC package vs TrueFrame quote coverage and revision history</p>
           </div>
           <Button size="sm" className="gap-1.5" onClick={() => setTransition(true)}>
             Build Estimate <ArrowRight size={14} />
@@ -92,11 +95,11 @@ export default function SubBidLevelingPage() {
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
           {[
-            { label: "Quote Versions", value: quoteVersions.length },
-            { label: "Current Coverage", value: "96%" },
+            { label: "Quote Versions", value: projectVersions.length },
+            { label: "Current Coverage", value: `${project.scopeCoverage}%` },
             { label: "Open Clarifications", value: clarifications.filter(c => !c.resolved).length },
-            { label: "Exclusions", value: quoteVersions[1].exclusions.length },
-            { label: "Current Total", value: fmt(quoteVersions[1].total) },
+            { label: "Exclusions", value: projectVersions.at(-1)?.exclusions.length ?? 0 },
+            { label: "Current Total", value: quote.currentAmount ? fmt(quote.currentAmount) : "Preliminary" },
           ].map(c => (
             <div key={c.label} className="bg-card border border-border rounded-xl p-3 shadow-card text-center">
               <p className="text-[10px] text-muted-foreground">{c.label}</p>
@@ -119,7 +122,7 @@ export default function SubBidLevelingPage() {
               </tr>
             </thead>
             <tbody>
-              {quoteVersions.map((v) => (
+              {projectVersions.map((v) => (
                 <>
                   <tr key={v.version} className="border-b border-border hover:bg-muted/20 cursor-pointer" onClick={() => setExpandedVersion(expandedVersion === v.version ? null : v.version)}>
                     <td className="px-4 py-3"><ChevronDown size={14} className={`text-muted-foreground transition-transform ${expandedVersion === v.version ? "rotate-180" : ""}`} /></td>

@@ -73,7 +73,10 @@ export default function ProposalPage() {
 
   // Drag state
   const [dragIdx, setDragIdx] = useState<number | null>(null);
-  useEffect(() => { setClientName(project.client); setProjectName(project.name); setProjectAddress(project.location); setPricingRows(pricingFor(project.builderCost, project.clientPrice)); }, [project.id]);
+  useEffect(() => {
+    setClientName(project.client); setProjectName(project.name); setProjectAddress(project.location); setPricingRows(pricingFor(project.builderCost, project.clientPrice));
+    setSections(current => current.map(section => section.id === "summary" ? { ...section, content: `This proposal covers the complete ${project.name} scope documented in the current estimate and issued construction documents. Client price: ${project.clientPrice ? `$${project.clientPrice.toLocaleString()}` : "pending"}.` } : section.id === "cost" ? { ...section, content: `Builder Cost ..... ${project.builderCost ? `$${project.builderCost.toLocaleString()}` : "Pending"}\nGross Profit ..... ${project.builderCost && project.clientPrice ? `$${(project.clientPrice-project.builderCost).toLocaleString()}` : "Pending"}\nClient Price ..... ${project.clientPrice ? `$${project.clientPrice.toLocaleString()}` : "Pending"}\nMarkup ..... ${project.markup ?? 0}%` } : section));
+  }, [project.id, project.name, project.client, project.location, project.builderCost, project.clientPrice, project.markup]);
 
   const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
