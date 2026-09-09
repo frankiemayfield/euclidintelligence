@@ -12,3 +12,13 @@
 - [x] Remove the header cell effect and blend its gradient into the workspace
 - [x] Expand Appearance to six distinct, live-preview workspace environments
 - [x] Add environment-aware light and dark readability treatments across all tracks
+
+# Scope Analyzer IA simplification
+- [ ] Build one shared Builder/Sub Scope Analyzer shell with track-specific final steps
+- [ ] Add compact readiness ribbon and exact tab sets
+- [ ] Rebuild Quantity Takeoff with working filters, selection, expanded evidence, and retained plan viewer
+- [ ] Combine assumptions and issues into an actionable Review queue
+- [ ] Add shared Builder Scope Structure and Sub Quote Structure mapping views
+- [ ] Add Builder Bid Packages and Sub Build Estimate transitions
+- [ ] Update per-tab Euclid assistant context and dense-workspace glass opacity
+- [ ] Verify Builder/Sub workflows, takeoff tools, light/dark appearance, and clean build
