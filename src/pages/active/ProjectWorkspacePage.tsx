@@ -5,6 +5,7 @@ import { ScheduleModule } from "@/components/app/schedule/ScheduleModule";
 import { documents, getProject, money } from "@/data/demoUniverse";
 import { baselines, criticalTasks, fmtLong, lateTasks, statusFor, statusTone, todaysWork, upcoming } from "@/data/scheduleData";
 import { clockedIn, entriesFor, laborCost, projectTeam, weekSummary, workerById } from "@/data/fieldData";
+import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 import { fmtWhen, projectActivity, urgencyTone } from "@/data/activityData";
 import { builderNetwork, complianceTone } from "@/data/networkData";
 import { cn } from "@/lib/utils";
@@ -175,6 +176,9 @@ export default function ProjectWorkspacePage() {
                     <div key={l as string} className="odyssey-surface rounded-xl p-4 text-center"><p className="text-[10px] text-muted-foreground">{l as string}</p><p className="mt-1 font-display text-lg font-bold">{money(v as number)}</p></div>
                   ))}
                 </div>
+                <EuclidImpact domain="Cost" tone={a.forecastAtCompletion > a.revisedBudget ? "warning" : "positive"}
+                  message={`Forecast at completion is ${money(a.forecastAtCompletion)} against a revised budget of ${money(a.revisedBudget)} — a ${a.forecastAtCompletion > a.revisedBudget ? "projected overrun" : "projected saving"} of ${money(Math.abs(a.forecastAtCompletion - a.revisedBudget))}. Internal crew hours post directly to actual labor; fixed-price subcontract crews post from commitments and invoices, so labor is never double-counted.`}
+                  action={{ label: "Open Estimate vs Actual", to: `${base}/est-vs-actual` }} />
                 <Panel title="Labor from time clock">
                   <p className="text-[11px] text-muted-foreground">This week: {weekSummary.regular} regular hours, {weekSummary.overtime} overtime, {money(weekSummary.laborCost)} labor cost (+{money(weekSummary.budgetVariance)} vs budget).</p>
                   <p className="mt-1 text-[11px] text-muted-foreground">Highest labor variance: {weekSummary.highestVariance.task} — estimated {weekSummary.highestVariance.estimated} hrs, forecast {weekSummary.highestVariance.actual} hrs (+{weekSummary.highestVariance.pct}%).</p>

@@ -1,13 +1,27 @@
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Diamond, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { addDays, categoryTone, d, TODAY, type ScheduleTask } from "@/data/scheduleData";
+import { addDays, d, fmtLong, TODAY, type ScheduleTask } from "@/data/scheduleData";
 
 type Mode = "Month" | "Week" | "Day";
 
-export function CalendarView({ tasks, anchor, selectedId, onSelect }: { tasks: ScheduleTask[]; anchor: string; selectedId?: string; onSelect: (t: ScheduleTask) => void }) {
+/** Muted hierarchy: in-progress reads strongest, upcoming is translucent, complete is quiet. */
+const fillFor = (t: ScheduleTask) => {
+  if (t.category === "inspection") return "border-l-2 border-warning bg-warning/10 text-foreground";
+  if (t.status === "In Progress") return "bg-primary/85 text-primary-foreground";
+  if (t.status === "Delayed") return "bg-warning/25 text-foreground";
+  if (t.status === "Complete") return "bg-muted/60 text-muted-foreground";
+  return "bg-primary/12 text-foreground";
+};
+
+export function CalendarView({ tasks, anchor, selectedId, onSelect, todaySignal }: {
+  tasks: ScheduleTask[]; anchor: string; selectedId?: string; onSelect: (t: ScheduleTask) => void; todaySignal?: number;
+}) {
   const [mode, setMode] = useState<Mode>("Month");
   const [cursor, setCursor] = useState(anchor);
+  const [popover, setPopover] = useState<string | null>(null);
+
+  useEffect(() => { if (todaySignal) setCursor(TODAY); }, [todaySignal]);
 
   const on = (iso: string) => tasks.filter(t => t.start <= iso && t.finish >= iso);
 
@@ -28,8 +42,18 @@ export function CalendarView({ tasks, anchor, selectedId, onSelect }: { tasks: S
   const title = mode === "Day" ? d(cursor).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
     : d(cursor).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
+  const cap = mode === "Week" ? 12 : 3;
+
+  const Pill = ({ t }: { t: ScheduleTask }) => (
+    <button onClick={e => { e.stopPropagation(); onSelect(t); setPopover(null); }}
+      className={cn("flex w-full items-center gap-1 truncate rounded px-1.5 py-0.5 text-left text-[9px] font-medium", fillFor(t), selectedId === t.id && "ring-1 ring-primary")}>
+      {t.milestone && <Diamond size={7} className="shrink-0 fill-current" />}
+      <span className="truncate">{t.title}</span>
+    </button>
+  );
+
   return (
-    <div className="odyssey-surface flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl">
+    <div className="odyssey-surface relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl">
       <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
         <div className="flex items-center gap-2">
           <button onClick={() => step(-1)} className="rounded-full p-1.5 hover:bg-card/70"><ChevronLeft size={15} /></button>
@@ -59,7 +83,7 @@ export function CalendarView({ tasks, anchor, selectedId, onSelect }: { tasks: S
                 {items.length === 0 && <p className="text-sm text-muted-foreground">No scheduled activities.</p>}
                 {items.map(t => (
                   <button key={t.id} onClick={() => onSelect(t)} className="flex w-full items-center gap-3 rounded-xl border border-border/50 px-4 py-3 text-left hover:bg-card/60">
-                    <span className={cn("h-2 w-2 rounded-full", categoryTone[t.category].dot)} />
+                    <span className={cn("h-2 w-2 rounded-full", fillFor(t).includes("primary/85") ? "bg-primary" : "bg-muted-foreground")} />
                     <span className="flex-1 text-sm font-medium">{t.title}</span>
                     <span className="text-[11px] text-muted-foreground">{t.assignee}</span>
                   </button>
@@ -73,22 +97,43 @@ export function CalendarView({ tasks, anchor, selectedId, onSelect }: { tasks: S
                 <span className={cn("flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold", isToday ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>{d(day).getDate()}</span>
               </div>
               <div className="space-y-0.5">
-                {items.slice(0, mode === "Week" ? 12 : 3).map(t => (
-                  <button key={t.id} onClick={() => onSelect(t)}
-                    className={cn("block w-full truncate rounded px-1.5 py-0.5 text-left text-[9px] font-medium text-background", categoryTone[t.category].bar, selectedId === t.id && "ring-1 ring-primary")}>
-                    {t.title}
-                  </button>
-                ))}
-                {items.length > (mode === "Week" ? 12 : 3) && <p className="px-1 text-[9px] text-muted-foreground">+{items.length - (mode === "Week" ? 12 : 3)} more</p>}
+                {items.slice(0, cap).map(t => <Pill key={t.id} t={t} />)}
+                {items.length > cap && (
+                  <button onClick={() => setPopover(day)} className="px-1 text-[9px] font-semibold text-muted-foreground hover:text-foreground">+{items.length - cap} more</button>
+                )}
               </div>
             </div>
           );
         })}
       </div>
-      <div className="flex flex-wrap gap-3 border-t border-border/50 px-4 py-2">
-        {Object.entries(categoryTone).map(([k, v]) => (
-          <span key={k} className="flex items-center gap-1.5 text-[10px] text-muted-foreground"><span className={cn("h-2 w-2 rounded-full", v.dot)} />{v.label}</span>
-        ))}
+
+      {popover && (
+        <>
+          <div className="fixed inset-0 z-[70]" onClick={() => setPopover(null)} />
+          <div className="odyssey-surface absolute left-1/2 top-1/2 z-[80] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-2xl p-3 shadow-xl">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="font-display text-sm font-semibold">{fmtLong(popover)}</p>
+              <button onClick={() => setPopover(null)} className="rounded-full p-1 hover:bg-card/70"><X size={13} /></button>
+            </div>
+            <div className="max-h-[280px] space-y-1 overflow-auto">
+              {on(popover).map(t => (
+                <button key={t.id} onClick={() => { onSelect(t); setPopover(null); }}
+                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-border/50 px-2 py-1.5 text-left text-[11px] hover:bg-card/70">
+                  <span className="truncate">{t.title}</span>
+                  <span className="shrink-0 text-[9px] text-muted-foreground">{t.status}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      <div className="flex flex-wrap gap-3 border-t border-border/50 px-4 py-2 text-[10px] text-muted-foreground">
+        <span className="flex items-center gap-1.5"><span className="h-2 w-4 rounded-sm bg-primary/85" />In progress</span>
+        <span className="flex items-center gap-1.5"><span className="h-2 w-4 rounded-sm bg-primary/12" />Scheduled</span>
+        <span className="flex items-center gap-1.5"><span className="h-2 w-4 rounded-sm bg-muted/60" />Complete</span>
+        <span className="flex items-center gap-1.5"><span className="h-2 w-4 rounded-sm border-l-2 border-warning bg-warning/10" />Inspection</span>
+        <span className="flex items-center gap-1.5"><Diamond size={8} className="fill-current" />Milestone</span>
       </div>
     </div>
   );
