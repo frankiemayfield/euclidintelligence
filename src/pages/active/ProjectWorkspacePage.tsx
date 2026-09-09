@@ -206,7 +206,7 @@ export default function ProjectWorkspacePage() {
                       {c ? <Link to={`/network/${c.id}`} className="text-[11px] font-semibold text-primary hover:underline">{m.company}</Link> : <p className="text-[11px]">{m.company}</p>}
                       {m.contact && <p className="text-[10px] text-muted-foreground">{m.contact}</p>}
                     </div>
-                    {c && <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-semibold", complianceTone[c.complianceOverall])}>{c.complianceOverall}</span>}
+                    {c?.complianceOverall && <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-semibold", complianceTone[c.complianceOverall])}>{c.complianceOverall}</span>}
                   </div>
                 </div>
               );
