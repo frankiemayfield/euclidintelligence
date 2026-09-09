@@ -80,7 +80,7 @@ export function HomeownerLayout({ children }: { children: React.ReactNode }) {
           </button>
         </aside>
 
-        <main className="flex-1 overflow-y-auto odyssey-scroll-fade">{children}</main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
   );
