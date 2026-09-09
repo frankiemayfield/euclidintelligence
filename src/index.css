@@ -137,27 +137,64 @@
     background-size: cover;
   }
 
-  .odyssey-header,
   .odyssey-popover {
     border: 1px solid hsl(var(--border) / 0.58);
-    background: hsl(var(--card) / 0.68);
+    background: hsl(var(--card) / 0.82);
     box-shadow: var(--shadow-card);
     backdrop-filter: blur(24px) saturate(135%);
   }
 
-  .odyssey-header { border-radius: 1.25rem; }
+  .odyssey-header {
+    border: 0;
+    border-bottom: 1px solid hsl(var(--border) / 0.3);
+    background: linear-gradient(180deg, hsl(var(--card) / 0.9) 0%, hsl(var(--card) / 0.66) 58%, hsl(var(--card) / 0.22) 100%);
+    box-shadow: 0 12px 30px -24px hsl(var(--foreground) / 0.32);
+    backdrop-filter: blur(20px) saturate(125%);
+  }
+
+  .dark .odyssey-header {
+    background: linear-gradient(180deg, hsl(var(--background) / 0.96) 0%, hsl(var(--card) / 0.8) 62%, hsl(var(--card) / 0.28) 100%);
+  }
+
+  .odyssey-header-control {
+    color: hsl(var(--muted-foreground));
+    border: 1px solid transparent;
+    border-radius: 0.55rem;
+  }
+
+  .odyssey-header-control:hover,
+  .odyssey-header-control.is-active {
+    color: hsl(var(--foreground));
+    border-color: hsl(var(--border) / 0.5);
+    background: hsl(var(--card) / 0.52);
+  }
+
+  .odyssey-counter {
+    position: absolute;
+    right: -0.1rem;
+    top: -0.25rem;
+    min-width: 1rem;
+    height: 1rem;
+    padding: 0 0.2rem;
+    border-radius: 9999px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    line-height: 1rem;
+    box-shadow: 0 0 0 2px hsl(var(--card) / 0.9);
+  }
+
   .odyssey-popover { border-radius: 1rem; }
 
   .odyssey-surface {
     border: 1px solid hsl(var(--border) / 0.58);
-    background: hsl(var(--card) / 0.64);
+    background: linear-gradient(145deg, hsl(var(--card) / 0.78), hsl(var(--card) / 0.64));
     box-shadow: var(--shadow-card);
-    backdrop-filter: blur(22px) saturate(130%);
+    backdrop-filter: blur(24px) saturate(140%);
   }
 
   .odyssey-app main .bg-card,
   .odyssey-app main .bg-background {
-    background-color: hsl(var(--card) / 0.64);
+    background-color: hsl(var(--card) / 0.74);
     backdrop-filter: blur(18px) saturate(125%);
   }
 }
