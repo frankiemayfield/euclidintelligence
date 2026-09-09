@@ -1,8 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import {
+  environmentByValue,
   isWorkspaceAppearance,
   workspaceBackgrounds,
   type WorkspaceAppearance,
+  type WorkspaceEnvironment,
 } from "@/components/app/workspaceEnvironments";
 
 export type Theme = "light" | "dark" | "system";
