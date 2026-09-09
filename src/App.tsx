@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AccountTypeProvider } from "@/hooks/use-account-type";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { DemoProjectProvider } from "@/hooks/use-demo-project";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import Index from "./pages/Index";
@@ -21,6 +21,10 @@ import ProposalComparisonPage from "./pages/app/ProposalComparisonPage";
 import PricingMarginPage from "./pages/app/PricingMarginPage";
 import SettingsPage from "./pages/app/SettingsPage";
 import NewProjectPage from "./pages/app/NewProjectPage";
+import NetworkPage from "./pages/network/NetworkPage";
+import CompanyProfilePage from "./pages/network/CompanyProfilePage";
+import CompliancePage from "./pages/compliance/CompliancePage";
+import ActivityPage from "./pages/ActivityPage";
 
 // Auth pages
 import SignInPage from "./pages/auth/SignInPage";
@@ -61,6 +65,12 @@ function BuilderGuard({ children }: { children: React.ReactNode }) {
 }
 function SubGuard({ children }: { children: React.ReactNode }) {
   return <AuthGuard requiredTrack="subcontractor"><SubSettingsProvider><DemoProjectProvider track="sub">{children}</DemoProjectProvider></SubSettingsProvider></AuthGuard>;
+}
+function GlobalGuard({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const track = user?.accountTrack === "subcontractor" ? "sub" : "builder";
+  const inner = <DemoProjectProvider track={track}>{children}</DemoProjectProvider>;
+  return <AuthGuard>{track === "sub" ? <SubSettingsProvider>{inner}</SubSettingsProvider> : inner}</AuthGuard>;
 }
 function OwnerGuard({ children }: { children: React.ReactNode }) {
   return <AuthGuard requiredTrack="homeowner"><DemoProjectProvider track="builder">{children}</DemoProjectProvider></AuthGuard>;
@@ -110,6 +120,12 @@ const App = () => (
                 <Route path="/sub/proposal" element={<SubGuard><SubProposalExportPage /></SubGuard>} />
                 <Route path="/sub/est-vs-actual" element={<SubGuard><SubEstVsActualPage /></SubGuard>} />
                 <Route path="/sub/settings" element={<SubGuard><SubSettingsPage /></SubGuard>} />
+
+                {/* Global routes (Network, Compliance, Activity) */}
+                <Route path="/network" element={<GlobalGuard><NetworkPage /></GlobalGuard>} />
+                <Route path="/network/:companyId" element={<GlobalGuard><CompanyProfilePage /></GlobalGuard>} />
+                <Route path="/compliance" element={<GlobalGuard><CompliancePage /></GlobalGuard>} />
+                <Route path="/activity" element={<GlobalGuard><ActivityPage /></GlobalGuard>} />
 
                 {/* Homeowner routes */}
                 <Route path="/owner" element={<OwnerGuard><HomeownerOverviewPage /></OwnerGuard>} />
