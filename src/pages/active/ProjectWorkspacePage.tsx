@@ -5,6 +5,7 @@ import { ScheduleModule } from "@/components/app/schedule/ScheduleModule";
 import { documents, getProject, money } from "@/data/demoUniverse";
 import { baselines, criticalTasks, fmtLong, lateTasks, statusFor, statusTone, todaysWork, upcoming } from "@/data/scheduleData";
 import { clockedIn, entriesFor, laborCost, projectTeam, weekSummary, workerById } from "@/data/fieldData";
+import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 import { fmtWhen, projectActivity, urgencyTone } from "@/data/activityData";
 import { builderNetwork, complianceTone } from "@/data/networkData";
 import { cn } from "@/lib/utils";
