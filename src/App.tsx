@@ -63,7 +63,7 @@ function SubGuard({ children }: { children: React.ReactNode }) {
   return <AuthGuard requiredTrack="subcontractor"><SubSettingsProvider><DemoProjectProvider track="sub">{children}</DemoProjectProvider></SubSettingsProvider></AuthGuard>;
 }
 function OwnerGuard({ children }: { children: React.ReactNode }) {
-  return <AuthGuard requiredTrack="homeowner">{children}</AuthGuard>;
+  return <AuthGuard requiredTrack="homeowner"><DemoProjectProvider track="builder">{children}</DemoProjectProvider></AuthGuard>;
 }
 
 const App = () => (

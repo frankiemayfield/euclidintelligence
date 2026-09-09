@@ -6,9 +6,10 @@ import {
   Plus, Pencil, Check, Trash2, ArrowRight, GripVertical, X, Copy,
   Eye, EyeOff
 } from "lucide-react";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 interface LineItem {
   id: string;
@@ -44,6 +45,7 @@ const initialLineItems: LineItem[] = [
 const fmt = (n: number) => `$${n.toLocaleString()}`;
 
 export default function SubEstimateBuilderPage() {
+  const { project, quote } = useDemoProject();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("base");
   const [items, setItems] = useState<LineItem[]>(initialLineItems);
@@ -53,6 +55,12 @@ export default function SubEstimateBuilderPage() {
   const [showCostCodes, setShowCostCodes] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  useEffect(() => {
+    const target = quote.currentAmount ? quote.currentAmount / 1.25 : quote.preliminaryAmount ?? 0;
+    const current = initialLineItems.reduce((sum, item) => sum + item.total, 0);
+    const factor = current ? target / current : 1;
+    setItems(initialLineItems.map(item => ({ ...item, unitCost: Number((item.unitCost * factor).toFixed(2)), total: Math.round(item.total * factor) })));
+  }, [project.id, quote.currentAmount, quote.preliminaryAmount]);
 
   const baseItems = items.filter(l => l.category === "base");
   const generalItems = items.filter(l => l.category === "general");
@@ -297,7 +305,7 @@ export default function SubEstimateBuilderPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground">Estimate Builder</h1>
-            <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — Framing quote builder</p>
+             <p className="text-sm text-muted-foreground mt-1">{project.name} — Framing quote builder · {quote.currentAmount ? `$${quote.currentAmount.toLocaleString()} current quote` : "Preliminary pricing"}</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">

@@ -3,6 +3,8 @@ import { Upload, X, CheckCircle, ArrowRight, Settings2, Layers, Target, FileText
 import { Button } from "@/components/ui/button";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 import { useState } from "react";
+import { getProjectDocuments } from "@/data/demoUniverse";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 const projectTypes = ["Remodel", "Custom Home", "Addition", "White Box", "Tenant Finish", "Commercial Rehab"];
 const specLevels = ["Builder Grade", "Mid-Tier", "Premium", "Luxury"];
@@ -65,13 +67,9 @@ const estimateUsageOptions = [
 ];
 
 export default function UploadPage() {
+  const { project } = useDemoProject();
   const [files, setFiles] = useState<UploadedFile[]>([
-    { name: "A1.1_Floor_Plan.pdf", sourceType: "plans", status: "Classified" },
-    { name: "S1.1_Structural.pdf", sourceType: "plans", status: "Classified" },
-    { name: "Finish_Schedule.xlsx", sourceType: "schedules", status: "Classified" },
-    { name: "Spark_Electric_Bid.pdf", sourceType: "subbids", status: "Classified" },
-    { name: "BrightWire_Quote.pdf", sourceType: "subbids", status: "Classified" },
-    { name: "AquaFlow_Plumbing_Bid.pdf", sourceType: "subbids", status: "Classified" },
+    ...getProjectDocuments("fregolle").map(document => ({ name: document.filename, sourceType: document.sourceType === "subcontractor bid" ? "subbids" as const : "plans" as const, status: "Classified" as const, isPrimary: document.primary })),
   ]);
   const [processing, setProcessing] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("all");
@@ -213,11 +211,11 @@ export default function UploadPage() {
               <div className="grid md:grid-cols-3 gap-5">
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Project Name</label>
-                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" defaultValue="Maple St. Kitchen Remodel" />
+                   <input key={project.id} className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" defaultValue={project.name} />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Client / Owner</label>
-                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. Johnson Family" />
+                   <input key={project.client} className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" defaultValue={project.client} />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Project Type</label>
@@ -243,11 +241,11 @@ export default function UploadPage() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Project Address</label>
-                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. 123 Maple St, Chicago, IL" />
+                   <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" defaultValue={project.location} />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Job Number / Internal ID</label>
-                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. MF-2024-042" />
+                   <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" defaultValue={project.jobNumber} />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Notes</label>

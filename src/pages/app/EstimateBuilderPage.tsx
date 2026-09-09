@@ -18,6 +18,7 @@ import { AlternatesSection } from "@/components/app/estimate/AlternatesSection";
 import { ReviewSection } from "@/components/app/estimate/ReviewSection";
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 type ExtractionMethod = "Explicitly Labeled" | "Derived from Scale" | "Schedule Verified" | "Assumption Applied";
 type ReviewStatus = "Auto-Extracted" | "Needs Review" | "Estimator Confirmed" | "Adjusted by User";
@@ -347,6 +348,7 @@ function BaseScopeSection() {
 }
 
 export default function EstimateBuilderPage() {
+  const { project } = useDemoProject();
   const navigate = useNavigate();
 
   const preBuildTotal = 30500;
@@ -362,7 +364,7 @@ export default function EstimateBuilderPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground">Estimate Builder</h1>
-            <p className="text-sm text-muted-foreground mt-1">v2.1 · Full estimate workspace</p>
+            <p className="text-sm text-muted-foreground mt-1">{project.name} · {project.builderCost ? `$${project.builderCost.toLocaleString()} current cost` : "Cost development pending"}</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm"><Download size={14} className="mr-1.5" /> Export</Button>

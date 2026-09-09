@@ -8,21 +8,21 @@ import { cn } from "@/lib/utils";
 
 type ConstructionMessage = { id: number; author: string; initials: string; time: string; text: string; mine?: boolean; tag?: string };
 const channels = [
-  { name: "mayfield-hq", preview: "Sarah: Weekly estimating review", unread: 3, section: "Pinned" },
-  { name: "maple-st-kitchen", preview: "Ryan: Revised electrical scope", unread: 2, section: "Pinned" },
+  { name: "mayfield-hq", preview: "Frankie: Weekly estimating review", unread: 3, section: "Pinned" },
+  { name: "fregolle-residence", preview: "Tyler: Revised framing scope", unread: 2, section: "Pinned" },
   { name: "oakwood-custom", preview: "James: Foundation bids are in", unread: 1, section: "Pinned" },
   { name: "estimating", preview: "Lisa: Pricing update posted", unread: 4, section: "Project channels" },
-  { name: "bid-packages", preview: "Sarah: Division 26 normalized", unread: 0, section: "Project channels" },
-  { name: "field-questions", preview: "Ryan: RFI 018 needs review", unread: 2, section: "Channels" },
+  { name: "bid-packages", preview: "Frankie: Fregolle framing normalized", unread: 0, section: "Project channels" },
+  { name: "field-questions", preview: "Jordan: RFI 018 needs review", unread: 2, section: "Channels" },
   { name: "general", preview: "Company announcements", unread: 0, section: "Channels" },
 ];
 const initialMessages: ConstructionMessage[] = [
-  { id: 1, author: "Ryan Mitchell", initials: "RM", time: "9:41 AM", text: "Electrical came back with the revised feeder and panel scope. The alternate is now separated from base bid.", tag: "Division 26" },
-  { id: 2, author: "Sarah Chen", initials: "SC", time: "9:48 AM", text: "Good. I normalized it against the issued scope package. We still need confirmation on temporary power and utility fees.", mine: true, tag: "Bid package" },
+  { id: 1, author: "Tyler Reed", initials: "TR", time: "9:41 AM", text: "The revised Fregolle framing quote includes the blocking and structural hardware clarifications.", tag: "Framing" },
+  { id: 2, author: "Frankie Mayfield", initials: "FM", time: "9:48 AM", text: "Good. I normalized v2 against the issued construction set. The current quote is $131,850.", mine: true, tag: "Bid package" },
   { id: 3, author: "James O'Brien", initials: "JO", time: "10:03 AM", text: "I’ll get the utility allowance from the owner and attach it here before the leveling review." },
-  { id: 4, author: "Sarah Chen", initials: "SC", time: "10:12 AM", text: "Please also confirm whether the $8,400 lighting allowance includes decorative fixtures. Euclid has it flagged as an exclusion risk.", mine: true },
+  { id: 4, author: "Frankie Mayfield", initials: "FM", time: "10:12 AM", text: "Please confirm the remaining framing assumption before we close scope review.", mine: true },
 ];
-const members = ["Sarah Chen · Lead Estimator", "Ryan Mitchell · Admin", "James O'Brien · Project Manager", "Lisa Chen · Viewer"];
+const members = ["Frankie Mayfield · Estimator / Preconstruction", "Tyler Reed · TrueFrame Estimator", "Jordan Ellis · Project Manager"];
 
 export function ConstructionMessenger({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [activeChannel, setActiveChannel] = useState("maple-st-kitchen");
@@ -32,7 +32,7 @@ export function ConstructionMessenger({ open, onClose }: { open: boolean; onClos
   if (!open) return null;
   const send = ({ text }: { text: string }) => {
     if (!text.trim()) return;
-    setMessages(current => [...current, { id: Date.now(), author: "Sarah Chen", initials: "SC", time: "Now", text: text.trim(), mine: true }]);
+    setMessages(current => [...current, { id: Date.now(), author: "Frankie Mayfield", initials: "FM", time: "Now", text: text.trim(), mine: true }]);
   };
   return <div className="fixed inset-x-3 bottom-3 top-[86px] z-[80] lg:inset-x-5 lg:bottom-5">
     <div className="grid h-full min-h-0 grid-cols-[240px_minmax(0,1fr)_240px] gap-3 max-lg:grid-cols-[220px_minmax(0,1fr)] max-md:grid-cols-1">

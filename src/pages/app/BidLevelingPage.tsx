@@ -7,9 +7,11 @@ import { BidSummaryCards } from "@/components/app/bid-leveling/BidSummaryCards";
 import { BidComparisonTable } from "@/components/app/bid-leveling/BidComparisonTable";
 import { Button } from "@/components/ui/button";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 export default function BidLevelingPage() {
-  const [activeTrade, setActiveTrade] = useState("Electrical");
+  const { project } = useDemoProject();
+  const [activeTrade, setActiveTrade] = useState("Framing");
   const [expandedSub, setExpandedSub] = useState<string | null>(null);
   const [transition, setTransition] = useState(false);
   const items = bids[activeTrade] || [];
@@ -19,9 +21,9 @@ export default function BidLevelingPage() {
       <div className="p-6 lg:p-8 max-w-7xl">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Bid Leveling</h1>
+             <h1 className="font-display text-2xl font-bold text-foreground">Bid Packages</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Compare and normalize subcontractor bids — level scope differences to find the true best-fit bid
+               {project.name} — compare and normalize subcontractor bids against the analyzed scope
             </p>
           </div>
           <Button size="sm" className="text-sm font-semibold gap-1.5" onClick={() => setTransition(true)}>

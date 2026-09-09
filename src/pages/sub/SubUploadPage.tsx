@@ -7,6 +7,8 @@ import { useState, useMemo } from "react";
 import { useSubSettings } from "@/hooks/use-sub-settings";
 import { allTradeNames, type TradeName, getTradeProfile } from "@/data/tradeProfiles";
 import { cn } from "@/lib/utils";
+import { companies, getProjectDocuments } from "@/data/demoUniverse";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 type SourceType = "plans" | "structural" | "scope" | "addenda" | "schedules" | "rfis" | "other";
 
@@ -33,6 +35,7 @@ const quoteOrgOptions = ["Trade Categories", "Company Custom Codes", "CSI Divisi
 const displayFormatOptions = ["Title + Description", "Description Only", "Code + Description"];
 
 export default function SubUploadPage() {
+  const { project } = useDemoProject();
   const { settings } = useSubSettings();
   const [projectTrade, setProjectTrade] = useState<TradeName | null>(null);
   const activeTrade = projectTrade || settings.primaryTrade;
@@ -40,14 +43,7 @@ export default function SubUploadPage() {
   const isOverridden = projectTrade !== null;
 
   const [files, setFiles] = useState<UploadedFile[]>([
-    { name: "A1_Floor_Plan.pdf", sourceType: "plans", status: "Classified" },
-    { name: "A2_Foundation_Plan.pdf", sourceType: "plans", status: "Classified" },
-    { name: "A4_Detail_Plan.pdf", sourceType: "plans", status: "Classified" },
-    { name: "S1_Structural_Details.pdf", sourceType: "structural", status: "Classified" },
-    { name: "Finish_Schedule.xlsx", sourceType: "schedules", status: "Classified" },
-    { name: "GC_Scope_Package.pdf", sourceType: "scope", status: "Classified" },
-    { name: "Addendum_1.pdf", sourceType: "addenda", status: "Classified" },
-    { name: "RFI_Responses.pdf", sourceType: "rfis", status: "Classified" },
+    ...getProjectDocuments("fregolle").map(document => ({ name: document.filename, sourceType: document.sourceType === "structural" ? "structural" as const : document.sourceType === "addendum" ? "addenda" as const : "plans" as const, status: "Classified" as const })),
   ]);
   const [transition, setTransition] = useState(false);
 
@@ -159,11 +155,11 @@ export default function SubUploadPage() {
               <div className="grid md:grid-cols-3 gap-5">
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Project Name</label>
-                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring text-foreground" defaultValue="Maple St. Kitchen Remodel" />
+                   <input key={project.id} className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring text-foreground" defaultValue={project.name} />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">GC / Builder</label>
-                  <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring text-foreground" defaultValue="Mayfield & Co." />
+                   <input className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring text-foreground" defaultValue={companies.mayfield.name} />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Trade</label>
@@ -171,7 +167,7 @@ export default function SubUploadPage() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Bid Due Date</label>
-                  <input type="date" className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring text-foreground" defaultValue="2026-03-12" />
+                   <input type="text" className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring text-foreground" defaultValue={project.bidDue ?? "Not assigned"} />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-foreground mb-1.5 block">Region</label>

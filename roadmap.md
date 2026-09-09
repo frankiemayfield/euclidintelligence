@@ -24,11 +24,11 @@
 - [x] Verify Builder/Sub workflows, takeoff tools, light/dark appearance, and clean build
 
 # Shared Euclid demo universe
-- [ ] Create one normalized registry for companies, people, projects, documents, quotes, financials, benchmarks, actuals, activity, and notifications
-- [ ] Add shared account and current-project state with six Builder and six linked TrueFrame records
-- [ ] Migrate Builder dashboard, header, selectors, notifications, assistant, and profile identity
-- [ ] Migrate Builder upload, scope, bid packages, estimate, pricing, proposal, market, and actuals
-- [ ] Migrate TrueFrame dashboard and downstream workflow pages to the shared records
-- [ ] Remove obsolete demo identities, projects, totals, filenames, and disconnected duplicate records
-- [ ] Verify Fregolle and Oakwood switching for Frankie, then linked Fregolle quote behavior for Tyler
-- [ ] Confirm clean diagnostics and all shared totals, stages, sources, and identities
+- [x] Create one normalized registry for companies, people, projects, documents, quotes, financials, benchmarks, actuals, activity, and notifications
+- [x] Add shared account and current-project state with six Builder and six linked TrueFrame records
+- [x] Migrate Builder dashboard, header, selectors, notifications, assistant, and profile identity
+- [x] Migrate Builder upload, scope, bid packages, estimate, pricing, proposal, market, and actuals
+- [x] Migrate TrueFrame dashboard and downstream workflow pages to the shared records
+- [x] Remove obsolete demo identities, projects, totals, filenames, and disconnected duplicate records
+- [x] Verify Fregolle and Oakwood switching for Frankie, then linked Fregolle quote behavior for Tyler
+- [x] Confirm clean diagnostics and all shared totals, stages, sources, and identities

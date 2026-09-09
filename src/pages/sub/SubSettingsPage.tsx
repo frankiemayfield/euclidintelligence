@@ -11,6 +11,7 @@ import { WorkspaceAppearancePicker } from "@/components/app/WorkspaceAppearanceP
 import { useSubSettings } from "@/hooks/use-sub-settings";
 import { allTradeNames, type TradeName } from "@/data/tradeProfiles";
 import { cn } from "@/lib/utils";
+import { people } from "@/data/demoUniverse";
 
 type SettingsTab = "company" | "estimator" | "labor" | "material" | "templates" | "codes" | "branding" | "team" | "integrations" | "billing" | "appearance";
 
@@ -70,10 +71,7 @@ const ToggleRow = ({ label, checked, onChange }: { label: string; checked: boole
 );
 
 const mockTeam = [
-  { name: "Jake Donovan", email: "jake@trueframe.co", role: "Admin" },
-  { name: "Maria Chen", email: "maria@trueframe.co", role: "Estimator" },
-  { name: "Ryan Torres", email: "ryan@trueframe.co", role: "Estimator" },
-  { name: "Sam Park", email: "sam@trueframe.co", role: "Viewer" },
+  { name: people.tyler.name, email: people.tyler.email, role: people.tyler.title },
 ];
 
 const integrationList = [

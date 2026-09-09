@@ -177,27 +177,27 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-conc-found",
           name: "Foundations",
-          sources: [src("FinalConstructionSet.pdf", 3, "S1.1"), src("FinalConstructionSet.pdf", 4, "S1.2")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 3, "S1.1"), src(MAIN_PLAN_FILE_NAME, 4, "S1.2")],
           assemblies: [
             {
               id: "asm-slab",
               name: "Main Level Slab Assembly",
-              sources: [src("FinalConstructionSet.pdf", 3, "S1.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 3, "S1.1")],
               lineItems: [
-                li("li-slab-conc", "Concrete slab — main level", 12.8, "CY", "Slab Concrete", "03-300", "mapped", "03 – Concrete", "High", "Approved", [], [src("FinalConstructionSet.pdf", 3, "S1.1")], [tkoff(12.8, "CY", "S1.1", "area", "li-slab-conc")]),
-                li("li-slab-mesh", "Welded wire mesh — slab reinforcement", 1000, "SF", "Slab Reinforcement", "03-200", "mapped", "03 – Concrete", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 3, "S1.1")], [tkoff(1000, "SF", "S1.1", "area", "li-slab-mesh")]),
-                li("li-slab-vb", "Vapor barrier — 10 mil poly", 1050, "SF", "Vapor Barrier", "03-300", "suggested", "03 – Concrete", "Medium", "Needs Review", ["Missing Takeoff"], [src("FinalConstructionSet.pdf", 3, "S1.1")], []),
-                li("li-slab-form", "Slab edge forming", 142, "LF", "Formwork", "03-100", "mapped", "03 – Concrete", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 3, "S1.1")], [tkoff(142, "LF", "S1.1", "linear", "li-slab-form")]),
+                li("li-slab-conc", "Concrete slab — main level", 12.8, "CY", "Slab Concrete", "03-300", "mapped", "03 – Concrete", "High", "Approved", [], [src(MAIN_PLAN_FILE_NAME, 3, "S1.1")], [tkoff(12.8, "CY", "S1.1", "area", "li-slab-conc")]),
+                li("li-slab-mesh", "Welded wire mesh — slab reinforcement", 1000, "SF", "Slab Reinforcement", "03-200", "mapped", "03 – Concrete", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 3, "S1.1")], [tkoff(1000, "SF", "S1.1", "area", "li-slab-mesh")]),
+                li("li-slab-vb", "Vapor barrier — 10 mil poly", 1050, "SF", "Vapor Barrier", "03-300", "suggested", "03 – Concrete", "Medium", "Needs Review", ["Missing Takeoff"], [src(MAIN_PLAN_FILE_NAME, 3, "S1.1")], []),
+                li("li-slab-form", "Slab edge forming", 142, "LF", "Formwork", "03-100", "mapped", "03 – Concrete", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 3, "S1.1")], [tkoff(142, "LF", "S1.1", "linear", "li-slab-form")]),
               ],
             },
             {
               id: "asm-ftg",
               name: "Perimeter Footing Assembly",
-              sources: [src("FinalConstructionSet.pdf", 4, "S1.2")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 4, "S1.2")],
               lineItems: [
-                li("li-ftg-conc", "Foundation footing — perimeter", 8.4, "CY", "Footing Concrete", "03-300", "mapped", "03 – Concrete", "Medium", "Needs Review", ["Low Confidence"], [src("FinalConstructionSet.pdf", 4, "S1.2")], [tkoff(8.4, "CY", "S1.2", "linear", "li-ftg-conc")]),
-                li("li-ftg-rebar", "Rebar — #5 continuous", 360, "LF", "Rebar", "03-200", "mapped", "03 – Concrete", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 4, "S1.2")], [tkoff(360, "LF", "S1.2", "linear", "li-ftg-rebar")]),
-                li("li-ftg-form", "Footing formwork", 360, "LF", "Formwork", "03-100", "mapped", "03 – Concrete", "Medium", "Needs Review", [], [src("FinalConstructionSet.pdf", 4, "S1.2")], [tkoff(360, "LF", "S1.2", "linear", "li-ftg-form")]),
+                li("li-ftg-conc", "Foundation footing — perimeter", 8.4, "CY", "Footing Concrete", "03-300", "mapped", "03 – Concrete", "Medium", "Needs Review", ["Low Confidence"], [src(MAIN_PLAN_FILE_NAME, 4, "S1.2")], [tkoff(8.4, "CY", "S1.2", "linear", "li-ftg-conc")]),
+                li("li-ftg-rebar", "Rebar — #5 continuous", 360, "LF", "Rebar", "03-200", "mapped", "03 – Concrete", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 4, "S1.2")], [tkoff(360, "LF", "S1.2", "linear", "li-ftg-rebar")]),
+                li("li-ftg-form", "Footing formwork", 360, "LF", "Formwork", "03-100", "mapped", "03 – Concrete", "Medium", "Needs Review", [], [src(MAIN_PLAN_FILE_NAME, 4, "S1.2")], [tkoff(360, "LF", "S1.2", "linear", "li-ftg-form")]),
               ],
             },
           ],
@@ -205,15 +205,15 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-conc-flat",
           name: "Flatwork",
-          sources: [src("FinalConstructionSet.pdf", 5, "C1.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 5, "C1.1")],
           assemblies: [
             {
               id: "asm-driveway",
               name: "Driveway Assembly",
-              sources: [src("FinalConstructionSet.pdf", 5, "C1.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 5, "C1.1")],
               lineItems: [
-                li("li-drv-conc", "Driveway concrete — 4\" thickness", 6.2, "CY", "Flatwork Concrete", "03-300", "mapped", "03 – Concrete", "High", "Approved", [], [src("FinalConstructionSet.pdf", 5, "C1.1")], [tkoff(6.2, "CY", "C1.1", "area", "li-drv-conc")]),
-                li("li-drv-base", "Compacted gravel base — 6\"", 450, "SF", "Base Material", "31-200", "suggested", "31 – Earthwork", "Medium", "Needs Review", ["Missing Cost Code"], [src("FinalConstructionSet.pdf", 5, "C1.1")], []),
+                li("li-drv-conc", "Driveway concrete — 4\" thickness", 6.2, "CY", "Flatwork Concrete", "03-300", "mapped", "03 – Concrete", "High", "Approved", [], [src(MAIN_PLAN_FILE_NAME, 5, "C1.1")], [tkoff(6.2, "CY", "C1.1", "area", "li-drv-conc")]),
+                li("li-drv-base", "Compacted gravel base — 6\"", 450, "SF", "Base Material", "31-200", "suggested", "31 – Earthwork", "Medium", "Needs Review", ["Missing Cost Code"], [src(MAIN_PLAN_FILE_NAME, 5, "C1.1")], []),
               ],
             },
           ],
@@ -227,17 +227,17 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-ext-framing",
           name: "Exterior Wall Framing",
-          sources: [src("FinalConstructionSet.pdf", 8, "A1.1"), src("FinalConstructionSet.pdf", 12, "A3.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 8, "A1.1"), src(MAIN_PLAN_FILE_NAME, 12, "A3.1")],
           assemblies: [
             {
               id: "asm-ext-wall",
               name: "2×6 Exterior Wall Assembly",
-              sources: [src("FinalConstructionSet.pdf", 8, "A1.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")],
               lineItems: [
-                li("li-ext-studs", "2×6 studs — exterior walls", 1420, "LF", "Wall Studs", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "Medium", "Needs Review", [], [src("FinalConstructionSet.pdf", 8, "A1.1")], [tkoff(1420, "LF", "A1.1", "linear", "li-ext-studs")]),
-                li("li-ext-plates", "Top/bottom plates — 2×6", 284, "LF", "Wall Plates", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "Medium", "Reviewed", [], [src("FinalConstructionSet.pdf", 8, "A1.1")], [tkoff(284, "LF", "A1.1", "linear", "li-ext-plates")]),
-                li("li-ext-sheath", "OSB sheathing — 7/16\"", 1420, "SF", "Sheathing", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 8, "A1.1")], [tkoff(1420, "SF", "A1.1", "area", "li-ext-sheath")]),
-                li("li-ext-header", "Engineered headers — window/door openings", 8, "EA", "Headers", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Approved", [], [src("FinalConstructionSet.pdf", 8, "A1.1"), src("FinalConstructionSet.pdf", 12, "A3.1")], [tkoff(8, "EA", "A1.1", "count", "li-ext-header")]),
+                li("li-ext-studs", "2×6 studs — exterior walls", 1420, "LF", "Wall Studs", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "Medium", "Needs Review", [], [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")], [tkoff(1420, "LF", "A1.1", "linear", "li-ext-studs")]),
+                li("li-ext-plates", "Top/bottom plates — 2×6", 284, "LF", "Wall Plates", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "Medium", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")], [tkoff(284, "LF", "A1.1", "linear", "li-ext-plates")]),
+                li("li-ext-sheath", "OSB sheathing — 7/16\"", 1420, "SF", "Sheathing", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")], [tkoff(1420, "SF", "A1.1", "area", "li-ext-sheath")]),
+                li("li-ext-header", "Engineered headers — window/door openings", 8, "EA", "Headers", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Approved", [], [src(MAIN_PLAN_FILE_NAME, 8, "A1.1"), src(MAIN_PLAN_FILE_NAME, 12, "A3.1")], [tkoff(8, "EA", "A1.1", "count", "li-ext-header")]),
                 li("li-ext-labor", "Framing labor — exterior walls", 142, "HR", "Framing Labor", null, "missing", null, "Medium", "Needs Review", ["Missing Cost Code", "Missing Source"], [], []),
               ],
             },
@@ -246,16 +246,16 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-floor-framing",
           name: "Floor Framing",
-          sources: [src("FinalConstructionSet.pdf", 6, "S2.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 6, "S2.1")],
           assemblies: [
             {
               id: "asm-floor-sys",
               name: "Second Floor Joist System",
-              sources: [src("FinalConstructionSet.pdf", 6, "S2.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 6, "S2.1")],
               lineItems: [
-                li("li-floor-joist", "Floor joists — TJI 11-7/8\"", 42, "EA", "Floor Joists", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Approved", [], [src("FinalConstructionSet.pdf", 6, "S2.1")], [tkoff(42, "EA", "S2.1", "count", "li-floor-joist")]),
-                li("li-floor-rim", "Rim board — 1-1/8\" LVL", 142, "LF", "Rim Board", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 6, "S2.1")], [tkoff(142, "LF", "S2.1", "linear", "li-floor-rim")]),
-                li("li-floor-block", "Blocking — 2×12 between joists", 84, "LF", "Blocking", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "Medium", "Needs Review", ["Missing Takeoff"], [src("FinalConstructionSet.pdf", 6, "S2.1")], []),
+                li("li-floor-joist", "Floor joists — TJI 11-7/8\"", 42, "EA", "Floor Joists", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Approved", [], [src(MAIN_PLAN_FILE_NAME, 6, "S2.1")], [tkoff(42, "EA", "S2.1", "count", "li-floor-joist")]),
+                li("li-floor-rim", "Rim board — 1-1/8\" LVL", 142, "LF", "Rim Board", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 6, "S2.1")], [tkoff(142, "LF", "S2.1", "linear", "li-floor-rim")]),
+                li("li-floor-block", "Blocking — 2×12 between joists", 84, "LF", "Blocking", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "Medium", "Needs Review", ["Missing Takeoff"], [src(MAIN_PLAN_FILE_NAME, 6, "S2.1")], []),
               ],
             },
           ],
@@ -263,16 +263,16 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-roof-framing",
           name: "Roof Framing",
-          sources: [src("FinalConstructionSet.pdf", 10, "A4.1"), src("FinalConstructionSet.pdf", 7, "S3.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 10, "A4.1"), src(MAIN_PLAN_FILE_NAME, 7, "S3.1")],
           assemblies: [
             {
               id: "asm-roof-truss",
               name: "Roof Truss Assembly",
-              sources: [src("FinalConstructionSet.pdf", 10, "A4.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 10, "A4.1")],
               lineItems: [
-                li("li-roof-truss", "Pre-engineered roof trusses", 24, "EA", "Roof Trusses", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Approved", [], [src("FinalConstructionSet.pdf", 10, "A4.1"), src("FinalConstructionSet.pdf", 7, "S3.1")], [tkoff(24, "EA", "A4.1", "count", "li-roof-truss")]),
-                li("li-roof-sheath", "Roof sheathing — 1/2\" plywood", 1420, "SF", "Roof Sheathing", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 10, "A4.1")], [tkoff(1420, "SF", "A4.1", "area", "li-roof-sheath")]),
-                li("li-roof-fascia", "Fascia board — 1×8 primed", 180, "LF", "Fascia", "06-200", "suggested", "06 – Wood, Plastics, and Composites", "Medium", "Needs Review", [], [src("FinalConstructionSet.pdf", 10, "A4.1")], [tkoff(180, "LF", "A4.1", "linear", "li-roof-fascia")]),
+                li("li-roof-truss", "Pre-engineered roof trusses", 24, "EA", "Roof Trusses", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Approved", [], [src(MAIN_PLAN_FILE_NAME, 10, "A4.1"), src(MAIN_PLAN_FILE_NAME, 7, "S3.1")], [tkoff(24, "EA", "A4.1", "count", "li-roof-truss")]),
+                li("li-roof-sheath", "Roof sheathing — 1/2\" plywood", 1420, "SF", "Roof Sheathing", "06-100", "mapped", "06 – Wood, Plastics, and Composites", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 10, "A4.1")], [tkoff(1420, "SF", "A4.1", "area", "li-roof-sheath")]),
+                li("li-roof-fascia", "Fascia board — 1×8 primed", 180, "LF", "Fascia", "06-200", "suggested", "06 – Wood, Plastics, and Composites", "Medium", "Needs Review", [], [src(MAIN_PLAN_FILE_NAME, 10, "A4.1")], [tkoff(180, "LF", "A4.1", "linear", "li-roof-fascia")]),
               ],
             },
           ],
@@ -286,18 +286,18 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-shingles",
           name: "Shingle Roofing",
-          sources: [src("FinalConstructionSet.pdf", 10, "A4.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 10, "A4.1")],
           assemblies: [
             {
               id: "asm-shingle-sys",
               name: "Architectural Shingle System",
-              sources: [src("FinalConstructionSet.pdf", 10, "A4.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 10, "A4.1")],
               lineItems: [
-                li("li-shingle", "Roof shingles — architectural", 14.2, "SQ", "Shingles", "07-310", "mapped", "07 – Thermal and Moisture Protection", "High", "Approved", [], [src("FinalConstructionSet.pdf", 10, "A4.1")], [tkoff(14.2, "SQ", "A4.1", "area", "li-shingle")]),
-                li("li-underlayment", "Synthetic underlayment", 1420, "SF", "Underlayment", "07-310", "mapped", "07 – Thermal and Moisture Protection", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 10, "A4.1")], [tkoff(1420, "SF", "A4.1", "area", "li-underlayment")]),
-                li("li-ice-shield", "Ice & water shield — eaves", 180, "LF", "Ice Shield", "07-310", "mapped", "07 – Thermal and Moisture Protection", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 10, "A4.1")], [tkoff(180, "LF", "A4.1", "linear", "li-ice-shield")]),
-                li("li-flashing", "Step/counter flashing", 64, "LF", "Flashing", "07-620", "mapped", "07 – Thermal and Moisture Protection", "Medium", "Needs Review", [], [src("FinalConstructionSet.pdf", 10, "A4.1")], [tkoff(64, "LF", "A4.1", "linear", "li-flashing")]),
-                li("li-ridge-vent", "Ridge vent — continuous", 42, "LF", "Ridge Vent", "07-310", "mapped", "07 – Thermal and Moisture Protection", "High", "Approved", [], [src("FinalConstructionSet.pdf", 10, "A4.1")], [tkoff(42, "LF", "A4.1", "linear", "li-ridge-vent")]),
+                li("li-shingle", "Roof shingles — architectural", 14.2, "SQ", "Shingles", "07-310", "mapped", "07 – Thermal and Moisture Protection", "High", "Approved", [], [src(MAIN_PLAN_FILE_NAME, 10, "A4.1")], [tkoff(14.2, "SQ", "A4.1", "area", "li-shingle")]),
+                li("li-underlayment", "Synthetic underlayment", 1420, "SF", "Underlayment", "07-310", "mapped", "07 – Thermal and Moisture Protection", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 10, "A4.1")], [tkoff(1420, "SF", "A4.1", "area", "li-underlayment")]),
+                li("li-ice-shield", "Ice & water shield — eaves", 180, "LF", "Ice Shield", "07-310", "mapped", "07 – Thermal and Moisture Protection", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 10, "A4.1")], [tkoff(180, "LF", "A4.1", "linear", "li-ice-shield")]),
+                li("li-flashing", "Step/counter flashing", 64, "LF", "Flashing", "07-620", "mapped", "07 – Thermal and Moisture Protection", "Medium", "Needs Review", [], [src(MAIN_PLAN_FILE_NAME, 10, "A4.1")], [tkoff(64, "LF", "A4.1", "linear", "li-flashing")]),
+                li("li-ridge-vent", "Ridge vent — continuous", 42, "LF", "Ridge Vent", "07-310", "mapped", "07 – Thermal and Moisture Protection", "High", "Approved", [], [src(MAIN_PLAN_FILE_NAME, 10, "A4.1")], [tkoff(42, "LF", "A4.1", "linear", "li-ridge-vent")]),
               ],
             },
           ],
@@ -311,16 +311,16 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-doors",
           name: "Doors",
-          sources: [src("FinalConstructionSet.pdf", 14, "A5.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 14, "A5.1")],
           assemblies: [
             {
               id: "asm-int-doors",
               name: "Interior Door Package",
-              sources: [src("FinalConstructionSet.pdf", 14, "A5.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 14, "A5.1")],
               lineItems: [
-                li("li-int-door", "Interior doors — solid core", 12, "EA", "Interior Doors", "08-140", "mapped", "08 – Openings", "High", "Approved", [], [src("FinalConstructionSet.pdf", 14, "A5.1")], [tkoff(12, "EA", "A5.1", "count", "li-int-door")]),
-                li("li-door-hw", "Door hardware — lever set", 12, "EA", "Door Hardware", "08-140", "mapped", "08 – Openings", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 14, "A5.1")], [tkoff(12, "EA", "A5.1", "count", "li-door-hw")]),
-                li("li-door-frame", "Door frames — hollow metal", 12, "EA", "Door Frames", "08-140", "mapped", "08 – Openings", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 14, "A5.1")], [tkoff(12, "EA", "A5.1", "count", "li-door-frame")]),
+                li("li-int-door", "Interior doors — solid core", 12, "EA", "Interior Doors", "08-140", "mapped", "08 – Openings", "High", "Approved", [], [src(MAIN_PLAN_FILE_NAME, 14, "A5.1")], [tkoff(12, "EA", "A5.1", "count", "li-int-door")]),
+                li("li-door-hw", "Door hardware — lever set", 12, "EA", "Door Hardware", "08-140", "mapped", "08 – Openings", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 14, "A5.1")], [tkoff(12, "EA", "A5.1", "count", "li-door-hw")]),
+                li("li-door-frame", "Door frames — hollow metal", 12, "EA", "Door Frames", "08-140", "mapped", "08 – Openings", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 14, "A5.1")], [tkoff(12, "EA", "A5.1", "count", "li-door-frame")]),
               ],
             },
           ],
@@ -328,15 +328,15 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-windows",
           name: "Windows",
-          sources: [src("FinalConstructionSet.pdf", 15, "A5.2")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 15, "A5.2")],
           assemblies: [
             {
               id: "asm-windows",
               name: "Window Package",
-              sources: [src("FinalConstructionSet.pdf", 15, "A5.2")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 15, "A5.2")],
               lineItems: [
-                li("li-window", "Windows — double-hung vinyl", 8, "EA", "Windows", "08-500", "mapped", "08 – Openings", "High", "Approved", [], [src("FinalConstructionSet.pdf", 15, "A5.2")], [tkoff(8, "EA", "A5.2", "count", "li-window")]),
-                li("li-window-flash", "Window flashing tape", 8, "EA", "Window Flashing", "08-500", "mapped", "08 – Openings", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 15, "A5.2")], [tkoff(8, "EA", "A5.2", "count", "li-window-flash")]),
+                li("li-window", "Windows — double-hung vinyl", 8, "EA", "Windows", "08-500", "mapped", "08 – Openings", "High", "Approved", [], [src(MAIN_PLAN_FILE_NAME, 15, "A5.2")], [tkoff(8, "EA", "A5.2", "count", "li-window")]),
+                li("li-window-flash", "Window flashing tape", 8, "EA", "Window Flashing", "08-500", "mapped", "08 – Openings", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 15, "A5.2")], [tkoff(8, "EA", "A5.2", "count", "li-window-flash")]),
               ],
             },
           ],
@@ -350,15 +350,15 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-drywall",
           name: "Drywall",
-          sources: [src("FinalConstructionSet.pdf", 8, "A1.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")],
           assemblies: [
             {
               id: "asm-drywall",
               name: "Interior Drywall System",
-              sources: [src("FinalConstructionSet.pdf", 8, "A1.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")],
               lineItems: [
-                li("li-drywall", "Drywall — interior partitions", 3200, "SF", "Drywall", "09-290", "mapped", "09 – Finishes", "Medium", "Needs Review", ["Conflicting Source"], [src("FinalConstructionSet.pdf", 8, "A1.1")], [tkoff(3200, "SF", "A1.1", "area", "li-drywall")], "SF may conflict with framing area"),
-                li("li-drywall-tape", "Drywall tape & finish — Level 4", 3200, "SF", "Drywall Finish", "09-290", "mapped", "09 – Finishes", "Medium", "Reviewed", [], [src("FinalConstructionSet.pdf", 8, "A1.1")], [tkoff(3200, "SF", "A1.1", "area", "li-drywall-tape")]),
+                li("li-drywall", "Drywall — interior partitions", 3200, "SF", "Drywall", "09-290", "mapped", "09 – Finishes", "Medium", "Needs Review", ["Conflicting Source"], [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")], [tkoff(3200, "SF", "A1.1", "area", "li-drywall")], "SF may conflict with framing area"),
+                li("li-drywall-tape", "Drywall tape & finish — Level 4", 3200, "SF", "Drywall Finish", "09-290", "mapped", "09 – Finishes", "Medium", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")], [tkoff(3200, "SF", "A1.1", "area", "li-drywall-tape")]),
               ],
             },
           ],
@@ -366,15 +366,15 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-painting",
           name: "Painting",
-          sources: [src("FinalConstructionSet.pdf", 8, "A1.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")],
           assemblies: [
             {
               id: "asm-int-paint",
               name: "Interior Paint Package",
-              sources: [src("FinalConstructionSet.pdf", 8, "A1.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")],
               lineItems: [
-                li("li-paint", "Interior paint — premium finish", 4200, "SF", "Interior Paint", "09-910", "mapped", "09 – Finishes", "Medium", "Needs Review", ["Duplicate Item"], [src("FinalConstructionSet.pdf", 8, "A1.1")], [tkoff(4200, "SF", "A1.1", "area", "li-paint")], "May overlap with drywall SF"),
-                li("li-paint-trim", "Trim paint — semi-gloss", 480, "LF", "Trim Paint", "09-910", "mapped", "09 – Finishes", "Medium", "Reviewed", [], [src("FinalConstructionSet.pdf", 8, "A1.1")], [tkoff(480, "LF", "A1.1", "linear", "li-paint-trim")]),
+                li("li-paint", "Interior paint — premium finish", 4200, "SF", "Interior Paint", "09-910", "mapped", "09 – Finishes", "Medium", "Needs Review", ["Duplicate Item"], [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")], [tkoff(4200, "SF", "A1.1", "area", "li-paint")], "May overlap with drywall SF"),
+                li("li-paint-trim", "Trim paint — semi-gloss", 480, "LF", "Trim Paint", "09-910", "mapped", "09 – Finishes", "Medium", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")], [tkoff(480, "LF", "A1.1", "linear", "li-paint-trim")]),
               ],
             },
           ],
@@ -382,15 +382,15 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-finish-carp",
           name: "Finish Carpentry",
-          sources: [src("FinalConstructionSet.pdf", 8, "A1.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")],
           assemblies: [
             {
               id: "asm-trim",
               name: "Trim Package",
-              sources: [src("FinalConstructionSet.pdf", 8, "A1.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")],
               lineItems: [
-                li("li-base-trim", "Base trim — painted MDF", 480, "LF", "Base Trim", "06-200", "mapped", "09 – Finishes", "Low", "Needs Review", ["Low Confidence", "Missing Source"], [src("FinalConstructionSet.pdf", 8, "A1.1")], []),
-                li("li-crown", "Crown molding — living/dining", 120, "LF", "Crown Molding", "06-200", "mapped", "09 – Finishes", "Medium", "Reviewed", [], [src("FinalConstructionSet.pdf", 8, "A1.1")], [tkoff(120, "LF", "A1.1", "linear", "li-crown")]),
+                li("li-base-trim", "Base trim — painted MDF", 480, "LF", "Base Trim", "06-200", "mapped", "09 – Finishes", "Low", "Needs Review", ["Low Confidence", "Missing Source"], [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")], []),
+                li("li-crown", "Crown molding — living/dining", 120, "LF", "Crown Molding", "06-200", "mapped", "09 – Finishes", "Medium", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 8, "A1.1")], [tkoff(120, "LF", "A1.1", "linear", "li-crown")]),
               ],
             },
           ],
@@ -404,16 +404,16 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-brick",
           name: "Brick Veneer",
-          sources: [src("FinalConstructionSet.pdf", 12, "A3.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 12, "A3.1")],
           assemblies: [
             {
               id: "asm-brick",
               name: "Front Elevation Brick",
-              sources: [src("FinalConstructionSet.pdf", 12, "A3.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 12, "A3.1")],
               lineItems: [
-                li("li-brick", "Brick veneer — front elevation", 680, "SF", "Brick Veneer", "04-210", "mapped", "04 – Masonry", "Medium", "Needs Review", [], [src("FinalConstructionSet.pdf", 12, "A3.1")], [tkoff(680, "SF", "A3.1", "area", "li-brick")]),
-                li("li-brick-mortar", "Mortar & joint work", 680, "SF", "Mortar", "04-210", "mapped", "04 – Masonry", "Medium", "Reviewed", [], [src("FinalConstructionSet.pdf", 12, "A3.1")], []),
-                li("li-lintels", "Steel lintels — openings", 6, "EA", "Lintels", "04-210", "mapped", "05 – Metals", "High", "Approved", [], [src("FinalConstructionSet.pdf", 12, "A3.1")], [tkoff(6, "EA", "A3.1", "count", "li-lintels")]),
+                li("li-brick", "Brick veneer — front elevation", 680, "SF", "Brick Veneer", "04-210", "mapped", "04 – Masonry", "Medium", "Needs Review", [], [src(MAIN_PLAN_FILE_NAME, 12, "A3.1")], [tkoff(680, "SF", "A3.1", "area", "li-brick")]),
+                li("li-brick-mortar", "Mortar & joint work", 680, "SF", "Mortar", "04-210", "mapped", "04 – Masonry", "Medium", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 12, "A3.1")], []),
+                li("li-lintels", "Steel lintels — openings", 6, "EA", "Lintels", "04-210", "mapped", "05 – Metals", "High", "Approved", [], [src(MAIN_PLAN_FILE_NAME, 12, "A3.1")], [tkoff(6, "EA", "A3.1", "count", "li-lintels")]),
               ],
             },
           ],
@@ -427,15 +427,15 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-hvac",
           name: "HVAC",
-          sources: [src("FinalConstructionSet.pdf", 18, "M1.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 18, "M1.1")],
           assemblies: [
             {
               id: "asm-hvac-dist",
               name: "HVAC Distribution",
-              sources: [src("FinalConstructionSet.pdf", 18, "M1.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 18, "M1.1")],
               lineItems: [
-                li("li-diffusers", "HVAC diffusers — ceiling mount", 14, "EA", "Diffusers", "23-370", "mapped", "23 – Heating, Ventilating, and Air Conditioning (HVAC)", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 18, "M1.1")], [tkoff(14, "EA", "M1.1", "count", "li-diffusers")]),
-                li("li-ductwork", "Supply ductwork", 240, "LF", "Ductwork", "23-300", "mapped", "23 – Heating, Ventilating, and Air Conditioning (HVAC)", "Medium", "Needs Review", ["Needs Clarification"], [src("FinalConstructionSet.pdf", 18, "M1.1")], []),
+                li("li-diffusers", "HVAC diffusers — ceiling mount", 14, "EA", "Diffusers", "23-370", "mapped", "23 – Heating, Ventilating, and Air Conditioning (HVAC)", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 18, "M1.1")], [tkoff(14, "EA", "M1.1", "count", "li-diffusers")]),
+                li("li-ductwork", "Supply ductwork", 240, "LF", "Ductwork", "23-300", "mapped", "23 – Heating, Ventilating, and Air Conditioning (HVAC)", "Medium", "Needs Review", ["Needs Clarification"], [src(MAIN_PLAN_FILE_NAME, 18, "M1.1")], []),
               ],
             },
           ],
@@ -443,16 +443,16 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-electrical",
           name: "Electrical",
-          sources: [src("FinalConstructionSet.pdf", 20, "E1.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 20, "E1.1")],
           assemblies: [
             {
               id: "asm-elec-rough",
               name: "Electrical Rough-In",
-              sources: [src("FinalConstructionSet.pdf", 20, "E1.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 20, "E1.1")],
               lineItems: [
-                li("li-panel", "Main panel — 200A", 1, "EA", "Electrical Panel", "26-100", "mapped", "26 – Electrical", "High", "Approved", [], [src("FinalConstructionSet.pdf", 20, "E1.1")], [tkoff(1, "EA", "E1.1", "count", "li-panel")]),
-                li("li-circuits", "Branch circuits — 20A", 18, "EA", "Branch Circuits", "26-200", "mapped", "26 – Electrical", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 20, "E1.1")], [tkoff(18, "EA", "E1.1", "count", "li-circuits")]),
-                li("li-recessed", "Recessed lighting — 6\" IC", 22, "EA", "Recessed Lighting", "26-500", "mapped", "26 – Electrical", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 20, "E1.1")], [tkoff(22, "EA", "E1.1", "count", "li-recessed")]),
+                li("li-panel", "Main panel — 200A", 1, "EA", "Electrical Panel", "26-100", "mapped", "26 – Electrical", "High", "Approved", [], [src(MAIN_PLAN_FILE_NAME, 20, "E1.1")], [tkoff(1, "EA", "E1.1", "count", "li-panel")]),
+                li("li-circuits", "Branch circuits — 20A", 18, "EA", "Branch Circuits", "26-200", "mapped", "26 – Electrical", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 20, "E1.1")], [tkoff(18, "EA", "E1.1", "count", "li-circuits")]),
+                li("li-recessed", "Recessed lighting — 6\" IC", 22, "EA", "Recessed Lighting", "26-500", "mapped", "26 – Electrical", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 20, "E1.1")], [tkoff(22, "EA", "E1.1", "count", "li-recessed")]),
               ],
             },
           ],
@@ -460,15 +460,15 @@ export const mockProject: ScopeProject = {
         {
           id: "tr-plumbing",
           name: "Plumbing",
-          sources: [src("FinalConstructionSet.pdf", 19, "P1.1")],
+          sources: [src(MAIN_PLAN_FILE_NAME, 19, "P1.1")],
           assemblies: [
             {
               id: "asm-plumb-rough",
               name: "Plumbing Rough-In",
-              sources: [src("FinalConstructionSet.pdf", 19, "P1.1")],
+              sources: [src(MAIN_PLAN_FILE_NAME, 19, "P1.1")],
               lineItems: [
-                li("li-plumb-fix", "Plumbing fixtures — rough-in", 8, "EA", "Fixture Rough-In", "22-100", "mapped", "22 – Plumbing", "High", "Reviewed", [], [src("FinalConstructionSet.pdf", 19, "P1.1")], [tkoff(8, "EA", "P1.1", "count", "li-plumb-fix")]),
-                li("li-plumb-drain", "DWV piping", 180, "LF", "Drain Piping", "22-100", "mapped", "22 – Plumbing", "Medium", "Needs Review", ["Missing Takeoff"], [src("FinalConstructionSet.pdf", 19, "P1.1")], []),
+                li("li-plumb-fix", "Plumbing fixtures — rough-in", 8, "EA", "Fixture Rough-In", "22-100", "mapped", "22 – Plumbing", "High", "Reviewed", [], [src(MAIN_PLAN_FILE_NAME, 19, "P1.1")], [tkoff(8, "EA", "P1.1", "count", "li-plumb-fix")]),
+                li("li-plumb-drain", "DWV piping", 180, "LF", "Drain Piping", "22-100", "mapped", "22 – Plumbing", "Medium", "Needs Review", ["Missing Takeoff"], [src(MAIN_PLAN_FILE_NAME, 19, "P1.1")], []),
               ],
             },
           ],

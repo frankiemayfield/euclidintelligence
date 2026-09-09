@@ -5,8 +5,10 @@ import {
   CheckCircle, Palette, X, Plus, Pencil, Clock, Shield, ZoomIn, ZoomOut,
   ChevronLeft, ChevronRight, Check, FileCode, GripVertical, RotateCcw
 } from "lucide-react";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import companyLogoImg from "@/assets/company-logo.jpg";
+import { companies, people } from "@/data/demoUniverse";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 interface ProposalSection {
   id: string;
@@ -20,7 +22,7 @@ interface ProposalSection {
 }
 
 const initialSections: ProposalSection[] = [
-  { id: "summary", title: "Proposal Summary", desc: "Executive overview with project details, total cost, and timeline", status: "ready", included: true, editing: false, content: "This proposal covers the complete renovation of the Maple St. Kitchen, including demolition, framing, electrical, plumbing, HVAC modifications, cabinetry, countertops, flooring, and finish work. Total project cost: $168,700. Estimated duration: 8–10 weeks.", internalNotes: "" },
+  { id: "summary", title: "Proposal Summary", desc: "Executive overview with project details, total cost, and timeline", status: "ready", included: true, editing: false, content: "This proposal covers the complete project scope documented in the current estimate and issued construction documents.", internalNotes: "" },
   { id: "prebuild", title: "Pre-Build Requirements", desc: "Preconstruction, permitting, design, and engineering costs", status: "ready", included: true, editing: false, content: "Permitting & Fees: $4,700\nDesign & Engineering: $12,700\nSite Investigation & Survey: $6,300\nPlanning & Coordination: $3,000\nHOA Submission: $800", internalNotes: "" },
   { id: "scope", title: "Scope Summary", desc: "Detailed scope of work organized by trade with inclusions and exclusions", status: "ready", included: true, editing: false, content: "Division 06 – Wood & Plastics: Custom cabinetry, blocking, trim carpentry\nDivision 09 – Finishes: Drywall, tile backsplash, interior paint\nDivision 22 – Plumbing: Fixture rough-in and finals\nDivision 26 – Electrical: Panel upgrade, lighting, device rough-in", internalNotes: "" },
   { id: "cost", title: "Cost Breakdown", desc: "Client-friendly cost breakdown by category with subtotals", status: "ready", included: true, editing: false, content: "Pre-Build Requirements ..... $27,500\nDemolition ..... $8,200\nFraming & Carpentry ..... $22,400\nElectrical ..... $18,600\nPlumbing ..... $14,800\nHVAC ..... $14,200\nCabinetry & Millwork ..... $32,500\nCountertops ..... $12,400\nFlooring ..... $9,800\nDrywall & Paint ..... $11,200\nCleanup & Final ..... $4,600\nGeneral Conditions ..... $20,000", internalNotes: "Check HVAC allowance before sending" },
@@ -39,18 +41,8 @@ interface PricingRow {
   id: string; label: string; value: string; visible: boolean;
 }
 
-const defaultPricingRows: PricingRow[] = [
-  { id: "builder-cost", label: "Builder Cost", value: "$147,200", visible: true },
-  { id: "markup", label: "Markup (12.7%)", value: "$18,694", visible: true },
-  { id: "overhead", label: "Overhead", value: "$4,400", visible: false },
-  { id: "profit", label: "Profit", value: "$14,294", visible: false },
-  { id: "contingency", label: "Contingency (5%)", value: "$7,360", visible: false },
-  { id: "tax", label: "Tax (7.5%)", value: "$12,653", visible: true },
-  { id: "fee", label: "Fee", value: "$0", visible: false },
-  { id: "client-price", label: "Client Price", value: "$168,700", visible: true },
-];
-
 export default function ProposalPage() {
+  const { project } = useDemoProject();
   const [sections, setSections] = useState<ProposalSection[]>(initialSections);
   const [proposalState, setProposalState] = useState<typeof proposalStates[number]>("Draft");
   const [locked, setLocked] = useState(false);
@@ -70,16 +62,21 @@ export default function ProposalPage() {
   const [proposalNumber, setProposalNumber] = useState("P-2026-0042");
   const [revision, setRevision] = useState("Rev 1");
   const [validThrough, setValidThrough] = useState("2026-04-03");
-  const [preparedBy, setPreparedBy] = useState("Ryan M. — Mayfield & Co.");
-  const [clientName, setClientName] = useState("Johnson Family");
-  const [projectName, setProjectName] = useState("Maple St. Kitchen Remodel");
-  const [projectAddress, setProjectAddress] = useState("1247 Maple St, Springfield, IL");
+  const [preparedBy, setPreparedBy] = useState(`${people.frankie.name} — ${companies.mayfield.name}`);
+  const [clientName, setClientName] = useState(project.client);
+  const [projectName, setProjectName] = useState(project.name);
+  const [projectAddress, setProjectAddress] = useState(project.location);
 
-  const [pricingRows, setPricingRows] = useState<PricingRow[]>(defaultPricingRows);
+  const pricingFor = (cost: number | null, price: number | null): PricingRow[] => [{ id: "builder-cost", label: "Builder Cost", value: cost ? `$${cost.toLocaleString()}` : "Pending", visible: true }, { id: "markup", label: `Markup (${project.markup ?? 0}%)`, value: cost && price ? `$${(price-cost).toLocaleString()}` : "Pending", visible: true }, { id: "overhead", label: "Overhead", value: "Included", visible: false }, { id: "profit", label: "Gross Profit", value: cost && price ? `$${(price-cost).toLocaleString()}` : "Pending", visible: false }, { id: "contingency", label: "Contingency", value: "Included", visible: false }, { id: "tax", label: "Tax", value: "$0", visible: false }, { id: "fee", label: "Fee", value: "$0", visible: false }, { id: "client-price", label: "Client Price", value: price ? `$${price.toLocaleString()}` : "Pending", visible: true }];
+  const [pricingRows, setPricingRows] = useState<PricingRow[]>(() => pricingFor(project.builderCost, project.clientPrice));
   const [editingPricing, setEditingPricing] = useState(false);
 
   // Drag state
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+  useEffect(() => {
+    setClientName(project.client); setProjectName(project.name); setProjectAddress(project.location); setPricingRows(pricingFor(project.builderCost, project.clientPrice));
+    setSections(current => current.map(section => section.id === "summary" ? { ...section, content: `This proposal covers the complete ${project.name} scope documented in the current estimate and issued construction documents. Client price: ${project.clientPrice ? `$${project.clientPrice.toLocaleString()}` : "pending"}.` } : section.id === "cost" ? { ...section, content: `Builder Cost ..... ${project.builderCost ? `$${project.builderCost.toLocaleString()}` : "Pending"}\nGross Profit ..... ${project.builderCost && project.clientPrice ? `$${(project.clientPrice-project.builderCost).toLocaleString()}` : "Pending"}\nClient Price ..... ${project.clientPrice ? `$${project.clientPrice.toLocaleString()}` : "Pending"}\nMarkup ..... ${project.markup ?? 0}%` } : section));
+  }, [project.id, project.name, project.client, project.location, project.builderCost, project.clientPrice, project.markup]);
 
   const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
@@ -210,9 +207,9 @@ export default function ProposalPage() {
             {/* Commercial Snapshot */}
             <div className="grid grid-cols-3 lg:grid-cols-6 gap-2 mb-5">
               {[
-                { label: "Builder Cost", value: "$147,200" },
-                { label: "Client Price", value: "$168,700" },
-                { label: "Gross Margin", value: "12.7%" },
+                 { label: "Builder Cost", value: project.builderCost ? `$${project.builderCost.toLocaleString()}` : "Pending" },
+                 { label: "Client Price", value: project.clientPrice ? `$${project.clientPrice.toLocaleString()}` : "Pending" },
+                 { label: "Gross Margin", value: project.builderCost && project.clientPrice ? `${(((project.clientPrice-project.builderCost)/project.clientPrice)*100).toFixed(1)}%` : "Pending" },
                 { label: "Allowances", value: "$15,000" },
                 { label: "Alternates", value: "3" },
                 { label: "Valid Through", value: "Apr 3" },

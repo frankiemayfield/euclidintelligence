@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
 import { WorkspaceAppearancePicker } from "@/components/app/WorkspaceAppearancePicker";
 import companyLogoImg from "@/assets/company-logo.jpg";
+import { companies, people } from "@/data/demoUniverse";
 
 type SettingsTab = "company" | "branding" | "estimator" | "pricing" | "proposal" | "appearance" | "notifications" | "users" | "integrations" | "workspace";
 
@@ -22,10 +23,8 @@ const tabs: { id: SettingsTab; label: string; icon: typeof Building2 }[] = [
 ];
 
 const teamMembers = [
-  { name: "Ryan Mitchell", email: "ryan@mayfield.co", role: "Admin", status: "Active" },
-  { name: "Sarah Kim", email: "sarah@mayfield.co", role: "Estimator", status: "Active" },
-  { name: "James O'Brien", email: "james@mayfield.co", role: "Project Manager", status: "Active" },
-  { name: "Lisa Chen", email: "lisa@mayfield.co", role: "Viewer", status: "Invited" },
+  { name: people.frankie.name, email: people.frankie.email, role: people.frankie.title, status: "Active" },
+  { name: people.jordan.name, email: people.jordan.email, role: people.jordan.title, status: "Active" },
 ];
 
 const integrations = [
@@ -129,16 +128,16 @@ export default function SettingsPage() {
             <div className="space-y-6">
               <SectionCard title="Company Profile" helper="Your company identity across Euclid">
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div><FieldLabel>Company Name</FieldLabel><FieldInput defaultValue="Mayfield & Co." /></div>
+                  <div><FieldLabel>Company Name</FieldLabel><FieldInput defaultValue={companies.mayfield.name} /></div>
                   <div><FieldLabel>Company Email</FieldLabel><FieldInput defaultValue="info@mayfield.co" type="email" /></div>
                   <div><FieldLabel>Phone</FieldLabel><FieldInput defaultValue="(312) 555-0142" /></div>
                   <div><FieldLabel>Website</FieldLabel><FieldInput defaultValue="www.mayfield.co" /></div>
-                  <div className="md:col-span-2"><FieldLabel>Address</FieldLabel><FieldInput defaultValue="1420 W. Monroe St, Chicago, IL 60607" /></div>
+                  <div className="md:col-span-2"><FieldLabel>Address</FieldLabel><FieldInput defaultValue="Cincinnati, OH" /></div>
                   <div><FieldLabel>Default Region / Market</FieldLabel>
                     <FieldSelect defaultValue="Midwest"><option>Northeast</option><option>Southeast</option><option>Midwest</option><option>Southwest</option><option>West Coast</option><option>Pacific NW</option></FieldSelect>
                   </div>
-                  <div><FieldLabel>Primary Contact</FieldLabel><FieldInput defaultValue="Ryan Mitchell" /></div>
-                  <div><FieldLabel>Contact Role</FieldLabel><FieldInput defaultValue="Lead Estimator" /></div>
+                  <div><FieldLabel>Primary Contact</FieldLabel><FieldInput defaultValue={people.frankie.name} /></div>
+                  <div><FieldLabel>Contact Role</FieldLabel><FieldInput defaultValue={people.frankie.title} /></div>
                   <div><FieldLabel>Tax ID</FieldLabel><FieldInput placeholder="XX-XXXXXXX" /></div>
                   <div><FieldLabel>License / Contractor #</FieldLabel><FieldInput placeholder="e.g. IL-GC-2024-1234" /></div>
                 </div>
