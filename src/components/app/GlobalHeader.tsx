@@ -1,4 +1,4 @@
-import { Activity, Bell, Building2, ChevronDown, CheckCheck, MessageSquare, Settings, ShieldCheck, UserRound, X } from "lucide-react";
+import { Activity, Bell, Building2, CalendarRange, ChevronDown, CheckCheck, Clock3, HardHat, MessageSquare, Settings, ShieldCheck, UserRound, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,25 +11,38 @@ import { useDemoProject } from "@/hooks/use-demo-project";
 
 type Track = "builder" | "sub" | "owner";
 const trackConfig = {
-  builder: { dashboard: "/app", precon: "/app/upload", preconLabel: "Pre-Construction", activeLabel: "Active Projects", active: "/app/est-vs-actual", settings: "/app/settings", company: companies.mayfield.name, initials: people.frankie.initials, person: people.frankie.name, role: people.frankie.title },
-  sub: { dashboard: "/sub", precon: "/sub/upload", preconLabel: "Estimating", activeLabel: "Active Jobs", active: "/sub/est-vs-actual", settings: "/sub/settings", company: companies.trueframe.name, initials: people.tyler.initials, person: people.tyler.name, role: people.tyler.title },
-  owner: { dashboard: "/owner", precon: "/owner/upload", preconLabel: "Pre-Construction", activeLabel: "Active Projects", active: "/owner/documents", settings: "/owner/settings", company: "Osterfeld Residence", initials: "AO", person: "Andrew Osterfeld", role: "Homeowner" },
+  builder: { dashboard: "/app", precon: "/app/upload", preconLabel: "Pre-Construction", activeLabel: "Active Projects", active: "/app/active", schedule: "/app/schedule", time: "/app/time", settings: "/app/settings", company: companies.mayfield.name, initials: people.frankie.initials, person: people.frankie.name, role: people.frankie.title },
+  sub: { dashboard: "/sub", precon: "/sub/upload", preconLabel: "Estimating", activeLabel: "Active Jobs", active: "/sub/active", schedule: "/sub/schedule", time: "/sub/time", settings: "/sub/settings", company: companies.trueframe.name, initials: people.tyler.initials, person: people.tyler.name, role: people.tyler.title },
+  owner: { dashboard: "/owner", precon: "/owner/upload", preconLabel: "Pre-Construction", activeLabel: "Active Projects", active: "/owner/documents", schedule: "/owner/documents", time: "/owner/documents", settings: "/owner/settings", company: "Osterfeld Residence", initials: "AO", person: "Andrew Osterfeld", role: "Homeowner" },
 } as const;
-function sectionFor(path: string, config: (typeof trackConfig)[Track]) { if (path === config.dashboard || path === `${config.dashboard}/`) return "dashboard"; if (path === config.settings || path.startsWith("/network") || path.startsWith("/compliance") || path.startsWith("/activity")) return "more"; if (path === config.active) return "active"; return "precon"; }
+function sectionFor(path: string, config: (typeof trackConfig)[Track]) {
+  if (path === config.dashboard || path === `${config.dashboard}/`) return "dashboard";
+  if (path.startsWith("/activity")) return "activity";
+  if (path.startsWith(config.active) || path.startsWith(config.schedule) || path.startsWith(config.time)) return "active";
+  if (path === config.settings || path.startsWith("/network") || path.startsWith("/compliance")) return "more";
+  return "precon";
+}
 
 export function GlobalHeader({ track }: { track: Track }) {
   const config = trackConfig[track]; const location = useLocation(); const navigate = useNavigate(); const { signOut } = useAuth();
   const { setProjectId } = useDemoProject();
   const notices = track === "owner" ? [] : notificationsByTrack[track];
-  const [notificationsOpen,setNotificationsOpen]=useState(false); const [profileOpen,setProfileOpen]=useState(false); const [messengerOpen,setMessengerOpen]=useState(false); const [noticeFilter,setNoticeFilter]=useState<"all"|"unread">("all"); const [moreOpen,setMoreOpen]=useState(false);
+  const [notificationsOpen,setNotificationsOpen]=useState(false); const [profileOpen,setProfileOpen]=useState(false); const [messengerOpen,setMessengerOpen]=useState(false); const [noticeFilter,setNoticeFilter]=useState<"all"|"unread">("all"); const [moreOpen,setMoreOpen]=useState(false); const [activeOpen,setActiveOpen]=useState(false);
   const section=sectionFor(location.pathname,config);
-  const navItems=[{id:"dashboard",label:"Home",to:config.dashboard},{id:"precon",label:config.preconLabel,to:config.precon},{id:"active",label:config.activeLabel,to:config.active}];
-  const moreItems=[{label:"Network",to:"/network",icon:Building2},{label:"Compliance",to:"/compliance",icon:ShieldCheck},{label:"Activity",to:"/activity",icon:Activity}];
+  const navItems=[{id:"dashboard",label:"Home",to:config.dashboard},{id:"activity",label:"Activity",to:"/activity"},{id:"precon",label:config.preconLabel,to:config.precon}];
+  const activeItems=[{label:config.activeLabel,to:config.active,icon:HardHat},{label:"Schedule",to:config.schedule,icon:CalendarRange},{label:"Time Clock",to:config.time,icon:Clock3}];
+  const moreItems=[{label:"Network",to:"/network",icon:Building2},{label:"Compliance",to:"/compliance",icon:ShieldCheck},{label:"Estimate vs Actual",to:track==="sub"?"/sub/est-vs-actual":"/app/est-vs-actual",icon:Activity}];
   return <>
     <header className="odyssey-header relative z-[70] flex h-[72px] shrink-0 items-center justify-between px-7 lg:px-[9%]">
       <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark className="h-auto w-[132px]"/></Link>
       <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
         {navItems.map(item=><Link key={item.id} to={item.to} className={cn("rounded-full px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",section===item.id&&"bg-card/70 text-foreground shadow-sm backdrop-blur-md")}>{item.label}</Link>)}
+        <div className="relative">
+          <button onClick={()=>{setActiveOpen(v=>!v);setMoreOpen(false);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)}} className={cn("flex items-center gap-1 rounded-full px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",section==="active"&&"bg-card/70 text-foreground shadow-sm backdrop-blur-md")}>{config.activeLabel} <ChevronDown size={13}/></button>
+          {activeOpen&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
+            {activeItems.map(item=><Link key={item.label} to={item.to} onClick={()=>setActiveOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground"><item.icon size={14}/>{item.label}</Link>)}
+          </div>}
+        </div>
         <div className="relative">
           <button onClick={()=>{setMoreOpen(v=>!v);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)}} className={cn("flex items-center gap-1 rounded-full px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",section==="more"&&"bg-card/70 text-foreground shadow-sm backdrop-blur-md")}>More <ChevronDown size={13}/></button>
           {moreOpen&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">

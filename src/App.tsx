@@ -25,6 +25,10 @@ import NetworkPage from "./pages/network/NetworkPage";
 import CompanyProfilePage from "./pages/network/CompanyProfilePage";
 import CompliancePage from "./pages/compliance/CompliancePage";
 import ActivityPage from "./pages/ActivityPage";
+import ActiveProjectsPage from "./pages/active/ActiveProjectsPage";
+import ProjectWorkspacePage from "./pages/active/ProjectWorkspacePage";
+import SchedulePage from "./pages/active/SchedulePage";
+import TimeClockPage from "./pages/active/TimeClockPage";
 
 // Auth pages
 import SignInPage from "./pages/auth/SignInPage";
@@ -109,6 +113,13 @@ const App = () => (
                 <Route path="/app/est-vs-actual" element={<BuilderGuard><EstVsActualPage /></BuilderGuard>} />
                 <Route path="/app/settings" element={<BuilderGuard><SettingsPage /></BuilderGuard>} />
 
+                {/* Builder construction operations */}
+                <Route path="/app/active" element={<BuilderGuard><ActiveProjectsPage /></BuilderGuard>} />
+                <Route path="/app/active/:projectId" element={<BuilderGuard><ProjectWorkspacePage /></BuilderGuard>} />
+                <Route path="/app/active/:projectId/:tab" element={<BuilderGuard><ProjectWorkspacePage /></BuilderGuard>} />
+                <Route path="/app/schedule" element={<BuilderGuard><SchedulePage /></BuilderGuard>} />
+                <Route path="/app/time" element={<BuilderGuard><TimeClockPage /></BuilderGuard>} />
+
                 {/* Subcontractor routes */}
                 <Route path="/sub" element={<SubGuard><SubDashboardPage /></SubGuard>} />
                 <Route path="/sub/upload" element={<SubGuard><SubUploadPage /></SubGuard>} />
@@ -120,6 +131,13 @@ const App = () => (
                 <Route path="/sub/proposal" element={<SubGuard><SubProposalExportPage /></SubGuard>} />
                 <Route path="/sub/est-vs-actual" element={<SubGuard><SubEstVsActualPage /></SubGuard>} />
                 <Route path="/sub/settings" element={<SubGuard><SubSettingsPage /></SubGuard>} />
+
+                {/* Subcontractor construction operations */}
+                <Route path="/sub/active" element={<SubGuard><ActiveProjectsPage /></SubGuard>} />
+                <Route path="/sub/active/:projectId" element={<SubGuard><ProjectWorkspacePage /></SubGuard>} />
+                <Route path="/sub/active/:projectId/:tab" element={<SubGuard><ProjectWorkspacePage /></SubGuard>} />
+                <Route path="/sub/schedule" element={<SubGuard><SchedulePage /></SubGuard>} />
+                <Route path="/sub/time" element={<SubGuard><TimeClockPage /></SubGuard>} />
 
                 {/* Global routes (Network, Compliance, Activity) */}
                 <Route path="/network" element={<GlobalGuard><NetworkPage /></GlobalGuard>} />
