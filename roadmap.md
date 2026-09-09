@@ -8,3 +8,5 @@
 
 - [x] Fix all preview typecheck errors from observability logs
 - [x] Correct Odyssey header gradient, icon treatment, typography, and sea-glass opacity
+- [x] Restore the original Euclid logo asset and compass identity in Euclid AI
+- [x] Remove the header cell effect and blend its gradient into the workspace

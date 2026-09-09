@@ -287,14 +287,14 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="odyssey-popover fixed bottom-5 right-5 z-50 flex h-[min(680px,calc(100vh-120px))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden">
+    <div className="euclid-assistant fixed bottom-5 right-5 z-[90] flex h-[min(680px,calc(100vh-120px))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden">
       {/* Header */}
       <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center shadow-sm">
-              <EuclidCompass className="h-5 w-5 brightness-0 invert" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/15">
+              <EuclidCompass className="h-6 w-6" />
           </div>
-          <p className="text-sm font-bold text-foreground font-display">Euclid</p>
+          <div><p className="font-display text-sm font-bold text-foreground">Euclid AI</p><p className="text-[9px] text-muted-foreground">Construction assistant</p></div>
         </div>
         <div className="flex items-center gap-1">
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted/50" aria-label="Minimize Euclid"><Minus size={16} /></button>
@@ -325,8 +325,8 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
         {messages.map((m, i) => (
           <div key={i} className={`flex gap-3 ${m.role === "user" ? "justify-end" : ""}`}>
             {m.role === "euclid" && (
-              <div className="w-7 h-7 rounded-full bg-foreground flex items-center justify-center shrink-0 mt-1">
-                <EuclidCompass className="h-4 w-4 brightness-0 invert" />
+              <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/15">
+                <EuclidCompass className="h-5 w-5" />
               </div>
             )}
             <div className={`max-w-[85%] ${m.role === "user" ? "" : ""}`}>
@@ -387,10 +387,10 @@ export function AtlasToggleButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed right-5 bottom-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-background shadow-lg transition-transform hover:scale-105"
+      className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-card/90 shadow-lg ring-1 ring-border/60 backdrop-blur-xl transition-transform hover:scale-105"
       aria-label="Open Euclid"
     >
-      <EuclidCompass className="h-7 w-7 brightness-0 invert" />
+      <EuclidCompass className="h-8 w-8" />
     </button>
   );
 }

@@ -1,17 +1,20 @@
-import wordmarkDark from "@/assets/euclid-wordmark.png.asset.json";
-import wordmarkLight from "@/assets/euclid-wordmark-light.png.asset.json";
-import compass from "@/assets/euclid-compass.png.asset.json";
+import euclidLogo from "@/assets/euclid-logo.png";
 import { cn } from "@/lib/utils";
 
 export function EuclidWordmark({ className }: { className?: string }) {
   return (
-    <span className={cn("relative block h-9 w-36 overflow-hidden", className)}>
-      <img src={wordmarkLight.url} alt="Euclid" className="h-full w-full object-contain dark:hidden" />
-      <img src={wordmarkDark.url} alt="Euclid" className="hidden h-full w-full object-contain dark:block" />
-    </span>
+    <img src={euclidLogo} alt="Euclid" className={cn("block h-auto w-32 object-contain", className)} />
   );
 }
 
 export function EuclidCompass({ className }: { className?: string }) {
-  return <img src={compass.url} alt="" aria-hidden="true" className={cn("object-contain", className)} />;
+  return (
+    <span aria-hidden="true" className={cn("relative block shrink-0 overflow-hidden", className)}>
+      <img
+        src={euclidLogo}
+        alt=""
+        className="absolute left-0 top-1/2 h-[142%] w-auto max-w-none -translate-y-1/2"
+      />
+    </span>
+  );
 }

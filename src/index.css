@@ -146,14 +146,13 @@
 
   .odyssey-header {
     border: 0;
-    border-bottom: 1px solid hsl(var(--border) / 0.3);
-    background: linear-gradient(180deg, hsl(var(--card) / 0.9) 0%, hsl(var(--card) / 0.66) 58%, hsl(var(--card) / 0.22) 100%);
-    box-shadow: 0 12px 30px -24px hsl(var(--foreground) / 0.32);
-    backdrop-filter: blur(20px) saturate(125%);
+    background: linear-gradient(180deg, hsl(var(--card) / 0.92) 0%, hsl(var(--card) / 0.55) 64%, transparent 100%);
+    box-shadow: none;
+    backdrop-filter: blur(12px) saturate(115%);
   }
 
   .dark .odyssey-header {
-    background: linear-gradient(180deg, hsl(var(--background) / 0.96) 0%, hsl(var(--card) / 0.8) 62%, hsl(var(--card) / 0.28) 100%);
+    background: linear-gradient(180deg, hsl(var(--background) / 0.94) 0%, hsl(var(--background) / 0.6) 64%, transparent 100%);
   }
 
   .odyssey-header-control {
@@ -184,6 +183,14 @@
   }
 
   .odyssey-popover { border-radius: 1rem; }
+
+  .euclid-assistant {
+    border: 1px solid hsl(var(--border) / 0.5);
+    border-radius: 1rem;
+    background: linear-gradient(145deg, hsl(var(--card) / 0.76), hsl(var(--card) / 0.62));
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(24px) saturate(135%);
+  }
 
   .odyssey-surface {
     border: 1px solid hsl(var(--border) / 0.58);
