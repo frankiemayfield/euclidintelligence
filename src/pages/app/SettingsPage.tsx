@@ -7,7 +7,7 @@ import { WorkspaceAppearancePicker } from "@/components/app/WorkspaceAppearanceP
 import companyLogoImg from "@/assets/company-logo.jpg";
 import { companies, people } from "@/data/demoUniverse";
 
-type SettingsTab = "company" | "branding" | "estimator" | "pricing" | "proposal" | "appearance" | "notifications" | "users" | "integrations" | "workspace";
+type SettingsTab = "compliance" | "company" | "branding" | "estimator" | "pricing" | "proposal" | "appearance" | "notifications" | "users" | "integrations" | "workspace";
 
 const tabs: { id: SettingsTab; label: string; icon: typeof Building2 }[] = [
   { id: "company", label: "Company", icon: Building2 },
@@ -368,46 +368,6 @@ export default function SettingsPage() {
                   <Toggle label="Email notifications" defaultChecked />
                   <Toggle label="Daily digest summary" />
                 </div>
-              </SectionCard>
-            </div>
-          )}
-
-          {/* ===== COMPLIANCE REQUIREMENTS ===== */}
-          {activeTab === "compliance" && (
-            <div className="space-y-6">
-              <SectionCard title="Default Subcontractor Requirements" helper="Euclid validates uploaded compliance documents against these standards">
-                <div className="space-y-4">
-                  <div>
-                    <FieldLabel>General Liability</FieldLabel>
-                    <div className="space-y-2">
-                      <Toggle label="Required" defaultChecked />
-                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div><FieldLabel>Minimum each occurrence</FieldLabel><FieldInput defaultValue="$1,000,000" /></div>
-                        <div><FieldLabel>Minimum aggregate</FieldLabel><FieldInput defaultValue="$2,000,000" /></div>
-                      </div>
-                      <Toggle label="Additional insured required" defaultChecked />
-                      <Toggle label="Primary / noncontributory required" defaultChecked />
-                      <Toggle label="Waiver of subrogation required" defaultChecked />
-                    </div>
-                  </div>
-                  <div>
-                    <FieldLabel>Workers' Compensation</FieldLabel>
-                    <div className="space-y-2"><Toggle label="Required" defaultChecked /><Toggle label="Statutory coverage required" defaultChecked /></div>
-                  </div>
-                  <div>
-                    <FieldLabel>Commercial Auto</FieldLabel>
-                    <div className="space-y-2"><Toggle label="Required" defaultChecked /><div><FieldLabel>Minimum combined single limit</FieldLabel><FieldInput defaultValue="$1,000,000" /></div></div>
-                  </div>
-                  <div><FieldLabel>W-9</FieldLabel><Toggle label="Required" defaultChecked /></div>
-                  <div><FieldLabel>Umbrella / Excess</FieldLabel><Toggle label="Required" /></div>
-                  <div><FieldLabel>Contractor License</FieldLabel><Toggle label="Required" /></div>
-                </div>
-              </SectionCard>
-              <SectionCard title="Expiration Warning Period" helper="Drives the Expiring Soon status across Network and Compliance">
-                <FieldSelect defaultValue="30 days"><option>15 days</option><option>30 days</option><option>45 days</option><option>60 days</option><option>90 days</option></FieldSelect>
-              </SectionCard>
-              <SectionCard title="Trade-Specific Rules" helper="Override default requirements for individual trades">
-                <p className="text-xs text-muted-foreground">Default rules apply to all trades. Project-specific overrides can be added on a project's compliance record.</p>
               </SectionCard>
             </div>
           )}
