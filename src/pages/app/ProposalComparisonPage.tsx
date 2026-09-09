@@ -19,25 +19,35 @@ export default function ProposalComparisonPage() {
   const [filter, setFilter] = useState<FilterMode>("all");
   const [compareMode, setCompareMode] = useState<CompareMode>("sell");
 
-  const totalCost = tradeComparisons.reduce((s, t) => s + t.yourCost, 0);
-  const totalSell = tradeComparisons.reduce((s, t) => s + t.yourSell, 0);
-  const totalBench = tradeComparisons.reduce((s, t) => s + t.benchmark, 0);
+  const sourceCost = tradeComparisons.reduce((sum, trade) => sum + trade.yourCost, 0);
+  const sourceSell = tradeComparisons.reduce((sum, trade) => sum + trade.yourSell, 0);
+  const sourceBench = tradeComparisons.reduce((sum, trade) => sum + trade.benchmark, 0);
+  const targetBenchmark = project.benchmark.low && project.benchmark.high ? (project.benchmark.low + project.benchmark.high) / 2 : project.clientPrice ?? sourceBench;
+  const projectTrades = useMemo(() => tradeComparisons.map(trade => {
+    const yourCost = Math.round(trade.yourCost * ((project.builderCost ?? sourceCost) / sourceCost));
+    const yourSell = Math.round(trade.yourSell * ((project.clientPrice ?? sourceSell) / sourceSell));
+    const benchmark = Math.round(trade.benchmark * (targetBenchmark / sourceBench));
+    return { ...trade, yourCost, yourSell, benchmark, variance: ((yourSell - benchmark) / benchmark) * 100 };
+  }), [project.id, project.builderCost, project.clientPrice, targetBenchmark, sourceBench, sourceCost, sourceSell]);
+  const totalCost = projectTrades.reduce((s, t) => s + t.yourCost, 0);
+  const totalSell = projectTrades.reduce((s, t) => s + t.yourSell, 0);
+  const totalBench = projectTrades.reduce((s, t) => s + t.benchmark, 0);
   const totalVariance = ((totalSell - totalBench) / totalBench * 100).toFixed(1);
   const grossMargin = ((totalSell - totalCost) / totalSell * 100).toFixed(1);
   const peerMargin = 16.2;
 
-  const aboveBenchmark = tradeComparisons.filter(t => t.variance > 5).length;
-  const belowBenchmark = tradeComparisons.filter(t => t.variance < -5).length;
-  const withinRange = tradeComparisons.filter(t => Math.abs(t.variance) <= 5).length;
+  const aboveBenchmark = projectTrades.filter(t => t.variance > 5).length;
+  const belowBenchmark = projectTrades.filter(t => t.variance < -5).length;
+  const withinRange = projectTrades.filter(t => Math.abs(t.variance) <= 5).length;
 
   const filteredTrades = useMemo(() => {
     switch (filter) {
-      case "above": return tradeComparisons.filter(t => t.variance > 5);
-      case "below": return tradeComparisons.filter(t => t.variance < -5);
-      case "in-range": return tradeComparisons.filter(t => Math.abs(t.variance) <= 5);
-      default: return tradeComparisons;
+      case "above": return projectTrades.filter(t => t.variance > 5);
+      case "below": return projectTrades.filter(t => t.variance < -5);
+      case "in-range": return projectTrades.filter(t => Math.abs(t.variance) <= 5);
+      default: return projectTrades;
     }
-  }, [filter]);
+  }, [filter, projectTrades]);
 
   const sensitivityLabel = Number(totalVariance) > 8
     ? "May Reduce Win Probability"

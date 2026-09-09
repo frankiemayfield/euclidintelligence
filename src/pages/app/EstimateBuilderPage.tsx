@@ -2,7 +2,7 @@ import { AppLayout } from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Download, Filter, Plus, ChevronDown, CheckCircle, Pencil, Flag, Bot, X, ArrowRight, Check, Trash2, Users } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ExtractionMethodBadge } from "@/components/app/traceability/ExtractionMethodBadge";
 import { ReviewStatusBadge } from "@/components/app/traceability/ReviewStatusBadge";
 import { ConfidenceBadge } from "@/components/app/traceability/ConfidenceBadge";
@@ -94,7 +94,7 @@ const lineItems: LineItem[] = [
 type FilterType = "All" | "Needs Review" | "Derived from Scale" | "Low Confidence" | "Confirmed" | "Pricing Outliers";
 const filterOptions: FilterType[] = ["All", "Needs Review", "Derived from Scale", "Low Confidence", "Confirmed", "Pricing Outliers"];
 
-function BaseScopeSection() {
+function BaseScopeSection({ targetTotal }: { targetTotal: number }) {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("All");
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
@@ -102,6 +102,12 @@ function BaseScopeSection() {
   const [items, setItems] = useState(lineItems);
   const [editValues, setEditValues] = useState<Record<string, any>>({});
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    const sourceTotal = lineItems.reduce((sum, item) => sum + (item.unit === "LS" ? item.unitCost : item.qty * item.unitCost), 0);
+    const factor = sourceTotal ? targetTotal / sourceTotal : 1;
+    setItems(lineItems.map(item => ({ ...item, unitCost: Number((item.unitCost * factor).toFixed(2)), labor: Math.round(item.labor * factor), material: Math.round(item.material * factor), pricing: { ...item.pricing, rangeLow: Math.round(item.pricing.rangeLow * factor), rangeHigh: Math.round(item.pricing.rangeHigh * factor), selected: Number((item.pricing.selected * factor).toFixed(2)) } })));
+    setSelectedRows(new Set());
+  }, [targetTotal]);
 
   const filtered = items.filter((l) => {
     const matchesSearch = l.desc.toLowerCase().includes(search.toLowerCase()) || l.trade.toLowerCase().includes(search.toLowerCase());
@@ -351,12 +357,13 @@ export default function EstimateBuilderPage() {
   const { project } = useDemoProject();
   const navigate = useNavigate();
 
-  const preBuildTotal = 30500;
-  const baseScopeTotal = lineItems.reduce((s, l) => s + (l.unit === "LS" ? l.unitCost : l.qty * l.unitCost), 0);
-  const generalReqsTotal = 53610;
-  const allowancesTotal = 38800;
-  const selectionsVariance = 1780;
-  const alternatesImpact = 4800;
+  const estimateTotal = project.builderCost ?? 0;
+  const preBuildTotal = Math.round(estimateTotal * 0.026);
+  const generalReqsTotal = Math.round(estimateTotal * 0.045);
+  const allowancesTotal = Math.round(estimateTotal * 0.033);
+  const selectionsVariance = Math.round(estimateTotal * 0.0015);
+  const alternatesImpact = Math.round(estimateTotal * 0.004);
+  const baseScopeTotal = Math.max(0, estimateTotal - preBuildTotal - generalReqsTotal - allowancesTotal - selectionsVariance - alternatesImpact);
 
   return (
     <AppLayout>
@@ -395,7 +402,7 @@ export default function EstimateBuilderPage() {
           </TabsList>
 
           <TabsContent value="pre-build"><PreBuildRequirementsSection /></TabsContent>
-          <TabsContent value="base-scope"><BaseScopeSection /></TabsContent>
+           <TabsContent value="base-scope"><BaseScopeSection targetTotal={baseScopeTotal} /></TabsContent>
           <TabsContent value="general-reqs"><GeneralRequirementsSection /></TabsContent>
           <TabsContent value="allowances"><AllowancesSection /></TabsContent>
           <TabsContent value="selections"><SelectionsSection /></TabsContent>

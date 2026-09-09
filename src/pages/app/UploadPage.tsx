@@ -2,7 +2,7 @@ import { AppLayout } from "@/components/app/AppLayout";
 import { Upload, X, CheckCircle, ArrowRight, Settings2, Layers, Target, FileText, AlertCircle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getProjectDocuments } from "@/data/demoUniverse";
 import { useDemoProject } from "@/hooks/use-demo-project";
 
@@ -69,7 +69,7 @@ const estimateUsageOptions = [
 export default function UploadPage() {
   const { project } = useDemoProject();
   const [files, setFiles] = useState<UploadedFile[]>([
-    ...getProjectDocuments("fregolle").map(document => ({ name: document.filename, sourceType: document.sourceType === "subcontractor bid" ? "subbids" as const : "plans" as const, status: "Classified" as const, isPrimary: document.primary })),
+    ...getProjectDocuments(project.id).map(document => ({ name: document.filename, sourceType: document.sourceType === "subcontractor bid" ? "subbids" as const : "plans" as const, status: "Classified" as const, isPrimary: document.primary })),
   ]);
   const [processing, setProcessing] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("all");
@@ -78,6 +78,9 @@ export default function UploadPage() {
   const [analysisSource, setAnalysisSource] = useState("all");
   const [estimateUsage, setEstimateUsage] = useState("baseline");
   const [transition, setTransition] = useState(false);
+  useEffect(() => {
+    setFiles(getProjectDocuments(project.id).map(document => ({ name: document.filename, sourceType: document.sourceType === "subcontractor bid" ? "subbids" as const : "plans" as const, status: "Classified" as const, isPrimary: document.primary })));
+  }, [project.id]);
 
   const addFiles = () => {
     const newFiles: UploadedFile[] = [

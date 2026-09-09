@@ -2,19 +2,38 @@ import { AppLayout } from "@/components/app/AppLayout";
 import { useState } from "react";
 import { Upload, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { trades, bids } from "@/components/app/bid-leveling/bidLevelingData";
+import { trades, bids, type SubBid } from "@/components/app/bid-leveling/bidLevelingData";
 import { BidSummaryCards } from "@/components/app/bid-leveling/BidSummaryCards";
 import { BidComparisonTable } from "@/components/app/bid-leveling/BidComparisonTable";
 import { Button } from "@/components/ui/button";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 import { useDemoProject } from "@/hooks/use-demo-project";
+import { companies, framingBidPool } from "@/data/demoUniverse";
 
 export default function BidLevelingPage() {
   const { project } = useDemoProject();
   const [activeTrade, setActiveTrade] = useState("Framing");
   const [expandedSub, setExpandedSub] = useState<string | null>(null);
   const [transition, setTransition] = useState(false);
-  const items = bids[activeTrade] || [];
+  const projectFramingBids: SubBid[] = (framingBidPool[project.id] ?? []).map((bid, index) => ({
+    sub: Object.values(companies).find(company => company.id === bid.companyId)?.name ?? bid.companyId,
+    rawTotal: bid.amount,
+    addBacks: bid.addBacks,
+    leveledTotal: bid.amount + bid.addBacks,
+    notes: bid.note,
+    recommended: index === 0,
+    selected: index === 0 && project.builderStage !== "Document Upload",
+    recommendedReason: index === 0 ? "Best alignment with the current project scope" : undefined,
+    status: bid.amount === 0 ? "Awaiting Bid" : index === 0 ? (project.builderStage === "Est. vs Actual" ? "Sent to Estimate" : "Selected") : bid.coverage < 90 ? "Needs Clarification" : "Ready to Compare",
+    packageCoverage: bid.coverage,
+    missingScopeCount: Math.max(0, Math.ceil((100 - bid.coverage) / 6)),
+    scopeNotes: [bid.note], inclusions: ["Framing labor", "Project-specific scope package"],
+    exclusions: bid.addBacks ? [{ item: "Scope represented by add-backs", disposition: "add-to-estimate" }] : [],
+    clarifications: bid.coverage < 90 ? [{ question: "Confirm excluded scope before award", resolved: false }] : [],
+    adjustments: bid.addBacks ? [{ description: "Scope normalization", amount: bid.addBacks, reason: bid.note }] : [],
+    uploadedFrom: `${project.name.replace(/[^a-z0-9]+/gi, "_")}_${bid.companyId}_Bid.pdf`,
+  }));
+  const items = activeTrade === "Framing" ? projectFramingBids : bids[activeTrade] || [];
 
   return (
     <AppLayout>

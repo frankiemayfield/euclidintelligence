@@ -20,9 +20,36 @@ function updateLineItem(project: ScopeProject, id: string, update: (item: LineIt
   return { ...project, parentScopes: project.parentScopes.map(parentScope => ({ ...parentScope, trades: parentScope.trades.map(trade => ({ ...trade, assemblies: trade.assemblies.map(assembly => ({ ...assembly, lineItems: assembly.lineItems.map(item => item.id === id ? update(item) : item) })) })) })) };
 }
 
+function projectScope(activeProject: ReturnType<typeof useDemoProject>["project"]): ScopeProject {
+  if (activeProject.id === "fregolle") return { ...mockProject, id: activeProject.id, name: activeProject.name };
+  const quantityFactor = Math.max(0.35, Math.min(1.85, (activeProject.builderCost ?? 620000) / 1182400));
+  const keepRatio = Math.max(0.25, activeProject.scopeCoverage / 100);
+  return {
+    ...mockProject,
+    id: activeProject.id,
+    name: activeProject.name,
+    parentScopes: mockProject.parentScopes.map((parentScope, parentIndex) => ({
+      ...parentScope,
+      name: parentIndex === 0 ? `${activeProject.type} Base Scope` : parentScope.name,
+      trades: parentScope.trades.map(trade => ({ ...trade, assemblies: trade.assemblies.map(assembly => ({
+        ...assembly,
+        lineItems: assembly.lineItems.filter((_, index) => index === 0 || (index + parentIndex) / Math.max(1, assembly.lineItems.length) <= keepRatio).map(item => ({
+          ...item,
+          id: `${activeProject.id}-${item.id}`,
+          name: `${item.name} — ${activeProject.name}`,
+          quantity: Math.max(1, Number((item.quantity * quantityFactor).toFixed(1))),
+          reviewStatus: activeProject.scopeCoverage < 60 ? "Needs Review" : item.reviewStatus,
+          takeoffs: activeProject.scopeCoverage < 60 ? [] : item.takeoffs.map(takeoff => ({ ...takeoff, id: `${activeProject.id}-${takeoff.id}`, quantity: Math.max(1, Number((takeoff.quantity * quantityFactor).toFixed(1))), linkedLineItemId: `${activeProject.id}-${item.id}` })),
+          sources: item.sources.map(source => ({ ...source, fileName: `${activeProject.name.replace(/[^a-z0-9]+/gi, "_")}_Plans.pdf` })),
+        }))
+      })) }))
+    }))
+  };
+}
+
 export function ScopeAnalyzerWorkspace({ Layout, track = "builder" }: WorkspaceProps) {
   const { project: activeProject, quote } = useDemoProject();
-  const [baseProject, setBaseProject] = useState(() => ({ ...mockProject, id: activeProject.id, name: activeProject.name }));
+  const [baseProject, setBaseProject] = useState(() => projectScope(activeProject));
   const [activeTab, setActiveTab] = useState<ScopeTab>("takeoff");
   const [viewerMode, setViewerMode] = useState<ViewerMode>("hidden");
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,7 +73,7 @@ export function ScopeAnalyzerWorkspace({ Layout, track = "builder" }: WorkspaceP
   const tabs: { value: ScopeTab; label: string }[] = track === "builder" ? [{ value: "takeoff", label: "Quantity Takeoff" }, { value: "review", label: "Review" }, { value: "structure", label: "Scope Structure" }] : [{ value: "takeoff", label: "Quantity Takeoff" }, { value: "review", label: "Review" }, { value: "structure", label: "Quote Structure" }, { value: "package", label: "Bid Package" }];
 
   useEffect(() => {
-    setBaseProject({ ...mockProject, id: activeProject.id, name: activeProject.name });
+    setBaseProject(projectScope(activeProject));
     setManualTakeoffs({}); setManualMarkups([]); setDecisions([]); setStructure({});
   }, [activeProject.id, activeProject.name]);
 
