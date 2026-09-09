@@ -1,16 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
-import euclid from "@/assets/euclid-environment.jpg";
-import daVinci from "@/assets/workspace-da-vinci.jpg.asset.json";
-import brunelleschi from "@/assets/workspace-brunelleschi.jpg.asset.json";
+import {
+  isWorkspaceAppearance,
+  workspaceBackgrounds,
+  type WorkspaceAppearance,
+} from "@/components/app/workspaceEnvironments";
 
 export type Theme = "light" | "dark" | "system";
-export type WorkspaceAppearance = "da-vinci" | "brunelleschi" | "euclid";
-
-const backgrounds: Record<WorkspaceAppearance, string> = {
-  "da-vinci": daVinci.url,
-  brunelleschi: brunelleschi.url,
-  euclid,
-};
+export type { WorkspaceAppearance } from "@/components/app/workspaceEnvironments";
 
 interface ThemeContextType {
   theme: Theme;
@@ -18,6 +14,8 @@ interface ThemeContextType {
   resolvedTheme: "light" | "dark";
   workspaceAppearance: WorkspaceAppearance;
   setWorkspaceAppearance: (appearance: WorkspaceAppearance) => void;
+  previewWorkspaceAppearance: WorkspaceAppearance | null;
+  setPreviewWorkspaceAppearance: (appearance: WorkspaceAppearance | null) => void;
   workspaceBackground: string;
 }
 
@@ -27,7 +25,9 @@ const ThemeContext = createContext<ThemeContextType>({
   resolvedTheme: "light",
   workspaceAppearance: "euclid",
   setWorkspaceAppearance: () => {},
-  workspaceBackground: backgrounds.euclid,
+  previewWorkspaceAppearance: null,
+  setPreviewWorkspaceAppearance: () => {},
+  workspaceBackground: workspaceBackgrounds.euclid,
 });
 
 function getSystemTheme(): "light" | "dark" {
@@ -40,8 +40,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [systemTheme, setSystemTheme] = useState(getSystemTheme);
   const [workspaceAppearance, setWorkspaceAppearance] = useState<WorkspaceAppearance>(() => {
     if (typeof window === "undefined") return "euclid";
-    return (localStorage.getItem("euclid-workspace-appearance") as WorkspaceAppearance) || "euclid";
+    const stored = localStorage.getItem("euclid-workspace-appearance");
+    return isWorkspaceAppearance(stored) ? stored : "euclid";
   });
+  const [previewWorkspaceAppearance, setPreviewWorkspaceAppearance] = useState<WorkspaceAppearance | null>(null);
   const resolvedTheme = theme === "system" ? systemTheme : theme;
 
   useEffect(() => {
@@ -58,7 +60,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => localStorage.setItem("euclid-workspace-appearance", workspaceAppearance), [workspaceAppearance]);
-  const value = useMemo(() => ({ theme, setTheme, resolvedTheme, workspaceAppearance, setWorkspaceAppearance, workspaceBackground: backgrounds[workspaceAppearance] }), [theme, resolvedTheme, workspaceAppearance]);
+  const activeWorkspaceAppearance = previewWorkspaceAppearance ?? workspaceAppearance;
+  const value = useMemo(() => ({
+    theme,
+    setTheme,
+    resolvedTheme,
+    workspaceAppearance,
+    setWorkspaceAppearance,
+    previewWorkspaceAppearance,
+    setPreviewWorkspaceAppearance,
+    workspaceBackground: workspaceBackgrounds[activeWorkspaceAppearance],
+  }), [theme, resolvedTheme, workspaceAppearance, previewWorkspaceAppearance, activeWorkspaceAppearance]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 

@@ -10,3 +10,5 @@
 - [x] Correct Odyssey header gradient, icon treatment, typography, and sea-glass opacity
 - [x] Restore the original Euclid logo asset and compass identity in Euclid AI
 - [x] Remove the header cell effect and blend its gradient into the workspace
+- [x] Expand Appearance to six distinct, live-preview workspace environments
+- [x] Add environment-aware light and dark readability treatments across all tracks
