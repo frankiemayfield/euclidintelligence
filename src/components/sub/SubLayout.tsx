@@ -30,6 +30,7 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
   const getSection = (): GlobalSection => {
     if (location.pathname === "/sub" || location.pathname === "/sub/") return "dashboard";
     if (location.pathname === "/sub/settings") return "settings";
+    if (!location.pathname.startsWith("/sub/")) return "dashboard";
     return "estimator";
   };
   const section = getSection();
