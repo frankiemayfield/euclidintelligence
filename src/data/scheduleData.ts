@@ -5,12 +5,16 @@ export type TaskStatus = "Not Started" | "Ready" | "In Progress" | "Complete" | 
 export type TaskCategory = "sitework" | "structural" | "mep" | "finishes" | "inspection" | "milestone";
 
 export interface SchedulePhase { id: string; name: string; }
+export interface TaskLabor { crew: number; hoursPerDay: number; estHours: number; actualHours?: number; forecastHours?: number }
+export interface TaskMapping { section: string; line: string; costCode: string; trade: string; package?: string }
+export interface TaskHistory { date: string; actor: string; action: string; from?: string; to?: string }
 export interface ScheduleTask {
   id: string; projectId: string; phaseId: string; title: string; description?: string;
   start: string; finish: string; baselineStart: string; baselineFinish: string;
   companyId?: string; assignee: string; trade: string; category: TaskCategory; location?: string;
   predecessors: string[]; progress: number; status: TaskStatus; critical: boolean; milestone: boolean;
   notes?: string; cost?: { estimate: number; committed: number; actual: number };
+  floatDays?: number; labor?: TaskLabor; mapping?: TaskMapping; history?: TaskHistory[];
 }
 export interface ProjectScheduleStatus {
   projectId: string; mode: "active" | "draft" | "none"; label: string;
@@ -156,12 +160,62 @@ const fregolleRows: Row[] = [
 
 export const scheduleTasks: ScheduleTask[] = [...mk("downtown-ti", tiRows), ...mk("fregolle", fregolleRows)];
 
+/* ---------- enrichment: cost, labor, estimate mapping, float, history ---------- */
+const labor = (crew: number, hoursPerDay: number, estHours: number, actualHours?: number, forecastHours?: number): TaskLabor => ({ crew, hoursPerDay, estHours, actualHours, forecastHours });
+
 scheduleTasks.forEach(t => {
-  if (t.id === "ti-trim") { t.description = "Casing, base and crown throughout Suite 400."; t.location = "Suite 400 — Levels 1"; t.cost = { estimate: 48500, committed: 46800, actual: 32100 }; t.notes = "Crown profile substitution approved by client on Sep 2."; }
-  if (t.id === "ti-casework") t.cost = { estimate: 64200, committed: 61900, actual: 0 };
-  if (t.id === "ti-finish-elec") t.cost = { estimate: 118400, committed: 116200, actual: 0 };
-  if (t.id === "ti-storefront") t.notes = "Glazing package delivered 7 days late by supplier.";
+  if (t.id === "ti-trim") {
+    t.description = "Casing, base and crown throughout Suite 400.";
+    t.location = "Suite 400 — Level 1";
+    t.cost = { estimate: 48500, committed: 46800, actual: 32100 };
+    t.notes = "Crown profile substitution approved by client on Sep 2.";
+    t.floatDays = 0;
+    t.labor = labor(3, 8, 160, 142, 186);
+    t.mapping = { section: "Interior Finishes", line: "Finish Carpentry", costCode: "06-2000", trade: "Carpentry", package: "Carpentry — TrueFrame" };
+    t.history = [
+      { date: "2026-09-07", actor: "Frankie Mayfield", action: "Finish changed", from: "Sep 20, 2026", to: "Sep 24, 2026" },
+      { date: "2026-09-05", actor: "Euclid", action: "Dependency updated after cabinetry lead-time change" },
+      { date: "2026-08-28", actor: "Frankie Mayfield", action: "Task started", to: "In Progress" },
+    ];
+  }
+  if (t.id === "ti-flooring") {
+    t.cost = { estimate: 38900, committed: 37500, actual: 16200 };
+    t.floatDays = 4;
+    t.labor = labor(2, 8, 120, 88, 116);
+    t.mapping = { section: "Interior Finishes", line: "Resilient & Carpet Flooring", costCode: "09-6500", trade: "Flooring" };
+    t.history = [{ date: "2026-09-02", actor: "James Wilson", action: "Task started", to: "In Progress" }];
+  }
+  if (t.id === "ti-partitions") { t.labor = labor(3, 8, 384, 372, 372); t.mapping = { section: "Shell & Partitions", line: "Metal Stud Framing", costCode: "09-2100", trade: "Carpentry", package: "Carpentry — TrueFrame" }; }
+  if (t.id === "ti-casework") { t.cost = { estimate: 64200, committed: 61900, actual: 0 }; t.floatDays = 0; t.labor = labor(3, 8, 210); t.mapping = { section: "Interior Finishes", line: "Casework & Millwork", costCode: "06-4000", trade: "Carpentry", package: "Carpentry — TrueFrame" }; }
+  if (t.id === "ti-finish-elec") { t.cost = { estimate: 118400, committed: 116200, actual: 0 }; t.floatDays = 0; t.mapping = { section: "Electrical", line: "Devices, Fixtures & Trim", costCode: "26-5000", trade: "Electrical", package: "Electrical — Spark Electric" }; }
+  if (t.id === "ti-storefront") { t.notes = "Glazing package delivered 7 days late by supplier."; t.floatDays = 9; }
+  if (t.id === "ti-paint") { t.floatDays = 0; t.labor = labor(3, 8, 148); t.mapping = { section: "Interior Finishes", line: "Painting", costCode: "09-9100", trade: "Painting" }; }
+  if (t.id === "ti-glass") t.floatDays = 6;
+  if (t.id === "ti-signage") t.floatDays = 11;
+  if (t.floatDays === undefined) t.floatDays = t.critical ? 0 : Math.max(0, dayDiff(t.finish, t.baselineFinish) + 5);
 });
+
+/* ---------- supervision labor scope (no single task) ---------- */
+export interface LaborScope { id: string; projectId: string; scope: string; taskId?: string; estHours: number; actualHours: number; forecastHours: number; progress: number }
+export const laborScopes: LaborScope[] = [
+  { id: "ls-trim", projectId: "downtown-ti", scope: "Interior Trim", taskId: "ti-trim", estHours: 160, actualHours: 142, forecastHours: 186, progress: 45 },
+  { id: "ls-floor", projectId: "downtown-ti", scope: "Flooring", taskId: "ti-flooring", estHours: 120, actualHours: 88, forecastHours: 116, progress: 80 },
+  { id: "ls-super", projectId: "downtown-ti", scope: "Supervision", estHours: 90, actualHours: 72, forecastHours: 94, progress: 76 },
+  { id: "ls-gc", projectId: "downtown-ti", scope: "General Conditions Labor", estHours: 140, actualHours: 104, forecastHours: 138, progress: 76 },
+];
+export const laborConsumedPct = (s: LaborScope) => Math.round((s.actualHours / s.estHours) * 100);
+export const productionState = (s: LaborScope): "Production Risk" | "On Pace" | "Ahead of Estimate" => {
+  const gap = laborConsumedPct(s) - s.progress;
+  return gap > 12 ? "Production Risk" : gap < -12 ? "Ahead of Estimate" : "On Pace";
+};
+export const productionImpact = (s: LaborScope) => {
+  const delta = s.forecastHours - s.estHours;
+  if (productionState(s) === "Production Risk")
+    return `${s.scope} has consumed ${laborConsumedPct(s)}% of estimated labor while only ${s.progress}% of scheduled work is complete. Current production suggests approximately ${Math.abs(Math.round(delta))} hours of labor overrun.`;
+  if (productionState(s) === "Ahead of Estimate")
+    return `${s.scope} is producing ahead of estimate — ${laborConsumedPct(s)}% of estimated labor consumed against ${s.progress}% installed. If production holds, labor finishes roughly ${Math.abs(Math.round(delta))} hours under budget.`;
+  return `${s.scope} is tracking within tolerance: ${laborConsumedPct(s)}% of estimated labor consumed against ${s.progress}% installed progress.`;
+};
 
 export const phasesFor = (projectId: string) => (projectId === "downtown-ti" ? tiPhases : residentialPhases);
 export const tasksFor = (projectId: string) => scheduleTasks.filter(t => t.projectId === projectId);
@@ -210,3 +264,59 @@ export const todaysWork = (projectId: string) => tasksFor(projectId).filter(t =>
 export const upcoming = (projectId: string, n = 7) => tasksFor(projectId).filter(t => t.start > TODAY).sort((a, b) => a.start.localeCompare(b.start)).slice(0, n);
 export const lateTasks = (projectId: string) => tasksFor(projectId).filter(t => t.status === "Delayed" || (t.status !== "Complete" && t.finish < TODAY));
 export const criticalTasks = (projectId: string) => tasksFor(projectId).filter(t => t.critical && t.status !== "Complete");
+
+/* ---------- schedule health ---------- */
+export type HealthState = "On Track" | "At Risk" | "Delayed";
+export interface ScheduleHealth { state: HealthState; summary: string; tone: string }
+export const scheduleHealth = (projectId: string): ScheduleHealth => {
+  const s = statusFor(projectId);
+  const delayed = tasksFor(projectId).filter(t => t.status === "Delayed").length;
+  const critical = tasksFor(projectId).filter(t => t.critical && t.status !== "Complete").length;
+  const state: HealthState = s.variance >= 15 || delayed >= 5 ? "Delayed" : s.variance > 0 || delayed > 0 ? "At Risk" : "On Track";
+  const summary = state === "On Track"
+    ? `Forecast completion is holding to the ${fmtLong(s.baselineFinish)} baseline with no delayed activities.`
+    : `Project completion is currently forecast ${s.variance} days beyond baseline, with ${critical} critical activities remaining and ${delayed} delayed activities.`;
+  return { state, summary, tone: state === "On Track" ? "bg-success/15 text-success" : state === "At Risk" ? "bg-warning/20 text-warning" : "bg-destructive/15 text-destructive" };
+};
+
+/* ---------- 2 week look ahead ---------- */
+export const lookAheadWindow = (days = 14) => ({ from: TODAY, to: addDays(TODAY, days) });
+export const lookAheadTasks = (projectId: string, days = 14) => {
+  const { from, to } = lookAheadWindow(days);
+  return tasksFor(projectId).filter(t => t.status !== "Complete" && t.start <= to && t.finish >= from)
+    .sort((a, b) => a.start.localeCompare(b.start));
+};
+
+/* ---------- manpower forecast ---------- */
+const crewSplit: Record<string, number> = { trueframe: 6, "spark-electric": 4, aquaflow: 3, climateworks: 5, "queen-city-drywall": 4, "": 4 };
+export const manpowerForecast = (projectId: string, days = 10) => {
+  const out: { date: string; total: number; byCompany: { name: string; count: number }[] }[] = [];
+  for (let i = 0; i < days * 1.5 && out.length < days; i++) {
+    const day = addDays(TODAY, i);
+    const w = d(day).getDay();
+    if (w === 0 || w === 6) continue;
+    const active = tasksFor(projectId).filter(t => t.start <= day && t.finish >= day && t.status !== "Complete" && t.category !== "milestone");
+    const map = new Map<string, number>();
+    active.forEach(t => {
+      const crew = t.labor?.crew ?? crewSplit[t.companyId ?? ""] ?? 3;
+      map.set(t.assignee, (map.get(t.assignee) ?? 0) + crew);
+    });
+    const byCompany = Array.from(map, ([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+    out.push({ date: day, total: byCompany.reduce((s, c) => s + c.count, 0), byCompany });
+  }
+  return out;
+};
+
+/* ---------- euclid impact for a schedule activity ---------- */
+export const taskImpact = (task: ScheduleTask): string => {
+  const succ = successorsOf(task.id);
+  const slip = dayDiff(task.baselineFinish, task.finish);
+  const names = succ.slice(0, 2).map(s => s.title).join(" and ");
+  if (task.critical)
+    return `${task.title} is on the critical path with zero total float. A 3-day delay moves current projected completion by approximately 3 days unless ${names || "successor work"} is resequenced.`;
+  if (slip > 0)
+    return `${task.title} moved ${slip} days later but currently has ${task.floatDays ?? 0} days of total float. Project completion is not yet affected${names ? `, though ${names} compresses` : ""}.`;
+  if (succ.length)
+    return `${names} cannot begin until ${task.title} is complete. It currently holds ${task.floatDays ?? 0} days of float before downstream work is affected.`;
+  return `${task.title} has ${task.floatDays ?? 0} days of total float and no downstream successors on the current sequence.`;
+};
