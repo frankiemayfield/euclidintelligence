@@ -182,7 +182,31 @@ const contextSuggestions: Record<string, string[]> = {
   ],
 };
 
+const networkSuggestions = {
+  "/network": [
+    "Which subcontractors are out of compliance?",
+    "Who have we worked with on the most projects?",
+    "Which vendors have raised prices recently?",
+    "Show subs qualified for framing work",
+  ],
+  "/compliance": [
+    "What expires in the next 30 days?",
+    "Which companies are missing a W-9?",
+    "Summarize compliance risk across active projects",
+    "What did the last document upload change?",
+  ],
+  "/activity": [
+    "Summarize this week's activity",
+    "What changed on Fregolle Residence?",
+    "Which items still need my response?",
+  ],
+};
+Object.assign(contextSuggestions, networkSuggestions);
+
 const initialResponses: Record<string, string> = {
+  "/network": "Your network has 16 companies — 7 subcontractors, 6 clients, and 3 vendors. 1 sub is out of compliance and 1 expires within 30 days. Who are you looking for?",
+  "/compliance": "3 companies need attention: Spark Electric is out of compliance (workers comp expired), TrueFrame's auto policy expires 10/01, and Riverstone is missing a W-9. Upload documents and I'll extract and validate them.",
+  "/activity": "Here's everything happening across your projects, bids, compliance, and cost activity. Ask me to summarize any stream.",
   "/app": "Welcome back. You have 6 active projects — 1 is below margin target and 1 proposal is ready to send. How can I help?",
   "/app/upload": "I can see uploaded project files. I'll help classify documents and suggest the best workflow path based on what you've uploaded.",
   "/app/scope-analyzer": "I've loaded the scope data for Fregolle Residence. I can see 10 takeoff items — 4 need review and 2 have low confidence. How can I help?",

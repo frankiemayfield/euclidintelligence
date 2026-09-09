@@ -30,6 +30,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const getSection = (): GlobalSection => {
     if (location.pathname === "/app" || location.pathname === "/app/") return "dashboard";
     if (location.pathname === "/app/settings") return "settings";
+    if (!location.pathname.startsWith("/app/")) return "dashboard";
     return "estimator";
   };
   const section = getSection();
