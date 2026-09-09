@@ -225,6 +225,19 @@
     backdrop-filter: blur(24px) saturate(140%);
   }
 
+  .odyssey-app main[data-dense-workspace="true"] .odyssey-surface,
+  .odyssey-app main[data-dense-workspace="true"] .bg-card,
+  .odyssey-app main[data-dense-workspace="true"] .bg-background {
+    background-color: hsl(var(--card) / 0.92);
+    backdrop-filter: blur(24px) saturate(118%);
+  }
+
+  .dark .odyssey-app main[data-dense-workspace="true"] .odyssey-surface,
+  .dark .odyssey-app main[data-dense-workspace="true"] .bg-card,
+  .dark .odyssey-app main[data-dense-workspace="true"] .bg-background {
+    background-color: hsl(var(--card) / 0.94);
+  }
+
   .odyssey-app main .bg-card,
   .odyssey-app main .bg-background {
     background-color: hsl(var(--card) / 0.74);
