@@ -84,7 +84,7 @@ export default function SubBidLevelingPage() {
       <div className="p-6 lg:p-8 max-w-6xl">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Bid Leveling</h1>
+             <h1 className="font-display text-2xl font-bold text-foreground">Bid Packages</h1>
             <p className="text-sm text-muted-foreground mt-1">{project.name} — GC package vs TrueFrame quote coverage and revision history</p>
           </div>
           <Button size="sm" className="gap-1.5" onClick={() => setTransition(true)}>
