@@ -14,11 +14,11 @@
 - [x] Add environment-aware light and dark readability treatments across all tracks
 
 # Scope Analyzer IA simplification
-- [ ] Build one shared Builder/Sub Scope Analyzer shell with track-specific final steps
-- [ ] Add compact readiness ribbon and exact tab sets
-- [ ] Rebuild Quantity Takeoff with working filters, selection, expanded evidence, and retained plan viewer
-- [ ] Combine assumptions and issues into an actionable Review queue
-- [ ] Add shared Builder Scope Structure and Sub Quote Structure mapping views
-- [ ] Add Builder Bid Packages and Sub Build Estimate transitions
-- [ ] Update per-tab Euclid assistant context and dense-workspace glass opacity
-- [ ] Verify Builder/Sub workflows, takeoff tools, light/dark appearance, and clean build
+- [x] Build one shared Builder/Sub Scope Analyzer shell with track-specific final steps
+- [x] Add compact readiness ribbon and exact tab sets
+- [x] Rebuild Quantity Takeoff with working filters, selection, expanded evidence, and retained plan viewer
+- [x] Combine assumptions and issues into an actionable Review queue
+- [x] Add shared Builder Scope Structure and Sub Quote Structure mapping views
+- [x] Add Builder Bid Packages and Sub Build Estimate transitions
+- [x] Update per-tab Euclid assistant context and dense-workspace glass opacity
+- [x] Verify Builder/Sub workflows, takeoff tools, light/dark appearance, and clean build

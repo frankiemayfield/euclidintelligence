@@ -1,89 +1,30 @@
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Lock, Save, Play, ChevronDown } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import type { ScopeProject, VersionStatus } from "@/data/scopeAnalyzerData";
-import { countItems } from "@/data/scopeAnalyzerData";
+import { Play, Save } from "lucide-react";
+import type { ScopeProject } from "@/data/scopeAnalyzerData";
 
 interface Props {
   project: ScopeProject;
+  extracted: number;
+  needsReview: number;
+  structured: number;
+  scaleDerived: number;
+  lowConfidence: number;
+  openIssues: number;
   onRunAnalysis: () => void;
   onSaveDraft: () => void;
-  onLockScope: () => void;
 }
 
-const statusColors: Record<VersionStatus, string> = {
-  Draft: "bg-muted text-muted-foreground",
-  "In Review": "bg-warning/15 text-warning border-warning/30",
-  Ready: "bg-success/15 text-success border-success/30",
-  Locked: "bg-primary/15 text-primary border-primary/30",
-};
-
-export function ScopeHeader({ project, onRunAnalysis, onSaveDraft, onLockScope }: Props) {
-  const stats = countItems(project);
-  const canLock = stats.needsReview === 0 && stats.missingCostCodes === 0;
-
-  const pills = [
-    { label: "Parent Scopes", value: stats.parentScopes },
-    { label: "Trades", value: stats.trades },
-    { label: "Assemblies", value: stats.assemblies },
-    { label: "Line Items", value: stats.lineItems },
-    { label: "Needs Review", value: stats.needsReview, warn: stats.needsReview > 0 },
-    { label: "Missing Codes", value: stats.missingCostCodes, warn: stats.missingCostCodes > 0 },
-    { label: "Low Confidence", value: stats.lowConfidence, warn: stats.lowConfidence > 0 },
-    { label: "Missing Takeoffs", value: stats.missingTakeoffs, warn: stats.missingTakeoffs > 0 },
-  ];
-
-  return (
-    <div className="border-b border-border bg-card">
-      {/* Main header row */}
-      <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold text-foreground font-heading">Scope Analyzer</h1>
-            <Badge variant="outline" className={statusColors[project.status]}>{project.status}</Badge>
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5">Structure the full project scope, connect sources, add takeoffs, and route scope downstream.</p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Select defaultValue={project.id}>
-            <SelectTrigger className="h-8 w-[220px] text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={project.id}>{project.name}</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={onRunAnalysis}>
-            <Play className="h-3 w-3" /> Run Analysis
-          </Button>
-          <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={onSaveDraft}>
-            <Save className="h-3 w-3" /> Save Draft
-          </Button>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>
-                <Button size="sm" className="h-8 text-xs gap-1.5" onClick={onLockScope} disabled={!canLock}>
-                  <Lock className="h-3 w-3" /> Lock Scope
-                </Button>
-              </span>
-            </TooltipTrigger>
-            {!canLock && (
-              <TooltipContent side="bottom" className="text-xs max-w-xs">
-                <p>Cannot lock scope:</p>
-                <ul className="list-disc pl-4 mt-1">
-                  {stats.needsReview > 0 && <li>{stats.needsReview} items need review</li>}
-                  {stats.missingCostCodes > 0 && <li>{stats.missingCostCodes} items missing cost codes</li>}
-                </ul>
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </div>
-      </div>
-
+export function ScopeHeader({ project, extracted, needsReview, structured, scaleDerived, lowConfidence, openIssues, onRunAnalysis, onSaveDraft }: Props) {
+  return <header className="border-b border-border">
+    <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+      <div className="min-w-0"><div className="flex items-center gap-2.5"><h1 className="font-heading text-lg font-semibold">Scope Analyzer</h1><Badge variant="outline" className="rounded-md bg-muted/50 text-[10px] text-muted-foreground">{project.status}</Badge></div><p className="mt-0.5 text-xs text-muted-foreground">Validate plan quantities, resolve judgment calls, and structure scope for estimating.</p></div>
+      <div className="flex items-center gap-2"><Select defaultValue={project.id}><SelectTrigger className="h-8 w-[220px] text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value={project.id}>{project.name}</SelectItem></SelectContent></Select><Button variant="outline" size="sm" className="h-8 text-xs" onClick={onRunAnalysis}><Play /> Run Analysis</Button><Button variant="outline" size="sm" className="h-8 text-xs" onClick={onSaveDraft}><Save /> Save Draft</Button></div>
     </div>
-  );
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-border/70 bg-muted/20 px-5 py-2 text-xs">
+      <span className="font-semibold">{extracted} items extracted</span><span className="text-muted-foreground">·</span><span className={needsReview ? "font-medium text-warning" : "text-muted-foreground"}>{needsReview} need review</span><span className="text-muted-foreground">·</span><span className="font-medium">{structured}/{extracted} structured</span>
+      <span className="ml-2 text-[11px] text-muted-foreground">{scaleDerived} derived from scale</span><span className="text-muted-foreground">·</span><span className={lowConfidence ? "text-destructive" : "text-muted-foreground"}>{lowConfidence} low confidence</span><span className="text-muted-foreground">·</span><span className={openIssues ? "text-warning" : "text-muted-foreground"}>{openIssues} open issues</span>
+    </div>
+  </header>;
 }

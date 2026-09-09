@@ -1,6 +1,6 @@
 import { Send, X, FileText, XCircle, Minus } from "lucide-react";
 import { EuclidCompass } from "./EuclidBrand";
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 type Message = { role: "euclid" | "user"; content: string; references?: { label: string; type: string }[] };
@@ -230,15 +230,27 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
   const [input, setInput] = useState("");
   const [lastPath, setLastPath] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [scopeContext, setScopeContext] = useState<{ summary: string; tab: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentPath = location.pathname;
   const suggestions = contextSuggestions[currentPath] || contextSuggestions["/app/scope-analyzer"]!;
 
+  useEffect(() => {
+    const updateContext = (event: Event) => setScopeContext((event as CustomEvent<{ summary: string; tab: string }>).detail);
+    window.addEventListener("euclid-scope-context", updateContext);
+    return () => window.removeEventListener("euclid-scope-context", updateContext);
+  }, []);
+
+  useEffect(() => {
+    if (!currentPath.endsWith("/scope-analyzer") || !scopeContext) return;
+    setMessages(current => current.length === 1 && current[0]?.role === "euclid" ? [{ role: "euclid", content: scopeContext.summary }] : current);
+  }, [currentPath, scopeContext]);
+
   // Reset messages when context changes
   if (currentPath !== lastPath) {
     setLastPath(currentPath);
-    const initialMsg = initialResponses[currentPath];
+    const initialMsg = currentPath.endsWith("/scope-analyzer") && scopeContext ? scopeContext.summary : initialResponses[currentPath];
     if (initialMsg) {
       setMessages([{ role: "euclid", content: initialMsg }]);
     }
