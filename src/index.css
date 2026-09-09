@@ -148,8 +148,8 @@
     background-size: cover;
     background-position: var(--env-position, 50% 45%);
     background-repeat: no-repeat;
-    opacity: 0.7;
-    filter: saturate(0.8) contrast(0.92) brightness(1.05);
+    opacity: 0.85;
+    filter: saturate(0.85) contrast(0.95) brightness(1.02);
     animation: workspace-environment-in 300ms ease-out;
   }
 
@@ -161,19 +161,18 @@
   .workspace-environment-wash {
     background: linear-gradient(
       180deg,
-      hsl(var(--card) / 0.94) 0%,
-      hsl(var(--card) / 0.86) 12%,
-      hsl(var(--card) / 0.66) 26%,
-      hsl(var(--card) / 0.36) 38%,
-      hsl(var(--card) / 0.12) 48%,
-      transparent 62%
+      hsl(var(--card) / 0.82) 0%,
+      hsl(var(--card) / 0.62) 12%,
+      hsl(var(--card) / 0.34) 24%,
+      hsl(var(--card) / 0.14) 34%,
+      transparent 46%
     );
   }
 
   .workspace-environment-overlay {
     background:
-      radial-gradient(120% 90% at 50% 30%, transparent 0%, hsl(var(--background) / 0.3) 100%),
-      linear-gradient(180deg, transparent 55%, hsl(var(--background) / 0.28) 100%);
+      radial-gradient(120% 90% at 50% 28%, transparent 30%, hsl(var(--background) / 0.22) 100%),
+      linear-gradient(180deg, transparent 60%, hsl(var(--background) / 0.2) 100%);
   }
 
   .workspace-environment[data-environment="da-vinci"] .workspace-environment-image { opacity: 0.6; filter: saturate(0.74) contrast(0.9) brightness(1.1); }
@@ -190,19 +189,18 @@
   .dark .workspace-environment-wash {
     background: linear-gradient(
       180deg,
-      hsl(var(--background) / 0.96) 0%,
-      hsl(var(--background) / 0.9) 14%,
-      hsl(var(--background) / 0.72) 27%,
-      hsl(var(--background) / 0.46) 37%,
-      hsl(var(--background) / 0.2) 47%,
-      transparent 62%
+      hsl(var(--background) / 0.9) 0%,
+      hsl(var(--background) / 0.72) 14%,
+      hsl(var(--background) / 0.44) 26%,
+      hsl(var(--background) / 0.18) 36%,
+      transparent 48%
     );
   }
 
   .dark .workspace-environment-overlay {
     background:
-      radial-gradient(130% 95% at 50% 32%, transparent 0%, hsl(var(--background) / 0.55) 100%),
-      linear-gradient(180deg, transparent 52%, hsl(var(--background) / 0.42) 100%);
+      radial-gradient(130% 95% at 50% 30%, transparent 28%, hsl(var(--background) / 0.45) 100%),
+      linear-gradient(180deg, transparent 58%, hsl(var(--background) / 0.34) 100%);
   }
 
   @keyframes workspace-environment-in {
