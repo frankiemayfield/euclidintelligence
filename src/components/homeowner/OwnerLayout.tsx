@@ -92,7 +92,7 @@ export function OwnerLayout({ children }: { children: React.ReactNode }) {
         )}
 
         {/* Main */}
-        <main className="min-w-0 flex-1 overflow-y-auto rounded-2xl">{children}</main>
+        <main className="min-w-0 flex-1 overflow-y-auto odyssey-scroll-fade rounded-2xl">{children}</main>
 
         {/* Atlas Panel */}
         {showAtlas && <AtlasPanel isOpen={atlasOpen} onClose={() => setAtlasOpen(false)} />}
