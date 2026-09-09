@@ -25,6 +25,10 @@ import NetworkPage from "./pages/network/NetworkPage";
 import CompanyProfilePage from "./pages/network/CompanyProfilePage";
 import CompliancePage from "./pages/compliance/CompliancePage";
 import ActivityPage from "./pages/ActivityPage";
+import ActiveProjectsPage from "./pages/active/ActiveProjectsPage";
+import ProjectWorkspacePage from "./pages/active/ProjectWorkspacePage";
+import SchedulePage from "./pages/active/SchedulePage";
+import TimeClockPage from "./pages/active/TimeClockPage";
 
 // Auth pages
 import SignInPage from "./pages/auth/SignInPage";
@@ -108,6 +112,13 @@ const App = () => (
                 <Route path="/app/proposal" element={<BuilderGuard><ProposalPage /></BuilderGuard>} />
                 <Route path="/app/est-vs-actual" element={<BuilderGuard><EstVsActualPage /></BuilderGuard>} />
                 <Route path="/app/settings" element={<BuilderGuard><SettingsPage /></BuilderGuard>} />
+
+                {/* Builder construction operations */}
+                <Route path="/app/active" element={<BuilderGuard><ActiveProjectsPage /></BuilderGuard>} />
+                <Route path="/app/active/:projectId" element={<BuilderGuard><ProjectWorkspacePage /></BuilderGuard>} />
+                <Route path="/app/active/:projectId/:tab" element={<BuilderGuard><ProjectWorkspacePage /></BuilderGuard>} />
+                <Route path="/app/schedule" element={<BuilderGuard><SchedulePage /></BuilderGuard>} />
+                <Route path="/app/time" element={<BuilderGuard><TimeClockPage /></BuilderGuard>} />
 
                 {/* Subcontractor routes */}
                 <Route path="/sub" element={<SubGuard><SubDashboardPage /></SubGuard>} />
