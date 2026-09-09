@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 export default function SchedulePage() {
   const track = useTrack();
-  const list = projects.filter(p => statusFor(p.id).mode !== "none");
+  const list = projects.filter(p => statusFor(p.id).mode !== "none").sort((a, b) => (statusFor(a.id).mode === "active" ? -1 : 1) - (statusFor(b.id).mode === "active" ? -1 : 1));
   const [projectId, setProjectId] = useState(list[0]?.id ?? "downtown-ti");
   const project = getProject(projectId);
 

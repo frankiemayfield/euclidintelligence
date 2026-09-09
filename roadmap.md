@@ -47,3 +47,10 @@
 - [x] Add Settings → Compliance Requirements
 - [x] Add More menu (Network, Compliance, Activity, Settings) and shared routes
 - [x] Link compliance into Bid Packages and cost sources into Network profiles
+
+## Active Projects, Schedule & Time Clock (done)
+- [x] Active project portfolio + project workspace tabs (Overview, Activity, Schedule, Time, Costs, Team, Documents)
+- [x] Calendar / List / Gantt / Timeline schedule with phases, dependencies, critical path, baseline, lock, draft/published
+- [x] Time Clock (company + project) with cost-code mapping
+- [x] Header: Home | Activity | Pre-Construction | Active Projects (dropdown) | More
+- [x] Filtered global Activity feed

@@ -82,7 +82,7 @@ export function TimeClockPanel({ projectId, scopeCompanyId, companyLevel }: { pr
                     <td className="px-3 py-2">{e.regular}</td>
                     <td className="px-3 py-2">{e.overtime || "—"}</td>
                     <td className="px-3 py-2 text-muted-foreground">{e.phase} / {e.costCode}</td>
-                    <td className="px-3 py-2 font-semibold">{money(e.regular * w.rate + e.overtime * w.rate * 1.5)}</td>
+                    <td className="px-3 py-2 font-semibold">{money(Math.round(e.regular * w.rate + e.overtime * w.rate * 1.5))}</td>
                     <td className="px-3 py-2"><span className={cn("rounded-full px-2 py-0.5 text-[9px] font-semibold", statusTone[e.status])}>{e.status}</span>{e.notes && <span className="ml-1 inline-block align-middle" title={e.notes}><Pencil size={9} className="text-muted-foreground" /></span>}</td>
                   </tr>
                 );
