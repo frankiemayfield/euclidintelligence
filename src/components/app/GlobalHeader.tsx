@@ -1,4 +1,4 @@
-import { Activity, Bell, Building2, ChevronDown, CheckCheck, MessageSquare, Settings, ShieldCheck, UserRound, X } from "lucide-react";
+import { Activity, Bell, Building2, CalendarRange, ChevronDown, CheckCheck, Clock3, HardHat, MessageSquare, Settings, ShieldCheck, UserRound, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,12 @@ export function GlobalHeader({ track }: { track: Track }) {
       <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark className="h-auto w-[132px]"/></Link>
       <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
         {navItems.map(item=><Link key={item.id} to={item.to} className={cn("rounded-full px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",section===item.id&&"bg-card/70 text-foreground shadow-sm backdrop-blur-md")}>{item.label}</Link>)}
+        <div className="relative">
+          <button onClick={()=>{setActiveOpen(v=>!v);setMoreOpen(false);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)}} className={cn("flex items-center gap-1 rounded-full px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",section==="active"&&"bg-card/70 text-foreground shadow-sm backdrop-blur-md")}>{config.activeLabel} <ChevronDown size={13}/></button>
+          {activeOpen&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
+            {activeItems.map(item=><Link key={item.label} to={item.to} onClick={()=>setActiveOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground"><item.icon size={14}/>{item.label}</Link>)}
+          </div>}
+        </div>
         <div className="relative">
           <button onClick={()=>{setMoreOpen(v=>!v);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)}} className={cn("flex items-center gap-1 rounded-full px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",section==="more"&&"bg-card/70 text-foreground shadow-sm backdrop-blur-md")}>More <ChevronDown size={13}/></button>
           {moreOpen&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
