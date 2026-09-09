@@ -80,7 +80,7 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
         )}
 
         {/* Main + Euclid */}
-        <main className="min-w-0 flex-1 overflow-y-auto rounded-2xl">{children}</main>
+        <main data-dense-workspace={location.pathname.includes("scope-analyzer") || location.pathname.includes("estimate-builder") || location.pathname.includes("bid-leveling") || location.pathname.includes("market-comparison") || location.pathname.includes("estimate-comparison") ? "true" : undefined} className="min-w-0 flex-1 overflow-y-auto rounded-2xl">{children}</main>
 
         {/* Euclid Panel */}
         {showAtlas && <AtlasPanel isOpen={atlasOpen} onClose={() => setAtlasOpen(false)} />}
