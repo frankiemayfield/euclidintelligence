@@ -84,7 +84,7 @@ export function WorkspaceAppearancePicker() {
                     height={400}
                   />
                   {selected && (
-                    <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-[hsl(var(--env-accent))] text-white shadow-md">
+                    <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-[hsl(var(--env-accent))] text-primary-foreground shadow-md">
                       <Check size={14} />
                     </span>
                   )}
