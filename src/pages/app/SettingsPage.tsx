@@ -1,6 +1,6 @@
-import { ShieldCheck, AppLayout } from "@/components/app/AppLayout";
+import { AppLayout } from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Upload, Sun, Moon, Monitor, Users, Link2, Settings2, Building2, Palette, Calculator, DollarSign, FileOutput, Bell, Shield, Globe, Check } from "lucide-react";
+import { ShieldCheck, Upload, Sun, Moon, Monitor, Users, Link2, Settings2, Building2, Palette, Calculator, DollarSign, FileOutput, Bell, Shield, Globe, Check } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
 import { WorkspaceAppearancePicker } from "@/components/app/WorkspaceAppearancePicker";
