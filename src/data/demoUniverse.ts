@@ -96,6 +96,25 @@ export const framingBidPool: Record<string, { companyId: string; amount: number;
     { companyId: "queen-city-framing", amount: 257900, addBacks: 0, coverage: 96, note: "Complete scope; longer schedule" },
     { companyId: "precision-structural", amount: 242300, addBacks: 19400, coverage: 84, note: "Lowest base; excludes hardware and roof sheathing" },
   ],
+  "maple-street": [
+    { companyId: "trueframe", amount: 31250, addBacks: 0, coverage: 100, note: "Current structural framing package" },
+    { companyId: "queen-city-framing", amount: 33800, addBacks: 0, coverage: 98, note: "Complete scope; two-week lead time" },
+    { companyId: "precision-structural", amount: 28700, addBacks: 4200, coverage: 88, note: "Excludes temporary support and patch framing" },
+  ],
+  oakwood: [
+    { companyId: "trueframe", amount: 172400, addBacks: 0, coverage: 100, note: "Selected complete framing quote" },
+    { companyId: "queen-city-framing", amount: 181900, addBacks: 0, coverage: 97, note: "Complete alternate proposal" },
+    { companyId: "precision-structural", amount: 165800, addBacks: 12400, coverage: 89, note: "Hardware and crane time excluded" },
+  ],
+  riverside: [
+    { companyId: "trueframe", amount: 64800, addBacks: 0, coverage: 42, note: "Preliminary allowance pending structural plans" },
+    { companyId: "queen-city-framing", amount: 0, addBacks: 0, coverage: 0, note: "Invitation sent — awaiting bid" },
+  ],
+  "downtown-ti": [
+    { companyId: "trueframe", amount: 92750, addBacks: 0, coverage: 100, note: "Awarded carpentry package" },
+    { companyId: "queen-city-framing", amount: 98600, addBacks: 0, coverage: 100, note: "Final comparison bid" },
+    { companyId: "precision-structural", amount: 89900, addBacks: 7600, coverage: 91, note: "Excludes night-shift premium" },
+  ],
 };
 
 export const activities = [
