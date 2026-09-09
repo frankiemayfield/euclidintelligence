@@ -242,6 +242,11 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
     return () => window.removeEventListener("euclid-scope-context", updateContext);
   }, []);
 
+  useEffect(() => {
+    if (!currentPath.endsWith("/scope-analyzer") || !scopeContext) return;
+    setMessages(current => current.length === 1 && current[0]?.role === "euclid" ? [{ role: "euclid", content: scopeContext.summary }] : current);
+  }, [currentPath, scopeContext]);
+
   // Reset messages when context changes
   if (currentPath !== lastPath) {
     setLastPath(currentPath);
