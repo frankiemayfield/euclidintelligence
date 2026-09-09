@@ -2,6 +2,7 @@ import { SubLayout } from "@/components/sub/SubLayout";
 import { TrendingUp, TrendingDown, AlertTriangle, Download, Filter, Target, ShieldCheck, Gauge } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 const tradeCategories = [
   { category: "Labor", yourCost: 8188, yourSell: 10310, benchmark: 9800, variance: 5.2 },
@@ -16,6 +17,7 @@ const tradeCategories = [
 const fmt = (n: number) => `$${n.toLocaleString()}`;
 
 export default function SubMarketComparisonPage() {
+  const { project, quote } = useDemoProject();
   const [filter, setFilter] = useState<"all" | "above" | "below" | "in-range">("all");
 
   const totalSell = tradeCategories.reduce((s, t) => s + t.yourSell, 0);
@@ -39,7 +41,7 @@ export default function SubMarketComparisonPage() {
       <div className="p-6 lg:p-8 max-w-[1400px] space-y-6">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Market Comparison</h1>
-          <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — Framing quote benchmarked against similar quotes</p>
+           <p className="text-sm text-muted-foreground mt-1">{project.name} — Framing quote {quote.currentAmount ? `$${quote.currentAmount.toLocaleString()}` : "in development"}</p>
         </div>
 
         {/* Score Panel */}
@@ -51,7 +53,7 @@ export default function SubMarketComparisonPage() {
                   <circle cx="32" cy="32" r="26" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
                   <circle cx="32" cy="32" r="26" fill="none" stroke="hsl(var(--primary))" strokeWidth="4" strokeDasharray="163.4" strokeDashoffset="30" strokeLinecap="round" />
                 </svg>
-                <span className="absolute inset-0 flex items-center justify-center font-display text-xl font-bold text-primary">82</span>
+                 <span className="absolute inset-0 flex items-center justify-center font-display text-xl font-bold text-primary">{project.subProposalScore ?? "—"}</span>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Proposal Score</p>
@@ -60,11 +62,11 @@ export default function SubMarketComparisonPage() {
             </div>
             <div className="hidden md:block w-px h-12 bg-border" />
             <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1 text-xs">
-              <div><span className="text-muted-foreground">Compared Against</span> <span className="text-foreground font-medium ml-1">4,280 framing quotes</span></div>
-              <div><span className="text-muted-foreground">Region</span> <span className="text-foreground font-medium ml-1">Midwest</span></div>
-              <div><span className="text-muted-foreground">Project Type</span> <span className="text-foreground font-medium ml-1">Remodel</span></div>
+               <div><span className="text-muted-foreground">Compared Against</span> <span className="text-foreground font-medium ml-1">{project.benchmark.sampleCount.toLocaleString()} framing quotes</span></div>
+               <div><span className="text-muted-foreground">Region</span> <span className="text-foreground font-medium ml-1">Cincinnati, Ohio</span></div>
+               <div><span className="text-muted-foreground">Project Type</span> <span className="text-foreground font-medium ml-1">{project.type}</span></div>
               <div><span className="text-muted-foreground">Size Band</span> <span className="text-foreground font-medium ml-1">2,000–4,000 SF</span></div>
-              <div><span className="text-muted-foreground">Spec Level</span> <span className="text-foreground font-medium ml-1">Premium</span></div>
+               <div><span className="text-muted-foreground">Spec Level</span> <span className="text-foreground font-medium ml-1">{project.specLevel}</span></div>
               <div><span className="text-muted-foreground">Trade</span> <span className="text-foreground font-medium ml-1">Framing</span></div>
             </div>
           </div>

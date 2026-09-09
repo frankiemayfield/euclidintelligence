@@ -4,6 +4,8 @@ import { AlertTriangle, ArrowRight, Check, DollarSign, Percent, TrendingUp, Eye,
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
+import { builderCostCategories } from "@/data/demoUniverse";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 type PricingMode = "Cost Plus" | "Fixed Fee" | "Lump Sum" | "GMP";
 type FeePresentation = "shown separately" | "included in total" | "internal only";
@@ -14,26 +16,17 @@ const fmt = (n: number) => `$${n.toLocaleString()}`;
 const pct = (n: number) => `${n.toFixed(1)}%`;
 
 // Base cost data from Estimate Builder
-const costCategories = [
-  { name: "Labor", base: 65280, markupEnabled: true },
-  { name: "Materials", base: 46520, markupEnabled: true },
-  { name: "Subcontractors", base: 35300, markupEnabled: true },
-  { name: "Equipment", base: 4800, markupEnabled: true },
-  { name: "General Conditions", base: 8200, markupEnabled: true },
-  { name: "Allowances", base: 6500, markupEnabled: false },
-  { name: "Other", base: 2100, markupEnabled: true },
-];
-
-const baseCost = costCategories.reduce((s, c) => s + c.base, 0);
-
 export default function PricingMarginPage() {
+  const { project } = useDemoProject();
+  const baseCost = project.builderCost ?? 0;
+  const costCategories = builderCostCategories.map(category => ({ name: category.name, base: Math.round(baseCost * category.share), markupEnabled: true }));
   const [marketTransition, setMarketTransition] = useState(false);
   const [pricingMode, setPricingMode] = useState<PricingMode>("Cost Plus");
   const [overhead, setOverhead] = useState(8);
-  const [profit, setProfit] = useState(10);
-  const [contingency, setContingency] = useState(5);
+  const [profit, setProfit] = useState(12);
+  const [contingency, setContingency] = useState(0);
   const [contingencyIsDollar, setContingencyIsDollar] = useState(false);
-  const [taxRate, setTaxRate] = useState(7.5);
+  const [taxRate, setTaxRate] = useState(0);
   const [taxMode, setTaxMode] = useState<"included" | "excluded" | "materials only" | "shown separately">("shown separately");
   const [fixedFee, setFixedFee] = useState(22000);
   const [gmpCeiling, setGmpCeiling] = useState(210000);
@@ -43,7 +36,7 @@ export default function PricingMarginPage() {
   const [categoryMarkup, setCategoryMarkup] = useState<Record<string, number>>(
     Object.fromEntries(costCategories.map(c => [c.name, c.markupEnabled ? overhead + profit : 0]))
   );
-  const [targetMargin, setTargetMargin] = useState(18);
+  const [targetMargin, setTargetMargin] = useState(16.7);
 
   // Calculations
   const effectiveMarkup = overhead + profit;
@@ -87,7 +80,7 @@ export default function PricingMarginPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground">Pricing & Margin</h1>
-            <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — Turn estimated cost into sell price</p>
+             <p className="text-sm text-muted-foreground mt-1">{project.name} — Turn estimated cost into sell price</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">Save Strategy</Button>

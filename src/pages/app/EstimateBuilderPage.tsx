@@ -18,6 +18,7 @@ import { AlternatesSection } from "@/components/app/estimate/AlternatesSection";
 import { ReviewSection } from "@/components/app/estimate/ReviewSection";
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 type ExtractionMethod = "Explicitly Labeled" | "Derived from Scale" | "Schedule Verified" | "Assumption Applied";
 type ReviewStatus = "Auto-Extracted" | "Needs Review" | "Estimator Confirmed" | "Adjusted by User";
@@ -347,6 +348,7 @@ function BaseScopeSection() {
 }
 
 export default function EstimateBuilderPage() {
+  const { project } = useDemoProject();
   const navigate = useNavigate();
 
   const preBuildTotal = 30500;

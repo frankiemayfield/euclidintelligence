@@ -3,25 +3,18 @@ import { useState } from "react";
 import { AlertTriangle, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
+import { trueFrameCostCategories } from "@/data/demoUniverse";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 const fmt = (n: number) => `$${n.toLocaleString()}`;
 const pct = (n: number) => `${n.toFixed(1)}%`;
 
-const costCategories = [
-  { name: "Labor", base: 8188 },
-  { name: "Lumber & Materials", base: 8620 },
-  { name: "Trusses", base: 4070 },
-  { name: "Sheathing", base: 3055 },
-  { name: "Hardware", base: 1200 },
-  { name: "Headers/LVL Install", base: 810 },
-  { name: "Misc (Blocking, Shoring)", base: 1880 },
-  { name: "General Requirements", base: 1600 },
-  { name: "Pre-Build", base: 1000 },
-];
-
-const baseCost = costCategories.reduce((s, c) => s + c.base, 0);
-
 export default function SubPricingMarginPage() {
+  const { project, quote } = useDemoProject();
+  const targetBase = quote.currentAmount ? quote.currentAmount / 1.25 : quote.preliminaryAmount ?? 0;
+  const referenceBase = trueFrameCostCategories.reduce((sum, category) => sum + category.base, 0);
+  const costCategories = trueFrameCostCategories.map(category => ({ ...category, base: Math.round(targetBase * category.base / referenceBase) }));
+  const baseCost = costCategories.reduce((sum, category) => sum + category.base, 0);
   const [marketTransition, setMarketTransition] = useState(false);
   const [overhead, setOverhead] = useState(8);
   const [profit, setProfit] = useState(12);
@@ -43,7 +36,7 @@ export default function SubPricingMarginPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground">Pricing & Margin</h1>
-            <p className="text-sm text-muted-foreground mt-1">Maple St. Kitchen Remodel — Turn estimated cost into bid price to GC</p>
+             <p className="text-sm text-muted-foreground mt-1">{project.name} — Turn estimated cost into bid price to Mayfield & Co.</p>
           </div>
           <Button size="sm" className="gap-1.5" onClick={() => setMarketTransition(true)}>
             <BarChart3 size={14} />

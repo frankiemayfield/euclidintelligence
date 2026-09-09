@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { TradeComparisonTable } from "@/components/app/estimate-comparison/TradeComparisonTable";
 import { SuggestedActionsPanel } from "@/components/app/estimate-comparison/SuggestedActionsPanel";
 import { tradeComparisons, fmt } from "@/components/app/estimate-comparison/tradeData";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 type FilterMode = "all" | "above" | "below" | "in-range";
 type CompareMode = "sell" | "cost" | "both";
 
 export default function ProposalComparisonPage() {
+  const { project } = useDemoProject();
   const [searchParams] = useSearchParams();
   const isUploadSource = searchParams.get("source") === "upload";
 
@@ -63,7 +65,7 @@ export default function ProposalComparisonPage() {
           <p className="text-sm text-muted-foreground mt-1">
             {isUploadSource
               ? "Uploaded estimate — Benchmark analysis against market dataset"
-              : "Maple St. Kitchen Remodel — Market benchmark analysis"}
+               : `${project.name} — Market benchmark analysis`}
           </p>
         </div>
 
@@ -77,7 +79,7 @@ export default function ProposalComparisonPage() {
                   <circle cx="32" cy="32" r="26" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
                   <circle cx="32" cy="32" r="26" fill="none" stroke="hsl(var(--primary))" strokeWidth="4" strokeDasharray="163.4" strokeDashoffset="36" strokeLinecap="round" />
                 </svg>
-                <span className="absolute inset-0 flex items-center justify-center font-display text-xl font-bold text-primary">78</span>
+                 <span className="absolute inset-0 flex items-center justify-center font-display text-xl font-bold text-primary">{project.proposalScore ?? "—"}</span>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Proposal Score</p>
@@ -90,11 +92,11 @@ export default function ProposalComparisonPage() {
 
             {/* Market Context */}
             <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1 text-xs">
-              <div><span className="text-muted-foreground">Compared Against</span> <span className="text-foreground font-medium ml-1">20,184 estimates</span></div>
-              <div><span className="text-muted-foreground">Region</span> <span className="text-foreground font-medium ml-1">Midwest</span></div>
-              <div><span className="text-muted-foreground">Project Type</span> <span className="text-foreground font-medium ml-1">Remodel</span></div>
-              <div><span className="text-muted-foreground">Size Band</span> <span className="text-foreground font-medium ml-1">2,000–4,000 SF</span></div>
-              <div><span className="text-muted-foreground">Spec Level</span> <span className="text-foreground font-medium ml-1">Premium</span></div>
+               <div><span className="text-muted-foreground">Compared Against</span> <span className="text-foreground font-medium ml-1">{project.benchmark.sampleCount.toLocaleString()} estimates</span></div>
+               <div><span className="text-muted-foreground">Region</span> <span className="text-foreground font-medium ml-1">Cincinnati, Ohio</span></div>
+               <div><span className="text-muted-foreground">Project Type</span> <span className="text-foreground font-medium ml-1">{project.type}</span></div>
+               <div><span className="text-muted-foreground">Size Band</span> <span className="text-foreground font-medium ml-1">{project.size ? `${project.size.toLocaleString()} SF` : "Comparable scope"}</span></div>
+               <div><span className="text-muted-foreground">Spec Level</span> <span className="text-foreground font-medium ml-1">{project.specLevel}</span></div>
               <div><span className="text-muted-foreground">Pricing Mode</span> <span className="text-foreground font-medium ml-1">Cost Plus</span></div>
             </div>
           </div>
