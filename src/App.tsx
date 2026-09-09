@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AccountTypeProvider } from "@/hooks/use-account-type";
 import { AuthProvider } from "@/hooks/use-auth";
+import { DemoProjectProvider } from "@/hooks/use-demo-project";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -56,10 +57,10 @@ import HomeownerSettingsPage from "./pages/homeowner/HomeownerSettingsPage";
 const queryClient = new QueryClient();
 
 function BuilderGuard({ children }: { children: React.ReactNode }) {
-  return <AuthGuard requiredTrack="builder">{children}</AuthGuard>;
+  return <AuthGuard requiredTrack="builder"><DemoProjectProvider track="builder">{children}</DemoProjectProvider></AuthGuard>;
 }
 function SubGuard({ children }: { children: React.ReactNode }) {
-  return <AuthGuard requiredTrack="subcontractor"><SubSettingsProvider>{children}</SubSettingsProvider></AuthGuard>;
+  return <AuthGuard requiredTrack="subcontractor"><SubSettingsProvider><DemoProjectProvider track="sub">{children}</DemoProjectProvider></SubSettingsProvider></AuthGuard>;
 }
 function OwnerGuard({ children }: { children: React.ReactNode }) {
   return <AuthGuard requiredTrack="homeowner">{children}</AuthGuard>;

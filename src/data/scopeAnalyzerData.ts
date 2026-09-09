@@ -76,6 +76,7 @@ export const CSI_DIVISIONS = [
 
 export const UNITS = ["LF", "SF", "EA", "CY", "LS", "HR", "TON"] as const;
 import mainPlanAsset from "@/assets/FinalConstructionSetFregolle.pdf.asset.json";
+import { getProject } from "@/data/demoUniverse";
 
 export const MAIN_PLAN_FILE_NAME = "FinalConstructionSetFregolle.pdf";
 export const MAIN_PLAN_FILE_PATH = mainPlanAsset.url;
@@ -165,8 +166,8 @@ function li(id: string, name: string, qty: number, unit: string, cat: string, cc
 }
 
 export const mockProject: ScopeProject = {
-  id: "proj-001",
-  name: "Fregolle Residence — Custom Home",
+  id: getProject("fregolle").id,
+  name: getProject("fregolle").name,
   status: "Draft",
   parentScopes: [
     {
