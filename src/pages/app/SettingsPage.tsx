@@ -1,4 +1,4 @@
-import { AppLayout } from "@/components/app/AppLayout";
+import { ShieldCheck, AppLayout } from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Upload, Sun, Moon, Monitor, Users, Link2, Settings2, Building2, Palette, Calculator, DollarSign, FileOutput, Bell, Shield, Globe, Check } from "lucide-react";
 import { useState } from "react";
@@ -16,6 +16,7 @@ const tabs: { id: SettingsTab; label: string; icon: typeof Building2 }[] = [
   { id: "pricing", label: "Pricing Defaults", icon: DollarSign },
   { id: "proposal", label: "Proposal Defaults", icon: FileOutput },
   { id: "appearance", label: "Appearance", icon: Sun },
+  { id: "compliance", label: "Compliance Requirements", icon: ShieldCheck },
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "users", label: "Users & Permissions", icon: Users },
   { id: "integrations", label: "Integrations", icon: Link2 },
