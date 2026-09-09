@@ -132,6 +132,13 @@ const App = () => (
                 <Route path="/sub/est-vs-actual" element={<SubGuard><SubEstVsActualPage /></SubGuard>} />
                 <Route path="/sub/settings" element={<SubGuard><SubSettingsPage /></SubGuard>} />
 
+                {/* Subcontractor construction operations */}
+                <Route path="/sub/active" element={<SubGuard><ActiveProjectsPage /></SubGuard>} />
+                <Route path="/sub/active/:projectId" element={<SubGuard><ProjectWorkspacePage /></SubGuard>} />
+                <Route path="/sub/active/:projectId/:tab" element={<SubGuard><ProjectWorkspacePage /></SubGuard>} />
+                <Route path="/sub/schedule" element={<SubGuard><SchedulePage /></SubGuard>} />
+                <Route path="/sub/time" element={<SubGuard><TimeClockPage /></SubGuard>} />
+
                 {/* Global routes (Network, Compliance, Activity) */}
                 <Route path="/network" element={<GlobalGuard><NetworkPage /></GlobalGuard>} />
                 <Route path="/network/:companyId" element={<GlobalGuard><CompanyProfilePage /></GlobalGuard>} />
