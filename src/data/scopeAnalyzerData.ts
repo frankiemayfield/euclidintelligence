@@ -75,8 +75,10 @@ export const CSI_DIVISIONS = [
 ] as const;
 
 export const UNITS = ["LF", "SF", "EA", "CY", "LS", "HR", "TON"] as const;
+import mainPlanAsset from "@/assets/FinalConstructionSetFregolle.pdf.asset.json";
+
 export const MAIN_PLAN_FILE_NAME = "FinalConstructionSetFregolle.pdf";
-export const MAIN_PLAN_FILE_PATH = `/plans/${MAIN_PLAN_FILE_NAME}`;
+export const MAIN_PLAN_FILE_PATH = mainPlanAsset.url;
 
 export interface LineItem {
   id: string;
