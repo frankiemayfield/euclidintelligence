@@ -14,7 +14,7 @@ export function GanttView({ tasks, phases, options, columns, zoom, selectedId, o
   selectedId?: string; onSelect: (t: ScheduleTask) => void; todaySignal?: number;
 }) {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-  const [split, setSplit] = useState(() => Number(sessionStorage.getItem(SPLIT_KEY)) || 430);
+  const [split, setSplit] = useState(() => Number(sessionStorage.getItem(SPLIT_KEY)) || 520);
   const scroller = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const shell = useRef<HTMLDivElement>(null);
