@@ -35,13 +35,13 @@ const sampleResults: IntakeResult[] = [
     file: "TrueFrame_COI_2026.pdf", type: "General Liability / COI", detected: "TrueFrame Carpentry LLC", matchId: "trueframe", match: "TrueFrame Carpentry", confidence: 98,
     fields: [["Named insured", "TrueFrame Carpentry LLC"], ["Carrier", "Cincinnati Insurance"], ["Policy number", "GL-4471203"], ["Effective", "01/01/26"], ["Expires", "01/01/27"], ["Each occurrence", "$1,000,000"], ["Aggregate", "$2,000,000"], ["Additional insured", "Yes"], ["Waiver of subrogation", "Yes"], ["Certificate holder", "Mayfield & Co."]],
     result: "In Compliance", reason: "Meets all Mayfield general liability requirements with active dates.",
-    update: { key: "gl", label: "General Liability", carrier: "Cincinnati Insurance", policyNumber: "GL-4471203", effective: "2026-01-01", expires: "2027-01-01", details: "$1M each occurrence / $2M aggregate" },
+    update: { key: "generalLiability", label: "General Liability", carrier: "Cincinnati Insurance", policyNumber: "GL-4471203", effective: "2026-01-01", expires: "2027-01-01", details: "$1M each occurrence / $2M aggregate" },
   },
   {
     file: "Spark_WorkersComp_2025.pdf", type: "Workers' Compensation", detected: "Spark Electric Co.", matchId: "spark-electric", match: "Spark Electric Co.", confidence: 96,
     fields: [["Carrier", "Ohio BWC"], ["Policy number", "WC-220041"], ["Effective", "09/01/25"], ["Expires", "08/31/26"], ["Coverage", "Statutory"]],
     result: "Out of Compliance", reason: "Workers Compensation policy expired 9 days ago.",
-    update: { key: "wc", label: "Workers Compensation", carrier: "Ohio BWC", policyNumber: "WC-220041", effective: "2025-09-01", expires: "2026-08-31", details: "Statutory coverage" },
+    update: { key: "workersComp", label: "Workers Compensation", carrier: "Ohio BWC", policyNumber: "WC-220041", effective: "2025-09-01", expires: "2026-08-31", details: "Statutory coverage" },
   },
   {
     file: "Riverstone_W9.pdf", type: "W-9", detected: "Riverstone Concrete Co.", matchId: "riverstone-concrete", match: "Riverstone Concrete", confidence: 91,
@@ -53,14 +53,14 @@ const sampleResults: IntakeResult[] = [
     file: "AquaFlow_Auto_Cert.pdf", type: "Commercial Auto", detected: "AquaFlow Plumbing Inc.", matchId: "aquaflow", match: "AquaFlow Plumbing", confidence: 94,
     fields: [["Carrier", "Grange"], ["Policy number", "CA-91002"], ["Effective", "05/01/26"], ["Expires", "05/01/27"], ["Combined single limit", "$1,000,000"]],
     result: "In Compliance", reason: "Meets $1M CSL commercial auto requirement.",
-    update: { key: "auto", label: "Commercial Auto", carrier: "Grange", policyNumber: "CA-91002", effective: "2026-05-01", expires: "2027-05-01", details: "$1M combined single limit" },
+    update: { key: "commercialAuto", label: "Commercial Auto", carrier: "Grange", policyNumber: "CA-91002", effective: "2026-05-01", expires: "2027-05-01", details: "$1M combined single limit" },
   },
   {
     file: "ClimateWorks_Endorsement.pdf", type: "Endorsement", detected: "ClimateWorks Mechanical LLC", matchId: "climateworks", match: "ClimateWorks Mechanical", confidence: 72,
     fields: [["Referenced policy", "GL-88342"], ["Endorsement", "Additional insured (referenced)"], ["Attachment", "Not included in upload"]],
     result: "Needs Review", reason: "Additional insured endorsement referenced but not included in uploaded document.",
     alternatives: ["ClimateWorks Mechanical", "Climate Works HVAC Services"],
-    update: { key: "gl", label: "General Liability", details: "Additional insured endorsement referenced but not attached" },
+    update: { key: "generalLiability", label: "General Liability", details: "Additional insured endorsement referenced but not attached" },
   },
 ];
 
