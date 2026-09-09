@@ -11,11 +11,17 @@ import { useDemoProject } from "@/hooks/use-demo-project";
 
 type Track = "builder" | "sub" | "owner";
 const trackConfig = {
-  builder: { dashboard: "/app", precon: "/app/upload", preconLabel: "Pre-Construction", activeLabel: "Active Projects", active: "/app/est-vs-actual", settings: "/app/settings", company: companies.mayfield.name, initials: people.frankie.initials, person: people.frankie.name, role: people.frankie.title },
-  sub: { dashboard: "/sub", precon: "/sub/upload", preconLabel: "Estimating", activeLabel: "Active Jobs", active: "/sub/est-vs-actual", settings: "/sub/settings", company: companies.trueframe.name, initials: people.tyler.initials, person: people.tyler.name, role: people.tyler.title },
-  owner: { dashboard: "/owner", precon: "/owner/upload", preconLabel: "Pre-Construction", activeLabel: "Active Projects", active: "/owner/documents", settings: "/owner/settings", company: "Osterfeld Residence", initials: "AO", person: "Andrew Osterfeld", role: "Homeowner" },
+  builder: { dashboard: "/app", precon: "/app/upload", preconLabel: "Pre-Construction", activeLabel: "Active Projects", active: "/app/active", schedule: "/app/schedule", time: "/app/time", settings: "/app/settings", company: companies.mayfield.name, initials: people.frankie.initials, person: people.frankie.name, role: people.frankie.title },
+  sub: { dashboard: "/sub", precon: "/sub/upload", preconLabel: "Estimating", activeLabel: "Active Jobs", active: "/sub/active", schedule: "/sub/schedule", time: "/sub/time", settings: "/sub/settings", company: companies.trueframe.name, initials: people.tyler.initials, person: people.tyler.name, role: people.tyler.title },
+  owner: { dashboard: "/owner", precon: "/owner/upload", preconLabel: "Pre-Construction", activeLabel: "Active Projects", active: "/owner/documents", schedule: "/owner/documents", time: "/owner/documents", settings: "/owner/settings", company: "Osterfeld Residence", initials: "AO", person: "Andrew Osterfeld", role: "Homeowner" },
 } as const;
-function sectionFor(path: string, config: (typeof trackConfig)[Track]) { if (path === config.dashboard || path === `${config.dashboard}/`) return "dashboard"; if (path === config.settings || path.startsWith("/network") || path.startsWith("/compliance") || path.startsWith("/activity")) return "more"; if (path === config.active) return "active"; return "precon"; }
+function sectionFor(path: string, config: (typeof trackConfig)[Track]) {
+  if (path === config.dashboard || path === `${config.dashboard}/`) return "dashboard";
+  if (path.startsWith("/activity")) return "activity";
+  if (path.startsWith(config.active) || path.startsWith(config.schedule) || path.startsWith(config.time)) return "active";
+  if (path === config.settings || path.startsWith("/network") || path.startsWith("/compliance")) return "more";
+  return "precon";
+}
 
 export function GlobalHeader({ track }: { track: Track }) {
   const config = trackConfig[track]; const location = useLocation(); const navigate = useNavigate(); const { signOut } = useAuth();
