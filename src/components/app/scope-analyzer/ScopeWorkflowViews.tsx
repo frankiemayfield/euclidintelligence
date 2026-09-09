@@ -86,7 +86,7 @@ export function QuantityTakeoffView(props: CommonProps) {
   return (
     <section className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-3">
-        <FilterChips value={filter} onChange={setFilter} options={[
+        <FilterChips<TakeoffFilter> value={filter} onChange={setFilter} options={[
           { value: "all", label: "All", count: counts.all }, { value: "explicit", label: "Explicit", count: counts.explicit },
           { value: "scale", label: "Scale-Derived", count: counts.scale }, { value: "low", label: "Low Confidence", count: counts.low },
           { value: "review", label: "Needs Review", count: counts.review },
@@ -173,7 +173,7 @@ interface ReviewItem { id: string; lineItemId: string; kind: ReviewKind; title: 
 const issueKind = (issue: IssueFlag): ReviewKind => issue === "Duplicate Item" ? "Duplicates" : issue === "Conflicting Source" ? "Conflicts" : issue === "Missing Source" || issue === "Missing Takeoff" || issue === "Missing Cost Code" ? "Missing Scope" : issue === "Needs Clarification" ? "Exclusion Risks" : "Assumptions";
 
 function reviewItems(items: LineItem[]): ReviewItem[] {
-  const result = items.flatMap(item => item.issues.map((issue, index) => ({ id: `${item.id}-${index}`, lineItemId: item.id, kind: issueKind(issue), title: issue, detail: `${item.name} requires human review before it flows downstream.`, impact: `Impacts ${item.name}` })));
+  const result: ReviewItem[] = items.flatMap(item => item.issues.map((issue, index) => ({ id: `${item.id}-${index}`, lineItemId: item.id, kind: issueKind(issue), title: issue, detail: `${item.name} requires human review before it flows downstream.`, impact: `Impacts ${item.name}` })));
   items.filter(item => item.reviewStatus === "Needs Review" && item.issues.length === 0).forEach(item => result.push({ id: `${item.id}-assumption`, lineItemId: item.id, kind: "Assumptions", title: `${item.euclidCategory} basis requires confirmation`, detail: item.notes || `Verify the plan-derived quantity and assumptions for ${item.name}.`, impact: "Impacts 1 takeoff item" }));
   return result;
 }
@@ -186,7 +186,7 @@ export function ReviewView({ items, decisions, onDecision }: { items: LineItem[]
   const counts = (kind: ReviewKind) => queue.filter(item => item.kind === kind && !resolved.has(item.id)).length;
   return <section className="flex min-h-0 flex-1 flex-col">
     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-3">
-      <FilterChips value={filter} onChange={setFilter} options={[
+      <FilterChips<"All" | ReviewKind | "Resolved"> value={filter} onChange={setFilter} options={[
         { value: "All", label: "All", count: queue.length - resolved.size }, { value: "Assumptions", label: "Assumptions", count: counts("Assumptions") },
         { value: "Missing Scope", label: "Missing Scope", count: counts("Missing Scope") }, { value: "Conflicts", label: "Conflicts", count: counts("Conflicts") },
         { value: "Duplicates", label: "Duplicates", count: counts("Duplicates") }, { value: "Exclusion Risks", label: "Exclusion Risks", count: counts("Exclusion Risks") },
