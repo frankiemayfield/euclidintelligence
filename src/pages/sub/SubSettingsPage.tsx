@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
+import { WorkspaceAppearancePicker } from "@/components/app/WorkspaceAppearancePicker";
 import { useSubSettings } from "@/hooks/use-sub-settings";
 import { allTradeNames, type TradeName } from "@/data/tradeProfiles";
 import { cn } from "@/lib/utils";
@@ -345,22 +346,8 @@ export default function SubSettingsPage() {
 
           {/* ─── APPEARANCE ─── */}
           {activeTab === "appearance" && (
-            <SectionCard title="Theme">
-              <div className="grid grid-cols-3 gap-3">
-                {([
-                  { value: "light" as const, label: "Light", icon: Sun },
-                  { value: "dark" as const, label: "Dark", icon: Moon },
-                  { value: "system" as const, label: "System", icon: Monitor },
-                ]).map(t => (
-                  <button key={t.value} onClick={() => setTheme(t.value)}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
-                      theme === t.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
-                    }`}>
-                    <t.icon size={20} className={theme === t.value ? "text-primary" : "text-muted-foreground"} />
-                    <span className="text-xs font-medium">{t.label}</span>
-                  </button>
-                ))}
-              </div>
+            <SectionCard title="Workspace appearance">
+              <WorkspaceAppearancePicker />
             </SectionCard>
           )}
         </div>

@@ -3,7 +3,7 @@ import {
   Upload, FileSearch, Table2,
   FileOutput, Scale, TrendingUp, ChevronLeft, BarChart3, DollarSign
 } from "lucide-react";
-import environment from "@/assets/euclid-environment.jpg";
+import { WorkspaceBackground } from "@/components/app/WorkspaceBackground";
 import { useState } from "react";
 import { AtlasPanel, AtlasToggleButton } from "@/components/app/AtlasPanel";
 import { GlobalHeader } from "@/components/app/GlobalHeader";
@@ -38,8 +38,8 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="odyssey-app relative flex h-screen flex-col overflow-hidden">
-      <img src={environment} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-45" width={1920} height={1080} />
-      <div className="relative z-10"><GlobalHeader track="sub" /></div>
+      <WorkspaceBackground />
+      <div className="relative z-[70]"><GlobalHeader track="sub" /></div>
 
       <div className="relative z-10 flex flex-1 gap-3 overflow-hidden px-3 pb-3 pt-3 lg:gap-4 lg:px-5 lg:pb-5">
         {/* Estimator Sidebar */}

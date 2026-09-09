@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Sun, Moon, Monitor, Users, Link2, Settings2, Building2, Palette, Calculator, DollarSign, FileOutput, Bell, Shield, Globe, Check } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
+import { WorkspaceAppearancePicker } from "@/components/app/WorkspaceAppearancePicker";
 import companyLogoImg from "@/assets/company-logo.jpg";
 
 type SettingsTab = "company" | "branding" | "estimator" | "pricing" | "proposal" | "appearance" | "notifications" | "users" | "integrations" | "workspace";
@@ -287,30 +288,8 @@ export default function SettingsPage() {
           {/* ===== APPEARANCE ===== */}
           {activeTab === "appearance" && (
             <div className="space-y-6">
-              <SectionCard title="Theme" helper="Choose your preferred visual theme">
-                <div className="grid grid-cols-3 gap-3">
-                  {([
-                    { value: "light" as const, label: "Light", icon: Sun, desc: "Clean and bright" },
-                    { value: "dark" as const, label: "Dark", icon: Moon, desc: "Easy on the eyes" },
-                    { value: "system" as const, label: "System", icon: Monitor, desc: "Match your OS" },
-                  ]).map(opt => (
-                    <button key={opt.value} onClick={() => setTheme(opt.value)}
-                      className={`relative flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all ${
-                        theme === opt.value
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/30 bg-muted/10"
-                      }`}>
-                      {theme === opt.value && (
-                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                          <Check size={12} className="text-primary-foreground" />
-                        </div>
-                      )}
-                      <opt.icon size={24} className={theme === opt.value ? "text-primary" : "text-muted-foreground"} />
-                      <span className="text-sm font-semibold text-foreground">{opt.label}</span>
-                      <span className="text-[10px] text-muted-foreground">{opt.desc}</span>
-                    </button>
-                  ))}
-                </div>
+              <SectionCard title="Workspace appearance" helper="Choose color mode and the drafting environment behind your workspace">
+                <WorkspaceAppearancePicker />
               </SectionCard>
               <SectionCard title="Display" helper="Customize density and motion preferences">
                 <div className="space-y-2">
