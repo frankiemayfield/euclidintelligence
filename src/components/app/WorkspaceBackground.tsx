@@ -4,15 +4,20 @@ export function WorkspaceBackground() {
   const { workspaceBackground, workspaceAppearance, previewWorkspaceAppearance, resolvedTheme } = useTheme();
   const activeAppearance = previewWorkspaceAppearance ?? workspaceAppearance;
   return (
-    <div className="workspace-environment pointer-events-none absolute inset-0 overflow-hidden" data-environment={activeAppearance} data-mode={resolvedTheme} aria-hidden="true">
-      <img
+    <div
+      className="workspace-environment pointer-events-none absolute inset-0 overflow-hidden"
+      data-environment={activeAppearance}
+      data-mode={resolvedTheme}
+      aria-hidden="true"
+    >
+      <div
         key={activeAppearance}
-        src={workspaceBackground}
-        alt=""
-        className="workspace-environment-image h-full w-full object-cover"
-        width={1920}
-        height={1080}
+        className="workspace-environment-image absolute inset-0"
+        style={{ backgroundImage: `url(${workspaceBackground})` }}
       />
+      {/* atmospheric top wash — carries far down the page, no hard seam */}
+      <span className="workspace-environment-wash absolute inset-0" />
+      {/* overall readability veil */}
       <span className="workspace-environment-overlay absolute inset-0" />
     </div>
   );
