@@ -97,24 +97,20 @@ const inputGroupButtonVariants = cva(
   }
 )
 
-function InputGroupButton({
-  className,
-  type = "button",
-  variant = "ghost",
-  size = "xs",
-  ...props
-}: Omit<React.ComponentProps<typeof Button>, "size"> &
-  VariantProps<typeof inputGroupButtonVariants>) {
-  return (
-    <Button
-      type={type}
-      data-size={size}
-      variant={variant}
-      className={cn(inputGroupButtonVariants({ size }), className)}
-      {...props}
-    />
-  )
-}
+const InputGroupButton = React.forwardRef<
+  React.ElementRef<typeof Button>,
+  Omit<React.ComponentPropsWithoutRef<typeof Button>, "size"> & VariantProps<typeof inputGroupButtonVariants>
+>(({ className, type = "button", variant = "ghost", size = "xs", ...props }, ref) => (
+  <Button
+    ref={ref}
+    type={type}
+    data-size={size}
+    variant={variant}
+    className={cn(inputGroupButtonVariants({ size }), className)}
+    {...props}
+  />
+))
+InputGroupButton.displayName = "InputGroupButton"
 
 function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
   return (
