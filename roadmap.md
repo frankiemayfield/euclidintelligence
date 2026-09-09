@@ -7,3 +7,4 @@
 - [x] Verify dashboard, overlays, messenger, and themes
 
 - [x] Fix all preview typecheck errors from observability logs
+- [x] Correct Odyssey header gradient, icon treatment, typography, and sea-glass opacity
