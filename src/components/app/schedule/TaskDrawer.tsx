@@ -54,9 +54,9 @@ export function TaskDrawer({ task, locked, onClose }: { task: ScheduleTask | nul
             <p className="mb-1.5 text-[10px] font-bold uppercase text-muted-foreground">Company</p>
             <div className="flex items-center justify-between">
               <Link to={`/network/${company.id}`} className="text-[12px] font-semibold text-primary hover:underline">{company.name}</Link>
-              <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-semibold", complianceTone[company.complianceStatus])}>{company.complianceStatus}</span>
+              <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-semibold", complianceTone[company.complianceOverall])}>{company.complianceOverall}</span>
             </div>
-            {company.complianceStatus !== "In Compliance" && (
+            {company.complianceOverall !== "In Compliance" && (
               <p className="mt-1.5 flex items-center gap-1 text-[10px] text-warning"><AlertTriangle size={11} />Compliance issue — review before this work starts.</p>
             )}
           </div>
