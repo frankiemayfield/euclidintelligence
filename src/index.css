@@ -138,10 +138,10 @@
   }
 
   .odyssey-popover {
-    border: 1px solid hsl(var(--border) / 0.58);
-    background: hsl(var(--card) / 0.82);
+    border: 1px solid hsl(var(--border) / 0.7);
+    background: hsl(var(--card) / 0.96);
     box-shadow: var(--shadow-card);
-    backdrop-filter: blur(24px) saturate(135%);
+    backdrop-filter: blur(28px) saturate(140%);
   }
 
   .odyssey-header {
