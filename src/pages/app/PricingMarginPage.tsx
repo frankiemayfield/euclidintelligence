@@ -413,7 +413,7 @@ export default function PricingMarginPage() {
               <div className="text-center py-6">
                 <p className="text-xs text-muted-foreground mb-1">Lump Sum Proposal Total</p>
                 <p className="font-display text-4xl font-bold text-primary">{fmt(Math.round(clientTotal))}</p>
-                <p className="text-xs text-muted-foreground mt-2">Maple St. Kitchen Remodel — All work per plans and specifications</p>
+                <p className="text-xs text-muted-foreground mt-2">{project.name} — All work per plans and specifications</p>
               </div>
             )}
             {clientView === "Owner Summary" && (
