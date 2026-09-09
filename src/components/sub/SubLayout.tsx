@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Upload, FileSearch, Table2,
-  FileOutput, Scale, TrendingUp, Settings, ChevronLeft, BarChart3, ChevronDown, DollarSign
+  Upload, FileSearch, Table2,
+  FileOutput, Scale, TrendingUp, ChevronLeft, BarChart3, DollarSign
 } from "lucide-react";
 import environment from "@/assets/euclid-environment.jpg";
 import { useState } from "react";
@@ -30,8 +30,6 @@ type GlobalSection = "dashboard" | "estimator" | "settings";
 export function SubLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
-  const [activeProject] = useState("Maple St. Kitchen Remodel");
   const [atlasOpen, setAtlasOpen] = useState(true);
 
   const getSection = (): GlobalSection => {

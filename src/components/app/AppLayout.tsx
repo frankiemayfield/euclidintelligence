@@ -3,7 +3,6 @@ import {
   Upload, FileSearch, Table2,
   FileOutput, Scale, TrendingUp, ChevronLeft, BarChart3, ChevronDown, DollarSign
 } from "lucide-react";
-import companyLogo from "@/assets/company-logo.jpg";
 import environment from "@/assets/euclid-environment.jpg";
 import { useState } from "react";
 import { AtlasPanel, AtlasToggleButton } from "./AtlasPanel";
@@ -31,8 +30,6 @@ type GlobalSection = "dashboard" | "estimator" | "settings";
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
-  const [activeProject] = useState("Maple St. Kitchen Remodel");
   const [atlasOpen, setAtlasOpen] = useState(true);
 
   const getSection = (): GlobalSection => {

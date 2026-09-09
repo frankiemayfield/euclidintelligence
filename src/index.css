@@ -154,6 +154,12 @@
     box-shadow: var(--shadow-card);
     backdrop-filter: blur(22px) saturate(130%);
   }
+
+  .odyssey-app main .bg-card,
+  .odyssey-app main .bg-background {
+    background-color: hsl(var(--card) / 0.64);
+    backdrop-filter: blur(18px) saturate(125%);
+  }
 }
 
 @layer utilities {

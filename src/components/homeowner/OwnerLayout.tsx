@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   Upload, FileText, Scale, GitCompareArrows, BarChart3,
-  FolderOpen, Wallet, Receipt, FileWarning, Settings, ChevronLeft, ChevronDown
+   FolderOpen, Wallet, Receipt, FileWarning, ChevronLeft
 } from "lucide-react";
 import environment from "@/assets/euclid-environment.jpg";
 import { useState } from "react";

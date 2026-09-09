@@ -1,4 +1,4 @@
-import { Send, X, Upload, FileText, XCircle, Scale, Minus } from "lucide-react";
+import { Send, X, FileText, XCircle, Scale, Minus } from "lucide-react";
 import { useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
