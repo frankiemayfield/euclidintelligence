@@ -32,3 +32,9 @@
 - [x] Remove obsolete demo identities, projects, totals, filenames, and disconnected duplicate records
 - [x] Verify Fregolle and Oakwood switching for Frankie, then linked Fregolle quote behavior for Tyler
 - [x] Confirm clean diagnostics and all shared totals, stages, sources, and identities
+
+# Project-specific workflow data
+- [x] Make project selection navigate to each project’s current Builder/Sub workflow stage
+- [x] Give all six projects distinct documents, bids, estimate totals, pricing, proposals, benchmarks, and actual-cost states
+- [x] Preserve Fregolle’s real plan/takeoff experience while differentiating other scope records
+- [x] Verify all twelve stage endpoints and representative project-specific records
