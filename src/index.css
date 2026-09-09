@@ -132,9 +132,35 @@
 @layer components {
   .odyssey-app {
     background-color: hsl(var(--background));
-    background-image: linear-gradient(hsl(var(--background) / 0.48), hsl(var(--background) / 0.72)), var(--odyssey-environment);
-    background-position: center;
-    background-size: cover;
+  }
+
+  .workspace-environment-image {
+    opacity: 0.66;
+    filter: saturate(0.82) contrast(0.92) brightness(1.06);
+    animation: workspace-environment-in 420ms ease-out;
+  }
+
+  .workspace-environment-overlay {
+    background: radial-gradient(circle at center, hsl(var(--background) / 0.16) 0%, hsl(var(--background) / 0.42) 100%);
+  }
+
+  .workspace-environment[data-environment="da-vinci"] .workspace-environment-image { opacity: 0.54; filter: saturate(0.72) contrast(0.9) brightness(1.1); }
+  .workspace-environment[data-environment="brunelleschi"] .workspace-environment-image { opacity: 0.58; filter: saturate(0.68) contrast(0.9) brightness(1.08); }
+  .workspace-environment[data-environment="blueprint"] .workspace-environment-image { opacity: 0.8; filter: saturate(0.9) contrast(0.94) brightness(1.02); }
+  .workspace-environment[data-environment="wright"] .workspace-environment-image { opacity: 0.58; filter: saturate(0.64) contrast(0.88) brightness(1.08); }
+  .workspace-environment[data-environment="fuller"] .workspace-environment-image { opacity: 0.66; filter: saturate(0.62) contrast(0.88) brightness(1.08); }
+
+  .dark .workspace-environment-image { opacity: 0.34; filter: saturate(0.55) contrast(0.94) brightness(0.58); }
+  .dark .workspace-environment[data-environment="blueprint"] .workspace-environment-image { opacity: 0.5; filter: saturate(0.75) contrast(0.96) brightness(0.62); }
+  .dark .workspace-environment[data-environment="wright"] .workspace-environment-image { opacity: 0.38; filter: saturate(0.48) contrast(0.9) brightness(0.54); }
+  .dark .workspace-environment-overlay { background: radial-gradient(circle at center, hsl(var(--background) / 0.28) 0%, hsl(var(--background) / 0.7) 100%); }
+
+  @keyframes workspace-environment-in {
+    from { opacity: 0; transform: scale(1.006); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .workspace-environment-image { animation: none; }
   }
 
   .odyssey-popover {

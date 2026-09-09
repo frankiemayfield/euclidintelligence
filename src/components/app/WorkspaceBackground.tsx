@@ -1,16 +1,19 @@
 import { useTheme } from "@/hooks/use-theme";
 
 export function WorkspaceBackground() {
-  const { workspaceBackground, workspaceAppearance } = useTheme();
+  const { workspaceBackground, workspaceAppearance, previewWorkspaceAppearance, resolvedTheme } = useTheme();
+  const activeAppearance = previewWorkspaceAppearance ?? workspaceAppearance;
   return (
-    <img
-      key={workspaceAppearance}
-      src={workspaceBackground}
-      alt=""
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-55 transition-opacity duration-500 dark:opacity-25"
-      width={1920}
-      height={1080}
-    />
+    <div className="workspace-environment pointer-events-none absolute inset-0 overflow-hidden" data-environment={activeAppearance} data-mode={resolvedTheme} aria-hidden="true">
+      <img
+        key={activeAppearance}
+        src={workspaceBackground}
+        alt=""
+        className="workspace-environment-image h-full w-full object-cover"
+        width={1920}
+        height={1080}
+      />
+      <span className="workspace-environment-overlay absolute inset-0" />
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 import { OwnerLayout } from "@/components/homeowner/OwnerLayout";
+import { WorkspaceAppearancePicker } from "@/components/app/WorkspaceAppearancePicker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { homeowner } from "@/data/homeownerData";
@@ -47,6 +48,13 @@ export default function HomeownerSettingsPage() {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="text-base">Workspace appearance</CardTitle></CardHeader>
+          <CardContent>
+            <WorkspaceAppearancePicker />
           </CardContent>
         </Card>
       </div>
