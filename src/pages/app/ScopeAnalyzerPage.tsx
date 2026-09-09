@@ -1,213 +1,84 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppLayout } from "@/components/app/AppLayout";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 import { ScopeHeader } from "@/components/app/scope-analyzer/ScopeHeader";
-import { ScopeHierarchyTree, type TreeSelection } from "@/components/app/scope-analyzer/ScopeHierarchyTree";
-import { ProjectOverview } from "@/components/app/scope-analyzer/ProjectOverview";
-import { ParentScopeView } from "@/components/app/scope-analyzer/ParentScopeView";
-import { TradeView } from "@/components/app/scope-analyzer/TradeView";
-import { AssemblyView } from "@/components/app/scope-analyzer/AssemblyView";
-import { ScopeInspector } from "@/components/app/scope-analyzer/ScopeInspector";
 import { PlanViewer, type TakeoffLineItemOption, type TakeoffMarkup, type ViewerMode } from "@/components/app/scope-analyzer/PlanViewer";
-import {
-  getAllLineItems,
-  mockProject,
-  type ScopeProject,
-  type TakeoffRecord,
-} from "@/data/scopeAnalyzerData";
+import { BidPackageView, QuantityTakeoffView, ReviewView, StructureView, type ReviewDecision, type ScopeTab, type ScopeTrack, type StructureState } from "@/components/app/scope-analyzer/ScopeWorkflowViews";
+import { WorkflowTransition } from "@/components/app/WorkflowTransition";
+import { cn } from "@/lib/utils";
+import { getAllLineItems, mockProject, type IssueFlag, type LineItem, type ReviewStatus, type ScopeProject, type TakeoffRecord } from "@/data/scopeAnalyzerData";
 
-function findNode(project: ScopeProject, sel: TreeSelection) {
-  for (const ps of project.parentScopes) {
-    if (sel.type === "parentScope" && sel.id === ps.id) return { parentScope: ps, parentScopeName: ps.name };
-    for (const t of ps.trades) {
-      if (sel.type === "trade" && sel.id === t.id) return { trade: t, parentScope: ps, parentScopeName: ps.name, tradeName: t.name };
-      for (const a of t.assemblies) {
-        if (sel.type === "assembly" && sel.id === a.id) return { assembly: a, trade: t, parentScope: ps, parentScopeName: ps.name, tradeName: t.name };
-        if (sel.type === "lineItem") {
-          for (const li of a.lineItems) {
-            if (sel.id === li.id) return { lineItem: li, assembly: a, trade: t, parentScope: ps, parentScopeName: ps.name, tradeName: t.name };
-          }
-        }
-      }
-    }
-  }
-  return {};
-}
+interface WorkspaceProps { Layout: React.ComponentType<{ children: React.ReactNode }>; track?: ScopeTrack; }
 
 function mergeManualTakeoffs(project: ScopeProject, takeoffsByLineItem: Record<string, TakeoffRecord[]>) {
-  return {
-    ...project,
-    parentScopes: project.parentScopes.map(parentScope => ({
-      ...parentScope,
-      trades: parentScope.trades.map(trade => ({
-        ...trade,
-        assemblies: trade.assemblies.map(assembly => ({
-          ...assembly,
-          lineItems: assembly.lineItems.map(lineItem => ({
-            ...lineItem,
-            takeoffs: [...lineItem.takeoffs, ...(takeoffsByLineItem[lineItem.id] ?? [])],
-          })),
-        })),
-      })),
-    })),
-  } satisfies ScopeProject;
+  return { ...project, parentScopes: project.parentScopes.map(parentScope => ({ ...parentScope, trades: parentScope.trades.map(trade => ({ ...trade, assemblies: trade.assemblies.map(assembly => ({ ...assembly, lineItems: assembly.lineItems.map(item => ({ ...item, takeoffs: [...item.takeoffs, ...(takeoffsByLineItem[item.id] ?? [])] })) })) })) })) } satisfies ScopeProject;
 }
 
-function getSelectionPage(project: ScopeProject, selection: TreeSelection) {
-  const node = findNode(project, selection);
-  if (selection.type === "lineItem" && node.lineItem) return node.lineItem.sources[0]?.pageNumber;
-  if (selection.type === "assembly" && node.assembly) return node.assembly.sources[0]?.pageNumber ?? node.assembly.lineItems[0]?.sources[0]?.pageNumber;
-  if (selection.type === "trade" && node.trade) return node.trade.sources[0]?.pageNumber ?? node.trade.assemblies[0]?.sources[0]?.pageNumber;
-  if (selection.type === "parentScope" && node.parentScope) {
-    return node.parentScope.trades[0]?.sources[0]?.pageNumber ?? node.parentScope.trades[0]?.assemblies[0]?.sources[0]?.pageNumber;
-  }
-  return getAllLineItems(project)[0]?.sources[0]?.pageNumber ?? 1;
+function updateLineItem(project: ScopeProject, id: string, update: (item: LineItem) => LineItem) {
+  return { ...project, parentScopes: project.parentScopes.map(parentScope => ({ ...parentScope, trades: parentScope.trades.map(trade => ({ ...trade, assemblies: trade.assemblies.map(assembly => ({ ...assembly, lineItems: assembly.lineItems.map(item => item.id === id ? update(item) : item) })) })) })) };
 }
 
-function getTakeoffLineItemOptions(project: ScopeProject, selection: TreeSelection): TakeoffLineItemOption[] {
-  const node = findNode(project, selection);
-  if (selection.type === "lineItem" && node.lineItem) return [{ id: node.lineItem.id, name: node.lineItem.name, unit: node.lineItem.unit }];
-  if (selection.type === "assembly" && node.assembly) return node.assembly.lineItems.map(li => ({ id: li.id, name: li.name, unit: li.unit }));
-  if (selection.type === "trade" && node.trade) return node.trade.assemblies.flatMap(a => a.lineItems.map(li => ({ id: li.id, name: `${a.name} · ${li.name}`, unit: li.unit })));
-  if (selection.type === "parentScope" && node.parentScope) return node.parentScope.trades.flatMap(t => t.assemblies.flatMap(a => a.lineItems.map(li => ({ id: li.id, name: `${t.name} · ${li.name}`, unit: li.unit }))));
-  return getAllLineItems(project).map(li => ({ id: li.id, name: li.name, unit: li.unit }));
-}
-
-export function ScopeAnalyzerWorkspace({ Layout }: { Layout: React.ComponentType<{ children: React.ReactNode }> }) {
-  const [selection, setSelection] = useState<TreeSelection>({ type: "project", id: mockProject.id });
-  const [viewerMode, setViewerMode] = useState<ViewerMode>("embedded");
+export function ScopeAnalyzerWorkspace({ Layout, track = "builder" }: WorkspaceProps) {
+  const [baseProject, setBaseProject] = useState(mockProject);
+  const [activeTab, setActiveTab] = useState<ScopeTab>("takeoff");
+  const [viewerMode, setViewerMode] = useState<ViewerMode>("hidden");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedTakeoffLineItemId, setSelectedTakeoffLineItemId] = useState("");
+  const [selectedLineItemId, setSelectedLineItemId] = useState("");
   const [manualTakeoffs, setManualTakeoffs] = useState<Record<string, TakeoffRecord[]>>({});
   const [manualMarkups, setManualMarkups] = useState<TakeoffMarkup[]>([]);
-  const [hierarchyCollapsed, setHierarchyCollapsed] = useState(false);
-
-  const project = useMemo(() => mergeManualTakeoffs(mockProject, manualTakeoffs), [manualTakeoffs]);
-  const node = useMemo(() => findNode(project, selection), [project, selection]);
-  const takeoffLineItemOptions = useMemo(() => getTakeoffLineItemOptions(project, selection), [project, selection]);
-  const selectedLineItemTakeoffs = useMemo(() => {
-    if (!selectedTakeoffLineItemId) return [];
-    return getAllLineItems(project).find(item => item.id === selectedTakeoffLineItemId)?.takeoffs ?? [];
-  }, [project, selectedTakeoffLineItemId]);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [structure, setStructure] = useState<StructureState>({});
+  const [decisions, setDecisions] = useState<ReviewDecision[]>([]);
+  const [transition, setTransition] = useState(false);
+  const project = useMemo(() => mergeManualTakeoffs(baseProject, manualTakeoffs), [baseProject, manualTakeoffs]);
+  const items = useMemo(() => getAllLineItems(project), [project]);
+  const selectedItem = items.find(item => item.id === selectedLineItemId);
+  const takeoffs = selectedItem?.takeoffs ?? [];
+  const options: TakeoffLineItemOption[] = items.map(item => ({ id: item.id, name: item.name, unit: item.unit }));
+  const structured = items.filter(item => item.companyCostCode || structure[item.id]?.mappedTo).length;
+  const scaleDerived = items.filter(item => ["linear", "area", "volume", "polygon"].includes(item.takeoffs[0]?.method || "")).length;
+  const needsReview = items.filter(item => item.reviewStatus === "Needs Review").length;
+  const lowConfidence = items.filter(item => item.confidence === "Low").length;
+  const openIssues = items.reduce((sum, item) => sum + item.issues.length, 0) - decisions.filter(decision => decision.resolved).length;
+  const tabs: { value: ScopeTab; label: string }[] = track === "builder" ? [{ value: "takeoff", label: "Quantity Takeoff" }, { value: "review", label: "Review" }, { value: "structure", label: "Scope Structure" }] : [{ value: "takeoff", label: "Quantity Takeoff" }, { value: "review", label: "Review" }, { value: "structure", label: "Quote Structure" }, { value: "package", label: "Bid Package" }];
 
   useEffect(() => {
-    const nextPage = getSelectionPage(mockProject, selection);
-    if (nextPage) setCurrentPage(nextPage);
-  }, [selection]);
+    setSelected(new Set());
+    const detail = activeTab === "takeoff" ? `${needsReview} takeoff items still need review. ${scaleDerived} were derived from scale.` : activeTab === "review" ? `${Math.max(0, openIssues)} review items remain unresolved.` : activeTab === "structure" ? `${structured} of ${items.length} items are mapped into ${track === "builder" ? "estimate" : "quote"} line items.` : `Your package contains ${decisions.filter(decision => decision.action === "Exclude").length} exclusions and ${decisions.filter(decision => decision.action === "Clarify").length} clarifications.`;
+    window.dispatchEvent(new CustomEvent("euclid-scope-context", { detail: { tab: activeTab, track, summary: detail } }));
+  }, [activeTab, decisions, items.length, needsReview, openIssues, scaleDerived, structured, track]);
 
-  useEffect(() => {
-    if (selection.type === "lineItem") { setSelectedTakeoffLineItemId(selection.id); return; }
-    if (!takeoffLineItemOptions.some(o => o.id === selectedTakeoffLineItemId)) {
-      setSelectedTakeoffLineItemId(takeoffLineItemOptions[0]?.id ?? "");
-    }
-  }, [selectedTakeoffLineItemId, selection, takeoffLineItemOptions]);
+  useEffect(() => { if (!selectedLineItemId && items[0]) setSelectedLineItemId(items[0].id); }, [items, selectedLineItemId]);
 
-  const openPlanViewer = (page?: number) => {
-    if (page) setCurrentPage(page);
-    setViewerMode("expanded");
+  const openPlan = (item: LineItem) => { setSelectedLineItemId(item.id); setCurrentPage(item.sources[0]?.pageNumber || 1); setViewerMode("expanded"); };
+  const reviewChange = (id: string, status: ReviewStatus, issues?: IssueFlag[]) => setBaseProject(projectValue => updateLineItem(projectValue, id, item => ({ ...item, reviewStatus: status, issues: issues ?? item.issues })));
+  const makeDecision = (reviewItem: { id: string; lineItemId: string }, action: string) => {
+    setDecisions(current => [...current.filter(decision => decision.id !== reviewItem.id), { id: reviewItem.id, action, resolved: true }]);
+    if (["Confirm", "Add to Scope", "Select Preferred Source", "Merge", "Keep Separate", "Include", "Exclude", "Clarify"].includes(action)) reviewChange(reviewItem.lineItemId, "Reviewed", []);
   };
+  const updateStructure = (id: string, patch: StructureState[string]) => setStructure(current => ({ ...current, [id]: { ...current[id], ...patch } }));
+  const continueFlow = () => track === "builder" ? setTransition(true) : setActiveTab("package");
+  const handleCreateTakeoff = ({ markup, record }: { markup: TakeoffMarkup; record: TakeoffRecord }) => { setManualTakeoffs(current => ({ ...current, [record.linkedLineItemId]: [...(current[record.linkedLineItemId] ?? []), record] })); setManualMarkups(current => [...current, markup]); };
+  const handleDeleteTakeoff = (takeoffId: string, lineItemId: string) => { setManualTakeoffs(current => ({ ...current, [lineItemId]: (current[lineItemId] ?? []).filter(takeoff => takeoff.id !== takeoffId) })); setManualMarkups(current => current.filter(markup => markup.takeoffId !== takeoffId)); };
+  const planViewerProps = { currentPage, lineItemOptions: options, markups: manualMarkups, onModeChange: setViewerMode, onCreateTakeoff: handleCreateTakeoff, onDeleteTakeoff: handleDeleteTakeoff, onPageChange: setCurrentPage, onSelectedLineItemChange: setSelectedLineItemId, selectedLineItemId, takeoffs };
 
-  const handleCreateTakeoff = ({ markup, record }: { markup: TakeoffMarkup; record: TakeoffRecord }) => {
-    setManualTakeoffs(prev => ({ ...prev, [record.linkedLineItemId]: [...(prev[record.linkedLineItemId] ?? []), record] }));
-    setManualMarkups(prev => [...prev, markup]);
-  };
-
-  const handleDeleteTakeoff = (takeoffId: string, lineItemId: string) => {
-    setManualTakeoffs(prev => {
-      const next = { ...prev };
-      const filtered = (next[lineItemId] ?? []).filter(t => t.id !== takeoffId);
-      if (filtered.length > 0) next[lineItemId] = filtered; else delete next[lineItemId];
-      return next;
-    });
-    setManualMarkups(prev => prev.filter(m => m.takeoffId !== takeoffId));
-  };
-
-  const renderCenter = () => {
-    switch (selection.type) {
-      case "project": return <ProjectOverview project={project} onNavigate={setSelection} />;
-      case "parentScope": if (node.parentScope) return <ParentScopeView parentScope={node.parentScope} onNavigate={setSelection} />; break;
-      case "trade": if (node.trade) return <TradeView trade={node.trade} parentScopeName={node.parentScopeName || ""} onNavigate={setSelection} />; break;
-      case "assembly": if (node.assembly) return <AssemblyView assembly={node.assembly} onAddTakeoff={() => openPlanViewer()} onNavigate={setSelection} parentScopeName={node.parentScopeName || ""} tradeName={node.tradeName || ""} />; break;
-      case "lineItem": if (node.assembly) return <AssemblyView assembly={node.assembly} onAddTakeoff={() => openPlanViewer()} onNavigate={setSelection} parentScopeName={node.parentScopeName || ""} tradeName={node.tradeName || ""} />; break;
-    }
-    return <ProjectOverview project={project} onNavigate={setSelection} />;
-  };
-
-  const planViewerProps = {
-    currentPage,
-    lineItemOptions: takeoffLineItemOptions,
-    markups: manualMarkups,
-    onModeChange: setViewerMode,
-    onCreateTakeoff: handleCreateTakeoff,
-    onDeleteTakeoff: handleDeleteTakeoff,
-    onPageChange: setCurrentPage,
-    onSelectedLineItemChange: setSelectedTakeoffLineItemId,
-    selectedLineItemId: selectedTakeoffLineItemId,
-    takeoffs: selectedLineItemTakeoffs,
-  };
-
-  /* Fullscreen mode: only the PlanViewer is rendered */
-  if (viewerMode === "fullscreen") {
-    return (
-      <TooltipProvider>
-        <PlanViewer {...planViewerProps} mode="fullscreen" />
-      </TooltipProvider>
-    );
-  }
-
-  return (
-    <Layout>
-      <TooltipProvider>
-        <div className="flex h-[calc(100vh-48px)] flex-col">
-          <ScopeHeader project={project} onRunAnalysis={() => {}} onSaveDraft={() => {}} onLockScope={() => {}} />
-
-          {/* Expanded plan viewer - landscape above workspace */}
-          {viewerMode === "expanded" && (
-            <PlanViewer {...planViewerProps} mode="expanded" />
-          )}
-
-          <div className="flex flex-1 min-h-0">
-            {/* Collapsible hierarchy panel */}
-            <div className={`shrink-0 transition-all duration-200 ${hierarchyCollapsed ? "w-[48px]" : "w-[280px]"}`}>
-              <ScopeHierarchyTree
-                project={project}
-                selection={selection}
-                onSelect={setSelection}
-                collapsed={hierarchyCollapsed}
-                onCollapsedChange={setHierarchyCollapsed}
-              />
-            </div>
-
-            {/* Center workspace */}
-            <div className="flex-1 min-w-0 overflow-hidden">
-              {renderCenter()}
-            </div>
-
-            {/* Right column: embedded viewer (above) + inspector (below) */}
-            <div className="w-[320px] shrink-0 flex flex-col">
-              {viewerMode === "embedded" && (
-                <PlanViewer {...planViewerProps} mode="embedded" />
-              )}
-
-              <div className="flex-1 min-h-0 overflow-hidden">
-                <ScopeInspector
-                  currentPage={currentPage}
-                  onExpandPlan={() => openPlanViewer()}
-                  onPageChange={setCurrentPage}
-                  project={project}
-                  selection={selection}
-                  viewerMode={viewerMode}
-                  onViewerModeChange={setViewerMode}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </TooltipProvider>
-    </Layout>
-  );
+  if (viewerMode === "fullscreen") return <TooltipProvider><PlanViewer {...planViewerProps} mode="fullscreen" /></TooltipProvider>;
+  return <Layout><TooltipProvider>
+    <div className="scope-analyzer-workspace odyssey-surface flex h-full min-h-[calc(100vh-112px)] flex-col overflow-hidden rounded-2xl">
+      <ScopeHeader project={project} extracted={items.length} needsReview={needsReview} structured={structured} scaleDerived={scaleDerived} lowConfidence={lowConfidence} openIssues={Math.max(0, openIssues)} onRunAnalysis={() => {}} onSaveDraft={() => {}} />
+      {viewerMode === "expanded" && <PlanViewer {...planViewerProps} mode="expanded" />}
+      <nav className="flex items-center justify-between border-b border-border px-4" aria-label="Scope Analyzer sections"><div className="flex min-w-0 gap-1 overflow-x-auto py-2">{tabs.map(tab => <Button key={tab.value} variant="ghost" size="sm" onClick={() => setActiveTab(tab.value)} className={cn("h-8 rounded-full px-4 text-xs text-muted-foreground", activeTab === tab.value && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}>{tab.label}</Button>)}</div>{viewerMode === "hidden" && <Button variant="ghost" size="sm" className="h-8 text-[11px] text-muted-foreground" onClick={() => setViewerMode("expanded")}><RulerIcon /> Open Plan Viewer</Button>}</nav>
+      <div className={cn("flex min-h-0 flex-1", viewerMode === "embedded" && "divide-x divide-border")}><div className="flex min-w-0 flex-1 flex-col">
+        {activeTab === "takeoff" && <QuantityTakeoffView items={items} selected={selected} onSelectedChange={setSelected} onOpenPlan={openPlan} onReviewChange={reviewChange} />}
+        {activeTab === "review" && <ReviewView items={items} decisions={decisions} onDecision={makeDecision} />}
+        {activeTab === "structure" && <StructureView items={items} track={track} selected={selected} onSelectedChange={setSelected} onOpenPlan={openPlan} onReviewChange={reviewChange} structure={structure} onStructureChange={updateStructure} onContinue={continueFlow} />}
+        {activeTab === "package" && <BidPackageView items={items} structure={structure} decisions={decisions} onBuild={() => setTransition(true)} />}
+      </div>{viewerMode === "embedded" && <div className="w-[380px] shrink-0"><PlanViewer {...planViewerProps} mode="embedded" /></div>}</div>
+    </div>
+    <WorkflowTransition active={transition} headline={track === "builder" ? "Preparing bid packages" : "Building your estimate"} targetPath={track === "builder" ? "/app/bid-leveling" : "/sub/estimate-builder"} steps={track === "builder" ? [{ label: "Applying validated scope" }, { label: "Grouping trade packages" }, { label: "Preparing bid workspace" }] : [{ label: "Applying validated quantities" }, { label: "Structuring line items" }, { label: "Applying project defaults" }, { label: "Preparing pricing workspace" }]} />
+  </TooltipProvider></Layout>;
 }
 
-export default function ScopeAnalyzerPage() {
-  return <ScopeAnalyzerWorkspace Layout={AppLayout} />;
-}
+function RulerIcon() { return <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="m3 17 14-14 4 4L7 21H3v-4Z"/><path d="m14 6 4 4M11 9l2 2M8 12l2 2"/></svg>; }
+export default function ScopeAnalyzerPage() { return <ScopeAnalyzerWorkspace Layout={AppLayout} track="builder" />; }
