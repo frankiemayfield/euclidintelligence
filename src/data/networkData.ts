@@ -482,3 +482,56 @@ export const subFeed: FeedItem[] = [
 ];
 
 export const getQuoteFor = (projectId: string) => quotes.find(q => q.projectId === projectId);
+
+/* ---------------- Compliance intake: applying reviewed documents ---------------- */
+
+export interface ComplianceUpdate {
+  companyId: string;
+  key: RequirementKey;
+  label: string;
+  status: ComplianceState;
+  carrier?: string;
+  policyNumber?: string;
+  effective?: string;
+  expires?: string;
+  details?: string;
+  source: string;
+  note?: string;
+}
+
+const worstOf = (states: ComplianceState[]): ComplianceState => {
+  const order: ComplianceState[] = ["Out of Compliance", "Missing", "Needs Review", "Expiring Soon", "In Compliance"];
+  return order.find(s => states.includes(s)) ?? "In Compliance";
+};
+
+/** Writes reviewed intake results onto the shared Network records. */
+export function applyComplianceUpdates(track: DemoTrack, updates: ComplianceUpdate[]) {
+  updates.forEach(update => {
+    const company = getCompany(track, update.companyId);
+    if (!company) return;
+    company.compliance = company.compliance ?? [];
+    const existing = company.compliance.find(r => r.key === update.key);
+    const record: ComplianceRecord = {
+      key: update.key,
+      label: update.label,
+      required: existing?.required ?? true,
+      status: update.status,
+      carrier: update.carrier ?? existing?.carrier,
+      policyNumber: update.policyNumber ?? existing?.policyNumber,
+      effective: update.effective ?? existing?.effective,
+      expires: update.expires ?? existing?.expires,
+      details: update.details ?? existing?.details,
+      source: update.source,
+      note: update.note,
+    };
+    if (existing) Object.assign(existing, record);
+    else company.compliance.push(record);
+    company.documents = [
+      { id: `${update.companyId}-${update.key}-${update.source}`, name: update.source, type: update.label, uploaded: new Date().toISOString().slice(0, 10) },
+      ...(company.documents ?? []).filter(d => d.name !== update.source),
+    ];
+    company.complianceOverall = worstOf(company.compliance.filter(r => r.required).map(r => r.status));
+    company.lastActivity = "Compliance document processed today";
+  });
+  window.dispatchEvent(new CustomEvent("euclid-network-updated"));
+}
