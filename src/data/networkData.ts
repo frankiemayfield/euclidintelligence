@@ -39,7 +39,7 @@ export interface NetworkCompany {
 
 const today = new Date("2026-09-09");
 export const daysUntil = (iso?: string) => (iso ? Math.round((new Date(iso).getTime() - today.getTime()) / 86400000) : null);
-export const fmtDate = (iso?: string) => (iso ? new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "short", d: "numeric", year: "numeric" } as never) : "—");
+export const fmtDate = (iso?: string) => (iso ? new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—");
 export const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 const req = (
