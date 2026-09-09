@@ -72,9 +72,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const root = document.documentElement;
     const dark = resolvedTheme === "dark";
-    root.style.setProperty("--env-accent", dark ? environment.accentDarkMode : environment.accentLight);
+    const activeAccent = dark ? environment.accentDarkMode : environment.accentLight;
+    const activeTint = dark ? environment.tintDarkMode : environment.tintLight;
+    root.style.setProperty("--env-accent", activeAccent);
     root.style.setProperty("--env-accent-soft", dark ? environment.secondaryDarkMode : environment.secondaryLight);
-    root.style.setProperty("--env-tint", dark ? environment.tintDarkMode : environment.tintLight);
+    root.style.setProperty("--env-tint", activeTint);
+    // Primary controls, selected workflow states, focus rings, and sidebar
+    // selection all inherit the active environment instead of a fixed brand hue.
+    root.style.setProperty("--primary", activeAccent);
+    root.style.setProperty("--primary-foreground", dark ? "215 20% 7%" : "0 0% 100%");
+    root.style.setProperty("--ring", activeAccent);
+    root.style.setProperty("--accent", activeTint);
+    root.style.setProperty("--accent-foreground", activeAccent);
+    root.style.setProperty("--sidebar-primary", activeAccent);
+    root.style.setProperty("--sidebar-accent", activeTint);
+    root.style.setProperty("--sidebar-accent-foreground", activeAccent);
     root.style.setProperty("--env-position", environment.position);
     root.style.setProperty("--env-position-mobile", environment.positionMobile);
     root.dataset.environment = environment.value;
