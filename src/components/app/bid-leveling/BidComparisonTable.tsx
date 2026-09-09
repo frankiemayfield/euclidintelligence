@@ -2,6 +2,10 @@ import { ChevronDown, Send, CheckCircle, AlertTriangle, Info } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { SubBid, formatCurrency, statusColors } from "./bidLevelingData";
 import { BidDetailPanel } from "./BidDetailPanel";
+import { Link } from "react-router-dom";
+import { builderNetwork, complianceTone } from "@/data/networkData";
+
+const companyByName = (name: string) => builderNetwork.find(c => c.name.toLowerCase().startsWith(name.toLowerCase().split(" ")[0]));
 
 interface BidComparisonTableProps {
   items: SubBid[];
@@ -78,6 +82,15 @@ export function BidComparisonTable({ items, expandedSub, onToggleExpand }: BidCo
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-foreground whitespace-nowrap">{b.sub}</span>
+                        {(() => {
+                          const company = companyByName(b.sub);
+                          if (!company?.complianceOverall) return null;
+                          return (
+                            <Link to={`/network/${company.id}`} onClick={e => e.stopPropagation()} className={`text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${complianceTone[company.complianceOverall]}`}>
+                              {company.complianceOverall}
+                            </Link>
+                          );
+                        })()}
                         {b.recommended &&
                           <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
                             Recommended
