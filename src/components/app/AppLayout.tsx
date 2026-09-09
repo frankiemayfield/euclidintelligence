@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   Upload, FileSearch, Table2,
-  FileOutput, Scale, TrendingUp, ChevronLeft, BarChart3, ChevronDown, DollarSign
+  FileOutput, Scale, TrendingUp, ChevronLeft, BarChart3, DollarSign
 } from "lucide-react";
 import environment from "@/assets/euclid-environment.jpg";
 import { useState } from "react";
@@ -19,18 +19,12 @@ const estimatorNavItems = [
   { label: "Est. vs Actual", icon: TrendingUp, path: "/app/est-vs-actual" },
 ];
 
-const recentProjects = [
-  { name: "Maple St. Kitchen Remodel", id: "maple" },
-  { name: "Oakwood Custom Home", id: "oakwood" },
-  { name: "Downtown TI - Suite 400", id: "downtown" },
-];
-
 type GlobalSection = "dashboard" | "estimator" | "settings";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const [atlasOpen, setAtlasOpen] = useState(true);
+  const [atlasOpen, setAtlasOpen] = useState(false);
 
   const getSection = (): GlobalSection => {
     if (location.pathname === "/app" || location.pathname === "/app/") return "dashboard";

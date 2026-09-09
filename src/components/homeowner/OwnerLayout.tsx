@@ -28,7 +28,7 @@ type GlobalSection = "dashboard" | "pre-construction" | "active-projects" | "set
 export function OwnerLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const [atlasOpen, setAtlasOpen] = useState(true);
+  const [atlasOpen, setAtlasOpen] = useState(false);
 
   const getSection = (): GlobalSection => {
     if (location.pathname === "/owner" || location.pathname === "/owner/") return "dashboard";

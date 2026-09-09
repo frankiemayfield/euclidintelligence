@@ -19,18 +19,12 @@ const estimatorNavItems = [
   { label: "Est. vs Actual", icon: TrendingUp, path: "/sub/est-vs-actual" },
 ];
 
-const recentProjects = [
-  { name: "Maple St. Kitchen Remodel", id: "maple", gc: "Mayfield & Co." },
-  { name: "Oakwood Addition", id: "oakwood", gc: "BrightBuild" },
-  { name: "Riverside TI", id: "riverside", gc: "Metro Builders" },
-];
-
 type GlobalSection = "dashboard" | "estimator" | "settings";
 
 export function SubLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const [atlasOpen, setAtlasOpen] = useState(true);
+  const [atlasOpen, setAtlasOpen] = useState(false);
 
   const getSection = (): GlobalSection => {
     if (location.pathname === "/sub" || location.pathname === "/sub/") return "dashboard";
