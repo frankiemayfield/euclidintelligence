@@ -27,10 +27,11 @@ export function GlobalHeader({ track }: { track: Track }) {
   const config = trackConfig[track]; const location = useLocation(); const navigate = useNavigate(); const { signOut } = useAuth();
   const { setProjectId } = useDemoProject();
   const notices = track === "owner" ? [] : notificationsByTrack[track];
-  const [notificationsOpen,setNotificationsOpen]=useState(false); const [profileOpen,setProfileOpen]=useState(false); const [messengerOpen,setMessengerOpen]=useState(false); const [noticeFilter,setNoticeFilter]=useState<"all"|"unread">("all"); const [moreOpen,setMoreOpen]=useState(false);
+  const [notificationsOpen,setNotificationsOpen]=useState(false); const [profileOpen,setProfileOpen]=useState(false); const [messengerOpen,setMessengerOpen]=useState(false); const [noticeFilter,setNoticeFilter]=useState<"all"|"unread">("all"); const [moreOpen,setMoreOpen]=useState(false); const [activeOpen,setActiveOpen]=useState(false);
   const section=sectionFor(location.pathname,config);
-  const navItems=[{id:"dashboard",label:"Home",to:config.dashboard},{id:"precon",label:config.preconLabel,to:config.precon},{id:"active",label:config.activeLabel,to:config.active}];
-  const moreItems=[{label:"Network",to:"/network",icon:Building2},{label:"Compliance",to:"/compliance",icon:ShieldCheck},{label:"Activity",to:"/activity",icon:Activity}];
+  const navItems=[{id:"dashboard",label:"Home",to:config.dashboard},{id:"activity",label:"Activity",to:"/activity"},{id:"precon",label:config.preconLabel,to:config.precon}];
+  const activeItems=[{label:config.activeLabel,to:config.active,icon:HardHat},{label:"Schedule",to:config.schedule,icon:CalendarRange},{label:"Time Clock",to:config.time,icon:Clock3}];
+  const moreItems=[{label:"Network",to:"/network",icon:Building2},{label:"Compliance",to:"/compliance",icon:ShieldCheck},{label:"Estimate vs Actual",to:track==="sub"?"/sub/est-vs-actual":"/app/est-vs-actual",icon:Activity}];
   return <>
     <header className="odyssey-header relative z-[70] flex h-[72px] shrink-0 items-center justify-between px-7 lg:px-[9%]">
       <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark className="h-auto w-[132px]"/></Link>
