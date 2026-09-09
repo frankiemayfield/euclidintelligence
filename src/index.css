@@ -1,49 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 210 15% 98%;
-    --foreground: 215 25% 12%;
+    --background: 190 24% 93%;
+    --foreground: 207 36% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 25% 12%;
+    --card: 185 28% 98%;
+    --card-foreground: 207 36% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 12%;
+    --popover: 185 28% 98%;
+    --popover-foreground: 207 36% 15%;
 
-    --primary: 207 70% 32%;
+    --primary: 188 58% 29%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 207 25% 95%;
-    --secondary-foreground: 207 60% 22%;
+    --secondary: 190 22% 88%;
+    --secondary-foreground: 207 36% 18%;
 
-    --muted: 210 12% 96%;
-    --muted-foreground: 215 10% 46%;
+    --muted: 190 18% 89%;
+    --muted-foreground: 205 16% 43%;
 
-    --accent: 207 30% 92%;
-    --accent-foreground: 207 60% 22%;
+    --accent: 185 28% 86%;
+    --accent-foreground: 188 58% 22%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 12% 90%;
-    --input: 210 12% 90%;
-    --ring: 207 70% 32%;
+    --border: 190 18% 78%;
+    --input: 190 18% 78%;
+    --ring: 188 58% 29%;
 
-    --radius: 0.625rem;
+    --radius: 1rem;
 
-    --sidebar-background: 0 0% 100%;
+    --sidebar-background: 185 28% 97%;
     --sidebar-foreground: 215 15% 20%;
-    --sidebar-primary: 207 70% 32%;
+    --sidebar-primary: 188 58% 29%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 207 25% 95%;
-    --sidebar-accent-foreground: 207 60% 22%;
-    --sidebar-border: 210 12% 92%;
-    --sidebar-ring: 207 70% 32%;
+    --sidebar-accent: 185 28% 88%;
+    --sidebar-accent-foreground: 188 58% 22%;
+    --sidebar-border: 190 18% 80%;
+    --sidebar-ring: 188 58% 29%;
 
     /* Custom tokens */
     --success: 142 60% 40%;
@@ -53,15 +51,15 @@
     --info: 210 80% 52%;
     --info-foreground: 0 0% 100%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(207, 70%, 38%), hsl(207, 70%, 28%));
-    --gradient-hero: linear-gradient(180deg, hsl(210, 20%, 97%) 0%, hsl(0, 0%, 100%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(210, 15%, 98%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(188, 58%, 36%), hsl(207, 36%, 20%));
+    --gradient-hero: linear-gradient(180deg, hsl(185, 28%, 98%) 0%, hsl(190, 24%, 92%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(185, 28%, 99%) 0%, hsl(190, 20%, 94%) 100%);
 
     --shadow-sm: 0 1px 2px 0 hsl(215 25% 12% / 0.04);
     --shadow-md: 0 4px 12px -2px hsl(215 25% 12% / 0.06);
     --shadow-lg: 0 10px 30px -6px hsl(215 25% 12% / 0.08);
-    --shadow-card: 0 1px 3px 0 hsl(215 25% 12% / 0.04), 0 1px 2px -1px hsl(215 25% 12% / 0.04);
-    --shadow-card-hover: 0 8px 24px -4px hsl(215 25% 12% / 0.08);
+    --shadow-card: 0 18px 48px -28px hsl(207 36% 15% / 0.28), inset 0 1px 0 hsl(0 0% 100% / 0.72);
+    --shadow-card-hover: 0 24px 56px -28px hsl(207 36% 15% / 0.36), inset 0 1px 0 hsl(0 0% 100% / 0.8);
 
     --font-display: 'Plus Jakarta Sans', sans-serif;
     --font-body: 'DM Sans', sans-serif;
@@ -123,10 +121,44 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    letter-spacing: 0;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+  }
+}
+
+@layer components {
+  .odyssey-app {
+    background-color: hsl(var(--background));
+    background-image: linear-gradient(hsl(var(--background) / 0.48), hsl(var(--background) / 0.72)), var(--odyssey-environment);
+    background-position: center;
+    background-size: cover;
+  }
+
+  .odyssey-header,
+  .odyssey-popover {
+    border: 1px solid hsl(var(--border) / 0.58);
+    background: hsl(var(--card) / 0.68);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(24px) saturate(135%);
+  }
+
+  .odyssey-header { border-radius: 1.25rem; }
+  .odyssey-popover { border-radius: 1rem; }
+
+  .odyssey-surface {
+    border: 1px solid hsl(var(--border) / 0.58);
+    background: hsl(var(--card) / 0.64);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(22px) saturate(130%);
+  }
+
+  .odyssey-app main .bg-card,
+  .odyssey-app main .bg-background {
+    background-color: hsl(var(--card) / 0.64);
+    backdrop-filter: blur(18px) saturate(125%);
   }
 }
 

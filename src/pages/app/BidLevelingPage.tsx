@@ -19,7 +19,7 @@ export default function BidLevelingPage() {
       <div className="p-6 lg:p-8 max-w-7xl">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Bid Packages</h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">Bid Leveling</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Compare and normalize subcontractor bids — level scope differences to find the true best-fit bid
             </p>

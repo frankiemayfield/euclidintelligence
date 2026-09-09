@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   Upload, FileText, Scale, GitCompareArrows, BarChart3,
-  FolderOpen, Wallet, Receipt, FileWarning, Settings, ChevronLeft, ChevronDown
+   FolderOpen, Wallet, Receipt, FileWarning, ChevronLeft
 } from "lucide-react";
-import euclidLogo from "@/assets/euclid-logo.png";
+import environment from "@/assets/euclid-environment.jpg";
 import { useState } from "react";
 import { AtlasPanel, AtlasToggleButton } from "@/components/app/AtlasPanel";
+import { GlobalHeader } from "@/components/app/GlobalHeader";
 
 const preConNavItems = [
   { label: "Document Upload", icon: Upload, path: "/owner/upload" },
@@ -27,7 +28,7 @@ type GlobalSection = "dashboard" | "pre-construction" | "active-projects" | "set
 export function OwnerLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const [atlasOpen, setAtlasOpen] = useState(true);
+  const [atlasOpen, setAtlasOpen] = useState(false);
 
   const getSection = (): GlobalSection => {
     if (location.pathname === "/owner" || location.pathname === "/owner/") return "dashboard";
@@ -48,53 +49,14 @@ export function OwnerLayout({ children }: { children: React.ReactNode }) {
   const sidebarShort = isPreCon ? "Pre" : "Act";
 
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden">
-      {/* Global Top Nav */}
-      <header className="h-12 border-b border-border bg-card flex items-center justify-between px-4 shrink-0 z-50">
-        <div className="flex items-center gap-6">
-          <Link to="/" className="shrink-0">
-            <img src={euclidLogo} alt="Euclid" className="h-8 w-auto" />
-          </Link>
-          <nav className="flex items-center gap-1">
-            <Link to="/owner"
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${section === "dashboard" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
-              Dashboard
-            </Link>
-            <Link to="/owner/upload"
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isPreCon ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
-              Pre-Construction
-            </Link>
-            <Link to="/owner/documents"
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
-              Active Projects
-            </Link>
-            <Link to="/owner/settings"
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${section === "settings" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
-              Settings
-            </Link>
-          </nav>
-        </div>
-        <div className="flex items-center gap-4">
-          {hasSidebar && (
-            <div className="flex items-center gap-2 text-sm text-foreground">
-              <span className="text-xs text-muted-foreground">Project:</span>
-              <span className="font-medium">Osterfeld Residence Renovation</span>
-            </div>
-          )}
-          <div className="flex items-center gap-2 border-l border-border pl-4">
-            <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">AO</div>
-            <div className="text-xs">
-              <span className="text-foreground font-medium">Andrew Osterfeld</span>
-              <span className="text-muted-foreground ml-1.5">· Homeowner</span>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="odyssey-app relative flex h-screen flex-col overflow-hidden">
+      <img src={environment} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-45" width={1920} height={1080} />
+      <div className="relative z-10"><GlobalHeader track="owner" /></div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="relative z-10 flex flex-1 gap-3 overflow-hidden px-3 pb-3 pt-3 lg:gap-4 lg:px-5 lg:pb-5">
         {/* Sidebar */}
         {hasSidebar && (
-          <aside className={`${collapsed ? "w-14" : "w-56"} bg-card border-r border-border flex flex-col shrink-0 transition-all duration-200`}>
+          <aside className={`${collapsed ? "w-14" : "w-56"} odyssey-surface flex flex-col shrink-0 overflow-hidden rounded-2xl transition-all duration-200`}>
             <div className={`px-3 py-3 border-b border-border ${collapsed ? "px-2" : ""}`}>
               {!collapsed && (
                 <>
@@ -130,7 +92,7 @@ export function OwnerLayout({ children }: { children: React.ReactNode }) {
         )}
 
         {/* Main */}
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="min-w-0 flex-1 overflow-y-auto rounded-2xl">{children}</main>
 
         {/* Atlas Panel */}
         {showAtlas && <AtlasPanel isOpen={atlasOpen} onClose={() => setAtlasOpen(false)} />}

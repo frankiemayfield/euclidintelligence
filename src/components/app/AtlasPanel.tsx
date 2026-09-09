@@ -1,4 +1,4 @@
-import { Bot, Send, X, Sparkles, Upload, FileText, XCircle } from "lucide-react";
+import { Send, X, FileText, XCircle, Scale, Minus } from "lucide-react";
 import { useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -286,18 +286,19 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="w-[340px] xl:w-[380px] border-l border-border bg-card flex flex-col shrink-0 h-full rounded-tl-2xl">
+    <div className="odyssey-popover fixed bottom-5 right-5 z-50 flex h-[min(680px,calc(100vh-120px))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden">
       {/* Header */}
       <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Bot size={16} className="text-primary" />
+            <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center shadow-sm">
+              <Scale size={15} className="text-background" />
           </div>
           <p className="text-sm font-bold text-foreground font-display">Euclid</p>
         </div>
-        <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted/50">
-          <X size={16} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted/50" aria-label="Minimize Euclid"><Minus size={16} /></button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted/50" aria-label="Close Euclid"><X size={16} /></button>
+        </div>
       </div>
 
       {/* Uploaded Files Bar */}
@@ -323,15 +324,15 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
         {messages.map((m, i) => (
           <div key={i} className={`flex gap-3 ${m.role === "user" ? "justify-end" : ""}`}>
             {m.role === "euclid" && (
-              <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-1">
-                <Bot size={13} className="text-primary" />
+              <div className="w-7 h-7 rounded-full bg-foreground flex items-center justify-center shrink-0 mt-1">
+                <Scale size={12} className="text-background" />
               </div>
             )}
             <div className={`max-w-[85%] ${m.role === "user" ? "" : ""}`}>
               <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                 m.role === "user"
                   ? "bg-primary/10 text-foreground rounded-tr-md"
-                  : "bg-muted/50 text-foreground rounded-tl-md"
+                  : "bg-transparent text-foreground px-0 rounded-none"
               }`}>
                 {m.content}
               </div>
@@ -354,8 +355,8 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
         <div className="flex flex-wrap gap-1.5 mb-3">
           {suggestions.map((s) => (
             <button key={s} onClick={() => setInput(s)}
-              className="text-[10px] bg-accent rounded-full px-2.5 py-1.5 text-accent-foreground hover:bg-primary/10 transition-colors">
-              <Sparkles size={8} className="inline mr-1" />{s}
+              className="text-[10px] bg-card/55 border border-border/60 rounded-full px-2.5 py-1.5 text-accent-foreground hover:bg-card transition-colors">
+              {s}
             </button>
           ))}
         </div>
@@ -385,10 +386,10 @@ export function AtlasToggleButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed right-4 bottom-4 z-40 flex items-center gap-2 bg-primary text-primary-foreground rounded-full px-4 py-2.5 shadow-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+      className="fixed right-5 bottom-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-background shadow-lg transition-transform hover:scale-105"
+      aria-label="Open Euclid"
     >
-      <Bot size={16} />
-      <span>Open Euclid</span>
+      <Scale size={18} />
     </button>
   );
 }
