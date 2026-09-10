@@ -68,6 +68,20 @@ export default function FinancialsOverviewPage() {
             ))}
           </Panel>
 
+          <div className="space-y-3">
+          <Panel title="Preconstruction" action={<Link to={`${base}/financials/preconstruction`} className="text-[11px] font-semibold text-primary">Open Preconstruction →</Link>}>
+            {(() => {
+              const pre = allProjects.filter(p => !financialProjectIds.includes(p.id));
+              const est = pre.reduce((n, p) => n + (p.builderCost ?? 0), 0);
+              return (
+                <div className="space-y-1 text-[11px] text-muted-foreground">
+                  <p className="text-sm font-semibold text-foreground">{pre.length} projects active</p>
+                  <p>{money(est)} estimated builder cost</p>
+                  <p>Scope, bids, estimate, pricing and proposals set each project's original budget.</p>
+                </div>
+              );
+            })()}
+          </Panel>
           <Panel title="Cost Inbox" action={<Link to={`${base}/financials/inbox`} className="text-[11px] font-semibold text-primary">Open →</Link>}>
             <p className="flex items-center gap-2 text-sm font-semibold"><Inbox size={15} className="text-primary" />{c.inboxNeedsAction} documents need action</p>
             <div className="mt-2 space-y-1 text-[11px] text-muted-foreground">

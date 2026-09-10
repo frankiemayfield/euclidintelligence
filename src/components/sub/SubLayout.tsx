@@ -51,7 +51,7 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
             <div className={`px-3 py-3 border-b border-border ${collapsed ? "px-2" : ""}`}>
               {!collapsed && (
                 <>
-                  <Link to="/sub/projects" className="text-[10px] font-semibold text-primary">← Projects</Link>
+                  <Link to="/sub/financials/preconstruction" className="text-[10px] font-semibold text-primary">← Preconstruction</Link>
                   <div className="mt-2"><SidebarProjectSwitcher /></div>
                   <p className="text-[10px] text-muted-foreground mt-1">Preconstruction</p>
                 </>
