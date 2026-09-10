@@ -245,13 +245,29 @@
     backdrop-filter: blur(28px) saturate(140%);
   }
 
-  /* The page-level environment wash already handles readability at the top,
-     so the header itself stays completely seamless — no card, no seam. */
+  /* Odyssey header: seamless atmospheric wash, never a floating cell. */
   .odyssey-header {
     border: 0;
-    background: transparent;
+    background: linear-gradient(
+      180deg,
+      hsl(var(--card) / 0.96) 0%,
+      hsl(var(--card) / 0.84) 54%,
+      hsl(var(--card) / 0.38) 82%,
+      transparent 100%
+    );
     box-shadow: none;
-    backdrop-filter: none;
+    backdrop-filter: blur(10px) saturate(112%);
+    -webkit-backdrop-filter: blur(10px) saturate(112%);
+  }
+
+  .dark .odyssey-header {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--background) / 0.97) 0%,
+      hsl(var(--background) / 0.86) 54%,
+      hsl(var(--background) / 0.42) 82%,
+      transparent 100%
+    );
   }
 
   /* Content softly disappears as it travels beneath the seamless header. */
@@ -267,6 +283,26 @@
     transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
   }
 
+  .odyssey-nav-group {
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .odyssey-nav-group[data-active="true"],
+  .odyssey-nav-group[data-open="true"] {
+    border-color: hsl(var(--env-accent) / 0.18);
+    background: hsl(var(--card) / 0.68);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .odyssey-nav-group[data-active="true"] a,
+  .odyssey-nav-group[data-active="true"] button,
+  .odyssey-nav-group[data-open="true"] a,
+  .odyssey-nav-group[data-open="true"] button {
+    color: hsl(var(--foreground));
+  }
+
   .odyssey-header-control:hover,
   .odyssey-header-control.is-active {
     color: hsl(var(--env-accent));
@@ -276,9 +312,24 @@
 
   /* environment-reactive nav link */
   .odyssey-nav-link[data-active="true"] {
-    color: hsl(var(--env-accent));
-    background: hsl(var(--env-accent) / 0.12);
-    border-color: hsl(var(--env-accent) / 0.28);
+    color: hsl(var(--foreground));
+    background: hsl(var(--card) / 0.68);
+    border-color: hsl(var(--env-accent) / 0.18);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .odyssey-menu {
+    animation: odyssey-menu-in 140ms ease-out;
+    transform-origin: top center;
+  }
+
+  @keyframes odyssey-menu-in {
+    from { opacity: 0; transform: translate(-50%, -4px) scale(0.98); }
+    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .odyssey-menu { animation: none; }
   }
 
 

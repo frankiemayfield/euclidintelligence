@@ -1,6 +1,6 @@
 import { Bell, ChevronDown, CheckCheck, MessageSquare, Settings, UserRound, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
@@ -36,16 +36,19 @@ function Pillar({ id, label, to, items, section, open, setOpen }: {
   open: string | null; setOpen: (v: string | null) => void;
 }) {
   const isOpen = open === id;
+  const isActive = section === id;
   return (
-    <div className="relative flex items-center">
-      <Link to={to} data-active={section === id} onClick={() => setOpen(null)}
-        className="odyssey-nav-link rounded-l-full border border-transparent py-2 pl-4 pr-1 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">{label}</Link>
-      <button aria-label={`${label} menu`} aria-expanded={isOpen} data-active={section === id} onClick={() => setOpen(isOpen ? null : id)}
-        className="odyssey-nav-link rounded-r-full border border-transparent py-2 pl-1 pr-3 text-muted-foreground transition-colors hover:text-foreground">
-        <ChevronDown size={13} />
-      </button>
+    <div className="relative">
+      <div className="odyssey-nav-group flex items-center" data-active={isActive} data-open={isOpen}>
+        <Link to={to} onClick={() => setOpen(null)}
+          className="py-2 pl-4 pr-1 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">{label}</Link>
+        <Button variant="ghost" size="icon" aria-label={`${label} menu`} aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : id)}
+          className="h-8 w-7 rounded-none bg-transparent p-0 text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground">
+          <ChevronDown size={12} className={cn("transition-transform duration-150", isOpen && "rotate-180")} />
+        </Button>
+      </div>
       {isOpen && (
-        <div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
+        <div className="odyssey-popover odyssey-menu absolute left-1/2 top-12 z-[100] w-56 -translate-x-1/2 p-2">
           {items.map(item => (
             <div key={item.to + item.label}>
               {item.divider && <div className="my-1 h-px bg-border/60" />}
@@ -64,9 +67,24 @@ export function GlobalHeader({ track }: { track: Track }) {
   const { setProjectId } = useDemoProject();
   const notices = track === "owner" ? [] : notificationsByTrack[track];
   const [notificationsOpen,setNotificationsOpen]=useState(false); const [profileOpen,setProfileOpen]=useState(false); const [messengerOpen,setMessengerOpen]=useState(false); const [noticeFilter,setNoticeFilter]=useState<"all"|"unread">("all"); const [openPillar,setOpenPillar]=useState<string|null>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const base = track === "sub" ? "/sub" : track === "owner" ? "/owner" : "/app";
   const section=sectionFor(location.pathname,base,config);
   const closeAll=()=>{setOpenPillar(null);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)};
+  useEffect(() => {
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!headerRef.current?.contains(event.target as Node)) closeAll();
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeAll();
+    };
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
   const pillars: { id: string; label: string; to: string; items: PillarItem[] }[] = track === "owner" ? [] : [
     { id: "precon", label: "Precon", to: `${base}/precon`, items: [
       { label: "Overview", to: `${base}/precon` },
@@ -92,10 +110,11 @@ export function GlobalHeader({ track }: { track: Track }) {
       { label: "Settings", to: config.settings, divider: true },
     ] },
   ];
-  return <>
-    <header className="odyssey-header relative z-[70] flex h-[76px] shrink-0 items-center justify-between px-6 lg:px-[7%]">
-      <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark /></Link>
-      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-0.5 md:flex" aria-label="Primary navigation">
+  return <div ref={headerRef} className="contents">
+    <header className="odyssey-header relative z-[70] h-[72px] shrink-0">
+      <div className="relative mx-auto flex h-full w-full max-w-[1180px] items-center justify-between px-5 lg:px-8">
+      <Link to={config.dashboard} aria-label="Euclid dashboard" onClick={closeAll} className="flex h-full items-center"><EuclidWordmark className="h-10 w-[132px]" /></Link>
+      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
         <Link to={config.dashboard} data-active={section==="dashboard"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Home</Link>
         <Link to="/activity" data-active={section==="activity"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Activity</Link>
         {pillars.map(p => <Pillar key={p.id} {...p} section={section} open={openPillar} setOpen={setOpenPillar} />)}
@@ -114,7 +133,8 @@ export function GlobalHeader({ track }: { track: Track }) {
         <Link to={config.settings} className="hidden sm:block"><Button variant="ghost" size="icon" className="odyssey-header-control h-9 w-9" aria-label="Settings"><Settings strokeWidth={1.6}/></Button></Link>
         <div className="ml-2 hidden h-5 w-px bg-border/60 sm:block"/><div className="relative"><Button variant="ghost" className="h-10 px-1.5 sm:pr-2" onClick={()=>{setProfileOpen(v=>!v);setNotificationsOpen(false);setMessengerOpen(false)}}><span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">{config.initials}</span><span className="hidden text-[13px] font-semibold lg:inline">{config.person.split(" ")[0]}</span><ChevronDown size={13} className="hidden text-muted-foreground lg:block"/></Button>{profileOpen&&<div className="odyssey-popover absolute right-0 top-12 z-[100] w-64 p-2"><div className="border-b border-border/60 px-3 py-3"><p className="text-sm font-semibold">{config.person}</p><p className="text-[10px] text-muted-foreground">{config.company} · {config.role}</p></div><Link to={config.settings} className="mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground" onClick={()=>setProfileOpen(false)}><UserRound size={14}/>Profile & preferences</Link><Link to={config.settings} className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground" onClick={()=>setProfileOpen(false)}><Settings size={14}/>Workspace settings</Link><Button variant="ghost" className="mt-1 h-9 w-full justify-start rounded-lg px-3 text-xs text-destructive" onClick={()=>{signOut();navigate("/signin")}}>Sign out</Button></div>}</div>
       </div>
+      </div>
     </header>
     <MessengerDropdown open={messengerOpen} onClose={()=>setMessengerOpen(false)}/>
-  </>;
+  </div>;
 }
