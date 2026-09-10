@@ -9,7 +9,8 @@ import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 import { fmtWhen, projectActivity, urgencyTone } from "@/data/activityData";
 import { builderNetwork, complianceTone } from "@/data/networkData";
 import { cn } from "@/lib/utils";
-import { TimeClockPanel } from "./TimeClockPanel";
+import { SelectionsPanel } from "@/components/app/selections/SelectionsPanel";
+import { projectFinancials, selectionsFor } from "@/data/financialData";
 
 const TABS = ["overview", "schedule", "selections", "activity", "documents", "team"] as const;
 type Tab = (typeof TABS)[number];
@@ -42,6 +43,8 @@ export default function ProjectWorkspacePage() {
   const late = lateTasks(projectId);
   const crit = criticalTasks(projectId);
   const a = project.actuals;
+  const fin = a ? projectFinancials(projectId) : null;
+  const sels = selectionsFor(projectId);
 
   return (
     <TrackShell>
@@ -129,14 +132,29 @@ export default function ProjectWorkspacePage() {
               }) : <p className="text-[11px] text-muted-foreground">No one is clocked in on this project.</p>}
             </Panel>
 
-            <Panel title="Cost Performance" className="lg:col-span-2">
-              {a ? (
-                <div className="grid grid-cols-2 gap-3 text-[11px] sm:grid-cols-5">
-                  {[["Original estimate", a.originalEstimate], ["Approved COs", a.approvedChangeOrders], ["Revised budget", a.revisedBudget], ["Actual to date", a.actualToDate], ["Forecast", a.forecastAtCompletion]].map(([l, v]) => (
-                    <div key={l as string}><p className="text-muted-foreground">{l as string}</p><p className="font-semibold">{money(v as number)}</p></div>
-                  ))}
-                </div>
-              ) : <p className="text-[11px] text-muted-foreground">Actual costs begin after award and construction start.</p>}
+            <Panel title="Financial Summary" className="lg:col-span-2"
+              action={<Link to={`${base}/financials/${projectId}/budget`} className="text-[11px] font-semibold text-primary">Open project Financials →</Link>}>
+              {fin ? (
+                <>
+                  <div className="grid grid-cols-2 gap-3 text-[11px] sm:grid-cols-5">
+                    {[["Revised budget", money(fin.revised)], ["Committed", money(fin.committed)], ["Actual", money(fin.actual)], ["Forecast", money(fin.forecast)], ["Variance", `${fin.variance < 0 ? "-" : "+"}${money(Math.abs(fin.variance))}`]].map(([l, v]) => (
+                      <div key={l as string}><p className="text-muted-foreground">{l as string}</p><p className="font-semibold">{v as string}</p></div>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-3 text-[11px]">
+                    <Link to={`${base}/financials/${projectId}/costs`} className="font-semibold text-primary">Costs</Link>
+                    <Link to={`${base}/financials/${projectId}/commitments`} className="font-semibold text-primary">Commitments</Link>
+                    <Link to={`${base}/financials/${projectId}/changes`} className="font-semibold text-primary">Changes</Link>
+                    <Link to={`${base}/financials/${projectId}/billing`} className="font-semibold text-primary">Client Billing</Link>
+                  </div>
+                </>
+              ) : <p className="text-[11px] text-muted-foreground">Project financials begin after award and construction start.</p>}
+            </Panel>
+
+            <Panel title="Selections">
+              <p className="text-sm font-semibold">{sels.filter(x => ["Not Started", "Requested", "Reviewing"].includes(x.status)).length} selections need a decision</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">{sels.filter(x => x.overdueDays).length} overdue · {sels.filter(x => x.status === "Ordered").length} ordered</p>
+              <button onClick={() => navigate(`${base}/active/${projectId}/selections`)} className="mt-2 text-[11px] font-semibold text-primary">Open Selections →</button>
             </Panel>
 
             <Panel title="Recent Activity">
@@ -165,37 +183,7 @@ export default function ProjectWorkspacePage() {
 
         {active === "schedule" && <ScheduleModule projectId={projectId} projectName={project.name} scopeCompanyId={scopeCompanyId} />}
 
-        {active === "time" && <TimeClockPanel projectId={projectId} scopeCompanyId={scopeCompanyId} />}
-
-        {active === "costs" && (
-          <div className="space-y-3">
-            {a ? (
-              <>
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-                  {[["Original estimate", a.originalEstimate], ["Approved COs", a.approvedChangeOrders], ["Revised budget", a.revisedBudget], ["Actual to date", a.actualToDate], ["Forecast at completion", a.forecastAtCompletion]].map(([l, v]) => (
-                    <div key={l as string} className="odyssey-surface rounded-xl p-4 text-center"><p className="text-[10px] text-muted-foreground">{l as string}</p><p className="mt-1 font-display text-lg font-bold">{money(v as number)}</p></div>
-                  ))}
-                </div>
-                <EuclidImpact domain="Cost" tone={a.forecastAtCompletion > a.revisedBudget ? "warning" : "positive"}
-                  message={`Forecast at completion is ${money(a.forecastAtCompletion)} against a revised budget of ${money(a.revisedBudget)} — a ${a.forecastAtCompletion > a.revisedBudget ? "projected overrun" : "projected saving"} of ${money(Math.abs(a.forecastAtCompletion - a.revisedBudget))}. Internal crew hours post directly to actual labor; fixed-price subcontract crews post from commitments and invoices, so labor is never double-counted.`}
-                  action={{ label: "Open Estimate vs Actual", to: `${base}/est-vs-actual` }} />
-                <Panel title="Labor from time clock">
-                  <p className="text-[11px] text-muted-foreground">This week: {weekSummary.regular} regular hours, {weekSummary.overtime} overtime, {money(weekSummary.laborCost)} labor cost (+{money(weekSummary.budgetVariance)} vs budget).</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Highest labor variance: {weekSummary.highestVariance.task} — estimated {weekSummary.highestVariance.estimated} hrs, forecast {weekSummary.highestVariance.actual} hrs (+{weekSummary.highestVariance.pct}%).</p>
-                  <Link to={`${base}/est-vs-actual`} className="mt-2 inline-block text-[11px] font-semibold text-primary">Open Estimate vs Actual →</Link>
-                </Panel>
-                <Panel title="Cost transactions">
-                  {a.transactions.map(t => (
-                    <div key={t.id} className="flex items-center justify-between border-b border-border/35 py-2 text-[11px] last:border-0">
-                      <span>{t.description}<span className="block text-[10px] text-muted-foreground">{t.source} · {t.id}</span></span>
-                      <span className="flex items-center gap-3"><b>{money(t.amount)}</b><span className="rounded-full bg-secondary/80 px-2 py-0.5 text-[9px] font-bold">{t.status}</span></span>
-                    </div>
-                  ))}
-                </Panel>
-              </>
-            ) : <div className="odyssey-surface rounded-2xl p-8 text-center text-sm text-muted-foreground">Actual costs start once this project is in construction.</div>}
-          </div>
-        )}
+        {active === "selections" && <SelectionsPanel projectId={projectId} base={base} />}
 
         {active === "team" && (
           <div className="grid gap-3 md:grid-cols-2">
