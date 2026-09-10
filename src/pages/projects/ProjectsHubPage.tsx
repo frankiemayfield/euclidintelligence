@@ -59,23 +59,20 @@ export default function ProjectsHubPage({ mode = "operations" }: { mode?: "opera
           </p>
         </header>
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-2">
+          <nav className="flex flex-wrap items-center gap-4" aria-label="Project lifecycle">
+            {!precon && FILTERS.map(f => (
+              <button key={f} onClick={() => setFilter(f)} aria-current={filter === f ? "page" : undefined}
+                className={cn("-mb-2.5 border-b-2 border-transparent pb-2 text-[12px] font-medium text-muted-foreground transition-colors hover:text-foreground",
+                  filter === f && "border-primary text-foreground")}>{FILTER_LABEL[f]}</button>
+            ))}
+          </nav>
           <Link to={track === "sub" ? "/sub/upload" : "/app/new-project"}
             className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-[12.5px] font-semibold text-primary-foreground transition-opacity hover:opacity-90">
             <PlusCircle size={14} />New Project
           </Link>
         </div>
 
-        {!precon && (
-          <nav className="mt-3 flex flex-wrap items-center gap-4 border-b border-border/50 pb-2" aria-label="Project lifecycle">
-            {FILTERS.map(f => (
-              <button key={f} onClick={() => setFilter(f)} aria-current={filter === f ? "page" : undefined}
-                className={cn("-mb-2.5 border-b-2 border-transparent pb-2 text-[12px] font-medium text-muted-foreground transition-colors hover:text-foreground",
-                  filter === f && "border-primary text-foreground")}>{FILTER_LABEL[f]}</button>
-            ))}
-          </nav>
-        )}
 
         <div className="mt-4 grid gap-3 lg:grid-cols-2">
           {list.map(p => {
