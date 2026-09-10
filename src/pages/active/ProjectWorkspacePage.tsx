@@ -69,13 +69,6 @@ export default function ProjectWorkspacePage() {
           }
         />
 
-        {(OPS_TOOLS as readonly string[]).includes(active) && (
-          <ToolTabs
-            items={OPS_TOOLS.map(t => ({ id: t as string, label: LABELS[t] }))}
-            active={active as string}
-            onSelect={t => navigate(`${base}/projects/${projectId}/${t}`)}
-          />
-        )}
 
         {active === "overview" && (
           <div className="grid gap-3 lg:grid-cols-3">
