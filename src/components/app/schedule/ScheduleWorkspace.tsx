@@ -42,7 +42,8 @@ export function ScheduleWorkspace({ scope, base, scopeCompanyId }: {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="mb-3 flex flex-wrap items-center justify-end gap-3">
+      {isCompany && (
+      <div className="mb-2 flex flex-wrap items-center justify-end gap-3">
         <Dropdown label={label} width="w-72">
           {[[ALL_ACTIVE, "All Active Projects"], [ALL_PROJECTS, "All Projects"]].map(([id, l]) => (
             <button key={id} onClick={() => goCompany(id)}
@@ -58,6 +59,7 @@ export function ScheduleWorkspace({ scope, base, scopeCompanyId }: {
           ))}
         </Dropdown>
       </div>
+      )}
 
       <div className="flex min-h-0 flex-1 flex-col">
         {isCompany

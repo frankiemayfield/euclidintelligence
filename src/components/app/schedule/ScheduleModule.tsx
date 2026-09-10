@@ -86,9 +86,9 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       {/* combined status + toolbar cell */}
-      <div className="odyssey-surface rounded-2xl px-3 py-2.5">
+      <div className="odyssey-surface rounded-xl px-2.5 py-1.5">
         {/* status ribbon (top) */}
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 px-1 pb-2.5 text-[11px]">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-0.5 pb-1.5 text-[10px]">
           <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-bold", published ? "bg-success/15 text-success" : "bg-warning/20 text-warning")}>{published ? "Published" : "Draft"}</span>
           <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-bold", health.tone)} title={health.summary}>Schedule Health: {health.state}</span>
           <span className="text-muted-foreground">Forecast <b className="text-foreground">{fmtLong(status.forecastFinish)}</b></span>
@@ -105,19 +105,19 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
         </div>
 
         {/* toolbar (bottom) */}
-        <div className="flex flex-wrap items-center gap-2 border-t border-border/40 pt-2.5">
+        <div className="flex flex-wrap items-center gap-1.5 border-t border-border/40 pt-1.5">
           {/* left — views */}
           <div className="flex rounded-full bg-muted/70 p-0.5">
             {(Object.keys(viewIcons) as View[]).map(v => {
               const Icon = viewIcons[v];
-              return <button key={v} onClick={() => { setView(v); setLookAhead(false); }} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold", view === v && !lookAhead && "bg-card shadow-sm")}><Icon size={12} /><span className="hidden sm:inline">{v}</span></button>;
+              return <button key={v} onClick={() => { setView(v); setLookAhead(false); }} className={cn("flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold", view === v && !lookAhead && "bg-card shadow-sm")}><Icon size={12} /><span className="hidden sm:inline">{v}</span></button>;
             })}
           </div>
 
           {/* center — search + filter */}
           <div className="relative min-w-[140px] flex-1">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search schedule..." className="w-full rounded-full border border-border/60 bg-transparent py-1.5 pl-8 pr-3 text-[11px] outline-none focus:border-primary/50" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search schedule..." className="w-full rounded-full border border-border/60 bg-transparent py-1 pl-7 pr-2.5 text-[10px] outline-none focus:border-primary/50" />
           </div>
           <Dropdown label="Filter" icon={Filter} active={filtersOn} width="w-64">
             <DropdownSelect label="Phase" value={phaseFilter} onChange={setPhaseFilter} options={["All", ...phases.map(p => p.id)]} render={v => phases.find(p => p.id === v)?.name ?? v} />
@@ -131,9 +131,9 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
 
           {/* right — actions */}
           <div className="ml-auto flex flex-wrap items-center gap-2">
-            <button onClick={() => { setLookAhead(false); setTodaySignal(n => n + 1); }} className="rounded-full border border-border/60 px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground">Today</button>
+            <button onClick={() => { setLookAhead(false); setTodaySignal(n => n + 1); }} className="rounded-full border border-border/60 px-2 py-1 text-[10px] font-semibold text-muted-foreground hover:text-foreground">Today</button>
             <button onClick={() => setLookAhead(v => !v)}
-              className={cn("flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[11px] font-semibold", lookAhead ? "border-primary/60 bg-primary/15 text-primary" : "border-border/60 text-muted-foreground hover:text-foreground")}>
+              className={cn("flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] font-semibold", lookAhead ? "border-primary/60 bg-primary/15 text-primary" : "border-border/60 text-muted-foreground hover:text-foreground")}>
               <CalendarRange size={12} />2 Week Look Ahead
             </button>
             <Dropdown label="View Options" icon={SlidersHorizontal} width="w-60">
@@ -158,10 +158,10 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
               </Dropdown>
             )}
             <button onClick={() => { if (locked) { if (window.confirm("Unlock schedule for editing?\n\nThis protects a published/approved schedule.")) setLocked(false); } else setLocked(true); }}
-              className="flex items-center gap-1.5 rounded-full border border-border/60 px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground">
+              className="flex items-center gap-1.5 rounded-full border border-border/60 px-2 py-1 text-[10px] font-semibold text-muted-foreground hover:text-foreground">
               {locked ? <Lock size={12} /> : <LockOpen size={12} />}{locked ? "Locked" : "Unlocked"}
             </button>
-            <button onClick={() => { if (locked) attemptEdit(); }} className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground"><Plus size={12} />New Item</button>
+            <button onClick={() => { if (locked) attemptEdit(); }} className="flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold text-primary-foreground"><Plus size={12} />New Item</button>
             <Dropdown label="" icon={MoreHorizontal} width="w-52">
               <button className="w-full rounded-lg px-2 py-1.5 text-left hover:bg-card/70">Export schedule (PDF)</button>
               <button className="w-full rounded-lg px-2 py-1.5 text-left hover:bg-card/70">Set new baseline</button>
