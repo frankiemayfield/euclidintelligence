@@ -1,9 +1,10 @@
-import { Send, X, FileText, XCircle, Minus } from "lucide-react";
+import { Send, X, FileText, XCircle, Minus, Maximize2, Minimize2 } from "lucide-react";
 import { EuclidCompass } from "./EuclidBrand";
 import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
-type Message = { role: "euclid" | "user"; content: string; references?: { label: string; type: string }[] };
+type Message = { role: "euclid" | "user"; content: string; references?: { label: string; type: string }[]; wide?: boolean };
+
 
 const contextSuggestions: Record<string, string[]> = {
   "/app": [
