@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { AlertTriangle, ArrowRight, Inbox } from "lucide-react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
-import { money } from "@/data/demoUniverse";
+import { money, projects as allProjects } from "@/data/demoUniverse";
 import { changes, commitments, companyFinancials, costs, currentCommitment, inboxItems, remainingOnCommitment } from "@/data/financialData";
 import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 import { Metric, Panel, Pill, Variance } from "@/components/app/financials/FinancialPrimitives";
@@ -91,7 +91,9 @@ export default function FinancialsOverviewPage() {
               <p>{c.commitmentExceptions} commitment exceptions</p>
             </div>
           </Panel>
+          </div>
         </div>
+
 
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
           <Panel title="Financial exceptions">
