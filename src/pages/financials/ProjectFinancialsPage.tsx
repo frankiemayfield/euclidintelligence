@@ -23,11 +23,34 @@ export default function ProjectFinancialsPage() {
   const track = useTrack();
   const navigate = useNavigate();
   const base = track === "sub" ? "/sub" : "/app";
-  const id = financialProjectIds.includes(projectId) ? projectId : financialProjectIds[0];
+  const gated = !financialProjectIds.includes(projectId);
+  const id = gated ? financialProjectIds[0] : projectId;
+  const requested = getProject(projectId);
   const project = getProject(id);
   const f = projectFinancials(id);
   const active: Tab = ((tab && FINANCIAL_TOOL_SLUGS[tab]) ?? "budget") as Tab;
-  useEffect(() => { recordRecentProject("financials", id, active); }, [id, active]);
+  useEffect(() => { if (!gated) recordRecentProject("financials", id, active); }, [gated, id, active]);
+
+  if (gated) {
+    return (
+      <TrackShell>
+        <div className="app-shell pb-4 pt-1 lg:pb-7 lg:pt-2">
+          <div className="odyssey-surface rounded-2xl p-6">
+            <p className="text-[10px] font-semibold uppercase tracking-[.14em] text-muted-foreground">Financials unavailable</p>
+            <h1 className="mt-1 font-display text-xl font-semibold tracking-tight">{requested.name}</h1>
+            <p className="mt-2 max-w-xl text-[12.5px] leading-relaxed text-muted-foreground">
+              This job is still in preconstruction ({requested.builderStatus}). Job costing opens once the proposal is
+              accepted, the estimate is finalized, and the estimate is pushed to the job-costing budget.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3 text-[12px] font-semibold">
+              <Link to={`${base}/projects/${requested.id}/preconstruction`} className="text-primary">Open Preconstruction →</Link>
+              <Link to={`${base}/financials/overview`} className="text-primary">Financials Overview →</Link>
+            </div>
+          </div>
+        </div>
+      </TrackShell>
+    );
+  }
 
   return (
     <TrackShell>
