@@ -6,6 +6,9 @@ import { changes, commitments, companyFinancials, costs, currentCommitment, inbo
 import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 import { Metric, Panel, Pill, Variance } from "@/components/app/financials/FinancialPrimitives";
 import { FinancialsNav } from "./FinancialsNav";
+import { getRecentProject } from "@/lib/projectContext";
+import { getProject } from "@/data/demoUniverse";
+import { financialProjectIds } from "@/data/financialData";
 
 export default function FinancialsOverviewPage() {
   const track = useTrack();
@@ -28,6 +31,19 @@ export default function FinancialsOverviewPage() {
           <p className="mt-2 text-sm text-muted-foreground">What we planned, what we promised to spend, what we actually spent, what changed, and what the client owes us.</p>
         </header>
         <FinancialsNav base={base} active="overview" />
+
+        {(() => {
+          const recent = getRecentProject("financials");
+          if (!recent || !financialProjectIds.includes(recent.projectId)) return null;
+          const p = getProject(recent.projectId);
+          return (
+            <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-border/50 bg-card/40 px-3 py-2">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Recently viewed</span>
+              <span className="text-xs font-semibold">{p.name}</span>
+              <Link to={`${base}/financials/${p.id}/${recent.tool ?? "budget"}`} className="text-[11px] font-semibold text-primary">Continue Financials →</Link>
+            </div>
+          );
+        })()}
 
         <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
           <Metric label="Active Project Budgets" value={c.revisedBudget} sub="Total revised budget" />

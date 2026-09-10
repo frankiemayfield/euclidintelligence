@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
 import { getProject, money } from "@/data/demoUniverse";
@@ -10,6 +11,7 @@ import { ClientBillingTab } from "@/components/app/financials/ClientBillingTab";
 import { Pill } from "@/components/app/financials/FinancialPrimitives";
 import { ProjectSwitcher } from "@/components/app/ProjectSwitcher";
 import { cn } from "@/lib/utils";
+import { recordRecentProject } from "@/lib/projectContext";
 
 const TABS = ["budget", "costs", "commitments", "changes", "billing"] as const;
 type Tab = (typeof TABS)[number];
@@ -24,6 +26,7 @@ export default function ProjectFinancialsPage() {
   const project = getProject(id);
   const f = projectFinancials(id);
   const active: Tab = (TABS.includes(tab as Tab) ? tab : "budget") as Tab;
+  useEffect(() => { recordRecentProject("financials", id, active); }, [id, active]);
 
   return (
     <TrackShell>
