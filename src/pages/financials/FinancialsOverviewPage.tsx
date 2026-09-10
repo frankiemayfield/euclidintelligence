@@ -176,44 +176,45 @@ export default function FinancialsOverviewPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.map(r => (
+                    {rows.map(({ fin, ...r }) => (
                       <tr key={r.id} className="border-b border-border/35 transition-colors last:border-0 hover:bg-primary/5">
                         <td className="px-4 py-2.5">
                           <Link to={`${base}/projects/${r.id}/overview`} className="block font-semibold leading-tight hover:text-primary">{r.name}</Link>
                           <span className="block truncate text-[10.5px] text-muted-foreground">
-                            {r.precon ? `${r.client} · ${r.stage}` : r.client}
+                            {fin ? r.client : `${r.client} · ${r.stage}`}
                           </span>
                         </td>
-                        {r.precon ? (
+                        {!fin ? (
                           <td colSpan={7} className="px-4 py-2.5 text-right text-[11.5px] text-muted-foreground">
                             Preconstruction — no committed or actual cost yet
                           </td>
                         ) : (
                           <>
-                            <td className="px-3 py-2.5 text-right tabular-nums">{money(r.currentContract)}</td>
+                            <td className="px-3 py-2.5 text-right tabular-nums">{money(fin.currentContract)}</td>
                             <td className="px-3 py-2.5 text-right font-medium tabular-nums">
-                              <Link to={`${base}/projects/${r.id}/financials/budget`} className="hover:text-primary">{money(r.revised)}</Link>
+                              <Link to={`${base}/projects/${r.id}/financials/budget`} className="hover:text-primary">{money(fin.revised)}</Link>
                             </td>
                             <td className="px-3 py-2.5 text-right tabular-nums">
-                              <Link to={`${base}/projects/${r.id}/financials/commitments`} className="hover:text-primary">{money(r.committed)}</Link>
+                              <Link to={`${base}/projects/${r.id}/financials/commitments`} className="hover:text-primary">{money(fin.committed)}</Link>
                             </td>
                             <td className="px-3 py-2.5 text-right tabular-nums">
-                              <Link to={`${base}/projects/${r.id}/financials/costs`} className="hover:text-primary">{money(r.actual)}</Link>
+                              <Link to={`${base}/projects/${r.id}/financials/costs`} className="hover:text-primary">{money(fin.actual)}</Link>
                             </td>
                             <td className="px-3 py-2.5 text-right tabular-nums">
-                              <Link to={`${base}/projects/${r.id}/financials/budget`} className="hover:text-primary">{money(r.forecast)}</Link>
+                              <Link to={`${base}/projects/${r.id}/financials/budget`} className="hover:text-primary">{money(fin.forecast)}</Link>
                             </td>
-                            <td className={cn("px-3 py-2.5 text-right font-semibold tabular-nums", r.variance < 0 ? "text-warning" : "text-success")}>
+                            <td className={cn("px-3 py-2.5 text-right font-semibold tabular-nums", fin.variance < 0 ? "text-warning" : "text-success")}>
                               <Link to={`${base}/projects/${r.id}/financials/budget`} className="hover:underline">
-                                {r.variance < 0 ? "-" : "+"}{money(Math.abs(r.variance))}
-                                <span className="ml-1 text-[10px] font-medium text-muted-foreground">{r.variance < 0 ? "Unfavorable" : "Favorable"}</span>
+                                {fin.variance < 0 ? "-" : "+"}{money(Math.abs(fin.variance))}
+                                <span className="ml-1 text-[10px] font-medium text-muted-foreground">{fin.variance < 0 ? "Unfavorable" : "Favorable"}</span>
                               </Link>
                             </td>
                             <td className="px-4 py-2.5 text-right tabular-nums">
-                              <span className="font-semibold">{r.forecastMargin.toFixed(1)}%</span>
-                              <span className="block text-[10px] text-muted-foreground">vs {r.originalMargin.toFixed(1)}% original</span>
+                              <span className="font-semibold">{fin.forecastMargin.toFixed(1)}%</span>
+                              <span className="block text-[10px] text-muted-foreground">vs {fin.originalMargin.toFixed(1)}% original</span>
                             </td>
                           </>
+
                         )}
                       </tr>
                     ))}
