@@ -51,12 +51,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Estimator Sidebar */}
         {isEstimator && (
           <aside className={`${collapsed ? "w-14" : "w-56"} odyssey-surface flex flex-col shrink-0 overflow-hidden rounded-2xl transition-all duration-200`}>
-            <div className={`px-3 py-3 border-b border-border ${collapsed ? "px-2" : ""}`}>
+            <div className={`px-3 py-1.5 border-b border-border ${collapsed ? "px-2" : ""}`}>
               {!collapsed && (
                 <>
                   <Link to="/app/precon/projects" className="text-[10px] font-semibold text-primary">← Preconstruction</Link>
-                  <div className="mt-2"><SidebarProjectSwitcher /></div>
-                  <p className="text-[10px] text-muted-foreground mt-1">Preconstruction</p>
+                  <div className="mt-1"><SidebarProjectSwitcher /></div>
                 </>
               )}
               {collapsed && (
