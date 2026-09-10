@@ -117,7 +117,7 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
           </div>
 
           {/* center — search + filter */}
-          <div className="relative min-w-[140px] flex-1">
+          <div className="relative w-[160px] shrink-0">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search schedule..." className="w-full rounded-full border border-border/60 bg-transparent py-1 pl-7 pr-2.5 text-[10px] outline-none focus:border-primary/50" />
           </div>
