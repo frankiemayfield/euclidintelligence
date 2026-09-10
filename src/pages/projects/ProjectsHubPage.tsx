@@ -37,7 +37,6 @@ export default function ProjectsHubPage({ mode = "operations" }: { mode?: "opera
   };
 
   const open = (projectId: string) => {
-    const project = projects.find(p => p.id === projectId)!;
     setProjectId(projectId);
     navigate(`${base}/projects/${projectId}/overview`);
   };
