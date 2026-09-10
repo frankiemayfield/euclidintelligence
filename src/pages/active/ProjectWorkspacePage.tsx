@@ -18,7 +18,8 @@ import { projectFinancials, selectionsFor } from "@/data/financialData";
 const TABS = ["overview", "schedule", "selections", "activity", "documents", "team"] as const;
 type Tab = (typeof TABS)[number];
 const LABELS: Record<Tab, string> = { overview: "Overview", schedule: "Schedule", selections: "Selections", activity: "Activity", documents: "Documents", team: "Team" };
-const FUTURE = ["Daily Logs", "RFIs", "Photos", "Punch / Closeout"];
+/** Operations tool row — Documents lives on the project-level row, not here. */
+const OPS_TOOLS = ["overview", "schedule", "selections", "team", "activity"] as const;
 
 function Panel({ title, action, children, className }: { title: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
