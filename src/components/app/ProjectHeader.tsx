@@ -5,7 +5,7 @@ import { useTrack } from "@/components/app/TrackShell";
 import { ProjectSwitcher, hasWorkspace, lifecycleOf, type ProjectPillar } from "@/components/app/ProjectSwitcher";
 import { cn } from "@/lib/utils";
 
-export type ProjectSection = "overview" | "precon" | "operations" | "financials" | "documents";
+export type ProjectSection = "overview" | "precon" | "schedule" | "selections" | "financials" | "documents";
 
 /**
  * Project Mode header: back to the portfolio, the project title switcher, and one
@@ -37,21 +37,23 @@ export function ProjectHeader({
     if (id === "precon") { setProjectId(projectId); navigate(getProjectRoute(project, track)); return; }
     if (id === "financials") { navigate(`${base}/financials/${projectId}/budget`); return; }
     if (id === "documents") { navigate(`${base}/active/${projectId}/documents`); return; }
-    if (id === "operations") { navigate(`${base}/active/${projectId}/schedule`); return; }
+    if (id === "schedule") { navigate(`${base}/active/${projectId}/schedule`); return; }
+    if (id === "selections") { navigate(`${base}/active/${projectId}/selections`); return; }
     navigate(`${base}/active/${projectId}/overview`);
   };
 
   const items: { id: ProjectSection; label: string; disabled?: boolean }[] = [
     { id: "overview", label: "Overview" },
     { id: "precon", label: "Preconstruction" },
-    { id: "operations", label: "Operations" },
+    { id: "schedule", label: "Schedule" },
+    { id: "selections", label: "Selections" },
     { id: "financials", label: "Financials", disabled: !hasWorkspace("financials", projectId) },
     { id: "documents", label: "Documents" },
   ];
 
   return (
     <header className="mb-4">
-      <Link to={`${base}/projects`} className="text-[11px] font-semibold text-primary">← Projects</Link>
+      <Link to={`${base}/operations`} className="text-[11px] font-semibold text-primary">← Projects</Link>
       <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
         <ProjectSwitcher
           projectId={projectId}
