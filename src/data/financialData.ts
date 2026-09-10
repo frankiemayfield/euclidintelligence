@@ -9,7 +9,7 @@
  * Selections) reads from this module. Nothing is duplicated between screens.
  */
 
-import { getProject, money } from "./demoUniverse";
+import { getProject, isConstructionActive, money } from "./demoUniverse";
 
 /* ------------------------------------------------------------------ types */
 
