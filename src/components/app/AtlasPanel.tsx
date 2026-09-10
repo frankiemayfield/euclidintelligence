@@ -249,6 +249,11 @@ interface AtlasPanelProps {
   onClose: () => void;
 }
 
+/** Prompts that need room to show plans, images, tables or charts open Euclid wide. */
+const WIDE_OUTPUT = /(image|picture|photo|plan|drawing|sheet|chart|graph|table|compare|comparison|breakdown|takeoff|markup|render)/i;
+
+type PanelSize = "normal" | "minimized" | "expanded";
+
 export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
   const location = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -256,7 +261,9 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
   const [lastPath, setLastPath] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [scopeContext, setScopeContext] = useState<{ summary: string; tab: string } | null>(null);
+  const [size, setSize] = useState<PanelSize>("normal");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   const currentPath = location.pathname;
   const suggestions = contextSuggestions[currentPath] || contextSuggestions["/app/scope-analyzer"]!;
