@@ -406,7 +406,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
                 <EuclidCompass className="h-5 w-5" />
               </div>
             )}
-            <div className={`max-w-[85%] ${m.role === "user" ? "" : ""}`}>
+            <div className={m.wide && expanded ? "w-full max-w-full" : "max-w-[85%]"}>
               <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                 m.role === "user"
                   ? "bg-primary/10 text-foreground rounded-tr-md"
