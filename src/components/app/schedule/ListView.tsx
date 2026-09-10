@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTaskColors } from "@/lib/taskColors";
-import { categoryTone, fmtShort, statusTone, workdays, type SchedulePhase, type ScheduleTask, type TaskStatus } from "@/data/scheduleData";
+import { fmtShort, statusTone, workdays, type SchedulePhase, type ScheduleTask, type TaskStatus } from "@/data/scheduleData";
 import { AlertTriangle, Info } from "lucide-react";
 import { columnDefs, type ColumnKey } from "./scheduleColumns";
 
@@ -11,6 +11,7 @@ export function ListView({ tasks, phases, columns, showCritical, locked, selecte
   tasks: ScheduleTask[]; phases: SchedulePhase[]; columns: ColumnKey[]; showCritical: boolean; locked: boolean;
   selectedId?: string; onSelect: (t: ScheduleTask) => void; onEditAttempt: () => void;
 }) {
+  const { colorFor } = useTaskColors();
   // session-local inline edits so the list is the fast editing surface
   const [edits, setEdits] = useState<Record<string, Partial<ScheduleTask>>>({});
   const val = <K extends keyof ScheduleTask>(t: ScheduleTask, k: K) => (edits[t.id]?.[k] ?? t[k]) as ScheduleTask[K];

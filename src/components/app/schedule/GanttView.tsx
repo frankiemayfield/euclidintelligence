@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronRight, Diamond } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTaskColors } from "@/lib/taskColors";
-import { addDays, categoryTone, d, dayDiff, fmtShort, statusTone, TODAY, workdays, type ScheduleTask, type SchedulePhase } from "@/data/scheduleData";
+import { addDays, d, dayDiff, fmtShort, statusTone, TODAY, workdays, type ScheduleTask, type SchedulePhase } from "@/data/scheduleData";
 import { columnDefs, zoomPx, type ColumnKey, type ZoomLevel } from "./scheduleColumns";
 
 const ROW = 34;
@@ -14,6 +14,7 @@ export function GanttView({ tasks, phases, options, columns, zoom, selectedId, o
   tasks: ScheduleTask[]; phases: SchedulePhase[]; options: GanttOptions; columns: ColumnKey[]; zoom: ZoomLevel;
   selectedId?: string; onSelect: (t: ScheduleTask) => void; todaySignal?: number;
 }) {
+  const { colorFor } = useTaskColors();
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [split, setSplit] = useState(() => Number(sessionStorage.getItem(SPLIT_KEY)) || 520);
   const scroller = useRef<HTMLDivElement>(null);
