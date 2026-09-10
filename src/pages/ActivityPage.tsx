@@ -29,19 +29,23 @@ export default function ActivityPage() {
         </header>
 
         <div className="odyssey-surface mb-3 flex flex-wrap items-center gap-2 rounded-2xl px-4 py-3">
-          <div className="relative min-w-[160px] flex-1">
+          <div className="relative min-w-[180px] flex-1">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search activity..." className="w-full rounded-full border border-border/60 bg-transparent py-1.5 pl-8 pr-3 text-[11px] outline-none focus:border-primary/50" />
           </div>
-          <select value={projectFilter} onChange={e => setProjectFilter(e.target.value)} className="rounded-full border border-border/60 bg-transparent px-3 py-1.5 text-[11px] outline-none">
-            <option value="All">All projects</option>
-            {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-          <div className="flex flex-wrap gap-1">
-            {activityFilters.map(f => (
-              <button key={f} onClick={() => setFilter(f)} className={cn("rounded-full border px-2.5 py-1 text-[10px] font-semibold", filter === f ? "border-primary/50 bg-primary/10 text-primary" : "border-border/60 text-muted-foreground")}>{f}</button>
+          <Dropdown label={projectFilter === "All" ? "All projects" : getProject(projectFilter).name} icon={Building2} active={projectFilter !== "All"} width="w-72">
+            <button onClick={() => setProjectFilter("All")} className={cn("w-full rounded-lg px-2 py-1.5 text-left hover:bg-card/70", projectFilter === "All" && "text-primary")}>All projects</button>
+            {projects.map(p => (
+              <button key={p.id} onClick={() => setProjectFilter(p.id)} className={cn("flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-card/70", projectFilter === p.id && "text-primary")}>
+                <span className="truncate">{p.name}</span>
+              </button>
             ))}
-          </div>
+          </Dropdown>
+          <Dropdown label={filter === "All" ? "All categories" : filter} icon={SlidersHorizontal} active={filter !== "All"} width="w-56">
+            {activityFilters.map(f => (
+              <button key={f} onClick={() => setFilter(f)} className={cn("w-full rounded-lg px-2 py-1.5 text-left hover:bg-card/70", filter === f && "text-primary")}>{f === "All" ? "All categories" : f}</button>
+            ))}
+          </Dropdown>
         </div>
 
         <div className="odyssey-surface overflow-hidden rounded-2xl">
