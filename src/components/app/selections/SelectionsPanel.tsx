@@ -46,14 +46,14 @@ function Detail({ s, base }: { s: Selection; base: string }) {
       ) : v > 0 ? (
         <EuclidImpact className="mt-3" domain="Cost" tone="warning"
           message={`The selected package is ${money(v)} above the ${money(s.allowance)} allowance. At ${s.markupPct}% markup that is ${money(clientImpact(s))} of client impact${change ? ` — captured on change ${change.id} (${change.status.toLowerCase()})` : " — create a change to move it to the client contract"}.`}
-          action={change ? { label: "Open the change", to: `${base}/financials/${s.projectId}/changes` } : undefined} />
+          action={change ? { label: "Open the change", to: `${base}/projects/${s.projectId}/financials/changes` } : undefined} />
       ) : null}
 
       <div className="mt-3 flex flex-wrap gap-2 font-semibold text-primary">
         {!change && v > 0 && <button className="rounded-full bg-primary/10 px-3 py-1">Create Change</button>}
-        {change && <Link to={`${base}/financials/${s.projectId}/changes`} className="rounded-full bg-primary/10 px-3 py-1">View Change {change.id}</Link>}
+        {change && <Link to={`${base}/projects/${s.projectId}/financials/changes`} className="rounded-full bg-primary/10 px-3 py-1">View Change {change.id}</Link>}
         {!commitment && (s.status === "Approved" || s.status === "Selected") && <button className="rounded-full bg-primary/10 px-3 py-1">Create Purchase Order</button>}
-        {commitment && <Link to={`${base}/financials/${s.projectId}/commitments`} className="rounded-full bg-primary/10 px-3 py-1">View {commitment.id} — {money(commitment.original)}</Link>}
+        {commitment && <Link to={`${base}/projects/${s.projectId}/financials/commitments`} className="rounded-full bg-primary/10 px-3 py-1">View {commitment.id} — {money(commitment.original)}</Link>}
         <button className="rounded-full bg-primary/10 px-3 py-1">Request client decision</button>
       </div>
       {s.notes && <p className="mt-2 text-[10px] text-muted-foreground">{s.notes}</p>}

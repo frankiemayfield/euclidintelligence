@@ -35,11 +35,11 @@ export function ProjectHeader({
 
   const go = (id: ProjectSection) => {
     if (id === "precon") { setProjectId(projectId); navigate(getProjectRoute(project, track)); return; }
-    if (id === "financials") { navigate(`${base}/financials/${projectId}/budget`); return; }
-    if (id === "documents") { navigate(`${base}/active/${projectId}/documents`); return; }
-    if (id === "schedule") { navigate(`${base}/active/${projectId}/schedule`); return; }
-    if (id === "selections") { navigate(`${base}/active/${projectId}/selections`); return; }
-    navigate(`${base}/active/${projectId}/overview`);
+    if (id === "financials") { navigate(`${base}/projects/${projectId}/financials/budget`); return; }
+    if (id === "documents") { navigate(`${base}/projects/${projectId}/documents`); return; }
+    if (id === "schedule") { navigate(`${base}/projects/${projectId}/schedule`); return; }
+    if (id === "selections") { navigate(`${base}/projects/${projectId}/selections`); return; }
+    navigate(`${base}/projects/${projectId}/overview`);
   };
 
   const items: { id: ProjectSection; label: string; disabled?: boolean }[] = [

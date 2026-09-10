@@ -88,8 +88,8 @@ export function ProjectSwitcher({ projectId, pillar, tool, compact = false, subt
 
   const routeFor = (id: string) => {
     const base = track === "sub" ? "/sub" : "/app";
-    if (pillar === "financials") return `${base}/financials/${id}/${tool ?? "budget"}`;
-    if (pillar === "operations") return `${base}/active/${id}/${tool ?? "overview"}`;
+    if (pillar === "financials") return `${base}/projects/${id}/financials/${tool ?? "budget"}`;
+    if (pillar === "operations") return `${base}/projects/${id}/${tool ?? "overview"}`;
     return location.pathname;
   };
 

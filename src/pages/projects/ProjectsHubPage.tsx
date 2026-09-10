@@ -40,7 +40,7 @@ export default function ProjectsHubPage({ mode = "operations" }: { mode?: "opera
     const project = projects.find(p => p.id === projectId)!;
     setProjectId(projectId);
     if (precon) { navigate(getProjectRoute(project, track)); return; }
-    if (statusFor(projectId).mode === "active") navigate(`${base}/active/${projectId}/overview`);
+    if (statusFor(projectId).mode === "active") navigate(`${base}/projects/${projectId}/overview`);
     else navigate(getProjectRoute(project, track));
   };
 

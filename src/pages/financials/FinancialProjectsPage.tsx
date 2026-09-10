@@ -20,7 +20,7 @@ export default function FinancialProjectsPage() {
 
         <div className="mt-4 grid gap-3 lg:grid-cols-2">
           {projects.map(p => (
-            <Link key={p.id} to={`${base}/financials/${p.id}/budget`} className="odyssey-surface group rounded-2xl p-5 transition-transform hover:-translate-y-0.5">
+            <Link key={p.id} to={`${base}/projects/${p.id}/financials/budget`} className="odyssey-surface group rounded-2xl p-5 transition-transform hover:-translate-y-0.5">
               <div className="flex items-start justify-between gap-3">
                 <h2 className="font-display text-lg font-semibold">{p.name}</h2>
                 <Pill label={p.status} tone={p.status === "At Risk" ? "bad" : p.status === "Watch" ? "info" : "good"} />

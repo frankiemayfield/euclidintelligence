@@ -17,5 +17,5 @@ export default function FinancialToolEntryPage() {
   const tool = TABS.includes(tab) ? tab : "budget";
   const recent = getRecentProject("financials");
   const projectId = recent && financialProjectIds.includes(recent.projectId) ? recent.projectId : financialProjectIds[0];
-  return <Navigate to={`${base}/financials/${projectId}/${tool}`} replace />;
+  return <Navigate to={`${base}/projects/${projectId}/financials/${tool}`} replace />;
 }

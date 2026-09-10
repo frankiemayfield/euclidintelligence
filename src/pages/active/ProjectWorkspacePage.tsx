@@ -71,7 +71,7 @@ export default function ProjectWorkspacePage() {
           <ToolTabs
             items={OPS_TOOLS.map(t => ({ id: t as string, label: LABELS[t] }))}
             active={active as string}
-            onSelect={t => navigate(`${base}/active/${projectId}/${t}`)}
+            onSelect={t => navigate(`${base}/projects/${projectId}/${t}`)}
           />
         )}
 
@@ -138,7 +138,7 @@ export default function ProjectWorkspacePage() {
             </Panel>
 
             <Panel title="Financial Summary" className="lg:col-span-2"
-              action={<Link to={`${base}/financials/${projectId}/budget`} className="text-[11px] font-semibold text-primary">Open project Financials →</Link>}>
+              action={<Link to={`${base}/projects/${projectId}/financials/budget`} className="text-[11px] font-semibold text-primary">Open project Financials →</Link>}>
               {fin ? (
                 <>
                   <div className="grid grid-cols-2 gap-3 text-[11px] sm:grid-cols-5">
@@ -147,10 +147,10 @@ export default function ProjectWorkspacePage() {
                     ))}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-3 text-[11px]">
-                    <Link to={`${base}/financials/${projectId}/costs`} className="font-semibold text-primary">Costs</Link>
-                    <Link to={`${base}/financials/${projectId}/commitments`} className="font-semibold text-primary">Commitments</Link>
-                    <Link to={`${base}/financials/${projectId}/changes`} className="font-semibold text-primary">Changes</Link>
-                    <Link to={`${base}/financials/${projectId}/billing`} className="font-semibold text-primary">Client Billing</Link>
+                    <Link to={`${base}/projects/${projectId}/financials/costs`} className="font-semibold text-primary">Costs</Link>
+                    <Link to={`${base}/projects/${projectId}/financials/commitments`} className="font-semibold text-primary">Commitments</Link>
+                    <Link to={`${base}/projects/${projectId}/financials/changes`} className="font-semibold text-primary">Changes</Link>
+                    <Link to={`${base}/projects/${projectId}/financials/billing`} className="font-semibold text-primary">Client Billing</Link>
                   </div>
                 </>
               ) : <p className="text-[11px] text-muted-foreground">Project financials begin after award and construction start.</p>}
@@ -159,7 +159,7 @@ export default function ProjectWorkspacePage() {
             <Panel title="Selections">
               <p className="text-sm font-semibold">{sels.filter(x => ["Not Started", "Requested", "Reviewing"].includes(x.status)).length} selections need a decision</p>
               <p className="mt-1 text-[11px] text-muted-foreground">{sels.filter(x => x.overdueDays).length} overdue · {sels.filter(x => x.status === "Ordered").length} ordered</p>
-              <button onClick={() => navigate(`${base}/active/${projectId}/selections`)} className="mt-2 text-[11px] font-semibold text-primary">Open Selections →</button>
+              <button onClick={() => navigate(`${base}/projects/${projectId}/selections`)} className="mt-2 text-[11px] font-semibold text-primary">Open Selections →</button>
             </Panel>
 
             <Panel title="Recent Activity">

@@ -46,7 +46,7 @@ export default function ProjectFinancialsPage() {
           }
         />
 
-        <ToolTabs items={TABS.map(t => ({ id: t, label: LABELS[t] }))} active={active} onSelect={t => navigate(`${base}/financials/${id}/${t}`)} />
+        <ToolTabs items={TABS.map(t => ({ id: t, label: LABELS[t] }))} active={active} onSelect={t => navigate(`${base}/projects/${id}/financials/${t}`)} />
 
         {active === "budget" && <BudgetTab projectId={id} base={base} />}
         {active === "costs" && <CostsTab projectId={id} />}

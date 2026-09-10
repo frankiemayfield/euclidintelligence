@@ -29,7 +29,7 @@ export default function ActiveProjectsPage() {
             const a = p.actuals;
             const draft = s.mode !== "active";
             return (
-              <Link key={p.id} to={`${base}/active/${p.id}`} className="odyssey-surface group rounded-2xl p-5 transition-transform hover:-translate-y-0.5">
+              <Link key={p.id} to={`${base}/projects/${p.id}`} className="odyssey-surface group rounded-2xl p-5 transition-transform hover:-translate-y-0.5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h2 className="font-display text-lg font-semibold">{p.name}</h2>
