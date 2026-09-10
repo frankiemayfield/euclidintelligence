@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, CalendarClock, Clock3, FileText, Sparkles } from "lucide-react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
 import { ScheduleModule } from "@/components/app/schedule/ScheduleModule";
@@ -30,7 +30,9 @@ function Panel({ title, action, children, className }: { title: string; action?:
 }
 
 export default function ProjectWorkspacePage() {
-  const { projectId = "downtown-ti", tab } = useParams();
+  const { projectId = "downtown-ti" } = useParams();
+  const { pathname } = useLocation();
+  const tab = pathname.split("/").pop();
   const track = useTrack();
   const navigate = useNavigate();
   const base = track === "sub" ? "/sub" : "/app";
