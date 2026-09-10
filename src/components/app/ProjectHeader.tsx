@@ -53,7 +53,7 @@ export function ProjectHeader({
 
   return (
     <header className="mb-4">
-      <Link to={`${base}/operations`} className="text-[11px] font-semibold text-primary">← Projects</Link>
+      <Link to={`${base}/projects`} className="text-[11px] font-semibold text-primary">← Projects</Link>
       <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
         <ProjectSwitcher
           projectId={projectId}

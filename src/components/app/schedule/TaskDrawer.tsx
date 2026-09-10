@@ -6,7 +6,7 @@ import { fmtLong, statusTone, successorsOf, taskById, taskImpact, workdays, type
 import { builderNetwork, complianceTone, money } from "@/data/networkData";
 import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 
-export function TaskDrawer({ task, locked, onClose, onEditAttempt }: { task: ScheduleTask | null; locked: boolean; onClose: () => void; onEditAttempt?: () => void }) {
+export function TaskDrawer({ task, locked, onClose, onEditAttempt, footer }: { task: ScheduleTask | null; locked: boolean; onClose: () => void; onEditAttempt?: () => void; footer?: React.ReactNode }) {
   const [historyOpen, setHistoryOpen] = useState(false);
   if (!task) return null;
   const company = task.companyId ? builderNetwork.find(c => c.id === task.companyId) : undefined;
@@ -144,7 +144,8 @@ export function TaskDrawer({ task, locked, onClose, onEditAttempt }: { task: Sch
       </div>
 
       <div className="flex flex-wrap gap-1.5 border-t border-border/60 px-4 py-3">
-        {[{ l: "Edit", i: Pencil }, { l: "Complete", i: Check }, { l: "Change dates", i: CalendarClock }, { l: "Add note", i: StickyNote }, { l: "Attach", i: FileUp }].map(a => (
+        {footer}
+        {!footer && [{ l: "Edit", i: Pencil }, { l: "Complete", i: Check }, { l: "Change dates", i: CalendarClock }, { l: "Add note", i: StickyNote }, { l: "Attach", i: FileUp }].map(a => (
           <button key={a.l} onClick={() => { if (locked && a.l !== "Add note") onEditAttempt?.(); }}
             className={cn("flex items-center gap-1 rounded-full border border-border/60 px-2.5 py-1 text-[10px] font-semibold", locked && a.l !== "Add note" && "text-muted-foreground")}>
             <a.i size={11} />{a.l}
