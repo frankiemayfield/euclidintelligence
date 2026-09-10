@@ -53,7 +53,7 @@ export default function ProjectWorkspacePage() {
 
   return (
     <TrackShell>
-      <div className="app-shell flex h-full flex-col py-4 lg:py-7">
+      <div className="app-shell flex h-full flex-col pb-4 pt-1 lg:pb-7 lg:pt-2">
         <ProjectHeader
           projectId={projectId}
           pillar="operations"

@@ -31,7 +31,7 @@ export default function ProjectFinancialsPage() {
 
   return (
     <TrackShell>
-      <div className="app-shell py-4 lg:py-7">
+      <div className="app-shell pb-4 pt-1 lg:pb-7 lg:pt-2">
         <ProjectHeader
           projectId={id}
           pillar="financials"
