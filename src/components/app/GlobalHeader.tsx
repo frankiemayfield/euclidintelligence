@@ -32,9 +32,10 @@ export function GlobalHeader({ track }: { track: Track }) {
   const closeAll=()=>{setMoreOpen(false);setOpenMenu(null);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)};
   const preconItems=[{label:"Projects",to:config.precon,icon:FolderKanban},{label:"New Project",to:config.newProject,icon:PlusCircle}];
   const operationsItems=[{label:"Projects",to:config.active,icon:HardHat},{label:"Schedule",to:config.schedule,icon:CalendarRange},{label:"Time",to:config.time,icon:Clock3}];
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const financialsItems=[{label:"Overview",to:config.financials,icon:LineChart},{label:"Cost Inbox",to:`${config.financials}/inbox`,icon:Inbox},{label:"Projects",to:`${config.financials}/projects`,icon:Wallet}];
   const moreItems=[{label:"Activity",to:"/activity",icon:Activity},{label:"Network",to:"/network",icon:Building2},{label:"Compliance",to:"/compliance",icon:ShieldCheck}];
-  const menus=[{id:"precon" as const,label:config.preconLabel,items:preconItems},{id:"operations" as const,label:"Operations",items:operationsItems},{id:"financials" as const,label:"Financials",items:financialsItems}];
+  const menus=[{id:"precon" as const,label:config.preconLabel,items:preconItems},{id:"operations" as const,label:"Operations",items:operationsItems}];
   return <>
     <header className="odyssey-header relative z-[70] flex h-[76px] shrink-0 items-center justify-between px-6 lg:px-[7%]">
       <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark /></Link>
@@ -48,6 +49,7 @@ export function GlobalHeader({ track }: { track: Track }) {
             </div>}
           </div>
         ))}
+        <Link to={config.financials} data-active={section==="financials"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Financials</Link>
         <div className="relative">
           <button data-active={section==="more"} onClick={()=>{const next=!moreOpen;closeAll();setMoreOpen(next)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">More <ChevronDown size={13}/></button>
           {moreOpen&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
