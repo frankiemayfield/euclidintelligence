@@ -123,17 +123,18 @@ export function GlobalHeader({ track }: { track: Track }) {
     ] },
   ];
   return <div ref={headerRef} className="contents">
-    <header className="odyssey-header relative z-[70] h-[72px] shrink-0">
-      <div className="relative mx-auto flex h-full w-full max-w-[1180px] items-center justify-between px-5 lg:px-8">
-      <Link to={config.dashboard} aria-label="Euclid dashboard" onClick={closeAll} className="flex h-full items-center"><EuclidWordmark className="h-10 w-[132px]" /></Link>
-      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
-        <Link to={config.dashboard} data-active={section==="dashboard"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Home</Link>
-        {track !== "owner" && <Link to={`${base}/projects`} data-active={section==="projects"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Projects</Link>}
+    <header className="odyssey-header relative z-[70] h-[76px] shrink-0">
+      <div className="app-shell relative flex h-full items-center justify-between">
+      <Link to={config.dashboard} aria-label="Euclid dashboard" onClick={closeAll} className="flex h-full items-center"><EuclidWordmark className="h-12 w-[168px]" /></Link>
+      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 md:flex" aria-label="Primary navigation">
+        <Link to={config.dashboard} data-active={section==="dashboard"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[14px] font-medium leading-6 text-muted-foreground transition-colors hover:text-foreground">Home</Link>
+        {track !== "owner" && <Link to={`${base}/projects`} data-active={section==="projects"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[14px] font-medium leading-6 text-muted-foreground transition-colors hover:text-foreground">Projects</Link>}
         {pillars.map(p => <Pillar key={p.id} {...p} section={section} open={openPillar} setOpen={setOpenPillar} />)}
       </nav>
-      <div className="flex items-center gap-0.5">
-        <Button variant="ghost" size="icon" className={cn("odyssey-header-control relative h-9 w-9",messengerOpen&&"is-active")} aria-label="Messages" onClick={()=>{setMessengerOpen(v=>!v);setNotificationsOpen(false);setProfileOpen(false)}}><MessageSquare strokeWidth={1.6}/><span className="odyssey-counter bg-destructive text-destructive-foreground">3</span></Button>
-        <div className="relative"><Button variant="ghost" size="icon" className={cn("odyssey-header-control relative h-9 w-9",notificationsOpen&&"is-active")} aria-label="Notifications" onClick={()=>{setNotificationsOpen(v=>!v);setProfileOpen(false);setMessengerOpen(false)}}><Bell strokeWidth={1.6}/><span className="odyssey-counter bg-primary text-primary-foreground">{notices.length}</span></Button>
+      <div className="flex items-center gap-1.5">
+        <Button variant="ghost" size="icon" className={cn("odyssey-header-control relative h-10 w-10 [&_svg]:size-[18px]",messengerOpen&&"is-active")} aria-label="Messages" onClick={()=>{setMessengerOpen(v=>!v);setNotificationsOpen(false);setProfileOpen(false)}}><MessageSquare strokeWidth={1.6}/><span className="odyssey-counter bg-destructive text-destructive-foreground">3</span></Button>
+        <div className="relative"><Button variant="ghost" size="icon" className={cn("odyssey-header-control relative h-10 w-10 [&_svg]:size-[18px]",notificationsOpen&&"is-active")} aria-label="Notifications" onClick={()=>{setNotificationsOpen(v=>!v);setProfileOpen(false);setMessengerOpen(false)}}><Bell strokeWidth={1.6}/><span className="odyssey-counter bg-primary text-primary-foreground">{notices.length}</span></Button>
+
           {notificationsOpen&&<div className="odyssey-popover fixed right-[4%] top-[84px] z-[100] flex max-h-[calc(100vh-104px)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden lg:right-[9%]">
              <div className="flex items-center justify-between px-4 py-4"><div className="flex items-center gap-2"><p className="font-display text-base font-bold">Notifications</p><span className="rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">{notices.length}</span></div><div className="flex items-center gap-1"><Button variant="ghost" size="sm" className="h-8 px-2 text-[10px]"><CheckCheck size={13}/>Mark all read</Button><Button variant="ghost" size="icon" className="h-8 w-8" onClick={()=>setNotificationsOpen(false)}><X size={14}/></Button></div></div>
             <div className="mx-4 grid grid-cols-2 rounded-full bg-muted/70 p-1">{(["all","unread"] as const).map(f=><button key={f} onClick={()=>setNoticeFilter(f)} className={cn("rounded-full py-1.5 text-[10px] font-semibold capitalize",noticeFilter===f&&"bg-card text-foreground shadow-sm")}>{f}{f==="unread"&&" (3)"}</button>)}</div>
