@@ -107,9 +107,9 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
         </div>
 
         {/* toolbar (bottom) */}
-        <div className="flex flex-wrap items-center gap-1.5 border-t border-border/40 pt-1.5">
+        <div className="flex flex-nowrap items-center gap-1.5 border-t border-border/40 pt-1.5 overflow-x-auto no-scrollbar">
           {/* left — views */}
-          <div className="flex rounded-full bg-muted/70 p-0.5">
+          <div className="flex shrink-0 rounded-full bg-muted/70 p-0.5">
             {(Object.keys(viewIcons) as View[]).map(v => {
               const Icon = viewIcons[v];
               return <button key={v} onClick={() => { setView(v); setLookAhead(false); }} className={cn("flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold", view === v && !lookAhead && "bg-card shadow-sm")}><Icon size={12} /><span className="hidden sm:inline">{v}</span></button>;
