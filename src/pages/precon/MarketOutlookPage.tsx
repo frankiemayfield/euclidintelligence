@@ -47,7 +47,7 @@ export default function MarketOutlookPage() {
 
   return (
     <TrackShell>
-      <div className="mx-auto w-full max-w-[1250px] p-4 lg:p-7">
+      <div className="app-shell py-4 lg:py-7">
         <PageHeader
           eyebrow="Preconstruction"
           title="Market Outlook"

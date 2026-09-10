@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const openProject = (id: string) => { const project = projects.find(item => item.id === id); if (!project) return; setProjectId(id); navigate(getProjectRoute(project, "builder")); };
   const goto = (route: string, projectId?: string) => { if (projectId) setProjectId(projectId); navigate(route); };
 
-  return <AppLayout><div className="mx-auto w-full max-w-[1250px] p-4 lg:p-7">
+  return <AppLayout><div className="app-shell py-4 lg:py-7">
     <section className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
       <div>
         <p className="mb-2 text-[11px] font-semibold uppercase text-muted-foreground [letter-spacing:.16em]">{companies.mayfield.name} · General Contractor</p>
