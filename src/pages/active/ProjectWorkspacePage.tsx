@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, CalendarClock, Clock3, FileText, Sparkles } from "lucide-react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
-import { ScheduleModule } from "@/components/app/schedule/ScheduleModule";
+import { ScheduleWorkspace } from "@/components/app/schedule/ScheduleWorkspace";
 import { documents, getProject, money } from "@/data/demoUniverse";
 import { baselines, criticalTasks, fmtLong, lateTasks, statusFor, statusTone, todaysWork, upcoming } from "@/data/scheduleData";
 import { clockedIn, entriesFor, laborCost, projectTeam, weekSummary, workerById } from "@/data/fieldData";
