@@ -390,11 +390,19 @@
 
 
   .odyssey-surface {
+    border: 1px solid hsl(var(--border) / 0.5);
+    background:
+      linear-gradient(145deg, hsl(var(--env-tint) / 0.14), transparent 62%),
+      linear-gradient(145deg, hsl(var(--card) / 0.95), hsl(var(--card) / 0.9));
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(24px) saturate(120%);
+  }
+
+  .dark .odyssey-surface {
     border: 1px solid hsl(var(--border) / 0.58);
     background:
       linear-gradient(145deg, hsl(var(--env-tint) / 0.28), transparent 60%),
-      linear-gradient(145deg, hsl(var(--card) / 0.78), hsl(var(--card) / 0.64));
-    box-shadow: var(--shadow-card);
+      linear-gradient(145deg, hsl(var(--card) / 0.82), hsl(var(--card) / 0.7));
     backdrop-filter: blur(24px) saturate(140%);
   }
 
@@ -473,7 +481,13 @@
 
   .odyssey-app main .bg-card,
   .odyssey-app main .bg-background {
-    background-color: hsl(var(--card) / 0.74);
+    background-color: hsl(var(--card) / 0.93);
+    backdrop-filter: blur(18px) saturate(115%);
+  }
+
+  .dark .odyssey-app main .bg-card,
+  .dark .odyssey-app main .bg-background {
+    background-color: hsl(var(--card) / 0.8);
     backdrop-filter: blur(18px) saturate(125%);
   }
 }
