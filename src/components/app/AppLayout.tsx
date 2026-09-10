@@ -7,7 +7,7 @@ import { WorkspaceBackground } from "@/components/app/WorkspaceBackground";
 import { useState } from "react";
 import { AtlasPanel, AtlasToggleButton } from "./AtlasPanel";
 import { GlobalHeader } from "./GlobalHeader";
-import { ProjectSelector } from "./ProjectSelector";
+import { SidebarProjectSwitcher } from "./ProjectSwitcher";
 
 const estimatorNavItems = [
   { label: "Document Upload", icon: Upload, path: "/app/upload" },
@@ -53,7 +53,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <>
                   <p className="text-sm font-semibold text-foreground">Estimator</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">Project Workspace</p>
-                  <div className="mt-3"><ProjectSelector compact /></div>
+                  <div className="mt-3"><SidebarProjectSwitcher /></div>
                 </>
               )}
               {collapsed && (

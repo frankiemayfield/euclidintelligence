@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
 import { getProject, money } from "@/data/demoUniverse";
@@ -8,7 +9,9 @@ import { CommitmentsTab } from "@/components/app/financials/CommitmentsTab";
 import { ChangesTab } from "@/components/app/financials/ChangesTab";
 import { ClientBillingTab } from "@/components/app/financials/ClientBillingTab";
 import { Pill } from "@/components/app/financials/FinancialPrimitives";
+import { ProjectSwitcher } from "@/components/app/ProjectSwitcher";
 import { cn } from "@/lib/utils";
+import { recordRecentProject } from "@/lib/projectContext";
 
 const TABS = ["budget", "costs", "commitments", "changes", "billing"] as const;
 type Tab = (typeof TABS)[number];
@@ -23,6 +26,7 @@ export default function ProjectFinancialsPage() {
   const project = getProject(id);
   const f = projectFinancials(id);
   const active: Tab = (TABS.includes(tab as Tab) ? tab : "budget") as Tab;
+  useEffect(() => { recordRecentProject("financials", id, active); }, [id, active]);
 
   return (
     <TrackShell>
@@ -31,9 +35,14 @@ export default function ProjectFinancialsPage() {
           <Link to={`${base}/financials/projects`} className="text-[11px] font-semibold text-primary">← Financial Projects</Link>
           <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h1 className="font-display text-2xl font-semibold">{project.name}</h1>
-              <p className="text-xs text-muted-foreground">{project.client} · {project.location} · contract {money(f.currentContract)}</p>
+              <ProjectSwitcher
+                projectId={id}
+                pillar="financials"
+                tool={active}
+                subtitle={`${project.client} · ${project.location} · contract ${money(f.currentContract)}`}
+              />
             </div>
+
             <div className="flex flex-wrap items-center gap-4 text-[11px]">
               <div><p className="text-muted-foreground">Forecast margin</p><p className="font-semibold">{f.forecastMargin.toFixed(1)}%</p></div>
               <div><p className="text-muted-foreground">Projected variance</p><p className={cn("font-semibold", f.variance < 0 ? "text-warning" : "text-success")}>{f.variance < 0 ? "-" : "+"}{money(Math.abs(f.variance))}</p></div>
