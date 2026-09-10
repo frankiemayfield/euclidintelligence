@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { ChevronRight, Columns3, Layers, SlidersHorizontal } from "lucide-react";
 import { money } from "@/data/demoUniverse";
 import {
@@ -32,7 +32,7 @@ export function BudgetTab({ projectId, base }: { projectId: string; base: string
       <td className="p-2 text-right tabular-nums">{money(r.revised)}</td>
       <td className="p-2 text-right tabular-nums">{money(r.committed)}</td>
       <td className="p-2 text-right tabular-nums">{money(r.actual)}</td>
-      <td className="p-2 text-right tabular-nums">{money(mode === "Forecast" ? r.forecast : r.actual + 0)}</td>
+      <td className="p-2 text-right tabular-nums">{money(mode === "Forecast" ? r.forecast : Math.max(r.committed, r.actual))}</td>
       {on("Cost to Complete") && <td className="p-2 text-right tabular-nums">{money(r.costToComplete)}</td>}
       {on("Pending Exposure") && <td className="p-2 text-right tabular-nums">{money(r.pendingExposure)}</td>}
       {on("Client Price") && <td className="p-2 text-right tabular-nums">{money(r.clientPrice)}</td>}
@@ -110,8 +110,8 @@ export function BudgetTab({ projectId, base }: { projectId: string; base: string
           </thead>
           <tbody>
             {groups.map(g => (
-              <>
-                <tr key={g.group} className="cursor-pointer border-b border-border/40 bg-card/30 font-semibold" onClick={() => setOpen(s => ({ ...s, [g.group]: !s[g.group] }))}>
+              <Fragment key={g.group}>
+                <tr className="cursor-pointer border-b border-border/40 bg-card/30 font-semibold" onClick={() => setOpen(s => ({ ...s, [g.group]: !s[g.group] }))}>
                   <td className="p-2"><span className="flex items-center gap-1"><ChevronRight size={12} className={cn("transition-transform", open[g.group] && "rotate-90")} />{g.group}</span></td>
                   {cells(g)}
                 </tr>
@@ -125,7 +125,7 @@ export function BudgetTab({ projectId, base }: { projectId: string; base: string
                     }, l.percentComplete)}
                   </tr>
                 ))}
-              </>
+              </Fragment>
             ))}
           </tbody>
         </table>
