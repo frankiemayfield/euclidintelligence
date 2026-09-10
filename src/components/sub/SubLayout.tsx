@@ -7,7 +7,8 @@ import { WorkspaceBackground } from "@/components/app/WorkspaceBackground";
 import { useState } from "react";
 import { AtlasPanel, AtlasToggleButton } from "@/components/app/AtlasPanel";
 import { GlobalHeader } from "@/components/app/GlobalHeader";
-import { SidebarProjectSwitcher } from "@/components/app/ProjectSwitcher";
+import { ProjectSwitcher, SidebarProjectSwitcher } from "@/components/app/ProjectSwitcher";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 const estimatorNavItems = [
   { label: "Document Upload", icon: Upload, path: "/sub/upload" },
@@ -26,11 +27,13 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [atlasOpen, setAtlasOpen] = useState(false);
+  const { project } = useDemoProject();
 
   const getSection = (): GlobalSection => {
     if (location.pathname === "/sub" || location.pathname === "/sub/") return "dashboard";
     if (location.pathname === "/sub/settings") return "settings";
     if (/^\/sub\/(projects|active|operations|schedule|time|financials)/.test(location.pathname)) return "dashboard";
+    if (/^\/sub\/precon(\/|$)/.test(location.pathname)) return "dashboard";
     if (!location.pathname.startsWith("/sub/")) return "dashboard";
     return "estimator";
   };
@@ -51,7 +54,7 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
             <div className={`px-3 py-3 border-b border-border ${collapsed ? "px-2" : ""}`}>
               {!collapsed && (
                 <>
-                  <Link to="/sub/financials/preconstruction" className="text-[10px] font-semibold text-primary">← Preconstruction</Link>
+                  <Link to="/sub/precon/projects" className="text-[10px] font-semibold text-primary">← Preconstruction</Link>
                   <div className="mt-2"><SidebarProjectSwitcher /></div>
                   <p className="text-[10px] text-muted-foreground mt-1">Preconstruction</p>
                 </>
@@ -84,7 +87,15 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
         )}
 
         {/* Main + Euclid */}
+        <div className="flex min-w-0 flex-1 flex-col">
+          {isEstimator && (
+            <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-1 pt-1 lg:px-6">
+              <p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Preconstruction · Estimator</p>
+              <ProjectSwitcher projectId={project.id} pillar="precon" compact className="w-auto max-w-[260px] rounded-full border border-border/60 bg-card/40 px-3 py-1.5" />
+            </div>
+          )}
         <main data-dense-workspace={location.pathname.includes("scope-analyzer") || location.pathname.includes("estimate-builder") || location.pathname.includes("bid-leveling") || location.pathname.includes("market-comparison") || location.pathname.includes("estimate-comparison") ? "true" : undefined} className="header-scroll-fade min-w-0 flex-1 overflow-y-auto rounded-2xl">{children}</main>
+        </div>
 
         {/* Euclid Panel */}
         {showAtlas && <AtlasPanel isOpen={atlasOpen} onClose={() => setAtlasOpen(false)} />}
