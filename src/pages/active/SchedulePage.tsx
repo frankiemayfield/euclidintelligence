@@ -36,10 +36,9 @@ export default function SchedulePage() {
             ))}
           </Dropdown>
         </div>
-        <div className={cn("flex min-h-0 flex-1 flex-col gap-6", projectId === ALL && "overflow-auto")}>
+        <div className="flex min-h-0 flex-1 flex-col">
           {shown.map(p => (
             <div key={p.id} className="flex min-h-0 flex-1 flex-col">
-              {projectId === ALL && <p className="mb-2 font-display text-sm font-semibold">{p.name}</p>}
               <ScheduleModule projectId={p.id} projectName={p.name} scopeCompanyId={scopeCompanyId} />
             </div>
           ))}
