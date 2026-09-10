@@ -17,9 +17,11 @@ const trackConfig = {
 } as const;
 function sectionFor(path: string, config: (typeof trackConfig)[Track]) {
   if (path === config.dashboard || path === `${config.dashboard}/`) return "dashboard";
+  if (path.startsWith("/activity")) return "activity";
   if (path.startsWith(config.financials)) return "financials";
-  if (path.startsWith("/activity") || path === config.settings || path.startsWith("/network") || path.startsWith("/compliance")) return "more";
-  return "projects";
+  if (path === config.settings || path.startsWith("/network") || path.startsWith("/compliance")) return "more";
+  if (path.startsWith(config.active) || path.startsWith(config.schedule) || path.startsWith(config.time) || path.startsWith(config.projects) || path.endsWith("/operations")) return "operations";
+  return "financials";
 }
 
 export function GlobalHeader({ track }: { track: Track }) {
@@ -35,7 +37,8 @@ export function GlobalHeader({ track }: { track: Track }) {
       <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark /></Link>
       <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
         <Link to={config.dashboard} data-active={section==="dashboard"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Home</Link>
-        <Link to={config.projects} data-active={section==="projects"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Projects</Link>
+        <Link to="/activity" data-active={section==="activity"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Activity</Link>
+        <Link to={config.projects} data-active={section==="operations"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Operations</Link>
         <Link to={config.financials} data-active={section==="financials"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Financials</Link>
         <div className="relative">
           <button data-active={section==="more"} onClick={()=>{const next=!moreOpen;closeAll();setMoreOpen(next)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">More <ChevronDown size={13}/></button>
