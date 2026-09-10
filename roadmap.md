@@ -63,4 +63,4 @@
 - [x] Add confidence-driven split document/review workspace and progressive evidence disclosure
 - [x] Add dedicated duplicate, commitment-overage, and low-confidence decision flows
 - [x] Add inline and bulk approval, next-record behavior, keyboard review, and session-derived posting links
-- [ ] Verify desktop/mobile review, exception cases, environment accents, and clean preview build
+- [x] Verify desktop/mobile review, exception cases, environment accents, and clean preview build

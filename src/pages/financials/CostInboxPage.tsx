@@ -142,8 +142,9 @@ function ReviewPanel({ item, postedCost, onApprove, onFlag, onPrevious, onNext, 
   const codingRef = useRef<HTMLDivElement>(null);
   const lowConfidence = item.confidence < 70 || item.state !== "Ready";
   const hasDifferentCodes = new Set(allocations.map(allocation => allocation.suggestedLineId)).size > 1;
+  const extractedAllocationTotal = item.lines.reduce((total, allocation) => total + allocation.amount, 0);
   const allocationTotal = allocations.reduce((total, allocation) => total + allocation.amount, 0);
-  const balanced = Math.abs(allocationTotal - item.amount) < 0.01;
+  const balanced = Math.abs(allocationTotal - extractedAllocationTotal) < 0.01;
   const resolutionAllowsPosting = item.state === "Ready" || ["Post Anyway", "Adjust Commitment", "Create Change", "Partial Approve", "Assign Vendor", "Assign Project", "Create Cost"].includes(resolvedAction ?? "");
   const canPost = !postedCost && item.state !== "Posted" && balanced && resolutionAllowsPosting && Boolean(projectId !== "Unassigned" && lineId);
   const selection = selections.find(candidate => candidate.id === item.selectionId || candidate.commitmentId === commitmentId);
@@ -208,7 +209,7 @@ function ReviewPanel({ item, postedCost, onApprove, onFlag, onPrevious, onNext, 
                 <span className={cn("hidden text-right tabular-nums sm:block", confidenceTone(allocation.confidence))}>{allocation.confidence}%</span>
               </div>
             ))}</div>
-            <div className="mt-2 flex items-center justify-between border-t border-border/45 pt-2 text-[10px]"><span className={balanced ? "text-success" : "text-warning"}>{balanced ? "Allocation balanced" : `${money(item.amount - allocationTotal)} remaining`}</span><Button variant="ghost" size="sm" onClick={() => setAllocations(current => [...current, { description: "New allocation", amount: 0, suggestedLineId: lineId, confidence: item.confidence }])} className="h-6 px-2 text-[9px]"><Plus size={10} />Split</Button></div>
+            <div className="mt-2 flex items-center justify-between border-t border-border/45 pt-2 text-[10px]"><span className={balanced ? "text-success" : "text-warning"}>{balanced ? "Allocation balanced" : `${money(extractedAllocationTotal - allocationTotal)} remaining`}</span><Button variant="ghost" size="sm" onClick={() => setAllocations(current => [...current, { description: "New allocation", amount: 0, suggestedLineId: lineId, confidence: item.confidence }])} className="h-6 px-2 text-[9px]"><Plus size={10} />Split</Button></div>
           </Disclosure>
         </div>
 
