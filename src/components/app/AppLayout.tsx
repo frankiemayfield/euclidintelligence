@@ -30,7 +30,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const getSection = (): GlobalSection => {
     if (location.pathname === "/app" || location.pathname === "/app/") return "dashboard";
     if (location.pathname === "/app/settings") return "settings";
-    if (/^\/app\/(active|schedule|time|financials)/.test(location.pathname)) return "dashboard";
+    if (/^\/app\/(projects|active|operations|schedule|time|financials)/.test(location.pathname)) return "dashboard";
     if (!location.pathname.startsWith("/app/")) return "dashboard";
     return "estimator";
   };
@@ -51,9 +51,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div className={`px-3 py-3 border-b border-border ${collapsed ? "px-2" : ""}`}>
               {!collapsed && (
                 <>
-                  <p className="text-sm font-semibold text-foreground">Estimator</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Project Workspace</p>
-                  <div className="mt-3"><SidebarProjectSwitcher /></div>
+                  <Link to="/app/projects" className="text-[10px] font-semibold text-primary">← Projects</Link>
+                  <div className="mt-2"><SidebarProjectSwitcher /></div>
+                  <p className="text-[10px] text-muted-foreground mt-1">Preconstruction</p>
                 </>
               )}
               {collapsed && (

@@ -26,6 +26,7 @@ import CompanyProfilePage from "./pages/network/CompanyProfilePage";
 import CompliancePage from "./pages/compliance/CompliancePage";
 import ActivityPage from "./pages/ActivityPage";
 import ActiveProjectsPage from "./pages/active/ActiveProjectsPage";
+import ProjectsHubPage from "./pages/projects/ProjectsHubPage";
 import ProjectWorkspacePage from "./pages/active/ProjectWorkspacePage";
 import SchedulePage from "./pages/active/SchedulePage";
 import TimeClockPage from "./pages/active/TimeClockPage";
@@ -104,6 +105,9 @@ const App = () => (
 
                 {/* Builder routes */}
                 <Route path="/app" element={<BuilderGuard><DashboardPage /></BuilderGuard>} />
+                <Route path="/app/projects" element={<BuilderGuard><ProjectsHubPage /></BuilderGuard>} />
+                <Route path="/app/preconstruction" element={<BuilderGuard><UploadPage /></BuilderGuard>} />
+                <Route path="/app/operations" element={<BuilderGuard><ActiveProjectsPage /></BuilderGuard>} />
                 <Route path="/app/new-project" element={<BuilderGuard><NewProjectPage /></BuilderGuard>} />
                 <Route path="/app/upload" element={<BuilderGuard><UploadPage /></BuilderGuard>} />
                 <Route path="/app/scope-analyzer" element={<BuilderGuard><ScopeAnalyzerPage /></BuilderGuard>} />
@@ -133,6 +137,9 @@ const App = () => (
 
                 {/* Subcontractor routes */}
                 <Route path="/sub" element={<SubGuard><SubDashboardPage /></SubGuard>} />
+                <Route path="/sub/projects" element={<SubGuard><ProjectsHubPage /></SubGuard>} />
+                <Route path="/sub/preconstruction" element={<SubGuard><SubUploadPage /></SubGuard>} />
+                <Route path="/sub/operations" element={<SubGuard><ActiveProjectsPage /></SubGuard>} />
                 <Route path="/sub/upload" element={<SubGuard><SubUploadPage /></SubGuard>} />
                 <Route path="/sub/scope-analyzer" element={<SubGuard><SubScopeAnalyzerPage /></SubGuard>} />
                 <Route path="/sub/bid-leveling" element={<SubGuard><SubBidLevelingPage /></SubGuard>} />

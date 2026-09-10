@@ -9,8 +9,7 @@ import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 import { fmtWhen, projectActivity, urgencyTone } from "@/data/activityData";
 import { builderNetwork, complianceTone } from "@/data/networkData";
 import { cn } from "@/lib/utils";
-import { ProjectSwitcher } from "@/components/app/ProjectSwitcher";
-import { hasWorkspace } from "@/components/app/ProjectSwitcher";
+import { ProjectHeader, ToolTabs } from "@/components/app/ProjectHeader";
 import { StartConstruction } from "@/components/app/active/StartConstruction";
 import { SelectionsPanel } from "@/components/app/selections/SelectionsPanel";
 import { projectFinancials, selectionsFor } from "@/data/financialData";
@@ -18,7 +17,8 @@ import { projectFinancials, selectionsFor } from "@/data/financialData";
 const TABS = ["overview", "schedule", "selections", "activity", "documents", "team"] as const;
 type Tab = (typeof TABS)[number];
 const LABELS: Record<Tab, string> = { overview: "Overview", schedule: "Schedule", selections: "Selections", activity: "Activity", documents: "Documents", team: "Team" };
-const FUTURE = ["Daily Logs", "RFIs", "Photos", "Punch / Closeout"];
+/** Operations tool row — Documents lives on the project-level row, not here. */
+const OPS_TOOLS = ["overview", "schedule", "selections", "team", "activity"] as const;
 
 function Panel({ title, action, children, className }: { title: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
@@ -52,29 +52,28 @@ export default function ProjectWorkspacePage() {
   return (
     <TrackShell>
       <div className="mx-auto flex h-full w-full max-w-[1250px] flex-col p-4 lg:p-7">
-        <header className="mb-4">
-          <Link to={`${base}/active`} className="text-[11px] font-semibold text-primary">← {track === "sub" ? "Active Jobs" : "Active Projects"}</Link>
-          <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <ProjectSwitcher projectId={projectId} pillar="operations" tool={active} subtitle={`${project.client} · ${project.location}`} />
-              {hasWorkspace("financials", projectId) && (
-                <Link to={`${base}/financials/${projectId}/budget`} className="mt-1 inline-block text-[11px] font-semibold text-primary">View Financials →</Link>
-              )}
-            </div>
+        <ProjectHeader
+          projectId={projectId}
+          pillar="operations"
+          tool={active}
+          section={active === "overview" ? "overview" : active === "documents" ? "documents" : "operations"}
+          subtitle={`${project.client} · ${project.location}`}
+          meta={
             <div className="flex flex-wrap gap-5 text-[11px]">
               {[["Project Manager", s.projectManager], ["Superintendent", s.superintendent], ["Current Phase", s.currentPhase], ["Status", s.mode === "active" ? "Active" : "Preconstruction"]].map(([l, v]) => (
                 <div key={l}><p className="text-muted-foreground">{l}</p><p className="font-semibold">{v}</p></div>
               ))}
             </div>
-          </div>
-          <nav className="mt-4 flex flex-wrap gap-1 border-b border-border/50 pb-2">
-            {TABS.map(t => (
-              <button key={t} onClick={() => navigate(`${base}/active/${projectId}/${t}`)}
-                className={cn("rounded-full px-3 py-1.5 text-[12px] font-medium text-muted-foreground hover:text-foreground", active === t && "bg-card/70 text-foreground shadow-sm")}>{LABELS[t]}</button>
-            ))}
-            {FUTURE.map(f => <span key={f} className="rounded-full px-3 py-1.5 text-[12px] text-muted-foreground/40" title="Coming soon">{f}</span>)}
-          </nav>
-        </header>
+          }
+        />
+
+        {active !== "overview" && active !== "documents" && (
+          <ToolTabs
+            items={OPS_TOOLS.filter(t => t !== "overview").map(t => ({ id: t, label: LABELS[t] }))}
+            active={active as (typeof OPS_TOOLS)[number]}
+            onSelect={t => navigate(`${base}/active/${projectId}/${t}`)}
+          />
+        )}
 
         {active === "overview" && (
           <div className="grid gap-3 lg:grid-cols-3">

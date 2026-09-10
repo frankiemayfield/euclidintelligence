@@ -1,4 +1,4 @@
-import { Activity, Bell, Building2, CalendarRange, ChevronDown, CheckCheck, Clock3, FolderKanban, HardHat, MessageSquare, PlusCircle, Settings, ShieldCheck, UserRound, X } from "lucide-react";
+import { Activity, Bell, Building2, ChevronDown, CheckCheck, MessageSquare, Settings, ShieldCheck, UserRound, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,42 +11,31 @@ import { useDemoProject } from "@/hooks/use-demo-project";
 
 type Track = "builder" | "sub" | "owner";
 const trackConfig = {
-  builder: { dashboard: "/app", precon: "/app/upload", newProject: "/app/new-project", preconLabel: "Preconstruction", activeLabel: "Active Projects", active: "/app/active", schedule: "/app/schedule", time: "/app/time", financials: "/app/financials", settings: "/app/settings", company: companies.mayfield.name, initials: people.frankie.initials, person: people.frankie.name, role: people.frankie.title },
-  sub: { dashboard: "/sub", precon: "/sub/upload", newProject: "/sub/upload", preconLabel: "Preconstruction", activeLabel: "Active Jobs", active: "/sub/active", schedule: "/sub/schedule", time: "/sub/time", financials: "/sub/financials", settings: "/sub/settings", company: companies.trueframe.name, initials: people.tyler.initials, person: people.tyler.name, role: people.tyler.title },
-  owner: { dashboard: "/owner", precon: "/owner/upload", newProject: "/owner/upload", preconLabel: "Preconstruction", activeLabel: "Active Projects", active: "/owner/documents", schedule: "/owner/documents", time: "/owner/documents", financials: "/owner/budget", settings: "/owner/settings", company: "Osterfeld Residence", initials: "AO", person: "Andrew Osterfeld", role: "Homeowner" },
+  builder: { dashboard: "/app", projects: "/app/projects", precon: "/app/upload", newProject: "/app/new-project", preconLabel: "Preconstruction", activeLabel: "Active Projects", active: "/app/active", schedule: "/app/schedule", time: "/app/time", financials: "/app/financials", settings: "/app/settings", company: companies.mayfield.name, initials: people.frankie.initials, person: people.frankie.name, role: people.frankie.title },
+  sub: { dashboard: "/sub", projects: "/sub/projects", precon: "/sub/upload", newProject: "/sub/upload", preconLabel: "Preconstruction", activeLabel: "Active Jobs", active: "/sub/active", schedule: "/sub/schedule", time: "/sub/time", financials: "/sub/financials", settings: "/sub/settings", company: companies.trueframe.name, initials: people.tyler.initials, person: people.tyler.name, role: people.tyler.title },
+  owner: { dashboard: "/owner", projects: "/owner/documents", precon: "/owner/upload", newProject: "/owner/upload", preconLabel: "Preconstruction", activeLabel: "Active Projects", active: "/owner/documents", schedule: "/owner/documents", time: "/owner/documents", financials: "/owner/budget", settings: "/owner/settings", company: "Osterfeld Residence", initials: "AO", person: "Andrew Osterfeld", role: "Homeowner" },
 } as const;
 function sectionFor(path: string, config: (typeof trackConfig)[Track]) {
   if (path === config.dashboard || path === `${config.dashboard}/`) return "dashboard";
   if (path.startsWith(config.financials)) return "financials";
-  if (path.startsWith(config.active) || path.startsWith(config.schedule) || path.startsWith(config.time)) return "operations";
   if (path.startsWith("/activity") || path === config.settings || path.startsWith("/network") || path.startsWith("/compliance")) return "more";
-  return "precon";
+  return "projects";
 }
 
 export function GlobalHeader({ track }: { track: Track }) {
   const config = trackConfig[track]; const location = useLocation(); const navigate = useNavigate(); const { signOut } = useAuth();
   const { setProjectId } = useDemoProject();
   const notices = track === "owner" ? [] : notificationsByTrack[track];
-  const [notificationsOpen,setNotificationsOpen]=useState(false); const [profileOpen,setProfileOpen]=useState(false); const [messengerOpen,setMessengerOpen]=useState(false); const [noticeFilter,setNoticeFilter]=useState<"all"|"unread">("all"); const [moreOpen,setMoreOpen]=useState(false); const [openMenu,setOpenMenu]=useState<null|"precon"|"operations"|"financials">(null);
+  const [notificationsOpen,setNotificationsOpen]=useState(false); const [profileOpen,setProfileOpen]=useState(false); const [messengerOpen,setMessengerOpen]=useState(false); const [noticeFilter,setNoticeFilter]=useState<"all"|"unread">("all"); const [moreOpen,setMoreOpen]=useState(false);
   const section=sectionFor(location.pathname,config);
-  const closeAll=()=>{setMoreOpen(false);setOpenMenu(null);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)};
-  const preconItems=[{label:"Projects",to:config.precon,icon:FolderKanban},{label:"New Project",to:config.newProject,icon:PlusCircle}];
-  const operationsItems=[{label:"Projects",to:config.active,icon:HardHat},{label:"Schedule",to:config.schedule,icon:CalendarRange},{label:"Time",to:config.time,icon:Clock3}];
+  const closeAll=()=>{setMoreOpen(false);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)};
   const moreItems=[{label:"Activity",to:"/activity",icon:Activity},{label:"Network",to:"/network",icon:Building2},{label:"Compliance",to:"/compliance",icon:ShieldCheck}];
-  const menus=[{id:"precon" as const,label:config.preconLabel,items:preconItems},{id:"operations" as const,label:"Operations",items:operationsItems}];
   return <>
     <header className="odyssey-header relative z-[70] flex h-[76px] shrink-0 items-center justify-between px-6 lg:px-[7%]">
       <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark /></Link>
       <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
-        <Link to={config.dashboard} data-active={section==="dashboard"} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Home</Link>
-        {menus.map(menu=>(
-          <div key={menu.id} className="relative">
-            <button data-active={section===menu.id} onClick={()=>{const next=openMenu===menu.id?null:menu.id;closeAll();setOpenMenu(next)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">{menu.label} <ChevronDown size={13}/></button>
-            {openMenu===menu.id&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
-              {menu.items.map(item=><Link key={item.label} to={item.to} onClick={()=>setOpenMenu(null)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground"><item.icon size={14}/>{item.label}</Link>)}
-            </div>}
-          </div>
-        ))}
+        <Link to={config.dashboard} data-active={section==="dashboard"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Home</Link>
+        <Link to={config.projects} data-active={section==="projects"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Projects</Link>
         <Link to={config.financials} data-active={section==="financials"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Financials</Link>
         <div className="relative">
           <button data-active={section==="more"} onClick={()=>{const next=!moreOpen;closeAll();setMoreOpen(next)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">More <ChevronDown size={13}/></button>
