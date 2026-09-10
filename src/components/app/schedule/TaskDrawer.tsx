@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { fmtLong, statusTone, successorsOf, taskById, taskImpact, workdays, type ScheduleTask } from "@/data/scheduleData";
 import { builderNetwork, complianceTone, money } from "@/data/networkData";
 import { EuclidImpact } from "@/components/app/active/EuclidImpact";
-import { TaskColorPicker } from "./TaskColorControls";
+import { TaskColorChip } from "./TaskColorControls";
 
 export function TaskDrawer({ task, locked, onClose, onEditAttempt, footer }: { task: ScheduleTask | null; locked: boolean; onClose: () => void; onEditAttempt?: () => void; footer?: React.ReactNode }) {
   const [historyOpen, setHistoryOpen] = useState(false);
