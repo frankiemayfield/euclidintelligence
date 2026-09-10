@@ -19,7 +19,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { FinancialsNav } from "./FinancialsNav";
 
 type InboxState = InboxItem["state"];
 type QueueFilter = "All" | InboxState | "Exceptions";
@@ -306,7 +305,6 @@ export default function CostInboxPage() {
       <div className="mx-auto flex h-full min-h-0 w-full max-w-[1500px] flex-col px-3 pb-3 pt-1 lg:px-5">
         <div className="shrink-0">
           <div className="flex items-end justify-between gap-3"><div><p className="text-[10px] font-semibold uppercase text-muted-foreground">Financials</p><h1 className="font-display text-2xl font-semibold">Cost Inbox</h1><p className="mt-0.5 text-[11px] text-muted-foreground">Euclid processes incoming costs. Review only what needs a decision.</p></div></div>
-          <div className="mt-1.5"><FinancialsNav base={base} active="inbox" /></div>
         </div>
 
         {open ? (

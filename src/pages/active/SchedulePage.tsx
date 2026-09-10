@@ -3,7 +3,6 @@ import { TrackShell, useTrack } from "@/components/app/TrackShell";
 import { ScheduleModule } from "@/components/app/schedule/ScheduleModule";
 import { CompanyScheduleView } from "@/components/app/schedule/CompanyScheduleView";
 import { Dropdown } from "@/components/app/active/Dropdown";
-import { OperationsNav } from "@/components/app/OperationsNav";
 import { getProject, projects } from "@/data/demoUniverse";
 import { scheduleHealth, statusFor } from "@/data/scheduleData";
 import { cn } from "@/lib/utils";
@@ -33,7 +32,6 @@ export default function SchedulePage() {
           <h1 className="font-display text-2xl font-semibold">Schedule</h1>
         </header>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <OperationsNav base={base} active="schedule" />
           <Dropdown label={label} width="w-72">
             {[[ALL_ACTIVE, "All Active Projects"], [ALL, "All Projects"]].map(([id, l]) => (
               <button key={id} onClick={() => setScope(id)}

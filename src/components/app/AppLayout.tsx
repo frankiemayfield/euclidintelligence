@@ -7,7 +7,8 @@ import { WorkspaceBackground } from "@/components/app/WorkspaceBackground";
 import { useState } from "react";
 import { AtlasPanel, AtlasToggleButton } from "./AtlasPanel";
 import { GlobalHeader } from "./GlobalHeader";
-import { SidebarProjectSwitcher } from "./ProjectSwitcher";
+import { ProjectSwitcher, SidebarProjectSwitcher } from "./ProjectSwitcher";
+import { useDemoProject } from "@/hooks/use-demo-project";
 
 const estimatorNavItems = [
   { label: "Document Upload", icon: Upload, path: "/app/upload" },
@@ -26,11 +27,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [atlasOpen, setAtlasOpen] = useState(false);
+  const { project } = useDemoProject();
 
   const getSection = (): GlobalSection => {
     if (location.pathname === "/app" || location.pathname === "/app/") return "dashboard";
     if (location.pathname === "/app/settings") return "settings";
-    if (/^\/app\/(projects|active|operations|schedule|time|financials)/.test(location.pathname)) return "dashboard";
+    if (/^\/app\/(projects|active|operations|schedule|time|financials|precon)/.test(location.pathname)) return "dashboard";
     if (!location.pathname.startsWith("/app/")) return "dashboard";
     return "estimator";
   };
@@ -84,7 +86,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         )}
 
         {/* Main + Euclid */}
-        <main data-dense-workspace={location.pathname.includes("scope-analyzer") || location.pathname.includes("estimate-builder") || location.pathname.includes("bid-leveling") || location.pathname.includes("market-comparison") || location.pathname.includes("estimate-comparison") ? "true" : undefined} className="header-scroll-fade min-w-0 flex-1 overflow-y-auto rounded-2xl">{children}</main>
+        <div className="flex min-w-0 flex-1 flex-col">
+          {isEstimator && (
+            <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-1 pt-1 lg:px-6">
+              <p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Preconstruction · Estimator</p>
+              <ProjectSwitcher projectId={project.id} pillar="precon" compact className="w-auto max-w-[260px] rounded-full border border-border/60 bg-card/40 px-3 py-1.5" />
+            </div>
+          )}
+          <main data-dense-workspace={location.pathname.includes("scope-analyzer") || location.pathname.includes("estimate-builder") || location.pathname.includes("bid-leveling") || location.pathname.includes("market-comparison") || location.pathname.includes("estimate-comparison") ? "true" : undefined} className="header-scroll-fade min-w-0 flex-1 overflow-y-auto rounded-2xl">{children}</main>
+        </div>
 
         {/* Euclid Panel - persistent across estimator + dashboard */}
         {showAtlas && <AtlasPanel isOpen={atlasOpen} onClose={() => setAtlasOpen(false)} />}

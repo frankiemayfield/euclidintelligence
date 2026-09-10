@@ -4,7 +4,6 @@ import { TrackShell, useTrack } from "@/components/app/TrackShell";
 import { money } from "@/data/demoUniverse";
 import { companyFinancials } from "@/data/financialData";
 import { Panel, Pill, Variance } from "@/components/app/financials/FinancialPrimitives";
-import { FinancialsNav } from "./FinancialsNav";
 
 export default function FinancialProjectsPage() {
   const track = useTrack();
@@ -18,7 +17,6 @@ export default function FinancialProjectsPage() {
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Financials</p>
           <h1 className="font-display text-3xl font-semibold">Financial Projects</h1>
         </header>
-        <FinancialsNav base={base} active="projects" />
 
         <div className="mt-4 grid gap-3 lg:grid-cols-2">
           {projects.map(p => (
