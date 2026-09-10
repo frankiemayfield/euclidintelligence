@@ -6,8 +6,8 @@ import { PageHeader, ScopeSelector, ALL_SCOPE } from "@/components/app/PageScope
 import { money, projects as allProjects } from "@/data/demoUniverse";
 import {
   budgetLines, changes, clientInvoices, commitments, contracts, costs, currentCommitment,
-  forecast as lineForecast, inboxItems, linesFor, projectFinancials, remainingCommitment,
-  remainingOnCommitment, revisedBudget, variance as lineVariance,
+  inboxItems, linesFor, projectFinancials, remainingCommitment,
+  remainingOnCommitment, variance as lineVariance,
 } from "@/data/financialData";
 import { activityFor, fmtWhen } from "@/data/activityData";
 import { cn } from "@/lib/utils";
@@ -303,7 +303,7 @@ export default function FinancialsOverviewPage() {
                             {j.fin.marginErosion <= -1 && (
                               <EuclidNote>
                                 Forecast margin has moved {pts(j.fin.marginErosion)} against the original contract margin. Most of the movement is tied to{" "}
-                                {j.drivers[0]?.name ?? "cost growth"} running {money(Math.abs(lineVariance(j.drivers[0] ?? { originalBudget: 0, approvedChanges: 0, euclidForecast: 0 } as never)))} above revised budget.
+                                {j.drivers[0] ? `${j.drivers[0].name} running ${money(Math.abs(lineVariance(j.drivers[0])))} above revised budget` : "cost growth against the revised budget"}.
                               </EuclidNote>
                             )}
                           </td>
