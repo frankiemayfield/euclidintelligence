@@ -42,13 +42,15 @@ export default function FinancialsOverviewPage() {
   const financialIds = scope === ALL_SCOPE ? financialProjectIds : financialProjectIds.filter(id => id === scope);
   const rows = useMemo(() => allProjects
     .filter(p => (scope === ALL_SCOPE ? true : p.id === scope))
-    .map(p => {
-      if (!financialProjectIds.includes(p.id)) return { id: p.id, name: p.name, client: p.client, precon: true as const, stage: track === "sub" ? p.subStage : p.builderStage };
-      return { id: p.id, name: p.name, client: p.client, precon: false as const, ...projectFinancials(p.id) };
-    }), [scope, track]);
+    .map(p => ({
+      id: p.id, name: p.name, client: p.client,
+      stage: track === "sub" ? p.subStage : p.builderStage,
+      fin: financialProjectIds.includes(p.id) ? projectFinancials(p.id) : null,
+    })), [scope, track]);
 
-  const live = rows.filter(r => !r.precon) as Extract<(typeof rows)[number], { precon: false }>[];
+  const live = rows.map(r => r.fin ? { ...r.fin, id: r.id, name: r.name } : null).filter(Boolean) as (ReturnType<typeof projectFinancials> & { id: string; name: string })[];
   const sum = (f: (r: (typeof live)[number]) => number) => live.reduce((t, r) => t + f(r), 0);
+
 
   const totals = {
     contract: sum(r => r.currentContract),
