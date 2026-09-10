@@ -7,7 +7,7 @@ import { WorkspaceBackground } from "@/components/app/WorkspaceBackground";
 import { useState } from "react";
 import { AtlasPanel, AtlasToggleButton } from "./AtlasPanel";
 import { GlobalHeader } from "./GlobalHeader";
-import { ProjectSwitcher } from "./ProjectSwitcher";
+import { SidebarProjectSwitcher } from "./ProjectSwitcher";
 
 const estimatorNavItems = [
   { label: "Document Upload", icon: Upload, path: "/app/upload" },

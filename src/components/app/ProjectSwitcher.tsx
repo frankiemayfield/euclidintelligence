@@ -204,3 +204,9 @@ export function ProjectSwitcher({ projectId, pillar, tool, compact = false, subt
     </div>
   );
 }
+
+/** Compact switcher for the Preconstruction sidebar: switching keeps the current tool. */
+export function SidebarProjectSwitcher() {
+  const { project } = useDemoProject();
+  return <ProjectSwitcher projectId={project.id} pillar="precon" compact />;
+}
