@@ -132,7 +132,7 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
           </Dropdown>
 
           {/* right — actions */}
-          <div className="ml-auto flex flex-wrap items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5">
             <button onClick={() => { setLookAhead(false); setTodaySignal(n => n + 1); }} className="rounded-full border border-border/60 px-2 py-1 text-[10px] font-semibold text-muted-foreground hover:text-foreground">Today</button>
             <button onClick={() => setLookAhead(v => !v)}
               className={cn("flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] font-semibold", lookAhead ? "border-primary/60 bg-primary/15 text-primary" : "border-border/60 text-muted-foreground hover:text-foreground")}>
