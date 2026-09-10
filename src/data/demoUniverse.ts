@@ -142,6 +142,24 @@ export const notificationsByTrack = {
 };
 
 export function getProject(id: string | undefined) { return projects.find(project => project.id === id) ?? projects[0]; }
+
+/**
+ * Job costing lifecycle.
+ * A project only carries financial tools once its proposal has been accepted /
+ * estimate finalized and the estimate has been pushed to the job-costing budget.
+ * Everything before that lives in Preconstruction only.
+ */
+export const jobCostingStart: Record<string, string> = {
+  "downtown-ti": "2026-06-18",
+};
+export const constructionStatuses = ["Construction", "Awarded / Active", "In Construction", "Closeout"];
+export function isConstructionActive(projectId: string | undefined) {
+  if (!projectId) return false;
+  if (jobCostingStart[projectId]) return true;
+  const p = projects.find(project => project.id === projectId);
+  return !!p && constructionStatuses.includes(p.builderStatus);
+}
+export const constructionProjectIds = projects.filter(p => isConstructionActive(p.id)).map(p => p.id);
 export function getQuote(project: DemoProject) { return quotes.find(quote => quote.id === project.quoteId) ?? quotes[0]; }
 export function getProjectDocuments(projectId: string) { return documents.filter(document => document.projectId === projectId); }
 export function getProjectRoute(project: DemoProject, track: DemoTrack) {
