@@ -31,9 +31,14 @@ export default function ProjectFinancialsPage() {
           <Link to={`${base}/financials/projects`} className="text-[11px] font-semibold text-primary">← Financial Projects</Link>
           <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h1 className="font-display text-2xl font-semibold">{project.name}</h1>
-              <p className="text-xs text-muted-foreground">{project.client} · {project.location} · contract {money(f.currentContract)}</p>
+              <ProjectSwitcher
+                projectId={id}
+                pillar="financials"
+                tool={active}
+                subtitle={`${project.client} · ${project.location} · contract ${money(f.currentContract)}`}
+              />
             </div>
+
             <div className="flex flex-wrap items-center gap-4 text-[11px]">
               <div><p className="text-muted-foreground">Forecast margin</p><p className="font-semibold">{f.forecastMargin.toFixed(1)}%</p></div>
               <div><p className="text-muted-foreground">Projected variance</p><p className={cn("font-semibold", f.variance < 0 ? "text-warning" : "text-success")}>{f.variance < 0 ? "-" : "+"}{money(Math.abs(f.variance))}</p></div>
