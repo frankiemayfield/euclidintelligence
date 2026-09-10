@@ -12,6 +12,7 @@ import { Pill } from "@/components/app/financials/FinancialPrimitives";
 import { ProjectHeader, ToolTabs } from "@/components/app/ProjectHeader";
 import { cn } from "@/lib/utils";
 import { recordRecentProject } from "@/lib/projectContext";
+import { FINANCIAL_TOOL_SLUGS, financialSlugForTab, projectFinancialTool } from "@/lib/routes";
 
 const TABS = ["budget", "costs", "commitments", "changes", "billing"] as const;
 type Tab = (typeof TABS)[number];
@@ -25,7 +26,7 @@ export default function ProjectFinancialsPage() {
   const id = financialProjectIds.includes(projectId) ? projectId : financialProjectIds[0];
   const project = getProject(id);
   const f = projectFinancials(id);
-  const active: Tab = (TABS.includes(tab as Tab) ? tab : "budget") as Tab;
+  const active: Tab = ((tab && FINANCIAL_TOOL_SLUGS[tab]) ?? "budget") as Tab;
   useEffect(() => { recordRecentProject("financials", id, active); }, [id, active]);
 
   return (
@@ -46,7 +47,7 @@ export default function ProjectFinancialsPage() {
           }
         />
 
-        <ToolTabs items={TABS.map(t => ({ id: t, label: LABELS[t] }))} active={active} onSelect={t => navigate(`${base}/financials/${id}/${t}`)} />
+        <ToolTabs items={TABS.map(t => ({ id: t, label: LABELS[t] }))} active={active} onSelect={t => navigate(projectFinancialTool(base, id, financialSlugForTab[t]))} />
 
         {active === "budget" && <BudgetTab projectId={id} base={base} />}
         {active === "costs" && <CostsTab projectId={id} />}

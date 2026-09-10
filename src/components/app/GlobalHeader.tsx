@@ -11,22 +11,23 @@ import { useDemoProject } from "@/hooks/use-demo-project";
 
 type Track = "builder" | "sub" | "owner";
 const trackConfig = {
-  builder: { dashboard: "/app", projects: "/app/operations", precon: "/app/upload", newProject: "/app/new-project", preconLabel: "Preconstruction", activeLabel: "Active Projects", active: "/app/active", schedule: "/app/schedule", time: "/app/time", financials: "/app/financials", settings: "/app/settings", company: companies.mayfield.name, initials: people.frankie.initials, person: people.frankie.name, role: people.frankie.title },
-  sub: { dashboard: "/sub", projects: "/sub/operations", precon: "/sub/upload", newProject: "/sub/upload", preconLabel: "Preconstruction", activeLabel: "Active Jobs", active: "/sub/active", schedule: "/sub/schedule", time: "/sub/time", financials: "/sub/financials", settings: "/sub/settings", company: companies.trueframe.name, initials: people.tyler.initials, person: people.tyler.name, role: people.tyler.title },
+  builder: { dashboard: "/app", projects: "/app/projects", precon: "/app/upload", newProject: "/app/new-project", preconLabel: "Preconstruction", activeLabel: "Active Projects", active: "/app/active", schedule: "/app/schedule", time: "/app/time", financials: "/app/financials", settings: "/app/settings", company: companies.mayfield.name, initials: people.frankie.initials, person: people.frankie.name, role: people.frankie.title },
+  sub: { dashboard: "/sub", projects: "/sub/projects", precon: "/sub/upload", newProject: "/sub/upload", preconLabel: "Preconstruction", activeLabel: "Active Jobs", active: "/sub/active", schedule: "/sub/schedule", time: "/sub/time", financials: "/sub/financials", settings: "/sub/settings", company: companies.trueframe.name, initials: people.tyler.initials, person: people.tyler.name, role: people.tyler.title },
   owner: { dashboard: "/owner", projects: "/owner/documents", precon: "/owner/upload", newProject: "/owner/upload", preconLabel: "Preconstruction", activeLabel: "Active Projects", active: "/owner/documents", schedule: "/owner/documents", time: "/owner/documents", financials: "/owner/budget", settings: "/owner/settings", company: "Osterfeld Residence", initials: "AO", person: "Andrew Osterfeld", role: "Homeowner" },
 } as const;
 
-const PRECON_PATHS = ["/precon", "/upload", "/scope-analyzer", "/bid-leveling", "/estimate-builder", "/pricing", "/proposal", "/estimate-comparison", "/market-comparison", "/proposal-comparison", "/est-vs-actual", "/new-project", "/preconstruction", "/financials/preconstruction"];
-const OPERATIONS_PATHS = ["/operations", "/projects", "/active", "/schedule", "/time"];
+const PRECON_PATHS = ["/precon", "/upload", "/scope-analyzer", "/bid-leveling", "/estimate-builder", "/pricing", "/proposal", "/estimate-comparison", "/market-comparison", "/proposal-comparison", "/est-vs-actual", "/new-project", "/preconstruction"];
+const OPERATIONS_PATHS = ["/operations", "/active", "/schedule", "/time"];
 
 function sectionFor(path: string, base: string, config: (typeof trackConfig)[Track]) {
   if (path === config.dashboard || path === `${config.dashboard}/`) return "dashboard";
+  // Projects own projects: anything under the Projects tree keeps Projects active.
   if (path.startsWith(`${base}/projects`)) return "projects";
   if (path.startsWith("/activity")) return "more";
   if (path === config.settings || path.startsWith("/network") || path.startsWith("/compliance")) return "more";
   if (PRECON_PATHS.some(p => path.startsWith(`${base}${p}`))) return "precon";
   if (OPERATIONS_PATHS.some(p => path.startsWith(`${base}${p}`))) return "operations";
-  if (path.startsWith(config.financials)) return "financials";
+  if (path.startsWith(`${base}/financials`)) return "financials";
   return "dashboard";
 }
 
@@ -96,24 +97,24 @@ export function GlobalHeader({ track }: { track: Track }) {
     };
   }, []);
   const pillars: { id: string; label: string; to: string; items: PillarItem[] }[] = track === "owner" ? [] : [
-    { id: "precon", label: "Precon", to: `${base}/precon`, items: [
-      { label: "Overview", to: `${base}/precon` },
+    { id: "precon", label: "Precon", to: `${base}/precon/overview`, items: [
+      { label: "Overview", to: `${base}/precon/overview` },
       { label: "Estimator", to: `${base}/precon/estimator` },
       { label: "Market Outlook", to: `${base}/precon/market-outlook` },
     ] },
-    { id: "operations", label: "Operations", to: `${base}/operations`, items: [
-      { label: "Overview", to: `${base}/operations` },
-      { label: "Schedule", to: `${base}/schedule` },
-      { label: "Time Clock", to: `${base}/time` },
+    { id: "operations", label: "Operations", to: `${base}/operations/overview`, items: [
+      { label: "Overview", to: `${base}/operations/overview` },
+      { label: "Schedule", to: `${base}/operations/schedule` },
+      { label: "Time Clock", to: `${base}/operations/time-clock` },
     ] },
-    { id: "financials", label: "Financials", to: `${base}/financials`, items: [
-      { label: "Overview", to: `${base}/financials` },
-      { label: "Cost Inbox", to: `${base}/financials/inbox` },
-      { label: "Budget", to: `${base}/financials/tool/budget`, divider: true },
-      { label: "Costs", to: `${base}/financials/tool/costs` },
-      { label: "Commitments", to: `${base}/financials/tool/commitments` },
-      { label: "Change Orders", to: `${base}/financials/tool/changes` },
-      { label: "Client Billing", to: `${base}/financials/tool/billing` },
+    { id: "financials", label: "Financials", to: `${base}/financials/overview`, items: [
+      { label: "Overview", to: `${base}/financials/overview` },
+      { label: "Cost Inbox", to: `${base}/financials/cost-inbox` },
+      { label: "Budget", to: `${base}/financials/budget`, divider: true },
+      { label: "Costs", to: `${base}/financials/costs` },
+      { label: "Commitments", to: `${base}/financials/commitments` },
+      { label: "Change Orders", to: `${base}/financials/change-orders` },
+      { label: "Client Billing", to: `${base}/financials/client-billing` },
     ] },
     { id: "more", label: "More", to: "/activity", items: [
       { label: "Activity", to: "/activity" },

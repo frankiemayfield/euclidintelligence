@@ -38,11 +38,11 @@ export default function OperationsOverviewPage() {
     .filter(t => !onSite.some(e => workerById(e.workerId).company === t.assignee)).slice(0, 5);
 
   const attention = [
-    ...ids.flatMap(id => lateTasks(id).filter(mine).map(t => ({ key: t.id, project: id, title: t.title, note: `Delayed · finish ${fmtShort(t.finish)}`, tone: "danger" as const, to: `${base}/active/${id}/schedule` }))),
+    ...ids.flatMap(id => lateTasks(id).filter(mine).map(t => ({ key: t.id, project: id, title: t.title, note: `Delayed · finish ${fmtShort(t.finish)}`, tone: "danger" as const, to: `${base}/projects/${id}/schedule` }))),
     ...ids.flatMap(id => criticalTasks(id).filter(t => mine(t) && (t.floatDays ?? 0) === 0 && t.status !== "Complete").slice(0, 2)
-      .map(t => ({ key: `c-${t.id}`, project: id, title: t.title, note: "Critical path · zero float", tone: "warning" as const, to: `${base}/active/${id}/schedule` }))),
+      .map(t => ({ key: `c-${t.id}`, project: id, title: t.title, note: "Critical path · zero float", tone: "warning" as const, to: `${base}/projects/${id}/schedule` }))),
     ...(track === "sub" ? [] : selections.filter(s => (s.overdueDays ?? 0) > 0)
-      .map(s => ({ key: s.id, project: s.projectId, title: s.title, note: `Selection ${s.overdueDays} days overdue`, tone: "warning" as const, to: `${base}/active/${s.projectId}/selections` }))),
+      .map(s => ({ key: s.id, project: s.projectId, title: s.title, note: `Selection ${s.overdueDays} days overdue`, tone: "warning" as const, to: `${base}/projects/${s.projectId}/selections` }))),
   ].slice(0, 8);
 
   return (
@@ -69,7 +69,7 @@ export default function OperationsOverviewPage() {
               {scheduled.map(p => {
                 const s = statusFor(p.id); const h = scheduleHealth(p.id);
                 return (
-                  <Link key={p.id} to={`${base}/active/${p.id}`} className="flex items-center justify-between gap-3 rounded-xl border border-border/50 px-3 py-2.5 hover:bg-card/60">
+                  <Link key={p.id} to={`${base}/projects/${p.id}`} className="flex items-center justify-between gap-3 rounded-xl border border-border/50 px-3 py-2.5 hover:bg-card/60">
                     <div className="min-w-0">
                       <p className="truncate text-[13px] font-semibold">{p.name}</p>
                       <p className="text-[11px] text-muted-foreground">{s.mode === "active" ? `Forecast finish ${fmtLong(s.forecastFinish)}` : "Preconstruction · draft schedule"}</p>

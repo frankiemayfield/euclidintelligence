@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
-import { getProject, getProjectRoute } from "@/data/demoUniverse";
+import { getProject } from "@/data/demoUniverse";
 import { useDemoProject } from "@/hooks/use-demo-project";
 import { useTrack } from "@/components/app/TrackShell";
 import { ProjectSwitcher, hasWorkspace, lifecycleOf, type ProjectPillar } from "@/components/app/ProjectSwitcher";
+import { projectFinancialTool, projectSection } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
-export type ProjectSection = "overview" | "precon" | "schedule" | "selections" | "financials" | "documents";
+export type ProjectSection = "overview" | "preconstruction" | "schedule" | "selections" | "financials" | "documents";
 
 /**
  * Project Mode header: back to the portfolio, the project title switcher, and one
@@ -34,17 +35,14 @@ export function ProjectHeader({
   const project = getProject(projectId);
 
   const go = (id: ProjectSection) => {
-    if (id === "precon") { setProjectId(projectId); navigate(getProjectRoute(project, track)); return; }
-    if (id === "financials") { navigate(`${base}/financials/${projectId}/budget`); return; }
-    if (id === "documents") { navigate(`${base}/active/${projectId}/documents`); return; }
-    if (id === "schedule") { navigate(`${base}/active/${projectId}/schedule`); return; }
-    if (id === "selections") { navigate(`${base}/active/${projectId}/selections`); return; }
-    navigate(`${base}/active/${projectId}/overview`);
+    setProjectId(projectId);
+    if (id === "financials") { navigate(projectFinancialTool(base, projectId, "budget")); return; }
+    navigate(projectSection(base, projectId, id));
   };
 
   const items: { id: ProjectSection; label: string; disabled?: boolean }[] = [
     { id: "overview", label: "Overview" },
-    { id: "precon", label: "Preconstruction" },
+    { id: "preconstruction", label: "Preconstruction" },
     { id: "schedule", label: "Schedule" },
     { id: "selections", label: "Selections" },
     { id: "financials", label: "Financials", disabled: !hasWorkspace("financials", projectId) },

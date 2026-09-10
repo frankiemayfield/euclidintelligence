@@ -215,7 +215,7 @@ export function CompanyScheduleView({ projectIds, scopeCompanyId, base }: { proj
 
       <TaskDrawer task={selected} locked onClose={() => setSelected(null)}
         footer={selected ? (
-          <Link to={`${base}/active/${selected.projectId}/schedule`} className="rounded-full bg-primary px-3 py-1.5 text-[10px] font-semibold text-primary-foreground">
+          <Link to={`${base}/projects/${selected.projectId}/schedule`} className="rounded-full bg-primary px-3 py-1.5 text-[10px] font-semibold text-primary-foreground">
             Open Project Schedule
           </Link>
         ) : undefined} />

@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, Search } from "lucide-react";
 import { useDemoProject } from "@/hooks/use-demo-project";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { getProjectRoute, type DemoProject } from "@/data/demoUniverse";
+import { type DemoProject } from "@/data/demoUniverse";
+import { projectFinancialTool, projectPreconStep, projectSection, type ProjectSectionId } from "@/lib/routes";
 import { financialProjectIds } from "@/data/financialData";
 import { statusFor } from "@/data/scheduleData";
 import { cn } from "@/lib/utils";
@@ -88,8 +89,12 @@ export function ProjectSwitcher({ projectId, pillar, tool, compact = false, subt
 
   const routeFor = (id: string) => {
     const base = track === "sub" ? "/sub" : "/app";
-    if (pillar === "financials") return `${base}/financials/${id}/${tool ?? "budget"}`;
-    if (pillar === "operations") return `${base}/active/${id}/${tool ?? "overview"}`;
+    if (pillar === "financials") return projectFinancialTool(base, id, tool ?? "budget");
+    if (pillar === "operations") return projectSection(base, id, (tool ?? "overview") as ProjectSectionId);
+    // Precon: keep the same estimating step, just swap the project underneath it.
+    const step = location.pathname.match(/\/projects\/[^/]+\/preconstruction\/([^/]+)/)?.[1];
+    if (step) return projectPreconStep(base, id, step);
+    if (/\/projects\/[^/]+\/preconstruction/.test(location.pathname)) return projectSection(base, id, "preconstruction");
     return location.pathname;
   };
 
@@ -101,9 +106,10 @@ export function ProjectSwitcher({ projectId, pillar, tool, compact = false, subt
   };
 
   const openPrecon = (project: DemoProject) => {
+    const base = track === "sub" ? "/sub" : "/app";
     setProjectId(project.id);
     setOpen(false);
-    navigate(getProjectRoute(project, track));
+    navigate(projectSection(base, project.id, "preconstruction"));
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {

@@ -16,9 +16,9 @@ export default function FinancialsOverviewPage() {
   const needsReview = costs.filter(x => x.approval === "Needs Review");
   const exceptions = [
     ...inboxItems.filter(i => i.state === "Exception").map(i => ({ id: i.id, title: `${i.exception?.kind} — ${i.vendor}`, detail: i.exception?.detail ?? "", to: `${base}/financials/inbox` })),
-    ...commitments.filter(x => remainingOnCommitment(x) < 0).map(x => ({ id: x.id, title: `Invoicing exceeds commitment — ${x.company}`, detail: `${money(x.invoiced)} invoiced against a ${money(currentCommitment(x))} commitment.`, to: `${base}/financials/${x.projectId}/commitments` })),
-    ...c.projects.filter(p => p.variance < 0).map(p => ({ id: p.id, title: `Forecast overrun — ${p.name}`, detail: `Forecast ${money(p.forecast)} against a revised budget of ${money(p.revised)}.`, to: `${base}/financials/${p.id}/budget` })),
-    ...c.projects.filter(p => p.outstandingAR > 0).map(p => ({ id: `${p.id}-ar`, title: `Outstanding A/R — ${p.name}`, detail: `${money(p.outstandingAR)} invoiced and unpaid.`, to: `${base}/financials/${p.id}/billing` })),
+    ...commitments.filter(x => remainingOnCommitment(x) < 0).map(x => ({ id: x.id, title: `Invoicing exceeds commitment — ${x.company}`, detail: `${money(x.invoiced)} invoiced against a ${money(currentCommitment(x))} commitment.`, to: `${base}/projects/${x.projectId}/financials/commitments` })),
+    ...c.projects.filter(p => p.variance < 0).map(p => ({ id: p.id, title: `Forecast overrun — ${p.name}`, detail: `Forecast ${money(p.forecast)} against a revised budget of ${money(p.revised)}.`, to: `${base}/projects/${p.id}/financials/budget` })),
+    ...c.projects.filter(p => p.outstandingAR > 0).map(p => ({ id: `${p.id}-ar`, title: `Outstanding A/R — ${p.name}`, detail: `${money(p.outstandingAR)} invoiced and unpaid.`, to: `${base}/projects/${p.id}/financials/client-billing` })),
   ];
 
   return (
@@ -38,7 +38,7 @@ export default function FinancialsOverviewPage() {
             <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-border/50 bg-card/40 px-3 py-2">
               <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Recently viewed</span>
               <span className="text-xs font-semibold">{p.name}</span>
-              <Link to={`${base}/financials/${p.id}/${recent.tool ?? "budget"}`} className="text-[11px] font-semibold text-primary">Continue Financials →</Link>
+              <Link to={`${base}/projects/${p.id}/financials/${recent.tool ?? "budget"}`} className="text-[11px] font-semibold text-primary">Continue Financials →</Link>
             </div>
           );
         })()}
@@ -55,7 +55,7 @@ export default function FinancialsOverviewPage() {
         <div className="mt-3 grid gap-3 lg:grid-cols-3">
           <Panel title="Projects" className="lg:col-span-2" action={<Link to={`${base}/projects`} className="text-[11px] font-semibold text-primary">All projects →</Link>}>
             {c.projects.map(p => (
-              <Link key={p.id} to={`${base}/financials/${p.id}/budget`} className="flex flex-wrap items-center gap-3 border-b border-border/40 py-3 last:border-0 hover:bg-card/30">
+              <Link key={p.id} to={`${base}/projects/${p.id}/financials/budget`} className="flex flex-wrap items-center gap-3 border-b border-border/40 py-3 last:border-0 hover:bg-card/30">
                 <span className="min-w-[160px] flex-1 text-sm font-semibold">{p.name}</span>
                 <span className="text-[11px]"><span className="block text-muted-foreground">Revised budget</span><b>{money(p.revised)}</b></span>
                 <span className="text-[11px]"><span className="block text-muted-foreground">Forecast</span><b>{money(p.forecast)}</b></span>
@@ -107,7 +107,7 @@ export default function FinancialsOverviewPage() {
           <div className="space-y-3">
             <Panel title="Unresolved changes">
               {changes.filter(x => ["Potential", "Pricing", "Submitted", "Needs Review"].includes(x.status)).map(x => (
-                <Link key={x.id} to={`${base}/financials/${x.projectId}/changes`} className="flex items-center justify-between border-b border-border/35 py-2 text-[11px] last:border-0">
+                <Link key={x.id} to={`${base}/projects/${x.projectId}/financials/change-orders`} className="flex items-center justify-between border-b border-border/35 py-2 text-[11px] last:border-0">
                   <span>{x.title}<span className="block text-[10px] text-muted-foreground">{x.id} · {x.kind}</span></span>
                   <span className="flex items-center gap-2"><b>{money(x.costImpact)}</b><Pill label={x.status} tone="info" /></span>
                 </Link>
