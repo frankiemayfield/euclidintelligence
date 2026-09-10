@@ -24,6 +24,7 @@ import NewProjectPage from "./pages/app/NewProjectPage";
 import NetworkPage from "./pages/network/NetworkPage";
 import CompanyProfilePage from "./pages/network/CompanyProfilePage";
 import CompliancePage from "./pages/compliance/CompliancePage";
+import MessagesPage from "./pages/MessagesPage";
 import ActivityPage from "./pages/ActivityPage";
 import ActiveProjectsPage from "./pages/active/ActiveProjectsPage";
 import ProjectsHubPage from "./pages/projects/ProjectsHubPage";
@@ -171,6 +172,7 @@ const App = () => (
                 <Route path="/network/:companyId" element={<GlobalGuard><CompanyProfilePage /></GlobalGuard>} />
                 <Route path="/compliance" element={<GlobalGuard><CompliancePage /></GlobalGuard>} />
                 <Route path="/activity" element={<GlobalGuard><ActivityPage /></GlobalGuard>} />
+                <Route path="/messages" element={<GlobalGuard><MessagesPage /></GlobalGuard>} />
 
                 {/* Homeowner routes */}
                 <Route path="/owner" element={<OwnerGuard><HomeownerOverviewPage /></OwnerGuard>} />
