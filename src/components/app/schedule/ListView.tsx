@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { categoryTone, fmtShort, statusTone, workdays, type SchedulePhase, type ScheduleTask, type TaskStatus } from "@/data/scheduleData";
+import { useTaskColors } from "@/lib/taskColors";
+import { fmtShort, statusTone, workdays, type SchedulePhase, type ScheduleTask, type TaskStatus } from "@/data/scheduleData";
 import { AlertTriangle, Info } from "lucide-react";
 import { columnDefs, type ColumnKey } from "./scheduleColumns";
 
@@ -10,6 +11,7 @@ export function ListView({ tasks, phases, columns, showCritical, locked, selecte
   tasks: ScheduleTask[]; phases: SchedulePhase[]; columns: ColumnKey[]; showCritical: boolean; locked: boolean;
   selectedId?: string; onSelect: (t: ScheduleTask) => void; onEditAttempt: () => void;
 }) {
+  const { colorFor } = useTaskColors();
   // session-local inline edits so the list is the fast editing surface
   const [edits, setEdits] = useState<Record<string, Partial<ScheduleTask>>>({});
   const val = <K extends keyof ScheduleTask>(t: ScheduleTask, k: K) => (edits[t.id]?.[k] ?? t[k]) as ScheduleTask[K];
@@ -73,7 +75,7 @@ export function ListView({ tasks, phases, columns, showCritical, locked, selecte
                     className={cn("cursor-pointer border-b border-border/30 hover:bg-card/60", selectedId === t.id && "bg-primary/10")}>
                     <td className="px-4 py-2">
                       <div className="flex items-center gap-2">
-                        <span className={cn("h-1.5 w-1.5 rounded-full", categoryTone[t.category].dot)} />
+                        <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: colorFor(t) }} />
                         <span className={cn(showCritical && t.critical && "font-semibold")}>{t.title}</span>
                         {showCritical && t.critical && <AlertTriangle size={11} className="text-warning" />}
                         {edits[t.id] && <Info size={10} className="text-primary" />}

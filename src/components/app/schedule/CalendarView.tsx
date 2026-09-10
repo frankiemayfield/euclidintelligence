@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Diamond, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTaskColors } from "@/lib/taskColors";
 import { addDays, d, fmtLong, TODAY, type ScheduleTask } from "@/data/scheduleData";
 
 type Mode = "Month" | "Week" | "Day";
@@ -20,6 +21,7 @@ export function CalendarView({ tasks, anchor, selectedId, onSelect, todaySignal 
   const [mode, setMode] = useState<Mode>("Month");
   const [cursor, setCursor] = useState(anchor);
   const [popover, setPopover] = useState<string | null>(null);
+  const { colorFor } = useTaskColors();
 
   useEffect(() => { if (todaySignal) setCursor(TODAY); }, [todaySignal]);
 
@@ -46,6 +48,7 @@ export function CalendarView({ tasks, anchor, selectedId, onSelect, todaySignal 
 
   const Pill = ({ t }: { t: ScheduleTask }) => (
     <button onClick={e => { e.stopPropagation(); onSelect(t); setPopover(null); }}
+      style={{ borderLeft: `3px solid ${colorFor(t)}` }}
       className={cn("flex w-full items-center gap-1 truncate rounded px-1.5 py-0.5 text-left text-[9px] font-medium", fillFor(t), selectedId === t.id && "ring-1 ring-primary")}>
       {t.milestone && <Diamond size={7} className="shrink-0 fill-current" />}
       <span className="truncate">{t.title}</span>
@@ -83,7 +86,7 @@ export function CalendarView({ tasks, anchor, selectedId, onSelect, todaySignal 
                 {items.length === 0 && <p className="text-sm text-muted-foreground">No scheduled activities.</p>}
                 {items.map(t => (
                   <button key={t.id} onClick={() => onSelect(t)} className="flex w-full items-center gap-3 rounded-xl border border-border/50 px-4 py-3 text-left hover:bg-card/60">
-                    <span className={cn("h-2 w-2 rounded-full", fillFor(t).includes("primary/85") ? "bg-primary" : "bg-muted-foreground")} />
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: colorFor(t) }} />
                     <span className="flex-1 text-sm font-medium">{t.title}</span>
                     <span className="text-[11px] text-muted-foreground">{t.assignee}</span>
                   </button>

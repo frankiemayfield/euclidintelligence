@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, CalendarRange, Filter, GanttChartSquare, List, Lock, LockOpen, MoreHorizontal, Plus, Route, Search, Send, Settings2, SlidersHorizontal, Table2 } from "lucide-react";
+import { CalendarDays, CalendarRange, Filter, GanttChartSquare, List, Lock, LockOpen, MoreHorizontal, Plus, Route, Search, Send, Settings2, Palette, SlidersHorizontal, Table2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CalendarView } from "./CalendarView";
 import { GanttView, type GanttOptions } from "./GanttView";
@@ -8,6 +8,7 @@ import { TimelineView } from "./TimelineView";
 import { TaskDrawer } from "./TaskDrawer";
 import { LookAheadPanel } from "./LookAheadPanel";
 import { Dropdown, DropdownSelect, DropdownToggle } from "@/components/app/active/Dropdown";
+import { TradeColorLegend } from "./TaskColorControls";
 import { columnDefs, defaultColumns, defaultListColumns, type ColumnKey, type ZoomLevel } from "./scheduleColumns";
 import { fmtLong, lookAheadTasks, phasesFor, scheduleHealth, scheduleTemplates, statusFor, tasksFor, TODAY, type ScheduleTask } from "@/data/scheduleData";
 
@@ -44,6 +45,7 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
     return scopeCompanyId ? base.filter(t => t.companyId === scopeCompanyId) : base;
   }, [projectId, scopeCompanyId]);
 
+  const trades = useMemo(() => Array.from(new Set(all.map(t => t.mapping?.trade || t.trade))).sort(), [all]);
   const companies = useMemo(() => Array.from(new Set(all.map(t => t.assignee))), [all]);
   const health = scheduleHealth(projectId);
   const filtersOn = phaseFilter !== "All" || statusFilter !== "All" || companyFilter !== "All" || Object.values(flags).some(Boolean);
@@ -146,6 +148,9 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
                   <DropdownSelect label="Time scale" value={zoom} onChange={v => setZoom(v as ZoomLevel)} options={["Day", "Week", "Month", "Quarter"]} />
                 </>
               )}
+            </Dropdown>
+            <Dropdown label="Colors" icon={Palette} width="w-64">
+              <TradeColorLegend trades={trades} />
             </Dropdown>
             {(view === "Gantt" || view === "List") && (
               <Dropdown label="Columns" icon={Table2} width="w-56">
