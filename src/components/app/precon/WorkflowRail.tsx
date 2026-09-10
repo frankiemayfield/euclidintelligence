@@ -19,11 +19,12 @@ export const usePreconWorkflowContext = () => useContext(PreconWorkflowContext);
 
 /** Live workflow model that re-renders whenever a stage is completed or flagged. */
 export function useWorkflowModel(projectId: string, track: DemoTrack, step?: PreconStepId): WorkflowModel {
-  return useSyncExternalStore(
+  const snapshot = useSyncExternalStore(
     subscribeWorkflow,
     () => JSON.stringify(computeWorkflow(projectId, track, step)),
     () => JSON.stringify(computeWorkflow(projectId, track, step)),
-  ) && computeWorkflow(projectId, track, step);
+  );
+  return JSON.parse(snapshot) as WorkflowModel;
 }
 
 const stateDot: Record<string, string> = {
@@ -40,11 +41,13 @@ const stateDot: Record<string, string> = {
  */
 export function WorkflowRail() {
   const ctx = usePreconWorkflowContext();
+  if (!ctx) return null;
+  return <WorkflowRailInner {...ctx} />;
+}
+
+function WorkflowRailInner({ projectId, track, base, step }: PreconWorkflowValue) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  if (!ctx) return null;
-
-  const { projectId, track, base, step } = ctx;
   const model = useWorkflowModel(projectId, track, step);
   const active = model.steps.find(s => s.id === step)!;
   const next = model.steps[active.index + 1];
