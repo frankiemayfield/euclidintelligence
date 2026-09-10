@@ -37,7 +37,8 @@ import SchedulePage from "./pages/active/SchedulePage";
 import TimeClockPage from "./pages/active/TimeClockPage";
 import FinancialsOverviewPage from "./pages/financials/FinancialsOverviewPage";
 import CostInboxPage from "./pages/financials/CostInboxPage";
-import FinancialProjectsPage from "./pages/financials/FinancialProjectsPage";
+import FinancialToolEntryPage from "./pages/financials/FinancialToolEntryPage";
+import ProjectsRedirect from "./pages/projects/ProjectsRedirect";
 import ProjectFinancialsPage from "./pages/financials/ProjectFinancialsPage";
 
 // Auth pages
@@ -113,7 +114,7 @@ const App = () => (
                 <Route path="/app/projects" element={<BuilderGuard><ProjectsHubPage /></BuilderGuard>} />
                 <Route path="/app/preconstruction" element={<BuilderGuard><UploadPage /></BuilderGuard>} />
                 <Route path="/app/precon" element={<BuilderGuard><PreconOverviewPage /></BuilderGuard>} />
-                <Route path="/app/precon/projects" element={<BuilderGuard><ProjectsHubPage mode="precon" /></BuilderGuard>} />
+                <Route path="/app/precon/projects" element={<BuilderGuard><ProjectsRedirect stage="precon" /></BuilderGuard>} />
                 <Route path="/app/precon/estimator" element={<BuilderGuard><EstimatorEntryPage /></BuilderGuard>} />
                 <Route path="/app/precon/market-outlook" element={<BuilderGuard><MarketOutlookPage /></BuilderGuard>} />
                 <Route path="/app/operations" element={<BuilderGuard><OperationsOverviewPage /></BuilderGuard>} />
@@ -132,6 +133,7 @@ const App = () => (
 
                 {/* Builder construction operations */}
                 <Route path="/app/active" element={<BuilderGuard><ActiveProjectsPage /></BuilderGuard>} />
+                <Route path="/app/operations/projects" element={<BuilderGuard><ProjectsRedirect stage="active" /></BuilderGuard>} />
                 <Route path="/app/active/:projectId" element={<BuilderGuard><ProjectWorkspacePage /></BuilderGuard>} />
                 <Route path="/app/active/:projectId/:tab" element={<BuilderGuard><ProjectWorkspacePage /></BuilderGuard>} />
                 <Route path="/app/schedule" element={<BuilderGuard><SchedulePage /></BuilderGuard>} />
@@ -139,9 +141,10 @@ const App = () => (
 
                 {/* Builder financials */}
                 <Route path="/app/financials" element={<BuilderGuard><FinancialsOverviewPage /></BuilderGuard>} />
-                <Route path="/app/financials/preconstruction" element={<BuilderGuard><ProjectsHubPage mode="precon" /></BuilderGuard>} />
+                <Route path="/app/financials/preconstruction" element={<BuilderGuard><ProjectsRedirect stage="precon" /></BuilderGuard>} />
                 <Route path="/app/financials/inbox" element={<BuilderGuard><CostInboxPage /></BuilderGuard>} />
-                <Route path="/app/financials/projects" element={<BuilderGuard><FinancialProjectsPage /></BuilderGuard>} />
+                <Route path="/app/financials/projects" element={<BuilderGuard><ProjectsRedirect /></BuilderGuard>} />
+                <Route path="/app/financials/tool/:tab" element={<BuilderGuard><FinancialToolEntryPage /></BuilderGuard>} />
                 <Route path="/app/financials/:projectId" element={<BuilderGuard><ProjectFinancialsPage /></BuilderGuard>} />
                 <Route path="/app/financials/:projectId/:tab" element={<BuilderGuard><ProjectFinancialsPage /></BuilderGuard>} />
 
@@ -150,7 +153,7 @@ const App = () => (
                 <Route path="/sub/projects" element={<SubGuard><ProjectsHubPage /></SubGuard>} />
                 <Route path="/sub/preconstruction" element={<SubGuard><SubUploadPage /></SubGuard>} />
                 <Route path="/sub/precon" element={<SubGuard><PreconOverviewPage /></SubGuard>} />
-                <Route path="/sub/precon/projects" element={<SubGuard><ProjectsHubPage mode="precon" /></SubGuard>} />
+                <Route path="/sub/precon/projects" element={<SubGuard><ProjectsRedirect stage="precon" /></SubGuard>} />
                 <Route path="/sub/precon/estimator" element={<SubGuard><EstimatorEntryPage /></SubGuard>} />
                 <Route path="/sub/precon/market-outlook" element={<SubGuard><MarketOutlookPage /></SubGuard>} />
                 <Route path="/sub/operations" element={<SubGuard><OperationsOverviewPage /></SubGuard>} />
@@ -166,6 +169,7 @@ const App = () => (
 
                 {/* Subcontractor construction operations */}
                 <Route path="/sub/active" element={<SubGuard><ActiveProjectsPage /></SubGuard>} />
+                <Route path="/sub/operations/projects" element={<SubGuard><ProjectsRedirect stage="active" /></SubGuard>} />
                 <Route path="/sub/active/:projectId" element={<SubGuard><ProjectWorkspacePage /></SubGuard>} />
                 <Route path="/sub/active/:projectId/:tab" element={<SubGuard><ProjectWorkspacePage /></SubGuard>} />
                 <Route path="/sub/schedule" element={<SubGuard><SchedulePage /></SubGuard>} />
@@ -173,9 +177,10 @@ const App = () => (
 
                 {/* Subcontractor financials */}
                 <Route path="/sub/financials" element={<SubGuard><FinancialsOverviewPage /></SubGuard>} />
-                <Route path="/sub/financials/preconstruction" element={<SubGuard><ProjectsHubPage mode="precon" /></SubGuard>} />
+                <Route path="/sub/financials/preconstruction" element={<SubGuard><ProjectsRedirect stage="precon" /></SubGuard>} />
                 <Route path="/sub/financials/inbox" element={<SubGuard><CostInboxPage /></SubGuard>} />
-                <Route path="/sub/financials/projects" element={<SubGuard><FinancialProjectsPage /></SubGuard>} />
+                <Route path="/sub/financials/projects" element={<SubGuard><ProjectsRedirect /></SubGuard>} />
+                <Route path="/sub/financials/tool/:tab" element={<SubGuard><FinancialToolEntryPage /></SubGuard>} />
                 <Route path="/sub/financials/:projectId" element={<SubGuard><ProjectFinancialsPage /></SubGuard>} />
                 <Route path="/sub/financials/:projectId/:tab" element={<SubGuard><ProjectFinancialsPage /></SubGuard>} />
 
