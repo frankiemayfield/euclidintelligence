@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronRight, Diamond } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTaskColors } from "@/lib/taskColors";
 import { addDays, categoryTone, d, dayDiff, fmtShort, statusTone, TODAY, workdays, type ScheduleTask, type SchedulePhase } from "@/data/scheduleData";
 import { columnDefs, zoomPx, type ColumnKey, type ZoomLevel } from "./scheduleColumns";
 
@@ -131,7 +132,7 @@ export function GanttView({ tasks, phases, options, columns, zoom, selectedId, o
               ) : (
                 <button key={r.task.id} onClick={() => onSelect(r.task)} style={{ height: ROW }}
                   className={cn("flex w-full items-center gap-2 border-b border-border/30 px-3 pl-7 text-left text-[12px] hover:bg-card/60", selectedId === r.task.id && "bg-primary/10")}>
-                  <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", categoryTone[r.task.category].dot)} />
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: colorFor(r.task) }} />
                   <span className={cn("min-w-[150px] flex-1 truncate", options.critical && r.task.critical && "font-medium")}>{r.task.title}</span>
                   {cols.map(c => c.key === "status" ? (
                     <span key={c.key} style={{ width: c.width }} className={cn("shrink-0 truncate rounded-full px-1.5 py-0.5 text-center text-[9px] font-semibold", statusTone[r.task.status])}>{r.task.status}</span>
@@ -197,9 +198,8 @@ export function GanttView({ tasks, phases, options, columns, zoom, selectedId, o
                       <Diamond size={13} className={cn("fill-current", crit ? "text-warning" : "text-foreground")} />
                     </button>
                   ) : (
-                    <button onClick={() => onSelect(t)} style={{ left: x(t.start), width: w, top: 11 }}
+                    <button onClick={() => onSelect(t)} style={{ left: x(t.start), width: w, top: 11, backgroundColor: colorFor(t) }}
                       className={cn("absolute h-2.5 overflow-hidden rounded-[3px] text-left ring-1 ring-inset ring-border/50 transition-transform hover:scale-y-125",
-                        categoryTone[t.category].bar,
                         t.status === "Delayed" && "ring-warning/70",
                         crit && "shadow-[inset_2px_0_0_0_hsl(var(--warning))]")} title={t.title}>
                       <span className="absolute inset-y-0 left-0 bg-foreground/25" style={{ width: `${t.progress}%` }} />
