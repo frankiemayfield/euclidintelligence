@@ -29,6 +29,10 @@ import ActiveProjectsPage from "./pages/active/ActiveProjectsPage";
 import ProjectWorkspacePage from "./pages/active/ProjectWorkspacePage";
 import SchedulePage from "./pages/active/SchedulePage";
 import TimeClockPage from "./pages/active/TimeClockPage";
+import FinancialsOverviewPage from "./pages/financials/FinancialsOverviewPage";
+import CostInboxPage from "./pages/financials/CostInboxPage";
+import FinancialProjectsPage from "./pages/financials/FinancialProjectsPage";
+import ProjectFinancialsPage from "./pages/financials/ProjectFinancialsPage";
 
 // Auth pages
 import SignInPage from "./pages/auth/SignInPage";
