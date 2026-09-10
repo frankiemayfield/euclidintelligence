@@ -23,7 +23,10 @@ export function TaskDrawer({ task, locked, onClose, onEditAttempt, footer }: { t
           <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Schedule activity</p>
           <h3 className="font-display text-base font-semibold leading-tight">{task.title}</h3>
         </div>
-        <button onClick={onClose} className="rounded-full p-1.5 hover:bg-card/70"><X size={15} /></button>
+        <div className="flex shrink-0 items-center gap-1">
+          <TaskColorChip taskId={task.id} trade={task.mapping?.trade || task.trade} />
+          <button onClick={onClose} className="rounded-full p-1.5 hover:bg-card/70"><X size={15} /></button>
+        </div>
       </div>
 
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 text-[12px]">
