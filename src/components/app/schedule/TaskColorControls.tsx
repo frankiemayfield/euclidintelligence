@@ -1,4 +1,6 @@
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TASK_COLOR_SWATCHES, useTaskColors } from "@/lib/taskColors";
 
 function SwatchGrid({ value, onPick }: { value: string; onPick: (c: string) => void }) {
