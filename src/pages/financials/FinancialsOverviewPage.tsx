@@ -53,7 +53,7 @@ export default function FinancialsOverviewPage() {
         </div>
 
         <div className="mt-3 grid gap-3 lg:grid-cols-3">
-          <Panel title="Projects" className="lg:col-span-2" action={<Link to={`${base}/financials/projects`} className="text-[11px] font-semibold text-primary">All financial projects →</Link>}>
+          <Panel title="Projects" className="lg:col-span-2" action={<Link to={`${base}/projects`} className="text-[11px] font-semibold text-primary">All projects →</Link>}>
             {c.projects.map(p => (
               <Link key={p.id} to={`${base}/financials/${p.id}/budget`} className="flex flex-wrap items-center gap-3 border-b border-border/40 py-3 last:border-0 hover:bg-card/30">
                 <span className="min-w-[160px] flex-1 text-sm font-semibold">{p.name}</span>

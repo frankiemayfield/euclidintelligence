@@ -54,7 +54,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div className={`px-3 py-1.5 border-b border-border ${collapsed ? "px-2" : ""}`}>
               {!collapsed && (
                 <>
-                  <Link to="/app/precon/projects" className="text-[10px] font-semibold text-primary">← Preconstruction</Link>
+                  <Link to="/app/projects?stage=precon" className="text-[10px] font-semibold text-primary">← Projects</Link>
                   <div className="mt-1"><SidebarProjectSwitcher /></div>
                 </>
               )}
