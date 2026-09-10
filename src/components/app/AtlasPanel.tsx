@@ -335,21 +335,49 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
 
   if (!isOpen) return null;
 
+  const minimized = size === "minimized";
+  const expanded = size === "expanded";
+  const frameSize = minimized
+    ? "h-14 w-[min(300px,calc(100vw-2rem))]"
+    : expanded
+      ? "h-[min(860px,calc(100vh-110px))] w-[min(760px,calc(100vw-2rem))]"
+      : "h-[min(680px,calc(100vh-120px))] w-[min(380px,calc(100vw-2rem))]";
+
   return (
-    <div className="euclid-assistant fixed bottom-5 right-5 z-[90] flex h-[min(680px,calc(100vh-120px))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden">
+    <div className={`euclid-assistant fixed bottom-5 right-5 z-[90] flex flex-col overflow-hidden transition-[width,height] duration-300 ease-out ${frameSize}`}>
       {/* Header */}
-      <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0">
+      <div
+        className={`flex shrink-0 items-center justify-between border-b border-border ${minimized ? "cursor-pointer px-4 py-3" : "px-5 py-4"}`}
+        onClick={minimized ? () => setSize("normal") : undefined}
+      >
         <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center">
               <EuclidCompass className="h-6 w-6" />
           </div>
-          <div><p className="font-display text-sm font-bold text-foreground">Euclid AI</p><p className="text-[9px] text-muted-foreground">Construction assistant</p></div>
+          <div><p className="font-display text-sm font-bold text-foreground">Euclid AI</p>{!minimized && <p className="text-[9px] text-muted-foreground">Construction assistant</p>}</div>
         </div>
-        <div className="flex items-center gap-1">
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted/50" aria-label="Minimize Euclid"><Minus size={16} /></button>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted/50" aria-label="Close Euclid"><X size={16} /></button>
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => setSize(minimized ? "normal" : "minimized")}
+            className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            aria-label={minimized ? "Restore Euclid" : "Minimize Euclid"}
+          >
+            <Minus size={16} />
+          </button>
+          <button
+            onClick={() => setSize(expanded ? "normal" : "expanded")}
+            className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            aria-label={expanded ? "Shrink Euclid" : "Expand Euclid"}
+          >
+            {expanded ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+          </button>
+          <button onClick={() => { setSize("normal"); onClose(); }} className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground" aria-label="Close Euclid"><X size={16} /></button>
         </div>
       </div>
+
+      {!minimized && (
+      <>
+
 
       {/* Uploaded Files Bar */}
       {uploadedFiles.length > 0 && (
