@@ -38,17 +38,26 @@ function Pillar({ id, label, to, items, section, open, setOpen }: {
   const isOpen = open === id;
   const isActive = section === id;
   return (
-    <div className="relative">
-      <div className="odyssey-nav-group flex items-center" data-active={isActive} data-open={isOpen}>
-        <Link to={to} onClick={() => setOpen(null)}
-          className="py-2 pl-4 pr-1 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">{label}</Link>
-        <Button variant="ghost" size="icon" aria-label={`${label} menu`} aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : id)}
-          className="h-8 w-7 rounded-none bg-transparent p-0 text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground">
-          <ChevronDown size={12} className={cn("transition-transform duration-150", isOpen && "rotate-180")} />
-        </Button>
-      </div>
+    <div
+      className="relative after:absolute after:left-0 after:top-full after:h-3 after:w-full"
+      onMouseEnter={() => setOpen(id)}
+      onMouseLeave={() => setOpen(null)}
+      onFocus={() => setOpen(id)}
+      onBlur={event => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(null);
+      }}
+    >
+      <Link
+        to={to}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        data-active={isActive}
+        data-open={isOpen}
+        onClick={() => setOpen(null)}
+        className="odyssey-nav-group block px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >{label}</Link>
       {isOpen && (
-        <div className="odyssey-popover odyssey-menu absolute left-1/2 top-12 z-[100] w-56 -translate-x-1/2 p-2">
+        <div role="menu" className="odyssey-popover odyssey-menu absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
           {items.map(item => (
             <div key={item.to + item.label}>
               {item.divider && <div className="my-1 h-px bg-border/60" />}
