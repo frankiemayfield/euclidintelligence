@@ -98,23 +98,25 @@ export function GlobalHeader({ track }: { track: Track }) {
   const pillars: { id: string; label: string; to: string; items: PillarItem[] }[] = track === "owner" ? [] : [
     { id: "precon", label: "Precon", to: `${base}/precon`, items: [
       { label: "Overview", to: `${base}/precon` },
-      { label: "Projects", to: `${base}/precon/projects` },
       { label: "Estimator", to: `${base}/precon/estimator` },
       { label: "Market Outlook", to: `${base}/precon/market-outlook` },
-      { label: "+ New Project", to: config.newProject, divider: true },
     ] },
     { id: "operations", label: "Operations", to: `${base}/operations`, items: [
       { label: "Overview", to: `${base}/operations` },
-      { label: "Projects", to: `${base}/projects` },
       { label: "Schedule", to: `${base}/schedule` },
       { label: "Time Clock", to: `${base}/time` },
     ] },
     { id: "financials", label: "Financials", to: `${base}/financials`, items: [
       { label: "Overview", to: `${base}/financials` },
       { label: "Cost Inbox", to: `${base}/financials/inbox` },
-      { label: "Project Financials", to: `${base}/financials/projects` },
+      { label: "Budget", to: `${base}/financials/tool/budget`, divider: true },
+      { label: "Costs", to: `${base}/financials/tool/costs` },
+      { label: "Commitments", to: `${base}/financials/tool/commitments` },
+      { label: "Change Orders", to: `${base}/financials/tool/changes` },
+      { label: "Client Billing", to: `${base}/financials/tool/billing` },
     ] },
-    { id: "more", label: "More", to: "/network", items: [
+    { id: "more", label: "More", to: "/activity", items: [
+      { label: "Activity", to: "/activity" },
       { label: "Network", to: "/network" },
       { label: "Compliance", to: "/compliance" },
       { label: "Settings", to: config.settings, divider: true },
