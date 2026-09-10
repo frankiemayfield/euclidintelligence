@@ -159,7 +159,7 @@ export interface InboxItem {
   vendor: string;
   companyId?: string;
   docType: "Invoice" | "Receipt" | "Credit" | "Statement" | "Subcontractor Application";
-  number: string;
+  number?: string;
   projectId?: string;
   amount: number;
   tax: number;
