@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, CheckCircle2,
-  ChevronDown, ChevronRight, Columns3, CreditCard, FileText, Filter, Flag,
+  ChevronDown, ChevronRight, Columns3, CreditCard, FileText, Flag,
   History, Link2, Mail, Maximize2, Minus, MoreHorizontal, Plus, RefreshCw,
   RotateCw, Search, Upload, X,
 } from "lucide-react";
@@ -15,6 +15,7 @@ import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 import { Pill } from "@/components/app/financials/FinancialPrimitives";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -29,7 +30,7 @@ type PostedCost = {
 };
 
 const SOURCES = [
-  { label: "Upload", icon: Upload }, { label: "Email", icon: Mail },
+  { label: "Email", icon: Mail },
   { label: "QBO Sync", icon: RefreshCw }, { label: "Card Feed", icon: CreditCard },
   { label: "Manual", icon: FileText },
 ];
@@ -43,10 +44,21 @@ const confidenceTone = (value: number) => value >= 90 ? "text-success" : value >
 function CountTab({ label, count, active, onClick }: { label: QueueFilter; count: number; active: boolean; onClick: () => void }) {
   return (
     <Button variant="ghost" size="sm" onClick={onClick}
-      className={cn("h-8 gap-1.5 px-2.5 text-[11px] text-muted-foreground", active && "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary")}>
-      {label}<span className={cn("min-w-5 rounded-full bg-muted/70 px-1.5 py-0.5 text-[9px] tabular-nums", active && "bg-primary/15")}>{count}</span>
+      data-active={active}
+      className="financial-segment h-8 gap-1.5 px-2.5 text-[11px] hover:bg-transparent">
+      {label}<span className="text-[10px] tabular-nums opacity-70">{count}</span>
     </Button>
   );
+}
+
+function QueueStatus({ state }: { state: InboxState }) {
+  return <span className={cn(
+    "inline-flex rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide",
+    state === "Ready" && "bg-success/10 text-success",
+    state === "Needs Review" && "bg-info/10 text-info",
+    state === "Exception" && "bg-warning/12 text-warning",
+    state === "Posted" && "bg-muted text-muted-foreground",
+  )}>{state}</span>;
 }
 
 function DocumentSheet({ item, zoom, rotation }: { item: InboxItem; zoom: number; rotation: number }) {
@@ -168,7 +180,7 @@ function ReviewPanel({ item, postedCost, onApprove, onFlag, onPrevious, onNext, 
   }, [canPost, onApprove, onFlag, onNext, onPrevious]);
 
   return (
-    <section className="flex min-h-0 flex-col bg-card/80 backdrop-blur-xl" aria-label="Cost review">
+    <section className="flex min-h-0 flex-col bg-[hsl(var(--surface-workspace)/0.98)]" aria-label="Cost review">
       <div className="flex h-11 shrink-0 items-center justify-between border-b border-border/60 px-3">
         <div className="flex items-center gap-2"><Pill label={postedCost ? "Posted" : item.state} tone={postedCost ? "muted" : stateTone(item.state)} /><span className={cn("text-[10px] font-semibold tabular-nums", confidenceTone(item.confidence))}>{item.confidence}% confidence</span></div>
         <TooltipProvider><div className="flex items-center gap-0.5"><Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={onShowDocument} className="h-7 w-7"><FileText size={13} /></Button></TooltipTrigger><TooltipContent>Show document</TooltipContent></Tooltip><Button variant="ghost" size="icon" onClick={onPrevious} className="h-7 w-7"><ArrowUp size={13} /></Button><Button variant="ghost" size="icon" onClick={onNext} className="h-7 w-7"><ArrowDown size={13} /></Button></div></TooltipProvider>
@@ -291,14 +303,14 @@ export default function CostInboxPage() {
 
   return (
     <TrackShell>
-      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1500px] flex-col px-3 pb-3 pt-2 lg:px-5">
+      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1500px] flex-col px-3 pb-3 pt-1 lg:px-5">
         <div className="shrink-0">
-          <div className="flex items-end justify-between gap-3"><div><p className="text-[10px] font-semibold uppercase text-muted-foreground">Financials</p><h1 className="font-display text-2xl font-semibold">Cost Inbox</h1></div><p className="hidden text-[11px] text-muted-foreground sm:block">Euclid does the bookkeeping. You review the decision.</p></div>
-          <div className="mt-2"><FinancialsNav base={base} active="inbox" /></div>
+          <div className="flex items-end justify-between gap-3"><div><p className="text-[10px] font-semibold uppercase text-muted-foreground">Financials</p><h1 className="font-display text-2xl font-semibold">Cost Inbox</h1><p className="mt-0.5 text-[11px] text-muted-foreground">Euclid processes incoming costs. Review only what needs a decision.</p></div></div>
+          <div className="mt-1.5"><FinancialsNav base={base} active="inbox" /></div>
         </div>
 
         {open ? (
-          <div className="mt-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/65 bg-card/90 shadow-[var(--shadow-card)]">
+          <div className="financial-workspace mt-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl">
             <div className="flex h-10 shrink-0 items-center justify-between border-b border-border/60 px-2 sm:px-3">
               <Button variant="ghost" size="sm" onClick={() => setOpenId(null)} className="h-7 px-2 text-[10px]"><ArrowLeft size={12} />Back to queue</Button>
               <div className="flex items-center gap-1 lg:hidden"><Button variant={mobileTab === "document" ? "secondary" : "ghost"} size="sm" onClick={() => setMobileTab("document")} className="h-7 text-[10px]">Document</Button><Button variant={mobileTab === "review" ? "secondary" : "ghost"} size="sm" onClick={() => setMobileTab("review")} className="h-7 text-[10px]">Review</Button></div>
@@ -311,31 +323,32 @@ export default function CostInboxPage() {
           </div>
         ) : (
           <>
-            <section className="mt-2 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-xl border border-border/60 bg-card/85 px-2.5 py-2 backdrop-blur-xl">
-              <div className="flex min-w-0 flex-wrap items-center gap-1.5"><label className="flex cursor-pointer items-center gap-1.5 text-[11px] font-semibold text-primary"><Upload size={13} />Add documents<input type="file" className="hidden" multiple /></label><span className="hidden h-4 w-px bg-border sm:block" />{SOURCES.slice(1).map(source => <Button key={source.label} variant="ghost" size="sm" className="h-7 px-2 text-[10px] text-muted-foreground"><source.icon size={11} />{source.label}</Button>)}</div>
-              <p className="text-[9px] text-muted-foreground">Drop files anywhere · PDF, image, email</p>
+            <section className="financial-toolbar mt-2 flex shrink-0 items-center justify-between gap-3 rounded-xl p-2">
+              <div className="flex min-w-0 items-center gap-1">
+                <label className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg bg-primary px-3 text-[10px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90"><Upload size={12} />Add Documents<input type="file" className="hidden" multiple /></label>
+                <div className="hidden items-center gap-0.5 lg:flex">{SOURCES.map(source => <Button key={source.label} variant="ghost" size="sm" className="h-8 rounded-lg px-2 text-[10px] font-medium text-muted-foreground hover:bg-primary/5 hover:text-primary"><source.icon size={11} />{source.label}</Button>)}</div>
+                <DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="sm" className="financial-control h-8 px-2.5 text-[10px] lg:hidden">Sources<ChevronDown size={11} /></Button></DropdownMenuTrigger><DropdownMenuContent align="start" className="odyssey-popover min-w-40">{SOURCES.map(source => <DropdownMenuItem key={source.label} className="gap-2 text-[11px]"><source.icon size={12} />{source.label}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>
+              </div>
+              <div className="flex min-w-0 items-center gap-1.5">
+                <label className="financial-control flex h-8 min-w-0 items-center gap-1.5 px-2.5"><Search size={12} className="shrink-0 text-muted-foreground" /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search inbox" className="w-24 bg-transparent text-[10px] outline-none sm:w-36" /></label>
+                <label className="financial-control hidden h-8 items-center gap-1 px-2.5 text-[10px] sm:flex"><select aria-label="Project filter" value={projectFilter} onChange={event => setProjectFilter(event.target.value)} className="max-w-28 bg-transparent outline-none"><option>All projects</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select><ChevronDown size={10} className="text-muted-foreground" /></label>
+                <label className="financial-control hidden h-8 items-center gap-1 px-2.5 text-[10px] md:flex"><select aria-label="Source filter" value={sourceFilter} onChange={event => setSourceFilter(event.target.value)} className="max-w-24 bg-transparent outline-none"><option>All sources</option>{[...new Set(inboxItems.map(item => item.source))].map(source => <option key={source}>{source}</option>)}</select><ChevronDown size={10} className="text-muted-foreground" /></label>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground" title="Columns"><Columns3 size={13} /></Button>
+              </div>
             </section>
 
-            <div className="mt-2 flex shrink-0 flex-wrap items-center justify-between gap-2">
-              <div className="flex flex-wrap gap-0.5">{FILTERS.map(value => <CountTab key={value} label={value} count={counts[value]} active={filter === value} onClick={() => setFilter(value)} />)}</div>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <label className="flex h-8 items-center gap-1.5 rounded-full border border-border/60 bg-card/70 px-2.5"><Search size={12} className="text-muted-foreground" /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search inbox" className="w-28 bg-transparent text-[10px] outline-none sm:w-40" /></label>
-                <label className="flex h-8 items-center gap-1 rounded-full border border-border/60 bg-card/70 px-2.5 text-[10px]"><Filter size={11} /><select value={projectFilter} onChange={event => setProjectFilter(event.target.value)} className="max-w-28 bg-transparent outline-none"><option>All projects</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
-                <label className="flex h-8 items-center gap-1 rounded-full border border-border/60 bg-card/70 px-2.5 text-[10px]"><select value={sourceFilter} onChange={event => setSourceFilter(event.target.value)} className="max-w-24 bg-transparent outline-none"><option>All sources</option>{[...new Set(inboxItems.map(item => item.source))].map(source => <option key={source}>{source}</option>)}</select><ChevronDown size={10} /></label>
-                <Button variant="outline" size="icon" className="h-8 w-8" title="Columns"><Columns3 size={12} /></Button>
-              </div>
+            <div className="mt-1.5 flex min-h-9 shrink-0 items-center justify-between gap-2 px-1">
+              {selected.length > 0 ? <><span className="text-[11px] font-semibold text-primary">{selected.length} selected <span className="font-normal text-muted-foreground">· {readySelected.length} ready</span></span><div className="flex items-center gap-1"><Button variant="ghost" size="sm" className="h-8 rounded-lg text-[10px]">Change Project</Button><Button variant="ghost" size="sm" className="hidden h-8 rounded-lg text-[10px] sm:inline-flex">Change Mapping</Button><Button variant="ghost" size="sm" className="h-8 rounded-lg text-[10px]"><Flag size={11} />Flag</Button><Button size="sm" onClick={() => post(readySelected)} disabled={!readySelected.length} className="h-8 rounded-lg text-[10px]"><Check size={11} />Approve {readySelected.length || ""}</Button><Button variant="ghost" size="sm" onClick={() => setSelected([])} className="h-8 rounded-lg px-2 text-[10px] text-muted-foreground">Cancel</Button></div></> : <div className="flex items-center gap-0.5 overflow-x-auto">{FILTERS.map(value => <CountTab key={value} label={value} count={counts[value]} active={filter === value} onClick={() => setFilter(value)} />)}</div>}
             </div>
 
-            {selected.length > 0 && <div className="mt-2 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-[10px]"><span className="font-semibold text-primary">{selected.length} selected · {readySelected.length} ready</span><div className="flex flex-wrap gap-1"><Button variant="ghost" size="sm" className="h-7 text-[10px]">Assign Project</Button><Button variant="ghost" size="sm" className="h-7 text-[10px]">Assign Cost Code</Button><Button variant="ghost" size="sm" className="h-7 text-[10px]"><Flag size={11} />Flag</Button><Button size="sm" onClick={() => post(readySelected)} disabled={!readySelected.length} className="h-7 text-[10px]"><Check size={11} />Approve {readySelected.length || ""} Ready</Button></div></div>}
-
-            <section className="mt-2 min-h-0 flex-1 overflow-auto rounded-xl border border-border/65 bg-card/90 shadow-[var(--shadow-card)] backdrop-blur-xl">
+            <section className="financial-workspace mt-1 min-h-0 flex-1 overflow-auto rounded-2xl">
               <table className="w-full min-w-[900px] table-fixed text-[11px]">
-                <thead className="sticky top-0 z-10 bg-card/95 text-[9px] uppercase text-muted-foreground backdrop-blur-xl"><tr className="border-b border-border/65"><th className="w-9 p-2"><input type="checkbox" aria-label="Select visible ready items" checked={rows.length > 0 && rows.every(item => selected.includes(item.id))} onChange={() => setSelected(current => rows.every(item => current.includes(item.id)) ? current.filter(id => !rows.some(item => item.id === id)) : [...new Set([...current, ...rows.map(item => item.id)])])} /></th><th className="w-[20%] p-2 text-left">Vendor</th><th className="w-[15%] p-2 text-left">Document</th><th className="w-[17%] p-2 text-left">Project</th><th className="w-[11%] p-2 text-right">Amount</th><th className="w-[15%] p-2 text-left">Mapping</th><th className="w-[7%] p-2 text-right">Conf.</th><th className="w-[9%] p-2 text-left">Status</th><th className="w-[8%] p-2" /></tr></thead>
+                <thead className="financial-table-header sticky top-0 z-10 text-[9px] uppercase text-muted-foreground"><tr className="border-b border-border/65"><th className="w-9 p-2"><input type="checkbox" aria-label="Select visible ready items" checked={rows.length > 0 && rows.every(item => selected.includes(item.id))} onChange={() => setSelected(current => rows.every(item => current.includes(item.id)) ? current.filter(id => !rows.some(item => item.id === id)) : [...new Set([...current, ...rows.map(item => item.id)])])} /></th><th className="w-[20%] p-2 text-left">Vendor</th><th className="w-[15%] p-2 text-left">Document</th><th className="w-[17%] p-2 text-left">Project</th><th className="w-[11%] p-2 text-right">Amount</th><th className="w-[15%] p-2 text-left">Mapping</th><th className="w-[7%] p-2 text-right">Conf.</th><th className="w-[9%] p-2 text-left">Status</th><th className="w-[8%] p-2" /></tr></thead>
                 <tbody>{rows.map(item => {
                   const mapped = lineById(item.suggestedLineId); const isFlagged = flagged.includes(item.id);
-                  return <tr key={item.id} onClick={() => { setOpenId(item.id); setShowDocument(true); setMobileTab("review"); }} className="h-12 cursor-pointer border-b border-border/35 transition-colors hover:bg-primary/5">
+                   return <tr key={item.id} onClick={() => { setOpenId(item.id); setShowDocument(true); setMobileTab("review"); }} className={cn("h-12 cursor-pointer border-b border-border/35 transition-colors hover:bg-primary/5", selected.includes(item.id) && "bg-primary/[0.07]")}>
                     <td className="p-2 text-center" onClick={event => event.stopPropagation()}><input type="checkbox" aria-label={`Select ${documentLabel(item)}`} checked={selected.includes(item.id)} onChange={() => setSelected(current => current.includes(item.id) ? current.filter(id => id !== item.id) : [...current, item.id])} /></td>
-                    <td className="truncate p-2 font-semibold">{isFlagged && <Flag size={10} className="mr-1 inline text-warning" />}{item.vendor}</td><td className="truncate p-2">{documentLabel(item)}<span className="block truncate text-[9px] text-muted-foreground">{sourceLabel(item.source)} · {item.date}</span></td><td className="truncate p-2">{item.projectId ? getProject(item.projectId).name : <span className="text-warning">Unassigned</span>}</td><td className="p-2 text-right font-semibold tabular-nums">{money(item.amount)}</td><td className="truncate p-2">{mapped?.name ?? "Unmapped"}<span className="block truncate text-[9px] text-muted-foreground">{mapped ? `${mapped.costCode} · ${item.commitmentId ?? "No commitment"}` : item.exception?.kind ?? "Needs coding"}</span></td><td className={cn("p-2 text-right font-semibold tabular-nums", confidenceTone(item.confidence))}>{item.confidence}%</td><td className="p-2"><Pill label={postedCosts.some(cost => cost.inboxId === item.id) ? "Posted" : item.state} tone={stateTone(postedCosts.some(cost => cost.inboxId === item.id) ? "Posted" : item.state)} /></td><td className="p-2 text-right" onClick={event => event.stopPropagation()}>{item.state === "Ready" && !postedCosts.some(cost => cost.inboxId === item.id) ? <Button size="sm" onClick={() => post([item.id])} className="h-7 px-2 text-[9px]">Approve</Button> : <Button variant="ghost" size="icon" onClick={() => setOpenId(item.id)} className="h-7 w-7"><ChevronRight size={13} /></Button>}</td>
+                    <td className="truncate p-2 font-semibold">{isFlagged && <Flag size={10} className="mr-1 inline text-warning" />}{item.vendor}</td><td className="truncate p-2">{documentLabel(item)}<span className="block truncate text-[9px] text-muted-foreground">{sourceLabel(item.source)} · {item.date}</span></td><td className="truncate p-2">{item.projectId ? getProject(item.projectId).name : <span className="text-warning">Unassigned</span>}</td><td className="p-2 text-right font-semibold tabular-nums">{money(item.amount)}</td><td className="truncate p-2">{mapped?.name ?? "Unmapped"}<span className="block truncate text-[9px] text-muted-foreground">{mapped ? `${mapped.costCode} · ${item.commitmentId ?? "No commitment"}` : item.exception?.kind ?? "Needs coding"}</span></td><td className={cn("p-2 text-right font-semibold tabular-nums", confidenceTone(item.confidence))}>{item.confidence}%</td><td className="p-2"><QueueStatus state={postedCosts.some(cost => cost.inboxId === item.id) ? "Posted" : item.state} /></td><td className="p-2 text-right" onClick={event => event.stopPropagation()}>{item.state === "Ready" && !postedCosts.some(cost => cost.inboxId === item.id) ? <Button size="sm" onClick={() => post([item.id])} className="h-7 rounded-lg px-2 text-[9px]">Approve</Button> : <Button variant="ghost" size="icon" onClick={() => setOpenId(item.id)} className="h-7 w-7 rounded-lg text-muted-foreground"><ChevronRight size={13} /></Button>}</td>
                   </tr>;
                 })}</tbody>
               </table>
