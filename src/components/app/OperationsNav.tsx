@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
-import { CalendarRange, Clock3, HardHat } from "lucide-react";
+import { CalendarRange, Clock3, HardHat, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type OperationsSection = "projects" | "schedule" | "time";
+export type OperationsSection = "overview" | "projects" | "schedule" | "time";
 
 const ITEMS = [
-  { id: "projects", label: "Projects", path: "/operations", icon: HardHat },
+  { id: "overview", label: "Overview", path: "/operations", icon: LayoutDashboard },
+  { id: "projects", label: "Projects", path: "/projects", icon: HardHat },
   { id: "schedule", label: "Schedule", path: "/schedule", icon: CalendarRange },
   { id: "time", label: "Time Clock", path: "/time", icon: Clock3 },
 ] as const;
