@@ -456,6 +456,8 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
           </button>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }
@@ -464,10 +466,11 @@ export function AtlasToggleButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="euclid-assistant-launcher fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full"
+      className="euclid-assistant-launcher fixed bottom-5 right-5 z-[90] flex h-14 w-14 items-center justify-center rounded-full"
       aria-label="Open Euclid"
     >
-      <EuclidCompass className="h-8 w-8" />
+      <EuclidCompass className="euclid-launcher-mark h-8 w-8" />
+
     </button>
   );
 }
