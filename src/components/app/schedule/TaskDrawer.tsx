@@ -48,7 +48,6 @@ export function TaskDrawer({ task, locked, onClose, onEditAttempt, footer }: { t
           {task.location && <div><p className="text-[10px] uppercase text-muted-foreground">Location</p><p className="font-medium">{task.location}</p></div>}
         </div>
 
-        <TaskColorPicker taskId={task.id} trade={task.mapping?.trade || task.trade} />
 
         <div className="rounded-xl border border-border/50 p-3">
           <p className="mb-2 text-[10px] font-bold uppercase text-muted-foreground">Baseline comparison</p>
