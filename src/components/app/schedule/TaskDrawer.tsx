@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { fmtLong, statusTone, successorsOf, taskById, taskImpact, workdays, type ScheduleTask } from "@/data/scheduleData";
 import { builderNetwork, complianceTone, money } from "@/data/networkData";
 import { EuclidImpact } from "@/components/app/active/EuclidImpact";
+import { TaskColorPicker } from "./TaskColorControls";
 
 export function TaskDrawer({ task, locked, onClose, onEditAttempt, footer }: { task: ScheduleTask | null; locked: boolean; onClose: () => void; onEditAttempt?: () => void; footer?: React.ReactNode }) {
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -43,6 +44,8 @@ export function TaskDrawer({ task, locked, onClose, onEditAttempt, footer }: { t
           <div><p className="text-[10px] uppercase text-muted-foreground">Status</p><span className={cn("mt-0.5 inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold", statusTone[task.status])}>{task.status}</span></div>
           {task.location && <div><p className="text-[10px] uppercase text-muted-foreground">Location</p><p className="font-medium">{task.location}</p></div>}
         </div>
+
+        <TaskColorPicker taskId={task.id} trade={task.mapping?.trade || task.trade} />
 
         <div className="rounded-xl border border-border/50 p-3">
           <p className="mb-2 text-[10px] font-bold uppercase text-muted-foreground">Baseline comparison</p>
