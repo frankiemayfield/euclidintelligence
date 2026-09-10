@@ -9,7 +9,7 @@ import { CommitmentsTab } from "@/components/app/financials/CommitmentsTab";
 import { ChangesTab } from "@/components/app/financials/ChangesTab";
 import { ClientBillingTab } from "@/components/app/financials/ClientBillingTab";
 import { Pill } from "@/components/app/financials/FinancialPrimitives";
-import { ProjectSwitcher } from "@/components/app/ProjectSwitcher";
+import { ProjectHeader, ToolTabs } from "@/components/app/ProjectHeader";
 import { cn } from "@/lib/utils";
 import { recordRecentProject } from "@/lib/projectContext";
 
