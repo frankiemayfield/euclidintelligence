@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 import { useEffect, useState } from "react";
 import { getProjectDocuments } from "@/data/demoUniverse";
+import { listIntakeDocuments } from "@/lib/documentIntake";
 import { useDemoProject } from "@/hooks/use-demo-project";
 
 const projectTypes = ["Remodel", "Custom Home", "Addition", "White Box", "Tenant Finish", "Commercial Rehab"];
@@ -79,7 +80,10 @@ export default function UploadPage() {
   const [estimateUsage, setEstimateUsage] = useState("baseline");
   const [transition, setTransition] = useState(false);
   useEffect(() => {
-    setFiles(getProjectDocuments(project.id).map(document => ({ name: document.filename, sourceType: document.sourceType === "subcontractor bid" ? "subbids" as const : "plans" as const, status: "Classified" as const, isPrimary: document.primary })));
+    setFiles([
+      ...getProjectDocuments(project.id).map(document => ({ name: document.filename, sourceType: document.sourceType === "subcontractor bid" ? "subbids" as const : "plans" as const, status: "Classified" as const, isPrimary: document.primary })),
+      ...listIntakeDocuments(project.id).map(document => ({ name: document.filename, sourceType: "subbids" as const, status: "Classified" as const })),
+    ]);
   }, [project.id]);
 
   const addFiles = () => {
