@@ -1,227 +1,345 @@
-import { useMemo, useState } from "react";
-import { AlertTriangle, CheckCircle2, CreditCard, FileText, Mail, RefreshCw, Upload } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  AlertTriangle, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, CheckCircle2,
+  ChevronDown, ChevronRight, Columns3, CreditCard, FileText, Filter, Flag,
+  History, Link2, Mail, Maximize2, Minus, MoreHorizontal, Plus, RefreshCw,
+  RotateCw, Search, Upload, X,
+} from "lucide-react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
 import { getProject, money, projects } from "@/data/demoUniverse";
-import { budgetLines, commitmentById, inboxItems, InboxItem, lineById, selections } from "@/data/financialData";
+import {
+  budgetLines, commitmentById, commitments, inboxItems, InboxItem, lineById,
+  selections,
+} from "@/data/financialData";
 import { EuclidImpact } from "@/components/app/active/EuclidImpact";
-import { Filters, Metric, Panel, Pill } from "@/components/app/financials/FinancialPrimitives";
+import { Pill } from "@/components/app/financials/FinancialPrimitives";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { FinancialsNav } from "./FinancialsNav";
 
-const STATES = ["All", "Ready", "Needs Review", "Exceptions", "Posted"];
+type InboxState = InboxItem["state"];
+type QueueFilter = "All" | InboxState | "Exceptions";
+type ReviewTab = "document" | "review";
+type PostedCost = {
+  inboxId: string; projectId?: string; budgetLineId?: string; commitmentId?: string;
+  amount: number; status: "Posted"; sync: "Queued";
+};
+
 const SOURCES = [
-  { label: "Upload", icon: Upload }, { label: "Email", icon: Mail }, { label: "QBO Sync", icon: RefreshCw },
-  { label: "Card Feed", icon: CreditCard }, { label: "Manual", icon: FileText },
+  { label: "Upload", icon: Upload }, { label: "Email", icon: Mail },
+  { label: "QBO Sync", icon: RefreshCw }, { label: "Card Feed", icon: CreditCard },
+  { label: "Manual", icon: FileText },
 ];
+const FILTERS: QueueFilter[] = ["All", "Ready", "Needs Review", "Exceptions", "Posted"];
 
-const tone = (s: InboxItem["state"]) => s === "Ready" ? "good" : s === "Exception" ? "bad" : s === "Posted" ? "muted" : "info";
+const stateTone = (state: InboxState) => state === "Ready" ? "good" : state === "Exception" ? "bad" : state === "Posted" ? "muted" : "info";
+const sourceLabel = (source: string) => source === "Invoice Upload" || source === "Receipt Upload" ? "Upload" : source;
+const documentLabel = (item: InboxItem) => `${item.docType}${item.number ? ` #${item.number}` : ""}`;
+const confidenceTone = (value: number) => value >= 90 ? "text-success" : value >= 70 ? "text-foreground" : "text-warning";
 
-function DocumentPreview({ item }: { item: InboxItem }) {
+function CountTab({ label, count, active, onClick }: { label: QueueFilter; count: number; active: boolean; onClick: () => void }) {
   return (
-    <div className="rounded-xl bg-white p-5 text-[11px] text-neutral-800">
-      <div className="flex items-start justify-between border-b border-neutral-200 pb-3">
-        <div>
-          <p className="font-display text-base font-bold text-neutral-900">{item.vendor}</p>
-          <p className="text-[10px] text-neutral-500">{item.docType}{item.number ? ` #${item.number}` : ""}</p>
+    <Button variant="ghost" size="sm" onClick={onClick}
+      className={cn("h-8 gap-1.5 px-2.5 text-[11px] text-muted-foreground", active && "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary")}>
+      {label}<span className={cn("min-w-5 rounded-full bg-muted/70 px-1.5 py-0.5 text-[9px] tabular-nums", active && "bg-primary/15")}>{count}</span>
+    </Button>
+  );
+}
+
+function DocumentSheet({ item, zoom, rotation }: { item: InboxItem; zoom: number; rotation: number }) {
+  return (
+    <div className="flex min-h-[430px] items-start justify-center overflow-auto bg-muted/35 p-5 lg:min-h-0 lg:flex-1">
+      <article className="w-full max-w-[560px] origin-top bg-card p-7 text-[11px] text-card-foreground shadow-lg transition-transform"
+        style={{ transform: `scale(${zoom / 100}) rotate(${rotation}deg)` }} aria-label={`Preview of ${documentLabel(item)}`}>
+        <div className="flex items-start justify-between border-b border-border pb-4">
+          <div><p className="font-display text-lg font-bold">{item.vendor}</p><p className="text-[10px] text-muted-foreground">{documentLabel(item)}</p></div>
+          <div className="text-right text-[10px] text-muted-foreground"><p>Date {item.date}</p>{item.dueDate && <p>Due {item.dueDate}</p>}{item.terms && <p>{item.terms}</p>}{item.card && <p>{item.card}</p>}</div>
         </div>
-        <div className="text-right text-[10px] text-neutral-500">
-          <p>Date {item.date}</p>{item.dueDate && <p>Due {item.dueDate}</p>}{item.terms && <p>{item.terms}</p>}{item.card && <p>{item.card}</p>}
+        <table className="mt-4 w-full"><tbody>{item.lines.map((line, index) => (
+          <tr key={`${line.description}-${index}`} className="border-b border-border/55"><td className="py-2 pr-3">{line.description}</td><td className="py-2 text-right tabular-nums">{money(line.amount)}</td></tr>
+        ))}</tbody></table>
+        <div className="ml-auto mt-4 w-48 space-y-1.5">
+          <p className="flex justify-between"><span className="text-muted-foreground">Tax</span><b>{money(item.tax)}</b></p>
+          <p className="flex justify-between border-t border-border pt-1.5 text-sm"><span>Total</span><b>{money(item.amount)}</b></p>
         </div>
-      </div>
-      <table className="mt-3 w-full">
-        <tbody>
-          {item.lines.map(l => (
-            <tr key={l.description} className="border-b border-neutral-100">
-              <td className="py-1.5">{l.description}</td>
-              <td className="py-1.5 text-right tabular-nums">{money(l.amount)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="mt-3 ml-auto w-44 space-y-1">
-        <p className="flex justify-between"><span className="text-neutral-500">Tax</span><b>{money(item.tax)}</b></p>
-        <p className="flex justify-between border-t border-neutral-200 pt-1"><span className="font-semibold">Total</span><b>{money(item.amount)}</b></p>
-      </div>
-      <p className="mt-4 text-[9px] uppercase tracking-wide text-neutral-400">Original document · {item.source}</p>
+        <p className="mt-7 text-[9px] uppercase tracking-wide text-muted-foreground">Source document · {item.source}</p>
+      </article>
     </div>
   );
 }
 
-function Review({ item, onPost }: { item: InboxItem; onPost: () => void }) {
-  const [alloc, setAlloc] = useState(() => item.lines.map(l => ({ ...l })));
-  const project = item.projectId ? getProject(item.projectId) : undefined;
-  const lineOptions = budgetLines.filter(l => !item.projectId || l.projectId === item.projectId);
+function PreviewPane({ item, onHide }: { item: InboxItem; onHide: () => void }) {
+  const [zoom, setZoom] = useState(100);
+  const [rotation, setRotation] = useState(0);
+  return (
+    <section className="flex min-h-0 flex-col overflow-hidden border-r border-border/60" aria-label="Document preview">
+      <div className="flex h-11 shrink-0 items-center justify-between border-b border-border/60 px-3">
+        <div className="min-w-0"><p className="truncate text-[11px] font-semibold">{documentLabel(item)}</p><p className="truncate text-[9px] text-muted-foreground">{item.source} · 1 page</p></div>
+        <TooltipProvider><div className="flex items-center gap-0.5">
+          {[{ label: "Zoom out", icon: Minus, run: () => setZoom(z => Math.max(70, z - 10)) }, { label: "Fit page", icon: Maximize2, run: () => setZoom(100) }, { label: "Zoom in", icon: Plus, run: () => setZoom(z => Math.min(140, z + 10)) }, { label: "Rotate", icon: RotateCw, run: () => setRotation(r => (r + 90) % 360) }].map(action => (
+            <Tooltip key={action.label}><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={action.run} className="h-7 w-7"><action.icon size={13} /></Button></TooltipTrigger><TooltipContent>{action.label}</TooltipContent></Tooltip>
+          ))}
+          <span className="w-10 text-center text-[9px] tabular-nums text-muted-foreground">{zoom}%</span>
+          <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={onHide} className="h-7 w-7"><X size={13} /></Button></TooltipTrigger><TooltipContent>Hide document</TooltipContent></Tooltip>
+        </div></TooltipProvider>
+      </div>
+      <DocumentSheet item={item} zoom={zoom} rotation={rotation} />
+    </section>
+  );
+}
+
+function DecisionCard({ item }: { item: InboxItem }) {
+  if (!item.exception) return null;
   const commitment = commitmentById(item.commitmentId);
-  const selection = selections.find(s => s.commitmentId === item.commitmentId || s.id === item.selectionId);
+  const duplicate = item.exception.kind === "Possible duplicate";
+  const overage = item.exception.kind === "Invoice exceeds commitment";
+  return (
+    <section className="rounded-xl border border-warning/35 bg-warning/10 p-3" aria-label={`${item.exception.kind} decision`}>
+      <div className="flex items-start gap-2"><AlertTriangle size={15} className="mt-0.5 shrink-0 text-warning" /><div><p className="text-[12px] font-bold">{item.exception.kind}</p><p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">{item.exception.detail}</p></div></div>
+      {duplicate && <div className="mt-3 grid grid-cols-2 gap-2 text-[10px]"><div className="rounded-lg bg-card/75 p-2"><p className="font-semibold">Incoming</p><p>{item.vendor}</p><p>{documentLabel(item)}</p><b>{money(item.amount)}</b></div><div className="rounded-lg bg-card/75 p-2"><p className="font-semibold">Existing in QBO</p><p>{item.vendor}</p><p>Invoice #{item.number}</p><b>{money(item.amount)}</b></div></div>}
+      {overage && commitment && <div className="mt-3 grid grid-cols-3 gap-1.5 text-center text-[10px]"><div className="rounded-lg bg-card/75 p-2"><p className="text-muted-foreground">Commitment</p><b>{money(commitment.original + commitment.approvedChanges)}</b></div><div className="rounded-lg bg-card/75 p-2"><p className="text-muted-foreground">After invoice</p><b>{money(commitment.invoiced + item.amount)}</b></div><div className="rounded-lg bg-card/75 p-2"><p className="text-muted-foreground">Over</p><b className="text-warning">{money(Math.max(commitment.invoiced + item.amount - commitment.original - commitment.approvedChanges, 0))}</b></div></div>}
+      <div className="mt-3 flex flex-wrap gap-1.5">{item.exception.actions.map((action, index) => <Button key={action} variant={index === 0 ? "default" : "outline"} size="sm" className="h-7 px-2.5 text-[10px]">{action}</Button>)}</div>
+    </section>
+  );
+}
+
+function Field({ label, value, options, attention, onChange }: { label: string; value: string; options: string[]; attention?: boolean; onChange?: (value: string) => void }) {
+  return (
+    <label className={cn("min-w-0 rounded-lg border bg-card/55 p-2", attention ? "border-warning/55" : "border-border/50")}>
+      <span className="block text-[9px] uppercase text-muted-foreground">{label}</span>
+      <select value={value} onChange={event => onChange?.(event.target.value)} className="mt-0.5 w-full truncate bg-transparent text-[11px] font-semibold outline-none">
+        {options.map(option => <option key={option} value={option}>{option}</option>)}
+      </select>
+    </label>
+  );
+}
+
+function Disclosure({ label, icon: Icon, children, defaultOpen = false }: { label: string; icon?: React.ElementType; children: React.ReactNode; defaultOpen?: boolean }) {
+  return (
+    <Collapsible defaultOpen={defaultOpen} className="border-b border-border/45 py-1 last:border-0">
+      <CollapsibleTrigger asChild><Button variant="ghost" className="group h-8 w-full justify-between rounded-lg px-1.5 text-[11px]"><span className="flex items-center gap-2">{Icon && <Icon size={12} />}{label}</span><ChevronRight size={12} className="transition-transform group-data-[state=open]:rotate-90" /></Button></CollapsibleTrigger>
+      <CollapsibleContent className="px-1.5 pb-2">{children}</CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+function ReviewPanel({ item, postedCost, onApprove, onFlag, onPrevious, onNext, onShowDocument }: {
+  item: InboxItem; postedCost?: PostedCost; onApprove: () => void; onFlag: () => void;
+  onPrevious: () => void; onNext: () => void; onShowDocument: () => void;
+}) {
+  const project = item.projectId ? getProject(item.projectId) : undefined;
+  const initialLine = lineById(item.suggestedLineId);
+  const [projectId, setProjectId] = useState(item.projectId ?? "Unassigned");
+  const lineOptions = budgetLines.filter(line => projectId === "Unassigned" || line.projectId === projectId);
+  const [lineId, setLineId] = useState(item.suggestedLineId ?? lineOptions[0]?.id ?? "");
+  const line = lineById(lineId) ?? initialLine;
+  const [commitmentId, setCommitmentId] = useState(item.commitmentId ?? "None");
+  const [allocations, setAllocations] = useState(() => item.lines.map(lineItem => ({ ...lineItem })));
+  const [forceBalanced, setForceBalanced] = useState(true);
+  const codingRef = useRef<HTMLDivElement>(null);
+  const lowConfidence = item.confidence < 70 || item.state !== "Ready";
+  const hasDifferentCodes = new Set(allocations.map(allocation => allocation.suggestedLineId)).size > 1;
+  const allocationTotal = allocations.reduce((total, allocation) => total + allocation.amount, 0);
+  const balanced = forceBalanced || Math.abs(allocationTotal - item.amount) < 0.01;
+  const canPost = !postedCost && item.state !== "Posted" && balanced && Boolean(projectId !== "Unassigned" && lineId);
+  const selection = selections.find(candidate => candidate.id === item.selectionId || candidate.commitmentId === commitmentId);
+
+  useEffect(() => {
+    setProjectId(item.projectId ?? "Unassigned"); setLineId(item.suggestedLineId ?? ""); setCommitmentId(item.commitmentId ?? "None");
+    setAllocations(item.lines.map(lineItem => ({ ...lineItem }))); setForceBalanced(true);
+  }, [item]);
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      if (["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName)) return;
+      if (event.key === "Enter" && canPost) onApprove();
+      if (event.key === "j" || event.key === "ArrowDown") { event.preventDefault(); onNext(); }
+      if (event.key === "k" || event.key === "ArrowUp") { event.preventDefault(); onPrevious(); }
+      if (event.key.toLowerCase() === "e") codingRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (event.key.toLowerCase() === "f") onFlag();
+    };
+    window.addEventListener("keydown", handler); return () => window.removeEventListener("keydown", handler);
+  }, [canPost, onApprove, onFlag, onNext, onPrevious]);
 
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
-      <Panel title="Document">
-        <DocumentPreview item={item} />
-      </Panel>
-
-      <div className="space-y-3">
-        <Panel title="Extracted information">
-          <div className="grid grid-cols-2 gap-2">
-            <Metric label="Vendor" value={item.vendor} />
-            <Metric label="Document" value={`${item.docType}${item.number ? ` #${item.number}` : ""}`} />
-            <Metric label="Amount" value={item.amount} />
-            <Metric label="Tax" value={item.tax} />
-            <Metric label="Date" value={item.date} />
-            <Metric label="Due Date" value={item.dueDate ?? "—"} />
-          </div>
-        </Panel>
-
-        <Panel title="Project mapping">
-          <div className="grid grid-cols-2 gap-2">
-            <Metric label="Project" value={project?.name ?? "Unmatched"} />
-            <Metric label="Phase" value={lineById(item.suggestedLineId)?.phase ?? "—"} />
-            <Metric label="Cost Code" value={lineById(item.suggestedLineId)?.costCode ?? "—"} />
-            <Metric label="Estimate Line" value={lineById(item.suggestedLineId)?.estimateLine ?? "—"} />
-            <Metric label="Commitment" value={commitment ? `${commitment.id} — ${money(commitment.original)}` : "None matched"} />
-            <Metric label="Confidence" value={`${item.confidence}%`} tone={item.confidence >= 90 ? "good" : item.confidence >= 70 ? "default" : "bad"} />
-          </div>
-          {selection && <p className="mt-2 text-[10px] text-muted-foreground">Matched selection: {selection.title} — allowance {money(selection.allowance)}.</p>}
-        </Panel>
-
-        <Panel title="Line-level coding" action={<span className="text-[10px] text-muted-foreground">Edit · split · bulk apply</span>}>
-          <table className="w-full text-[11px]">
-            <thead className="text-[10px] uppercase text-muted-foreground">
-              <tr className="border-b border-border/50"><th className="p-1 text-left">Invoice line</th><th className="p-1 text-right">Amount</th><th className="p-1 text-left">Suggested mapping</th><th className="p-1 text-right">Conf.</th></tr>
-            </thead>
-            <tbody>
-              {alloc.map((l, i) => (
-                <tr key={l.description} className="border-b border-border/30">
-                  <td className="p-1">{l.description}</td>
-                  <td className="p-1 text-right tabular-nums">{money(l.amount)}</td>
-                  <td className="p-1">
-                    <select value={l.suggestedLineId} onChange={e => setAlloc(a => a.map((x, j) => j === i ? { ...x, suggestedLineId: e.target.value } : x))}
-                      className="w-full max-w-[180px] rounded-full border border-border/60 bg-transparent px-2 py-1 text-[11px] outline-none">
-                      {lineOptions.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-                    </select>
-                  </td>
-                  <td className={cn("p-1 text-right tabular-nums", l.confidence < 70 && "text-warning")}>{l.confidence}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="mt-2 text-[10px] text-muted-foreground">Euclid codes line by line using the project's Scope Analyzer structure, estimate lines, trade, Network vendor history, active commitments and schedule phase.</p>
-        </Panel>
-
-        {item.exception && (
-          <Panel title={`Exception — ${item.exception.kind}`}>
-            <p className="flex items-start gap-2 text-[11px] text-warning"><AlertTriangle size={12} className="mt-0.5" />{item.exception.detail}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {item.exception.actions.map(a => <button key={a} className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">{a}</button>)}
-            </div>
-          </Panel>
-        )}
-
-        <EuclidImpact domain="Cost" tone={item.state === "Ready" ? "positive" : "warning"}
-          message={item.state === "Ready"
-            ? `Euclid is ${item.confidence}% confident in this mapping. Posting creates one cost record that appears in project Costs, the Budget line, the matched commitment, the vendor's Network profile, Estimate vs Actual, and the QuickBooks sync queue.`
-            : `This document is not safe to post automatically. Resolve the exception above so a single, explainable cost record can be created.`} />
-
-        <button onClick={onPost} disabled={item.state === "Posted"}
-          className="w-full rounded-full bg-primary py-2.5 text-[12px] font-semibold text-primary-foreground disabled:opacity-50">
-          {item.state === "Posted" ? "Posted" : "Approve & Post"}
-        </button>
+    <section className="flex min-h-0 flex-col bg-card/80 backdrop-blur-xl" aria-label="Cost review">
+      <div className="flex h-11 shrink-0 items-center justify-between border-b border-border/60 px-3">
+        <div className="flex items-center gap-2"><Pill label={postedCost ? "Posted" : item.state} tone={postedCost ? "muted" : stateTone(item.state)} /><span className={cn("text-[10px] font-semibold tabular-nums", confidenceTone(item.confidence))}>{item.confidence}% confidence</span></div>
+        <TooltipProvider><div className="flex items-center gap-0.5"><Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={onShowDocument} className="h-7 w-7"><FileText size={13} /></Button></TooltipTrigger><TooltipContent>Show document</TooltipContent></Tooltip><Button variant="ghost" size="icon" onClick={onPrevious} className="h-7 w-7"><ArrowUp size={13} /></Button><Button variant="ghost" size="icon" onClick={onNext} className="h-7 w-7"><ArrowDown size={13} /></Button></div></TooltipProvider>
       </div>
-    </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
+        <header className="flex items-start justify-between gap-3">
+          <div className="min-w-0"><p className="text-[10px] font-semibold uppercase text-primary">{item.state === "Ready" ? "Ready to post" : item.state === "Posted" || postedCost ? "Posted cost" : "Decision required"}</p><h2 className="truncate font-display text-lg font-bold">{item.vendor}</h2><p className="text-[11px] text-muted-foreground">{documentLabel(item)} · {item.date}</p></div>
+          <p className="shrink-0 font-display text-xl font-bold tabular-nums">{money(item.amount)}</p>
+        </header>
+
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div><p className="text-[9px] uppercase text-muted-foreground">Source</p><p className="truncate text-[11px] font-semibold">{item.source}</p></div>
+          <div><p className="text-[9px] uppercase text-muted-foreground">Due</p><p className="text-[11px] font-semibold">{item.dueDate ?? "Not stated"}</p></div>
+          <div><p className="text-[9px] uppercase text-muted-foreground">Tax</p><p className="text-[11px] font-semibold tabular-nums">{money(item.tax)}</p></div>
+          <div><p className="text-[9px] uppercase text-muted-foreground">Network match</p><p className="truncate text-[11px] font-semibold">{item.companyId ? "Matched" : item.vendor === "Unknown vendor" ? "Required" : "Likely match"}</p></div>
+        </div>
+
+        <div className="mt-3"><DecisionCard item={item} /></div>
+
+        <section className="mt-3">
+          <div className="mb-2 flex items-center justify-between"><h3 className="text-[11px] font-bold">Coding decision</h3><span className="text-[9px] text-muted-foreground">Euclid recommendation</span></div>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Project" value={projectId} attention={!item.projectId} onChange={value => { setProjectId(value); const first = budgetLines.find(candidate => candidate.projectId === value); if (first) setLineId(first.id); }} options={["Unassigned", ...projects.map(candidate => candidate.id)]} />
+            <Field label="Estimate line" value={lineId} attention={!lineId || item.confidence < 70} onChange={setLineId} options={lineOptions.length ? lineOptions.map(candidate => candidate.id) : [""]} />
+            <Field label="Phase / cost code" value={line ? `${line.phase} · ${line.costCode}` : "Unmapped"} options={[line ? `${line.phase} · ${line.costCode}` : "Unmapped"]} />
+            <Field label="Commitment" value={commitmentId} attention={item.exception?.kind.includes("commitment")} onChange={setCommitmentId} options={["None", ...commitments.filter(candidate => projectId === "Unassigned" || candidate.projectId === projectId).map(candidate => candidate.id)]} />
+          </div>
+          {selection && <p className="mt-2 text-[10px] text-muted-foreground">Linked selection: {selection.title} · allowance {money(selection.allowance)}</p>}
+        </section>
+
+        <div ref={codingRef} className="mt-3 rounded-xl border border-border/55 bg-background/35 px-2">
+          <Disclosure label={`Review Line Coding · ${allocations.length} line${allocations.length === 1 ? "" : "s"}`} icon={Columns3} defaultOpen={lowConfidence || hasDifferentCodes}>
+            <div className="space-y-1.5">{allocations.map((allocation, index) => (
+              <div key={`${allocation.description}-${index}`} className="grid grid-cols-[minmax(0,1fr)_88px] gap-2 rounded-lg bg-card/65 p-2 text-[10px] sm:grid-cols-[minmax(0,1fr)_92px_minmax(120px,0.8fr)_48px]">
+                <span className="truncate">{allocation.description}</span><input value={allocation.amount} type="number" onChange={event => { setForceBalanced(false); setAllocations(current => current.map((candidate, candidateIndex) => candidateIndex === index ? { ...candidate, amount: Number(event.target.value) } : candidate)); }} className="bg-transparent text-right tabular-nums outline-none" />
+                <select value={allocation.suggestedLineId} onChange={event => setAllocations(current => current.map((candidate, candidateIndex) => candidateIndex === index ? { ...candidate, suggestedLineId: event.target.value } : candidate))} className="col-span-2 min-w-0 bg-transparent outline-none sm:col-span-1">{lineOptions.map(option => <option key={option.id} value={option.id}>{option.name}</option>)}</select>
+                <span className={cn("hidden text-right tabular-nums sm:block", confidenceTone(allocation.confidence))}>{allocation.confidence}%</span>
+              </div>
+            ))}</div>
+            <div className="mt-2 flex items-center justify-between border-t border-border/45 pt-2 text-[10px]"><span className={balanced ? "text-success" : "text-warning"}>{balanced ? "Allocation balanced" : `${money(item.amount - allocationTotal)} remaining`}</span><Button variant="ghost" size="sm" onClick={() => setAllocations(current => [...current, { description: "New allocation", amount: 0, suggestedLineId: lineId, confidence: item.confidence }])} className="h-6 px-2 text-[9px]"><Plus size={10} />Split</Button></div>
+          </Disclosure>
+        </div>
+
+        <EuclidImpact className="mt-3" domain="Cost" tone={item.state === "Ready" ? "positive" : "warning"}
+          headline={item.state === "Ready" ? "No accounting conflict detected" : "Review before this changes project cost"}
+          message={project && line ? `${money(item.amount)} will post once to ${project.name} · ${line.costCode} ${line.name}${commitmentId !== "None" ? ` and update ${commitmentId}` : ""}. Budget actuals, Estimate vs Actual, vendor history, activity, and the QBO queue will derive from that same cost.` : "Assign the missing project and estimate line before posting. No financial record has been created yet."} />
+
+        <div className="mt-2 rounded-xl border border-border/50 bg-background/25 px-2">
+          <Disclosure label="Why this match?" icon={Link2}><p className="text-[10px] leading-relaxed text-muted-foreground">Matched from vendor identity, document number, project history, estimate structure, cost-code usage, active commitments, and amount patterns. {item.confidence}% confidence.</p></Disclosure>
+          <Disclosure label="History" icon={History}><p className="text-[10px] leading-relaxed text-muted-foreground">Received {item.date} from {item.source}. Euclid extracted {item.lines.length} line{item.lines.length === 1 ? "" : "s"}, checked duplicate and commitment rules, then placed it in {item.state}.</p></Disclosure>
+          <Disclosure label="Review All Details" icon={MoreHorizontal}><div className="grid grid-cols-2 gap-2 text-[10px] text-muted-foreground"><p>Vendor: {item.vendor}</p><p>Number: {item.number ?? "—"}</p><p>Project: {project?.name ?? "Unassigned"}</p><p>Estimate: {line?.estimateLine ?? "Unmapped"}</p><p>Phase: {line?.phase ?? "Unmapped"}</p><p>Cost code: {line?.costCode ?? "Unmapped"}</p></div></Disclosure>
+        </div>
+      </div>
+
+      <footer className="sticky bottom-0 flex shrink-0 items-center justify-between gap-2 border-t border-border/70 bg-card/95 px-3 py-2 backdrop-blur-xl">
+        <TooltipProvider><div className="flex gap-1"><Tooltip><TooltipTrigger asChild><Button variant="outline" size="icon" onClick={onFlag} className="h-8 w-8"><Flag size={13} /></Button></TooltipTrigger><TooltipContent>Flag for review (F)</TooltipContent></Tooltip><Button variant="ghost" size="sm" onClick={onNext} className="h-8 text-[10px]">Skip<ArrowRight size={11} /></Button></div></TooltipProvider>
+        <Button size="sm" onClick={onApprove} disabled={!canPost} className="h-8 min-w-[132px] text-[11px]"><Check size={13} />{postedCost || item.state === "Posted" ? "Posted" : "Approve & Post"}</Button>
+      </footer>
+    </section>
   );
 }
 
 export default function CostInboxPage() {
   const track = useTrack();
   const base = track === "sub" ? "/sub" : "/app";
-  const [filter, setFilter] = useState("All");
-  const [posted, setPosted] = useState<string[]>([]);
+  const { toast } = useToast();
+  const [filter, setFilter] = useState<QueueFilter>("All");
+  const [search, setSearch] = useState("");
+  const [projectFilter, setProjectFilter] = useState("All projects");
+  const [sourceFilter, setSourceFilter] = useState("All sources");
+  const [postedCosts, setPostedCosts] = useState<PostedCost[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
-  const [sel, setSel] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [flagged, setFlagged] = useState<string[]>([]);
+  const [showDocument, setShowDocument] = useState(true);
+  const [mobileTab, setMobileTab] = useState<ReviewTab>("review");
 
-  const items = useMemo(() => inboxItems.map(i => posted.includes(i.id) ? { ...i, state: "Posted" as const } : i), [posted]);
-  const rows = items.filter(i => filter === "All" ? true : filter === "Exceptions" ? i.state === "Exception" : i.state === filter);
-  const open = items.find(i => i.id === openId);
+  const items = useMemo(() => inboxItems.map(item => postedCosts.some(cost => cost.inboxId === item.id) ? { ...item, state: "Posted" as const } : item), [postedCosts]);
+  const counts = useMemo(() => ({
+    All: items.length, Ready: items.filter(item => item.state === "Ready").length,
+    "Needs Review": items.filter(item => item.state === "Needs Review").length,
+    Exceptions: items.filter(item => item.state === "Exception").length,
+    Posted: items.filter(item => item.state === "Posted").length,
+  }), [items]);
+  const rows = useMemo(() => items.filter(item => {
+    const statusMatch = filter === "All" || (filter === "Exceptions" ? item.state === "Exception" : item.state === filter);
+    const text = `${item.vendor} ${item.number ?? ""} ${item.docType} ${item.source}`.toLowerCase();
+    return statusMatch && (!search || text.includes(search.toLowerCase())) && (projectFilter === "All projects" || item.projectId === projectFilter) && (sourceFilter === "All sources" || item.source === sourceFilter);
+  }), [filter, items, projectFilter, search, sourceFilter]);
+  const open = items.find(item => item.id === openId);
+  const activeIndex = open ? rows.findIndex(item => item.id === open.id) : -1;
+  const readySelected = selected.filter(id => items.find(item => item.id === id)?.state === "Ready");
+
+  const navigate = (direction: -1 | 1) => {
+    if (!rows.length) return;
+    const nextIndex = activeIndex < 0 ? 0 : (activeIndex + direction + rows.length) % rows.length;
+    setOpenId(rows[nextIndex].id);
+  };
+  const post = (ids: string[]) => {
+    const eligible = items.filter(item => ids.includes(item.id) && item.state === "Ready");
+    if (!eligible.length) return;
+    setPostedCosts(current => [...current, ...eligible.filter(item => !current.some(cost => cost.inboxId === item.id)).map(item => ({ inboxId: item.id, projectId: item.projectId, budgetLineId: item.suggestedLineId, commitmentId: item.commitmentId, amount: item.amount, status: "Posted" as const, sync: "Queued" as const }))]);
+    setSelected(current => current.filter(id => !ids.includes(id)));
+    toast({ title: `${eligible.length} cost${eligible.length === 1 ? "" : "s"} posted`, description: "Budget, commitments, vendor history, activity, and QBO queue now reference the same cost record." });
+    if (eligible.some(item => item.id === openId)) {
+      const next = items.find(item => item.state !== "Posted" && item.state !== "Ready" && !ids.includes(item.id)) ?? items.find(item => item.state !== "Posted" && !ids.includes(item.id));
+      setOpenId(next?.id ?? null);
+    }
+  };
+  const flag = (id: string) => {
+    setFlagged(current => current.includes(id) ? current.filter(candidate => candidate !== id) : [...current, id]);
+    toast({ title: flagged.includes(id) ? "Flag removed" : "Cost flagged", description: "The review state is visible in this processing session." });
+  };
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => { if (event.key === "Escape" && openId) setOpenId(null); };
+    window.addEventListener("keydown", handler); return () => window.removeEventListener("keydown", handler);
+  }, [openId]);
 
   return (
     <TrackShell>
-      <div className="mx-auto w-full max-w-[1250px] p-4 lg:p-7">
-        <header className="mb-4">
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Financials</p>
-          <h1 className="font-display text-3xl font-semibold">Cost Inbox</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Receive financial documents, let Euclid structure them, and push them into the right project financial records.</p>
-        </header>
-        <FinancialsNav base={base} active="inbox" />
-
-        <div className="mt-4 grid gap-3 lg:grid-cols-3">
-          <label className="odyssey-surface flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-primary/40 p-6 text-center lg:col-span-2">
-            <Upload size={20} className="text-primary" />
-            <p className="mt-2 text-sm font-semibold">Drop bills, invoices, receipts, credits, and statements here</p>
-            <p className="mt-1 text-[11px] text-muted-foreground">Euclid reads the document, matches the vendor, project, commitment and cost codes, and flags anything that needs a human.</p>
-            <input type="file" className="hidden" />
-          </label>
-          <Panel title="Sources">
-            <div className="space-y-1.5 text-[11px]">
-              {SOURCES.map(s => (
-                <p key={s.label} className="flex items-center justify-between"><span className="flex items-center gap-2 text-muted-foreground"><s.icon size={12} />{s.label}</span>
-                  <span>{items.filter(i => i.source.startsWith(s.label.split(" ")[0])).length}</span></p>
-              ))}
-            </div>
-          </Panel>
+      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1500px] flex-col px-3 pb-3 pt-2 lg:px-5">
+        <div className="shrink-0">
+          <div className="flex items-end justify-between gap-3"><div><p className="text-[10px] font-semibold uppercase text-muted-foreground">Financials</p><h1 className="font-display text-2xl font-semibold">Cost Inbox</h1></div><p className="hidden text-[11px] text-muted-foreground sm:block">Euclid does the bookkeeping. You review the decision.</p></div>
+          <div className="mt-2"><FinancialsNav base={base} active="inbox" /></div>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
-          <Metric label="Ready" value={items.filter(i => i.state === "Ready").length} tone="good" />
-          <Metric label="Needs Review" value={items.filter(i => i.state === "Needs Review").length} />
-          <Metric label="Exceptions" value={items.filter(i => i.state === "Exception").length} tone="bad" />
-          <Metric label="Posted" value={items.filter(i => i.state === "Posted").length} tone="muted" />
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-          <Filters options={STATES} value={filter} onChange={setFilter} />
-          {sel.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-[11px] font-semibold text-primary">
-              {sel.length} selected
-              <button onClick={() => { setPosted(p => [...new Set([...p, ...sel])]); setSel([]); }} className="rounded-full px-2 py-0.5 hover:bg-primary/15">Approve Selected</button>
-              {["Assign Project", "Assign Cost Code", "Assign Commitment", "Flag", "Sync to QBO"].map(a => <button key={a} className="rounded-full px-2 py-0.5 hover:bg-primary/15">{a}</button>)}
+        {open ? (
+          <div className="mt-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/65 bg-card/90 shadow-[var(--shadow-card)]">
+            <div className="flex h-10 shrink-0 items-center justify-between border-b border-border/60 px-2 sm:px-3">
+              <Button variant="ghost" size="sm" onClick={() => setOpenId(null)} className="h-7 px-2 text-[10px]"><ArrowLeft size={12} />Back to queue</Button>
+              <div className="flex items-center gap-1 lg:hidden"><Button variant={mobileTab === "document" ? "secondary" : "ghost"} size="sm" onClick={() => setMobileTab("document")} className="h-7 text-[10px]">Document</Button><Button variant={mobileTab === "review" ? "secondary" : "ghost"} size="sm" onClick={() => setMobileTab("review")} className="h-7 text-[10px]">Review</Button></div>
+              <span className="text-[9px] text-muted-foreground">{Math.max(activeIndex + 1, 1)} of {rows.length || items.length}</span>
             </div>
-          )}
-        </div>
-
-        <Panel className="mt-3 overflow-x-auto p-0">
-          <table className="w-full min-w-[860px] text-[11px]">
-            <thead className="text-[10px] uppercase text-muted-foreground">
-              <tr className="border-b border-border/50">
-                <th className="w-8 p-2" /><th className="p-2 text-left">Vendor</th><th className="p-2 text-left">Document</th><th className="p-2 text-left">Project</th>
-                <th className="p-2 text-right">Amount</th><th className="p-2 text-left">Suggested mapping</th><th className="p-2 text-right">Confidence</th>
-                <th className="p-2 text-left">Exception</th><th className="p-2 text-left">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(i => (
-                <tr key={i.id} onClick={() => setOpenId(o => o === i.id ? null : i.id)} className={cn("cursor-pointer border-b border-border/30 hover:bg-card/40", openId === i.id && "bg-card/40")}>
-                  <td className="p-2" onClick={e => e.stopPropagation()}><input type="checkbox" checked={sel.includes(i.id)} onChange={() => setSel(s => s.includes(i.id) ? s.filter(x => x !== i.id) : [...s, i.id])} /></td>
-                  <td className="p-2 font-medium">{i.vendor}</td>
-                  <td className="p-2">{i.docType}<span className="block text-[10px] text-muted-foreground">{i.number ? `#${i.number} · ` : ""}{i.date}</span></td>
-                  <td className="p-2">{i.projectId ? projects.find(p => p.id === i.projectId)?.name : <span className="text-warning">Unmatched</span>}</td>
-                  <td className="p-2 text-right tabular-nums font-semibold">{money(i.amount)}</td>
-                  <td className="p-2">{lineById(i.suggestedLineId)?.name ?? "—"}</td>
-                  <td className={cn("p-2 text-right tabular-nums", i.confidence < 70 && "text-warning")}>{i.confidence}%</td>
-                  <td className="p-2 text-[10px] text-muted-foreground">{i.exception?.kind ?? "—"}</td>
-                  <td className="p-2"><Pill label={i.state} tone={tone(i.state)} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Panel>
-
-        {open && (
-          <div className="mt-3">
-            <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold">
-              <CheckCircle2 size={13} className="text-primary" />Reviewing {open.vendor} {open.docType}{open.number ? ` #${open.number}` : ""}
+            <div className={cn("grid min-h-0 flex-1 lg:grid-cols-[minmax(320px,0.9fr)_minmax(410px,1.1fr)]", !showDocument && "lg:grid-cols-1")}>
+              {showDocument && <div className={cn("min-h-0", mobileTab !== "document" && "hidden lg:block")}><PreviewPane item={open} onHide={() => setShowDocument(false)} /></div>}
+              <div className={cn("min-h-0", mobileTab !== "review" && "hidden lg:block")}><ReviewPanel item={open} postedCost={postedCosts.find(cost => cost.inboxId === open.id)} onApprove={() => post([open.id])} onFlag={() => flag(open.id)} onPrevious={() => navigate(-1)} onNext={() => navigate(1)} onShowDocument={() => { setShowDocument(true); setMobileTab("document"); }} /></div>
             </div>
-            <Review item={open} onPost={() => { setPosted(p => [...p, open.id]); setOpenId(null); }} />
           </div>
+        ) : (
+          <>
+            <section className="mt-2 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-xl border border-border/60 bg-card/85 px-2.5 py-2 backdrop-blur-xl">
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5"><label className="flex cursor-pointer items-center gap-1.5 text-[11px] font-semibold text-primary"><Upload size={13} />Add documents<input type="file" className="hidden" multiple /></label><span className="hidden h-4 w-px bg-border sm:block" />{SOURCES.slice(1).map(source => <Button key={source.label} variant="ghost" size="sm" className="h-7 px-2 text-[10px] text-muted-foreground"><source.icon size={11} />{source.label}</Button>)}</div>
+              <p className="text-[9px] text-muted-foreground">Drop files anywhere · PDF, image, email</p>
+            </section>
+
+            <div className="mt-2 flex shrink-0 flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap gap-0.5">{FILTERS.map(value => <CountTab key={value} label={value} count={counts[value]} active={filter === value} onClick={() => setFilter(value)} />)}</div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <label className="flex h-8 items-center gap-1.5 rounded-full border border-border/60 bg-card/70 px-2.5"><Search size={12} className="text-muted-foreground" /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search inbox" className="w-28 bg-transparent text-[10px] outline-none sm:w-40" /></label>
+                <label className="flex h-8 items-center gap-1 rounded-full border border-border/60 bg-card/70 px-2.5 text-[10px]"><Filter size={11} /><select value={projectFilter} onChange={event => setProjectFilter(event.target.value)} className="max-w-28 bg-transparent outline-none"><option>All projects</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
+                <label className="flex h-8 items-center gap-1 rounded-full border border-border/60 bg-card/70 px-2.5 text-[10px]"><select value={sourceFilter} onChange={event => setSourceFilter(event.target.value)} className="max-w-24 bg-transparent outline-none"><option>All sources</option>{[...new Set(inboxItems.map(item => item.source))].map(source => <option key={source}>{source}</option>)}</select><ChevronDown size={10} /></label>
+                <Button variant="outline" size="icon" className="h-8 w-8" title="Columns"><Columns3 size={12} /></Button>
+              </div>
+            </div>
+
+            {selected.length > 0 && <div className="mt-2 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-[10px]"><span className="font-semibold text-primary">{selected.length} selected · {readySelected.length} ready</span><div className="flex flex-wrap gap-1"><Button variant="ghost" size="sm" className="h-7 text-[10px]">Assign Project</Button><Button variant="ghost" size="sm" className="h-7 text-[10px]">Assign Cost Code</Button><Button variant="ghost" size="sm" className="h-7 text-[10px]"><Flag size={11} />Flag</Button><Button size="sm" onClick={() => post(readySelected)} disabled={!readySelected.length} className="h-7 text-[10px]"><Check size={11} />Approve {readySelected.length || ""} Ready</Button></div></div>}
+
+            <section className="mt-2 min-h-0 flex-1 overflow-auto rounded-xl border border-border/65 bg-card/90 shadow-[var(--shadow-card)] backdrop-blur-xl">
+              <table className="w-full min-w-[900px] table-fixed text-[11px]">
+                <thead className="sticky top-0 z-10 bg-card/95 text-[9px] uppercase text-muted-foreground backdrop-blur-xl"><tr className="border-b border-border/65"><th className="w-9 p-2"><input type="checkbox" aria-label="Select visible ready items" checked={rows.length > 0 && rows.every(item => selected.includes(item.id))} onChange={() => setSelected(current => rows.every(item => current.includes(item.id)) ? current.filter(id => !rows.some(item => item.id === id)) : [...new Set([...current, ...rows.map(item => item.id)])])} /></th><th className="w-[20%] p-2 text-left">Vendor</th><th className="w-[15%] p-2 text-left">Document</th><th className="w-[17%] p-2 text-left">Project</th><th className="w-[11%] p-2 text-right">Amount</th><th className="w-[15%] p-2 text-left">Mapping</th><th className="w-[7%] p-2 text-right">Conf.</th><th className="w-[9%] p-2 text-left">Status</th><th className="w-[8%] p-2" /></tr></thead>
+                <tbody>{rows.map(item => {
+                  const mapped = lineById(item.suggestedLineId); const isFlagged = flagged.includes(item.id);
+                  return <tr key={item.id} onClick={() => { setOpenId(item.id); setShowDocument(true); setMobileTab("review"); }} className="h-12 cursor-pointer border-b border-border/35 transition-colors hover:bg-primary/5">
+                    <td className="p-2 text-center" onClick={event => event.stopPropagation()}><input type="checkbox" aria-label={`Select ${documentLabel(item)}`} checked={selected.includes(item.id)} onChange={() => setSelected(current => current.includes(item.id) ? current.filter(id => id !== item.id) : [...current, item.id])} /></td>
+                    <td className="truncate p-2 font-semibold">{isFlagged && <Flag size={10} className="mr-1 inline text-warning" />}{item.vendor}</td><td className="truncate p-2">{documentLabel(item)}<span className="block truncate text-[9px] text-muted-foreground">{sourceLabel(item.source)} · {item.date}</span></td><td className="truncate p-2">{item.projectId ? getProject(item.projectId).name : <span className="text-warning">Unassigned</span>}</td><td className="p-2 text-right font-semibold tabular-nums">{money(item.amount)}</td><td className="truncate p-2">{mapped?.name ?? "Unmapped"}<span className="block truncate text-[9px] text-muted-foreground">{mapped ? `${mapped.costCode} · ${item.commitmentId ?? "No commitment"}` : item.exception?.kind ?? "Needs coding"}</span></td><td className={cn("p-2 text-right font-semibold tabular-nums", confidenceTone(item.confidence))}>{item.confidence}%</td><td className="p-2"><Pill label={postedCosts.some(cost => cost.inboxId === item.id) ? "Posted" : item.state} tone={stateTone(postedCosts.some(cost => cost.inboxId === item.id) ? "Posted" : item.state)} /></td><td className="p-2 text-right" onClick={event => event.stopPropagation()}>{item.state === "Ready" && !postedCosts.some(cost => cost.inboxId === item.id) ? <Button size="sm" onClick={() => post([item.id])} className="h-7 px-2 text-[9px]">Approve</Button> : <Button variant="ghost" size="icon" onClick={() => setOpenId(item.id)} className="h-7 w-7"><ChevronRight size={13} /></Button>}</td>
+                  </tr>;
+                })}</tbody>
+              </table>
+              {!rows.length && <div className="flex h-40 flex-col items-center justify-center text-center"><CheckCircle2 size={20} className="text-success" /><p className="mt-2 text-[12px] font-semibold">No costs match these filters</p><p className="text-[10px] text-muted-foreground">Change a filter or review another queue.</p></div>}
+            </section>
+          </>
         )}
       </div>
     </TrackShell>
