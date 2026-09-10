@@ -1,5 +1,6 @@
 import euclidLogo from "@/assets/euclid-logo.png";
-import compassAsset from "@/assets/euclid-compass.png.asset.json";
+import compassMark from "@/assets/euclid-compass-mark.png";
+
 import { cn } from "@/lib/utils";
 
 /**
