@@ -13,7 +13,7 @@ export default function SchedulePage() {
   const list = projects
     .filter(p => statusFor(p.id).mode !== "none")
     .sort((a, b) => (statusFor(a.id).mode === "active" ? -1 : 1) - (statusFor(b.id).mode === "active" ? -1 : 1));
-  const [projectId, setProjectId] = useState(list[0]?.id ?? "downtown-ti");
+  const [projectId, setProjectId] = useState<string>(ALL);
   const scopeCompanyId = track === "sub" ? "trueframe" : undefined;
   const selectedLabel = projectId === ALL ? "All Active Projects" : getProject(projectId).name;
   const shown = projectId === ALL ? list : list.filter(p => p.id === projectId);
@@ -21,12 +21,13 @@ export default function SchedulePage() {
   return (
     <TrackShell>
       <div className="flex h-full w-full flex-col p-4 lg:p-6">
-        <header className="mb-3 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Construction operations</p>
-            <h1 className="font-display text-2xl font-semibold">Schedule</h1>
-          </div>
-          <Dropdown label={`Project: ${selectedLabel}`} width="w-72">
+        <header className="mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Operations</p>
+          <h1 className="font-display text-2xl font-semibold">Schedule</h1>
+        </header>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <OperationsNav base={track === "sub" ? "/sub" : "/app"} active="schedule" />
+          <Dropdown label={selectedLabel} width="w-72">
             <button onClick={() => setProjectId(ALL)} className={cn("w-full rounded-lg px-2 py-1.5 text-left hover:bg-card/70", projectId === ALL && "text-primary")}>All Active Projects</button>
             {list.map(p => (
               <button key={p.id} onClick={() => setProjectId(p.id)}
@@ -36,7 +37,7 @@ export default function SchedulePage() {
               </button>
             ))}
           </Dropdown>
-        </header>
+        </div>
         <div className={cn("flex min-h-0 flex-1 flex-col gap-6", projectId === ALL && "overflow-auto")}>
           {shown.map(p => (
             <div key={p.id} className="flex min-h-0 flex-1 flex-col">
