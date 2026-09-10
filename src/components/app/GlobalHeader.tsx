@@ -1,4 +1,4 @@
-import { Activity, Bell, Building2, CalendarRange, ChevronDown, CheckCheck, Clock3, FolderKanban, HardHat, Inbox, LineChart, MessageSquare, PlusCircle, Settings, ShieldCheck, UserRound, Wallet, X } from "lucide-react";
+import { Activity, Bell, Building2, CalendarRange, ChevronDown, CheckCheck, Clock3, FolderKanban, HardHat, MessageSquare, PlusCircle, Settings, ShieldCheck, UserRound, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -32,8 +32,6 @@ export function GlobalHeader({ track }: { track: Track }) {
   const closeAll=()=>{setMoreOpen(false);setOpenMenu(null);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)};
   const preconItems=[{label:"Projects",to:config.precon,icon:FolderKanban},{label:"New Project",to:config.newProject,icon:PlusCircle}];
   const operationsItems=[{label:"Projects",to:config.active,icon:HardHat},{label:"Schedule",to:config.schedule,icon:CalendarRange},{label:"Time",to:config.time,icon:Clock3}];
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const financialsItems=[{label:"Overview",to:config.financials,icon:LineChart},{label:"Cost Inbox",to:`${config.financials}/inbox`,icon:Inbox},{label:"Projects",to:`${config.financials}/projects`,icon:Wallet}];
   const moreItems=[{label:"Activity",to:"/activity",icon:Activity},{label:"Network",to:"/network",icon:Building2},{label:"Compliance",to:"/compliance",icon:ShieldCheck}];
   const menus=[{id:"precon" as const,label:config.preconLabel,items:preconItems},{id:"operations" as const,label:"Operations",items:operationsItems}];
   return <>
