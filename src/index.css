@@ -272,8 +272,8 @@
 
   /* Content softly disappears as it travels beneath the seamless header. */
   .header-scroll-fade {
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 2rem, black 100%);
-    mask-image: linear-gradient(to bottom, transparent 0, black 2rem, black 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 1rem, black 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, black 1rem, black 100%);
   }
 
   /* One shared application frame: header and every page obey the same grid. */
