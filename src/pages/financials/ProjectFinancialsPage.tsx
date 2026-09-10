@@ -15,7 +15,7 @@ import { recordRecentProject } from "@/lib/projectContext";
 
 const TABS = ["budget", "costs", "commitments", "changes", "billing"] as const;
 type Tab = (typeof TABS)[number];
-const LABELS: Record<Tab, string> = { budget: "Budget", costs: "Costs", commitments: "Commitments", changes: "Changes", billing: "Client Billing" };
+const LABELS: Record<Tab, string> = { budget: "Budget", costs: "Costs", commitments: "Commitments", changes: "Change Orders", billing: "Client Billing" };
 
 export default function ProjectFinancialsPage() {
   const { projectId = "downtown-ti", tab } = useParams();

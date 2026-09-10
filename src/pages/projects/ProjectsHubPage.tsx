@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, MapPin, PlusCircle } from "lucide-react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
 import { getProjectRoute, money, projects } from "@/data/demoUniverse";
@@ -17,7 +17,15 @@ export default function ProjectsHubPage({ mode = "operations" }: { mode?: "opera
   const base = track === "sub" ? "/sub" : "/app";
   const navigate = useNavigate();
   const { setProjectId } = useDemoProject();
-  const [filter, setFilter] = useState<Filter>("all");
+  const [params, setParams] = useSearchParams();
+  const stageParam = params.get("stage") as Filter | null;
+  const [filter, setFilterState] = useState<Filter>(stageParam && FILTERS.includes(stageParam) ? stageParam : "all");
+  const setFilter = (f: Filter) => {
+    setFilterState(f);
+    const next = new URLSearchParams(params);
+    if (f === "all") next.delete("stage"); else next.set("stage", f);
+    setParams(next, { replace: true });
+  };
   const precon = mode === "precon";
 
   const matches = (id: string, lifecycle: string) => {
@@ -42,12 +50,12 @@ export default function ProjectsHubPage({ mode = "operations" }: { mode?: "opera
     <TrackShell>
       <div className="mx-auto w-full max-w-[1250px] p-4 lg:p-7">
         <header className="mb-4">
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">{precon ? "Financials" : "Operations"}</p>
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">{precon ? "Financials" : "Projects"}</p>
           <h1 className="font-display text-3xl font-semibold">{precon ? "Preconstruction" : track === "sub" ? "Jobs" : "Projects"}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {precon
               ? "Projects being scoped, bid, estimated, priced and proposed — the financial baseline of every job."
-              : "Every job across its lifecycle — from first plan set to closeout."}
+              : "Every job in one place — from first plan set through closeout. Precon, Operations and Financials are tools that work on these projects."}
           </p>
         </header>
 

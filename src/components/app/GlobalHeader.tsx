@@ -21,7 +21,8 @@ const OPERATIONS_PATHS = ["/operations", "/projects", "/active", "/schedule", "/
 
 function sectionFor(path: string, base: string, config: (typeof trackConfig)[Track]) {
   if (path === config.dashboard || path === `${config.dashboard}/`) return "dashboard";
-  if (path.startsWith("/activity")) return "activity";
+  if (path.startsWith(`${base}/projects`)) return "projects";
+  if (path.startsWith("/activity")) return "more";
   if (path === config.settings || path.startsWith("/network") || path.startsWith("/compliance")) return "more";
   if (PRECON_PATHS.some(p => path.startsWith(`${base}${p}`))) return "precon";
   if (OPERATIONS_PATHS.some(p => path.startsWith(`${base}${p}`))) return "operations";
@@ -97,23 +98,25 @@ export function GlobalHeader({ track }: { track: Track }) {
   const pillars: { id: string; label: string; to: string; items: PillarItem[] }[] = track === "owner" ? [] : [
     { id: "precon", label: "Precon", to: `${base}/precon`, items: [
       { label: "Overview", to: `${base}/precon` },
-      { label: "Projects", to: `${base}/precon/projects` },
       { label: "Estimator", to: `${base}/precon/estimator` },
       { label: "Market Outlook", to: `${base}/precon/market-outlook` },
-      { label: "+ New Project", to: config.newProject, divider: true },
     ] },
     { id: "operations", label: "Operations", to: `${base}/operations`, items: [
       { label: "Overview", to: `${base}/operations` },
-      { label: "Projects", to: `${base}/projects` },
       { label: "Schedule", to: `${base}/schedule` },
       { label: "Time Clock", to: `${base}/time` },
     ] },
     { id: "financials", label: "Financials", to: `${base}/financials`, items: [
       { label: "Overview", to: `${base}/financials` },
       { label: "Cost Inbox", to: `${base}/financials/inbox` },
-      { label: "Project Financials", to: `${base}/financials/projects` },
+      { label: "Budget", to: `${base}/financials/tool/budget`, divider: true },
+      { label: "Costs", to: `${base}/financials/tool/costs` },
+      { label: "Commitments", to: `${base}/financials/tool/commitments` },
+      { label: "Change Orders", to: `${base}/financials/tool/changes` },
+      { label: "Client Billing", to: `${base}/financials/tool/billing` },
     ] },
-    { id: "more", label: "More", to: "/network", items: [
+    { id: "more", label: "More", to: "/activity", items: [
+      { label: "Activity", to: "/activity" },
       { label: "Network", to: "/network" },
       { label: "Compliance", to: "/compliance" },
       { label: "Settings", to: config.settings, divider: true },
@@ -125,7 +128,7 @@ export function GlobalHeader({ track }: { track: Track }) {
       <Link to={config.dashboard} aria-label="Euclid dashboard" onClick={closeAll} className="flex h-full items-center"><EuclidWordmark className="h-10 w-[132px]" /></Link>
       <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
         <Link to={config.dashboard} data-active={section==="dashboard"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Home</Link>
-        <Link to="/activity" data-active={section==="activity"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Activity</Link>
+        {track !== "owner" && <Link to={`${base}/projects`} data-active={section==="projects"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Projects</Link>}
         {pillars.map(p => <Pillar key={p.id} {...p} section={section} open={openPillar} setOpen={setOpenPillar} />)}
       </nav>
       <div className="flex items-center gap-0.5">
