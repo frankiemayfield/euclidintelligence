@@ -17,8 +17,8 @@ import { projectFinancials, selectionsFor } from "@/data/financialData";
 const TABS = ["overview", "schedule", "selections", "activity", "documents", "team"] as const;
 type Tab = (typeof TABS)[number];
 const LABELS: Record<Tab, string> = { overview: "Overview", schedule: "Schedule", selections: "Selections", activity: "Activity", documents: "Documents", team: "Team" };
-/** Operations tool row — Documents lives on the project-level row, not here. */
-const OPS_TOOLS = ["overview", "schedule", "selections", "team", "activity"] as const;
+/** Quiet tool row shown alongside Schedule — Team, Activity and Time Clock live here. */
+const OPS_TOOLS = ["schedule", "team", "activity"] as const;
 
 function Panel({ title, action, children, className }: { title: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
@@ -56,7 +56,7 @@ export default function ProjectWorkspacePage() {
           projectId={projectId}
           pillar="operations"
           tool={active}
-          section={active === "overview" ? "overview" : active === "documents" ? "documents" : "operations"}
+          section={active === "overview" || active === "selections" || active === "documents" ? (active as "overview" | "selections" | "documents") : "schedule"}
           subtitle={`${project.client} · ${project.location}`}
           meta={
             <div className="flex flex-wrap gap-5 text-[11px]">
@@ -67,10 +67,10 @@ export default function ProjectWorkspacePage() {
           }
         />
 
-        {active !== "overview" && active !== "documents" && (
+        {(OPS_TOOLS as readonly string[]).includes(active) && (
           <ToolTabs
-            items={OPS_TOOLS.filter(t => t !== "overview").map(t => ({ id: t, label: LABELS[t] }))}
-            active={active as (typeof OPS_TOOLS)[number]}
+            items={OPS_TOOLS.map(t => ({ id: t as string, label: LABELS[t] }))}
+            active={active as string}
             onSelect={t => navigate(`${base}/active/${projectId}/${t}`)}
           />
         )}

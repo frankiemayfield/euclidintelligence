@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, CalendarRange, Clock3, HardHat, MapPin, PlusCircle } from "lucide-react";
+import { ArrowRight, MapPin, PlusCircle } from "lucide-react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
 import { getProjectRoute, money, projects } from "@/data/demoUniverse";
 import { statusFor } from "@/data/scheduleData";
 import { lifecycleOf, hasWorkspace } from "@/components/app/ProjectSwitcher";
+import { OperationsNav } from "@/components/app/OperationsNav";
+import { FinancialsNav } from "@/pages/financials/FinancialsNav";
 import { useDemoProject } from "@/hooks/use-demo-project";
 import { cn } from "@/lib/utils";
 
@@ -12,14 +14,16 @@ const FILTERS = ["all", "precon", "active", "completed"] as const;
 type Filter = (typeof FILTERS)[number];
 const FILTER_LABEL: Record<Filter, string> = { all: "All", precon: "Preconstruction", active: "Active", completed: "Completed" };
 
-export default function ProjectsHubPage() {
+export default function ProjectsHubPage({ mode = "operations" }: { mode?: "operations" | "precon" }) {
   const track = useTrack();
   const base = track === "sub" ? "/sub" : "/app";
   const navigate = useNavigate();
   const { setProjectId } = useDemoProject();
   const [filter, setFilter] = useState<Filter>("all");
+  const precon = mode === "precon";
 
   const matches = (id: string, lifecycle: string) => {
+    if (precon) return statusFor(id).mode !== "active" || lifecycle !== "Complete";
     if (filter === "all") return true;
     if (filter === "active") return statusFor(id).mode === "active";
     if (filter === "completed") return lifecycle === "Complete";
@@ -29,6 +33,7 @@ export default function ProjectsHubPage() {
   const open = (projectId: string) => {
     const project = projects.find(p => p.id === projectId)!;
     setProjectId(projectId);
+    if (precon) { navigate(getProjectRoute(project, track)); return; }
     if (statusFor(projectId).mode === "active") navigate(`${base}/active/${projectId}/overview`);
     else navigate(getProjectRoute(project, track));
   };
@@ -39,26 +44,32 @@ export default function ProjectsHubPage() {
     <TrackShell>
       <div className="mx-auto w-full max-w-[1150px] p-4 lg:p-7">
         <header className="mb-4">
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Projects</p>
-          <h1 className="font-display text-3xl font-semibold">{track === "sub" ? "Jobs" : "Projects"}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Every job across its lifecycle — from first plan set to closeout.</p>
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">{precon ? "Financials" : "Operations"}</p>
+          <h1 className="font-display text-3xl font-semibold">{precon ? "Preconstruction" : track === "sub" ? "Jobs" : "Projects"}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {precon
+              ? "Projects being scoped, bid, estimated, priced and proposed — the financial baseline of every job."
+              : "Every job across its lifecycle — from first plan set to closeout."}
+          </p>
         </header>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-2">
-          <nav className="flex flex-wrap items-center gap-4" aria-label="Project lifecycle">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {precon ? <FinancialsNav base={base} active="precon" /> : <OperationsNav base={base} active="projects" />}
+          <Link to={track === "sub" ? "/sub/upload" : "/app/new-project"}
+            className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-[12.5px] font-semibold text-primary-foreground transition-opacity hover:opacity-90">
+            <PlusCircle size={14} />New Project
+          </Link>
+        </div>
+
+        {!precon && (
+          <nav className="mt-3 flex flex-wrap items-center gap-4 border-b border-border/50 pb-2" aria-label="Project lifecycle">
             {FILTERS.map(f => (
               <button key={f} onClick={() => setFilter(f)} aria-current={filter === f ? "page" : undefined}
-                className={cn("-mb-2.5 border-b-2 border-transparent pb-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",
+                className={cn("-mb-2.5 border-b-2 border-transparent pb-2 text-[12px] font-medium text-muted-foreground transition-colors hover:text-foreground",
                   filter === f && "border-primary text-foreground")}>{FILTER_LABEL[f]}</button>
             ))}
           </nav>
-          <div className="flex flex-wrap items-center gap-1 text-[11.5px]">
-            <Link to={`${base}/active`} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-medium text-muted-foreground hover:text-foreground"><HardHat size={13} />Operations</Link>
-            <Link to={`${base}/schedule`} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-medium text-muted-foreground hover:text-foreground"><CalendarRange size={13} />Schedule</Link>
-            <Link to={`${base}/time`} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-medium text-muted-foreground hover:text-foreground"><Clock3 size={13} />Time</Link>
-            <Link to={track === "sub" ? "/sub/upload" : "/app/new-project"} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-medium text-primary"><PlusCircle size={13} />New project</Link>
-          </div>
-        </div>
+        )}
 
         <div className="mt-4 grid gap-3 lg:grid-cols-2">
           {list.map(p => {
@@ -78,14 +89,14 @@ export default function ProjectsHubPage() {
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-3 text-[11px] sm:grid-cols-4">
-                  <div><p className="text-muted-foreground">Stage</p><p className="font-semibold">{s.mode === "active" ? s.currentPhase : (track === "sub" ? p.subStage : p.builderStage)}</p></div>
+                  <div><p className="text-muted-foreground">Stage</p><p className="font-semibold">{s.mode === "active" && !precon ? s.currentPhase : (track === "sub" ? p.subStage : p.builderStage)}</p></div>
                   <div><p className="text-muted-foreground">Status</p><p className="font-semibold">{track === "sub" ? p.subStatus : p.builderStatus}</p></div>
                   <div><p className="text-muted-foreground">{a ? "Revised budget" : "Estimated cost"}</p><p className="font-semibold">{a ? money(a.revisedBudget) : p.builderCost ? money(p.builderCost) : "—"}</p></div>
                   <div><p className="text-muted-foreground">Financials</p><p className="font-semibold">{hasWorkspace("financials", p.id) ? "Live" : "After award"}</p></div>
                 </div>
 
                 <p className="mt-4 flex items-center justify-between border-t border-border/45 pt-3 text-[11px] font-semibold text-primary">
-                  Open project <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
+                  {precon ? "Open preconstruction" : "Open project"} <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
                 </p>
               </button>
             );

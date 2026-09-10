@@ -11,15 +11,17 @@ import { useDemoProject } from "@/hooks/use-demo-project";
 
 type Track = "builder" | "sub" | "owner";
 const trackConfig = {
-  builder: { dashboard: "/app", projects: "/app/projects", precon: "/app/upload", newProject: "/app/new-project", preconLabel: "Preconstruction", activeLabel: "Active Projects", active: "/app/active", schedule: "/app/schedule", time: "/app/time", financials: "/app/financials", settings: "/app/settings", company: companies.mayfield.name, initials: people.frankie.initials, person: people.frankie.name, role: people.frankie.title },
-  sub: { dashboard: "/sub", projects: "/sub/projects", precon: "/sub/upload", newProject: "/sub/upload", preconLabel: "Preconstruction", activeLabel: "Active Jobs", active: "/sub/active", schedule: "/sub/schedule", time: "/sub/time", financials: "/sub/financials", settings: "/sub/settings", company: companies.trueframe.name, initials: people.tyler.initials, person: people.tyler.name, role: people.tyler.title },
+  builder: { dashboard: "/app", projects: "/app/operations", precon: "/app/upload", newProject: "/app/new-project", preconLabel: "Preconstruction", activeLabel: "Active Projects", active: "/app/active", schedule: "/app/schedule", time: "/app/time", financials: "/app/financials", settings: "/app/settings", company: companies.mayfield.name, initials: people.frankie.initials, person: people.frankie.name, role: people.frankie.title },
+  sub: { dashboard: "/sub", projects: "/sub/operations", precon: "/sub/upload", newProject: "/sub/upload", preconLabel: "Preconstruction", activeLabel: "Active Jobs", active: "/sub/active", schedule: "/sub/schedule", time: "/sub/time", financials: "/sub/financials", settings: "/sub/settings", company: companies.trueframe.name, initials: people.tyler.initials, person: people.tyler.name, role: people.tyler.title },
   owner: { dashboard: "/owner", projects: "/owner/documents", precon: "/owner/upload", newProject: "/owner/upload", preconLabel: "Preconstruction", activeLabel: "Active Projects", active: "/owner/documents", schedule: "/owner/documents", time: "/owner/documents", financials: "/owner/budget", settings: "/owner/settings", company: "Osterfeld Residence", initials: "AO", person: "Andrew Osterfeld", role: "Homeowner" },
 } as const;
 function sectionFor(path: string, config: (typeof trackConfig)[Track]) {
   if (path === config.dashboard || path === `${config.dashboard}/`) return "dashboard";
+  if (path.startsWith("/activity")) return "activity";
   if (path.startsWith(config.financials)) return "financials";
-  if (path.startsWith("/activity") || path === config.settings || path.startsWith("/network") || path.startsWith("/compliance")) return "more";
-  return "projects";
+  if (path === config.settings || path.startsWith("/network") || path.startsWith("/compliance")) return "more";
+  if (path.startsWith(config.active) || path.startsWith(config.schedule) || path.startsWith(config.time) || path.startsWith(config.projects) || path.includes("/projects") || path.endsWith("/operations")) return "operations";
+  return "financials";
 }
 
 export function GlobalHeader({ track }: { track: Track }) {
@@ -35,7 +37,8 @@ export function GlobalHeader({ track }: { track: Track }) {
       <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark /></Link>
       <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
         <Link to={config.dashboard} data-active={section==="dashboard"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Home</Link>
-        <Link to={config.projects} data-active={section==="projects"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Projects</Link>
+        <Link to="/activity" data-active={section==="activity"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Activity</Link>
+        <Link to={config.projects} data-active={section==="operations"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Operations</Link>
         <Link to={config.financials} data-active={section==="financials"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Financials</Link>
         <div className="relative">
           <button data-active={section==="more"} onClick={()=>{const next=!moreOpen;closeAll();setMoreOpen(next)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">More <ChevronDown size={13}/></button>

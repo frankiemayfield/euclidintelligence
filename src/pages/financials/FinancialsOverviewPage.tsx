@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { AlertTriangle, ArrowRight, Inbox } from "lucide-react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
-import { money } from "@/data/demoUniverse";
+import { money, projects as allProjects } from "@/data/demoUniverse";
 import { changes, commitments, companyFinancials, costs, currentCommitment, inboxItems, remainingOnCommitment } from "@/data/financialData";
 import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 import { Metric, Panel, Pill, Variance } from "@/components/app/financials/FinancialPrimitives";
@@ -68,6 +68,20 @@ export default function FinancialsOverviewPage() {
             ))}
           </Panel>
 
+          <div className="space-y-3">
+          <Panel title="Preconstruction" action={<Link to={`${base}/financials/preconstruction`} className="text-[11px] font-semibold text-primary">Open Preconstruction →</Link>}>
+            {(() => {
+              const pre = allProjects.filter(p => !financialProjectIds.includes(p.id));
+              const est = pre.reduce((n, p) => n + (p.builderCost ?? 0), 0);
+              return (
+                <div className="space-y-1 text-[11px] text-muted-foreground">
+                  <p className="text-sm font-semibold text-foreground">{pre.length} projects active</p>
+                  <p>{money(est)} estimated builder cost</p>
+                  <p>Scope, bids, estimate, pricing and proposals set each project's original budget.</p>
+                </div>
+              );
+            })()}
+          </Panel>
           <Panel title="Cost Inbox" action={<Link to={`${base}/financials/inbox`} className="text-[11px] font-semibold text-primary">Open →</Link>}>
             <p className="flex items-center gap-2 text-sm font-semibold"><Inbox size={15} className="text-primary" />{c.inboxNeedsAction} documents need action</p>
             <div className="mt-2 space-y-1 text-[11px] text-muted-foreground">
@@ -77,7 +91,9 @@ export default function FinancialsOverviewPage() {
               <p>{c.commitmentExceptions} commitment exceptions</p>
             </div>
           </Panel>
+          </div>
         </div>
+
 
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
           <Panel title="Financial exceptions">

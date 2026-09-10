@@ -107,7 +107,7 @@ const App = () => (
                 <Route path="/app" element={<BuilderGuard><DashboardPage /></BuilderGuard>} />
                 <Route path="/app/projects" element={<BuilderGuard><ProjectsHubPage /></BuilderGuard>} />
                 <Route path="/app/preconstruction" element={<BuilderGuard><UploadPage /></BuilderGuard>} />
-                <Route path="/app/operations" element={<BuilderGuard><ActiveProjectsPage /></BuilderGuard>} />
+                <Route path="/app/operations" element={<BuilderGuard><ProjectsHubPage /></BuilderGuard>} />
                 <Route path="/app/new-project" element={<BuilderGuard><NewProjectPage /></BuilderGuard>} />
                 <Route path="/app/upload" element={<BuilderGuard><UploadPage /></BuilderGuard>} />
                 <Route path="/app/scope-analyzer" element={<BuilderGuard><ScopeAnalyzerPage /></BuilderGuard>} />
@@ -130,6 +130,7 @@ const App = () => (
 
                 {/* Builder financials */}
                 <Route path="/app/financials" element={<BuilderGuard><FinancialsOverviewPage /></BuilderGuard>} />
+                <Route path="/app/financials/preconstruction" element={<BuilderGuard><ProjectsHubPage mode="precon" /></BuilderGuard>} />
                 <Route path="/app/financials/inbox" element={<BuilderGuard><CostInboxPage /></BuilderGuard>} />
                 <Route path="/app/financials/projects" element={<BuilderGuard><FinancialProjectsPage /></BuilderGuard>} />
                 <Route path="/app/financials/:projectId" element={<BuilderGuard><ProjectFinancialsPage /></BuilderGuard>} />
@@ -139,7 +140,7 @@ const App = () => (
                 <Route path="/sub" element={<SubGuard><SubDashboardPage /></SubGuard>} />
                 <Route path="/sub/projects" element={<SubGuard><ProjectsHubPage /></SubGuard>} />
                 <Route path="/sub/preconstruction" element={<SubGuard><SubUploadPage /></SubGuard>} />
-                <Route path="/sub/operations" element={<SubGuard><ActiveProjectsPage /></SubGuard>} />
+                <Route path="/sub/operations" element={<SubGuard><ProjectsHubPage /></SubGuard>} />
                 <Route path="/sub/upload" element={<SubGuard><SubUploadPage /></SubGuard>} />
                 <Route path="/sub/scope-analyzer" element={<SubGuard><SubScopeAnalyzerPage /></SubGuard>} />
                 <Route path="/sub/bid-leveling" element={<SubGuard><SubBidLevelingPage /></SubGuard>} />
@@ -159,6 +160,7 @@ const App = () => (
 
                 {/* Subcontractor financials */}
                 <Route path="/sub/financials" element={<SubGuard><FinancialsOverviewPage /></SubGuard>} />
+                <Route path="/sub/financials/preconstruction" element={<SubGuard><ProjectsHubPage mode="precon" /></SubGuard>} />
                 <Route path="/sub/financials/inbox" element={<SubGuard><CostInboxPage /></SubGuard>} />
                 <Route path="/sub/financials/projects" element={<SubGuard><FinancialProjectsPage /></SubGuard>} />
                 <Route path="/sub/financials/:projectId" element={<SubGuard><ProjectFinancialsPage /></SubGuard>} />
