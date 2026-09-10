@@ -309,17 +309,20 @@
   }
 
   .euclid-assistant-launcher {
-    border: 0;
-    background: transparent;
-    box-shadow: none;
-    backdrop-filter: none;
-    transition: transform 180ms ease;
+    border: 1px solid hsl(var(--env-accent) / 0.35);
+    background:
+      radial-gradient(120% 120% at 30% 20%, hsl(var(--card) / 0.92), transparent 70%),
+      linear-gradient(145deg, hsl(var(--env-accent) / 0.30), hsl(var(--env-tint) / 0.55));
+    box-shadow: 0 12px 30px -14px hsl(var(--env-accent) / 0.65), var(--shadow-card);
+    backdrop-filter: blur(20px) saturate(140%);
+    transition: transform 180ms ease, box-shadow 180ms ease;
   }
 
   .euclid-assistant-launcher:hover {
-    transform: translateY(-1px) scale(1.03);
-    box-shadow: none;
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 16px 34px -12px hsl(var(--env-accent) / 0.8), var(--shadow-card);
   }
+
 
   .odyssey-surface {
     border: 1px solid hsl(var(--border) / 0.58);

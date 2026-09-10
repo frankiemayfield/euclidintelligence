@@ -37,7 +37,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const section = getSection();
   const isEstimator = section === "estimator";
   const isDashboard = section === "dashboard";
-  const showAtlas = isEstimator || isDashboard;
+  const showAtlas = true;
 
   return (
     <div className="odyssey-app relative flex h-screen flex-col overflow-hidden">

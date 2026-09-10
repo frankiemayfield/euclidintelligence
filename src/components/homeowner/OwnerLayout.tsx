@@ -41,7 +41,7 @@ export function OwnerLayout({ children }: { children: React.ReactNode }) {
   const isPreCon = section === "pre-construction";
   const isActive = section === "active-projects";
   const hasSidebar = isPreCon || isActive;
-  const showAtlas = hasSidebar || section === "dashboard";
+  const showAtlas = true;
 
   const navItems = isPreCon ? preConNavItems : isActive ? activeNavItems : [];
   const sidebarTitle = isPreCon ? "Pre-Construction" : "Active Projects";

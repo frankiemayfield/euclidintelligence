@@ -1,9 +1,10 @@
-import { Send, X, FileText, XCircle, Minus } from "lucide-react";
+import { Send, X, FileText, XCircle, Minus, Maximize2, Minimize2 } from "lucide-react";
 import { EuclidCompass } from "./EuclidBrand";
 import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
-type Message = { role: "euclid" | "user"; content: string; references?: { label: string; type: string }[] };
+type Message = { role: "euclid" | "user"; content: string; references?: { label: string; type: string }[]; wide?: boolean };
+
 
 const contextSuggestions: Record<string, string[]> = {
   "/app": [
@@ -248,6 +249,11 @@ interface AtlasPanelProps {
   onClose: () => void;
 }
 
+/** Prompts that need room to show plans, images, tables or charts open Euclid wide. */
+const WIDE_OUTPUT = /(image|picture|photo|plan|drawing|sheet|chart|graph|table|compare|comparison|breakdown|takeoff|markup|render)/i;
+
+type PanelSize = "normal" | "minimized" | "expanded";
+
 export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
   const location = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -255,7 +261,9 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
   const [lastPath, setLastPath] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [scopeContext, setScopeContext] = useState<{ summary: string; tab: string } | null>(null);
+  const [size, setSize] = useState<PanelSize>("normal");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   const currentPath = location.pathname;
   const suggestions = contextSuggestions[currentPath] || contextSuggestions["/app/scope-analyzer"]!;
@@ -282,16 +290,20 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
 
   const handleSend = () => {
     if (!input.trim()) return;
+    const needsRoom = WIDE_OUTPUT.test(input);
     const userMsg: Message = { role: "user", content: input };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput("");
+    if (needsRoom) setSize("expanded");
+    else if (size === "minimized") setSize("normal");
 
     setTimeout(() => {
       setMessages(prev => [
         ...prev,
         {
           role: "euclid",
+          wide: needsRoom,
           content: "Based on the current project data, I can see relevant patterns here. The key factors are the scope assumptions and how they flow through to pricing. I'd recommend reviewing the flagged items before finalizing — they could affect your proposal competitiveness by 3–5%.",
           references: [
             { label: "Fregolle Residence", type: "Project" },
@@ -300,6 +312,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
       ]);
     }, 800);
   };
+
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -322,21 +335,49 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
 
   if (!isOpen) return null;
 
+  const minimized = size === "minimized";
+  const expanded = size === "expanded";
+  const frameSize = minimized
+    ? "h-14 w-[min(300px,calc(100vw-2rem))]"
+    : expanded
+      ? "h-[min(860px,calc(100vh-110px))] w-[min(760px,calc(100vw-2rem))]"
+      : "h-[min(680px,calc(100vh-120px))] w-[min(380px,calc(100vw-2rem))]";
+
   return (
-    <div className="euclid-assistant fixed bottom-5 right-5 z-[90] flex h-[min(680px,calc(100vh-120px))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden">
+    <div className={`euclid-assistant fixed bottom-5 right-5 z-[90] flex flex-col overflow-hidden transition-[width,height] duration-300 ease-out ${frameSize}`}>
       {/* Header */}
-      <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0">
+      <div
+        className={`flex shrink-0 items-center justify-between border-b border-border ${minimized ? "cursor-pointer px-4 py-3" : "px-5 py-4"}`}
+        onClick={minimized ? () => setSize("normal") : undefined}
+      >
         <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center">
               <EuclidCompass className="h-6 w-6" />
           </div>
-          <div><p className="font-display text-sm font-bold text-foreground">Euclid AI</p><p className="text-[9px] text-muted-foreground">Construction assistant</p></div>
+          <div><p className="font-display text-sm font-bold text-foreground">Euclid AI</p>{!minimized && <p className="text-[9px] text-muted-foreground">Construction assistant</p>}</div>
         </div>
-        <div className="flex items-center gap-1">
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted/50" aria-label="Minimize Euclid"><Minus size={16} /></button>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted/50" aria-label="Close Euclid"><X size={16} /></button>
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => setSize(minimized ? "normal" : "minimized")}
+            className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            aria-label={minimized ? "Restore Euclid" : "Minimize Euclid"}
+          >
+            <Minus size={16} />
+          </button>
+          <button
+            onClick={() => setSize(expanded ? "normal" : "expanded")}
+            className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            aria-label={expanded ? "Shrink Euclid" : "Expand Euclid"}
+          >
+            {expanded ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+          </button>
+          <button onClick={() => { setSize("normal"); onClose(); }} className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground" aria-label="Close Euclid"><X size={16} /></button>
         </div>
       </div>
+
+      {!minimized && (
+      <>
+
 
       {/* Uploaded Files Bar */}
       {uploadedFiles.length > 0 && (
@@ -365,7 +406,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
                 <EuclidCompass className="h-5 w-5" />
               </div>
             )}
-            <div className={`max-w-[85%] ${m.role === "user" ? "" : ""}`}>
+            <div className={m.wide && expanded ? "w-full max-w-full" : "max-w-[85%]"}>
               <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                 m.role === "user"
                   ? "bg-primary/10 text-foreground rounded-tr-md"
@@ -415,6 +456,8 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
           </button>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }
@@ -423,10 +466,11 @@ export function AtlasToggleButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="euclid-assistant-launcher fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full"
+      className="euclid-assistant-launcher fixed bottom-5 right-5 z-[90] flex h-14 w-14 items-center justify-center rounded-full"
       aria-label="Open Euclid"
     >
-      <EuclidCompass className="h-8 w-8" />
+      <EuclidCompass className="euclid-launcher-mark h-8 w-8" />
+
     </button>
   );
 }
