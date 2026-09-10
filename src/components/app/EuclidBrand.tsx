@@ -13,8 +13,8 @@ export function EuclidCompass({ className }: { className?: string }) {
       aria-hidden="true"
       className={cn("block shrink-0 bg-[hsl(var(--env-accent))] transition-colors duration-300", className)}
       style={{
-        WebkitMaskImage: `url(${compassAsset.url})`,
-        maskImage: `url(${compassAsset.url})`,
+        WebkitMaskImage: `url(${compassMark})`,
+        maskImage: `url(${compassMark})`,
         WebkitMaskPosition: "center",
         maskPosition: "center",
         WebkitMaskRepeat: "no-repeat",
