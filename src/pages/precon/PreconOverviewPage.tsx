@@ -126,7 +126,7 @@ export default function PreconOverviewPage() {
       <div className="mx-auto w-full max-w-[1250px] p-4 lg:p-7">
         <PageHeader
           eyebrow="Preconstruction"
-          title="Overview"
+          title="Precon Overview"
           description="See where every project stands before construction begins, what needs action, and what is coming next."
           className="mb-3"
           right={
