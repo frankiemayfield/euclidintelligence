@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { fmtLong, statusTone, successorsOf, taskById, taskImpact, workdays, type ScheduleTask } from "@/data/scheduleData";
 import { builderNetwork, complianceTone, money } from "@/data/networkData";
 import { EuclidImpact } from "@/components/app/active/EuclidImpact";
-import { TaskColorPicker } from "./TaskColorControls";
+import { TaskColorChip } from "./TaskColorControls";
 
 export function TaskDrawer({ task, locked, onClose, onEditAttempt, footer }: { task: ScheduleTask | null; locked: boolean; onClose: () => void; onEditAttempt?: () => void; footer?: React.ReactNode }) {
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -23,7 +23,10 @@ export function TaskDrawer({ task, locked, onClose, onEditAttempt, footer }: { t
           <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Schedule activity</p>
           <h3 className="font-display text-base font-semibold leading-tight">{task.title}</h3>
         </div>
-        <button onClick={onClose} className="rounded-full p-1.5 hover:bg-card/70"><X size={15} /></button>
+        <div className="flex shrink-0 items-center gap-1">
+          <TaskColorChip taskId={task.id} trade={task.mapping?.trade || task.trade} />
+          <button onClick={onClose} className="rounded-full p-1.5 hover:bg-card/70"><X size={15} /></button>
+        </div>
       </div>
 
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 text-[12px]">
@@ -45,7 +48,6 @@ export function TaskDrawer({ task, locked, onClose, onEditAttempt, footer }: { t
           {task.location && <div><p className="text-[10px] uppercase text-muted-foreground">Location</p><p className="font-medium">{task.location}</p></div>}
         </div>
 
-        <TaskColorPicker taskId={task.id} trade={task.mapping?.trade || task.trade} />
 
         <div className="rounded-xl border border-border/50 p-3">
           <p className="mb-2 text-[10px] font-bold uppercase text-muted-foreground">Baseline comparison</p>
