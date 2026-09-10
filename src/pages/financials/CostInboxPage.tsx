@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, CheckCircle2,
-  ChevronDown, ChevronRight, Columns3, CreditCard, FileText, Flag,
+  ChevronDown, ChevronRight, Columns3, CreditCard, FileText, Filter, Flag,
   History, Link2, Mail, Maximize2, Minus, MoreHorizontal, Plus, RefreshCw,
   RotateCw, Search, Upload, X,
 } from "lucide-react";
@@ -333,6 +333,10 @@ export default function CostInboxPage() {
                 <label className="financial-control flex h-8 min-w-0 items-center gap-1.5 px-2.5"><Search size={12} className="shrink-0 text-muted-foreground" /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search inbox" className="w-24 bg-transparent text-[10px] outline-none sm:w-36" /></label>
                 <label className="financial-control hidden h-8 items-center gap-1 px-2.5 text-[10px] sm:flex"><select aria-label="Project filter" value={projectFilter} onChange={event => setProjectFilter(event.target.value)} className="max-w-28 bg-transparent outline-none"><option>All projects</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select><ChevronDown size={10} className="text-muted-foreground" /></label>
                 <label className="financial-control hidden h-8 items-center gap-1 px-2.5 text-[10px] md:flex"><select aria-label="Source filter" value={sourceFilter} onChange={event => setSourceFilter(event.target.value)} className="max-w-24 bg-transparent outline-none"><option>All sources</option>{[...new Set(inboxItems.map(item => item.source))].map(source => <option key={source}>{source}</option>)}</select><ChevronDown size={10} className="text-muted-foreground" /></label>
+                <DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="icon" className="financial-control h-8 w-8 md:hidden" aria-label="Queue filters"><Filter size={12} /></Button></DropdownMenuTrigger><DropdownMenuContent align="end" className="odyssey-popover w-56 space-y-1.5 p-2">
+                  <label className="block text-[9px] font-semibold uppercase text-muted-foreground">Project<select aria-label="Project filter" value={projectFilter} onChange={event => setProjectFilter(event.target.value)} className="financial-control mt-1 h-8 w-full px-2 text-[10px] outline-none"><option>All projects</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
+                  <label className="block text-[9px] font-semibold uppercase text-muted-foreground">Source<select aria-label="Source filter" value={sourceFilter} onChange={event => setSourceFilter(event.target.value)} className="financial-control mt-1 h-8 w-full px-2 text-[10px] outline-none"><option>All sources</option>{[...new Set(inboxItems.map(item => item.source))].map(source => <option key={source}>{source}</option>)}</select></label>
+                </DropdownMenuContent></DropdownMenu>
                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground" title="Columns"><Columns3 size={13} /></Button>
               </div>
             </section>
