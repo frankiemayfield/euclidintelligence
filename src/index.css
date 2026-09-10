@@ -384,6 +384,14 @@
     backdrop-filter: blur(24px) saturate(140%);
   }
 
+  .precon-surface {
+    border: 1px solid hsl(var(--surface-border) / 0.7);
+    background: hsl(var(--surface-workspace) / 0.94);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(26px) saturate(120%);
+  }
+
+
   .financial-workspace {
     border: 1px solid hsl(var(--surface-border) / 0.72);
     background: hsl(var(--surface-workspace) / 0.965);

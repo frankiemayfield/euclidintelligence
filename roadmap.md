@@ -70,3 +70,8 @@
 - [x] Restyle queue navigation and table into one high-contrast workspace
 - [x] Apply shared light/dark surface and control tokens without changing behavior
 - [x] Verify workflows, responsive layouts, environments, and preview health
+
+# Precon Overview control center
+- [x] Replace KPI cards with one compact summary line inside the existing page shell
+- [x] Dense clickable Precon Pipeline table, Next 7 Days, and Precon Performance
+- [x] Needs Attention queue, Market Outlook preview, Recent Activity rail
