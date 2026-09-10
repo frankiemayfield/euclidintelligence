@@ -9,6 +9,7 @@ import { AtlasPanel, AtlasToggleButton } from "@/components/app/AtlasPanel";
 import { GlobalHeader } from "@/components/app/GlobalHeader";
 import { ProjectSwitcher, SidebarProjectSwitcher } from "@/components/app/ProjectSwitcher";
 import { useDemoProject } from "@/hooks/use-demo-project";
+import { WorkflowRailSlot } from "@/components/app/precon/WorkflowRail";
 
 const estimatorNavItems = [
   { label: "Document Upload", icon: Upload, path: "/sub/upload" },
@@ -94,7 +95,7 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
               <ProjectSwitcher projectId={project.id} pillar="precon" compact className="w-auto max-w-[260px] rounded-full border border-border/60 bg-card/40 px-3 py-1.5" />
             </div>
           )}
-        <main data-dense-workspace={location.pathname.includes("scope-analyzer") || location.pathname.includes("estimate-builder") || location.pathname.includes("bid-leveling") || location.pathname.includes("market-comparison") || location.pathname.includes("estimate-comparison") ? "true" : undefined} className="header-scroll-fade min-w-0 flex-1 overflow-y-auto rounded-2xl">{children}</main>
+        <main data-dense-workspace={location.pathname.includes("scope-analyzer") || location.pathname.includes("estimate-builder") || location.pathname.includes("bid-leveling") || location.pathname.includes("market-comparison") || location.pathname.includes("estimate-comparison") ? "true" : undefined} className="header-scroll-fade min-w-0 flex-1 overflow-y-auto rounded-2xl"><WorkflowRailSlot />{children}</main>
         </div>
 
         {/* Euclid Panel */}
