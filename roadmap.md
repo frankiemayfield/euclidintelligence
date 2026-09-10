@@ -75,3 +75,7 @@
 - [x] Replace KPI cards with one compact summary line inside the existing page shell
 - [x] Dense clickable Precon Pipeline table, Next 7 Days, and Precon Performance
 - [x] Needs Attention queue, Market Outlook preview, Recent Activity rail
+
+## Gated precon workflow (done)
+- Workflow states/gates in src/lib/preconWorkflow.ts; persistent rail in components/app/precon/WorkflowRail.tsx
+- Contextual bid intake in Bid Packages files documents via src/lib/documentIntake.ts and flags downstream review
