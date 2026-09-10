@@ -51,7 +51,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <div className={`relative z-10 flex flex-1 gap-3 overflow-hidden pb-3 pt-1.5 lg:gap-4 lg:pb-5 ${isEstimator ? "px-3 lg:px-5" : "px-0"}`}>
         {/* Estimator Sidebar */}
         {isEstimator && (
-          <aside className={`${collapsed ? "w-14" : "w-56"} odyssey-surface flex h-fit max-h-full flex-col shrink-0 overflow-hidden rounded-2xl transition-all duration-200`}>
+          <aside className={`${collapsed ? "w-14" : "w-56"} odyssey-surface mt-11 flex h-fit max-h-full flex-col shrink-0 overflow-hidden rounded-2xl transition-all duration-200`}>
             <div className={`px-3 py-1.5 border-b border-border ${collapsed ? "px-2" : ""}`}>
               {!collapsed && (
                 <>
@@ -89,7 +89,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Main + Euclid */}
         <div className="flex min-w-0 flex-1 flex-col">
           {isEstimator && (
-            <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-1 pt-1 lg:px-6">
+            <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-0 pt-0 lg:px-6">
               <p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Preconstruction · Estimator</p>
               <ProjectSwitcher projectId={project.id} pillar="precon" compact className="w-auto max-w-[260px] rounded-full border border-border/60 bg-card/40 px-3 py-1.5" />
             </div>
