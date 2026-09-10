@@ -27,24 +27,29 @@ export function GlobalHeader({ track }: { track: Track }) {
   const config = trackConfig[track]; const location = useLocation(); const navigate = useNavigate(); const { signOut } = useAuth();
   const { setProjectId } = useDemoProject();
   const notices = track === "owner" ? [] : notificationsByTrack[track];
-  const [notificationsOpen,setNotificationsOpen]=useState(false); const [profileOpen,setProfileOpen]=useState(false); const [messengerOpen,setMessengerOpen]=useState(false); const [noticeFilter,setNoticeFilter]=useState<"all"|"unread">("all"); const [moreOpen,setMoreOpen]=useState(false); const [activeOpen,setActiveOpen]=useState(false);
+  const [notificationsOpen,setNotificationsOpen]=useState(false); const [profileOpen,setProfileOpen]=useState(false); const [messengerOpen,setMessengerOpen]=useState(false); const [noticeFilter,setNoticeFilter]=useState<"all"|"unread">("all"); const [moreOpen,setMoreOpen]=useState(false); const [openMenu,setOpenMenu]=useState<null|"precon"|"operations"|"financials">(null);
   const section=sectionFor(location.pathname,config);
-  const navItems=[{id:"dashboard",label:"Home",to:config.dashboard},{id:"activity",label:"Activity",to:"/activity"},{id:"precon",label:config.preconLabel,to:config.precon}];
-  const activeItems=[{label:config.activeLabel,to:config.active,icon:HardHat},{label:"Schedule",to:config.schedule,icon:CalendarRange},{label:"Time Clock",to:config.time,icon:Clock3}];
-  const moreItems=[{label:"Network",to:"/network",icon:Building2},{label:"Compliance",to:"/compliance",icon:ShieldCheck},{label:"Estimate vs Actual",to:track==="sub"?"/sub/est-vs-actual":"/app/est-vs-actual",icon:Activity}];
+  const closeAll=()=>{setMoreOpen(false);setOpenMenu(null);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)};
+  const preconItems=[{label:"Projects",to:config.precon,icon:FolderKanban},{label:"New Project",to:config.newProject,icon:PlusCircle}];
+  const operationsItems=[{label:"Projects",to:config.active,icon:HardHat},{label:"Schedule",to:config.schedule,icon:CalendarRange},{label:"Time",to:config.time,icon:Clock3}];
+  const financialsItems=[{label:"Overview",to:config.financials,icon:LineChart},{label:"Cost Inbox",to:`${config.financials}/inbox`,icon:Inbox},{label:"Projects",to:`${config.financials}/projects`,icon:Wallet}];
+  const moreItems=[{label:"Activity",to:"/activity",icon:Activity},{label:"Network",to:"/network",icon:Building2},{label:"Compliance",to:"/compliance",icon:ShieldCheck}];
+  const menus=[{id:"precon" as const,label:config.preconLabel,items:preconItems},{id:"operations" as const,label:"Operations",items:operationsItems},{id:"financials" as const,label:"Financials",items:financialsItems}];
   return <>
     <header className="odyssey-header relative z-[70] flex h-[76px] shrink-0 items-center justify-between px-6 lg:px-[7%]">
       <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark /></Link>
       <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
-        {navItems.map(item=><Link key={item.id} to={item.to} data-active={section===item.id} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">{item.label}</Link>)}
+        <Link to={config.dashboard} data-active={section==="dashboard"} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Home</Link>
+        {menus.map(menu=>(
+          <div key={menu.id} className="relative">
+            <button data-active={section===menu.id} onClick={()=>{const next=openMenu===menu.id?null:menu.id;closeAll();setOpenMenu(next)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">{menu.label} <ChevronDown size={13}/></button>
+            {openMenu===menu.id&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
+              {menu.items.map(item=><Link key={item.label} to={item.to} onClick={()=>setOpenMenu(null)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground"><item.icon size={14}/>{item.label}</Link>)}
+            </div>}
+          </div>
+        ))}
         <div className="relative">
-          <button data-active={section==="active"} onClick={()=>{setActiveOpen(v=>!v);setMoreOpen(false);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">{config.activeLabel} <ChevronDown size={13}/></button>
-          {activeOpen&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
-            {activeItems.map(item=><Link key={item.label} to={item.to} onClick={()=>setActiveOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground"><item.icon size={14}/>{item.label}</Link>)}
-          </div>}
-        </div>
-        <div className="relative">
-          <button data-active={section==="more"} onClick={()=>{setMoreOpen(v=>!v);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">More <ChevronDown size={13}/></button>
+          <button data-active={section==="more"} onClick={()=>{const next=!moreOpen;closeAll();setMoreOpen(next)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">More <ChevronDown size={13}/></button>
           {moreOpen&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
             {moreItems.map(item=><Link key={item.to} to={item.to} onClick={()=>setMoreOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground"><item.icon size={14}/>{item.label}</Link>)}
             <div className="my-1 h-px bg-border/60"/>
