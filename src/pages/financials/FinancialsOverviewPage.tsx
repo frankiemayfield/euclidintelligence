@@ -18,7 +18,7 @@ export default function FinancialsOverviewPage() {
     ...inboxItems.filter(i => i.state === "Exception").map(i => ({ id: i.id, title: `${i.exception?.kind} — ${i.vendor}`, detail: i.exception?.detail ?? "", to: `${base}/financials/inbox` })),
     ...commitments.filter(x => remainingOnCommitment(x) < 0).map(x => ({ id: x.id, title: `Invoicing exceeds commitment — ${x.company}`, detail: `${money(x.invoiced)} invoiced against a ${money(currentCommitment(x))} commitment.`, to: `${base}/projects/${x.projectId}/financials/commitments` })),
     ...c.projects.filter(p => p.variance < 0).map(p => ({ id: p.id, title: `Forecast overrun — ${p.name}`, detail: `Forecast ${money(p.forecast)} against a revised budget of ${money(p.revised)}.`, to: `${base}/projects/${p.id}/financials/budget` })),
-    ...c.projects.filter(p => p.outstandingAR > 0).map(p => ({ id: `${p.id}-ar`, title: `Outstanding A/R — ${p.name}`, detail: `${money(p.outstandingAR)} invoiced and unpaid.`, to: `${base}/projects/${p.id}/financials/billing` })),
+    ...c.projects.filter(p => p.outstandingAR > 0).map(p => ({ id: `${p.id}-ar`, title: `Outstanding A/R — ${p.name}`, detail: `${money(p.outstandingAR)} invoiced and unpaid.`, to: `${base}/projects/${p.id}/financials/client-billing` })),
   ];
 
   return (
@@ -107,7 +107,7 @@ export default function FinancialsOverviewPage() {
           <div className="space-y-3">
             <Panel title="Unresolved changes">
               {changes.filter(x => ["Potential", "Pricing", "Submitted", "Needs Review"].includes(x.status)).map(x => (
-                <Link key={x.id} to={`${base}/projects/${x.projectId}/financials/changes`} className="flex items-center justify-between border-b border-border/35 py-2 text-[11px] last:border-0">
+                <Link key={x.id} to={`${base}/projects/${x.projectId}/financials/change-orders`} className="flex items-center justify-between border-b border-border/35 py-2 text-[11px] last:border-0">
                   <span>{x.title}<span className="block text-[10px] text-muted-foreground">{x.id} · {x.kind}</span></span>
                   <span className="flex items-center gap-2"><b>{money(x.costImpact)}</b><Pill label={x.status} tone="info" /></span>
                 </Link>

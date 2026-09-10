@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, MapPin, PlusCircle } from "lucide-react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
-import { getProjectRoute, money, projects } from "@/data/demoUniverse";
+import { money, projects } from "@/data/demoUniverse";
 import { statusFor } from "@/data/scheduleData";
 import { lifecycleOf, hasWorkspace } from "@/components/app/ProjectSwitcher";
 import { useDemoProject } from "@/hooks/use-demo-project";
@@ -39,9 +39,8 @@ export default function ProjectsHubPage({ mode = "operations" }: { mode?: "opera
   const open = (projectId: string) => {
     const project = projects.find(p => p.id === projectId)!;
     setProjectId(projectId);
-    if (precon) { navigate(getProjectRoute(project, track)); return; }
-    if (statusFor(projectId).mode === "active") navigate(`${base}/projects/${projectId}/overview`);
-    else navigate(getProjectRoute(project, track));
+    if (precon) { navigate(`${base}/projects/${projectId}/preconstruction`); return; }
+    navigate(`${base}/projects/${projectId}/overview`);
   };
 
   const list = projects.filter(p => matches(p.id, lifecycleOf(p, track)));

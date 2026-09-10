@@ -151,8 +151,8 @@ export default function ProjectWorkspacePage() {
                   <div className="mt-3 flex flex-wrap gap-3 text-[11px]">
                     <Link to={`${base}/projects/${projectId}/financials/costs`} className="font-semibold text-primary">Costs</Link>
                     <Link to={`${base}/projects/${projectId}/financials/commitments`} className="font-semibold text-primary">Commitments</Link>
-                    <Link to={`${base}/projects/${projectId}/financials/changes`} className="font-semibold text-primary">Changes</Link>
-                    <Link to={`${base}/projects/${projectId}/financials/billing`} className="font-semibold text-primary">Client Billing</Link>
+                    <Link to={`${base}/projects/${projectId}/financials/change-orders`} className="font-semibold text-primary">Changes</Link>
+                    <Link to={`${base}/projects/${projectId}/financials/client-billing`} className="font-semibold text-primary">Client Billing</Link>
                   </div>
                 </>
               ) : <p className="text-[11px] text-muted-foreground">Project financials begin after award and construction start.</p>}
