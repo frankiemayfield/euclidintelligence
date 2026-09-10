@@ -1,4 +1,4 @@
-import { Bell, Building2, ChevronDown, CheckCheck, MessageSquare, Settings, ShieldCheck, UserRound, X } from "lucide-react";
+import { Bell, ChevronDown, CheckCheck, MessageSquare, Settings, UserRound, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
