@@ -86,7 +86,10 @@ export function useTaskColors() {
   const s = useSyncExternalStore(subscribe, snapshot, snapshot);
   const tradeColor = useCallback((trade: string) => s.trades[trade] ?? defaultTradeColor(trade), [s]);
   const colorFor = useCallback(
-    (task: Pick<ScheduleTask, "id" | "trade">) => s.tasks[task.id] ?? s.trades[task.trade] ?? defaultTradeColor(task.trade),
+    (task: Pick<ScheduleTask, "id" | "trade"> & { mapping?: ScheduleTask["mapping"] }) => {
+      const trade = task.mapping?.trade || task.trade;
+      return s.tasks[task.id] ?? s.trades[trade] ?? defaultTradeColor(trade);
+    },
     [s],
   );
   return {
