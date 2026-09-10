@@ -348,17 +348,18 @@
 
   .odyssey-counter {
     position: absolute;
-    right: -0.1rem;
-    top: -0.25rem;
-    min-width: 1rem;
-    height: 1rem;
-    padding: 0 0.2rem;
+    right: 0.05rem;
+    top: 0.05rem;
+    min-width: 1.05rem;
+    height: 1.05rem;
+    padding: 0 0.22rem;
     border-radius: 9999px;
-    font-size: 0.55rem;
+    font-size: 0.6rem;
     font-weight: 700;
-    line-height: 1rem;
+    line-height: 1.05rem;
     box-shadow: 0 0 0 2px hsl(var(--card) / 0.9);
   }
+
 
   .odyssey-popover { border-radius: 1rem; }
 

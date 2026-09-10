@@ -55,7 +55,7 @@ function Pillar({ id, label, to, items, section, open, setOpen }: {
         data-active={isActive}
         data-open={isOpen}
         onClick={() => setOpen(null)}
-        className="odyssey-nav-group block px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+        className="odyssey-nav-group block px-4 py-2 text-[14px] font-medium leading-6 text-muted-foreground transition-colors hover:text-foreground"
       >{label}</Link>
       {isOpen && (
         <div role="menu" className="odyssey-popover odyssey-menu absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
