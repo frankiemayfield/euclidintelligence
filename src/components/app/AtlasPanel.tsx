@@ -290,16 +290,20 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
 
   const handleSend = () => {
     if (!input.trim()) return;
+    const needsRoom = WIDE_OUTPUT.test(input);
     const userMsg: Message = { role: "user", content: input };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput("");
+    if (needsRoom) setSize("expanded");
+    else if (size === "minimized") setSize("normal");
 
     setTimeout(() => {
       setMessages(prev => [
         ...prev,
         {
           role: "euclid",
+          wide: needsRoom,
           content: "Based on the current project data, I can see relevant patterns here. The key factors are the scope assumptions and how they flow through to pricing. I'd recommend reviewing the flagged items before finalizing — they could affect your proposal competitiveness by 3–5%.",
           references: [
             { label: "Fregolle Residence", type: "Project" },
@@ -308,6 +312,7 @@ export function AtlasPanel({ isOpen, onClose }: AtlasPanelProps) {
       ]);
     }, 800);
   };
+
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
