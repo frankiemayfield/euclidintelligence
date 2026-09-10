@@ -162,16 +162,16 @@ export default function FinancialsOverviewPage() {
           <div className="order-2 flex flex-col gap-4 lg:order-1">
             <Section title="Project Financial Performance" note={`${live.length} with cost data · ${money(totals.revised)} revised`} className="overflow-hidden pb-0">
               <div className="mt-3 overflow-x-auto">
-                <table className="w-full min-w-[860px] text-left text-[12px]">
+                <table className="w-full min-w-[720px] text-left text-[11.5px]">
                   <thead>
                     <tr className="border-y border-border/50 text-[9.5px] uppercase tracking-[.12em] text-muted-foreground">
                       <th className="px-4 py-2 font-semibold">Project</th>
-                      <th className="px-3 py-2 text-right font-semibold">Contract</th>
-                      <th className="px-3 py-2 text-right font-semibold">Revised Budget</th>
-                      <th className="px-3 py-2 text-right font-semibold">Committed</th>
-                      <th className="px-3 py-2 text-right font-semibold">Actual</th>
-                      <th className="px-3 py-2 text-right font-semibold">Forecast</th>
-                      <th className="px-3 py-2 text-right font-semibold">Variance</th>
+                      <th className="px-2 py-2 text-right font-semibold">Contract</th>
+                      <th className="px-2 py-2 text-right font-semibold">Revised Budget</th>
+                      <th className="px-2 py-2 text-right font-semibold">Committed</th>
+                      <th className="px-2 py-2 text-right font-semibold">Actual</th>
+                      <th className="px-2 py-2 text-right font-semibold">Forecast</th>
+                      <th className="px-2 py-2 text-right font-semibold">Variance</th>
                       <th className="px-4 py-2 text-right font-semibold">Forecast Margin</th>
                     </tr>
                   </thead>
@@ -190,20 +190,20 @@ export default function FinancialsOverviewPage() {
                           </td>
                         ) : (
                           <>
-                            <td className="px-3 py-2.5 text-right tabular-nums">{money(fin.currentContract)}</td>
-                            <td className="px-3 py-2.5 text-right font-medium tabular-nums">
+                            <td className="px-2 py-2.5 text-right tabular-nums">{money(fin.currentContract)}</td>
+                            <td className="px-2 py-2.5 text-right font-medium tabular-nums">
                               <Link to={`${base}/projects/${r.id}/financials/budget`} className="hover:text-primary">{money(fin.revised)}</Link>
                             </td>
-                            <td className="px-3 py-2.5 text-right tabular-nums">
+                            <td className="px-2 py-2.5 text-right tabular-nums">
                               <Link to={`${base}/projects/${r.id}/financials/commitments`} className="hover:text-primary">{money(fin.committed)}</Link>
                             </td>
-                            <td className="px-3 py-2.5 text-right tabular-nums">
+                            <td className="px-2 py-2.5 text-right tabular-nums">
                               <Link to={`${base}/projects/${r.id}/financials/costs`} className="hover:text-primary">{money(fin.actual)}</Link>
                             </td>
-                            <td className="px-3 py-2.5 text-right tabular-nums">
+                            <td className="px-2 py-2.5 text-right tabular-nums">
                               <Link to={`${base}/projects/${r.id}/financials/budget`} className="hover:text-primary">{money(fin.forecast)}</Link>
                             </td>
-                            <td className={cn("px-3 py-2.5 text-right font-semibold tabular-nums", fin.variance < 0 ? "text-warning" : "text-success")}>
+                            <td className={cn("px-2 py-2.5 text-right font-semibold tabular-nums", fin.variance < 0 ? "text-warning" : "text-success")}>
                               <Link to={`${base}/projects/${r.id}/financials/budget`} className="hover:underline">
                                 {fin.variance < 0 ? "-" : "+"}{money(Math.abs(fin.variance))}
                                 <span className="ml-1 text-[10px] font-medium text-muted-foreground">{fin.variance < 0 ? "Unfavorable" : "Favorable"}</span>
@@ -224,12 +224,12 @@ export default function FinancialsOverviewPage() {
                     <tfoot>
                       <tr className="border-t border-border/50 text-[11.5px] font-semibold">
                         <td className="px-4 py-2.5">Total — active work</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums">{money(totals.contract)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums">{money(totals.revised)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums">{money(totals.committed)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums">{money(totals.actual)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums">{money(totals.forecast)}</td>
-                        <td className={cn("px-3 py-2.5 text-right tabular-nums", variance < 0 ? "text-warning" : "text-success")}>
+                        <td className="px-2 py-2.5 text-right tabular-nums">{money(totals.contract)}</td>
+                        <td className="px-2 py-2.5 text-right tabular-nums">{money(totals.revised)}</td>
+                        <td className="px-2 py-2.5 text-right tabular-nums">{money(totals.committed)}</td>
+                        <td className="px-2 py-2.5 text-right tabular-nums">{money(totals.actual)}</td>
+                        <td className="px-2 py-2.5 text-right tabular-nums">{money(totals.forecast)}</td>
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums", variance < 0 ? "text-warning" : "text-success")}>
                           {variance < 0 ? "-" : "+"}{money(Math.abs(variance))}
                         </td>
                         <td className="px-4 py-2.5 text-right tabular-nums">{forecastMargin.toFixed(1)}%</td>
@@ -250,8 +250,8 @@ export default function FinancialsOverviewPage() {
                       <th className="px-4 py-2 font-semibold">Change</th>
                       <th className="px-3 py-2 font-semibold">Project</th>
                       <th className="px-3 py-2 font-semibold">Status</th>
-                      <th className="px-3 py-2 text-right font-semibold">Cost Exposure</th>
-                      <th className="px-3 py-2 text-right font-semibold">Client Value</th>
+                      <th className="px-2 py-2 text-right font-semibold">Cost Exposure</th>
+                      <th className="px-2 py-2 text-right font-semibold">Client Value</th>
                       <th className="px-4 py-2 text-right font-semibold">Projected GP</th>
                     </tr>
                   </thead>
@@ -264,8 +264,8 @@ export default function FinancialsOverviewPage() {
                         </td>
                         <td className="px-3 py-2.5 text-[11.5px] text-muted-foreground">{nameOf(c.projectId)}</td>
                         <td className="px-3 py-2.5 text-[11.5px] text-muted-foreground">{c.status}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums">{money(c.costImpact)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums">{c.clientImpact ? money(c.clientImpact) : "—"}</td>
+                        <td className="px-2 py-2.5 text-right tabular-nums">{money(c.costImpact)}</td>
+                        <td className="px-2 py-2.5 text-right tabular-nums">{c.clientImpact ? money(c.clientImpact) : "—"}</td>
                         <td className="px-4 py-2.5 text-right tabular-nums">{c.clientImpact ? money(c.clientImpact - c.costImpact) : "—"}</td>
                       </tr>
                     ))}
