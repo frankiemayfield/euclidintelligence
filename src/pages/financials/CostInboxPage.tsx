@@ -91,7 +91,7 @@ function PreviewPane({ item, onHide }: { item: InboxItem; onHide: () => void }) 
   );
 }
 
-function DecisionCard({ item }: { item: InboxItem }) {
+function DecisionCard({ item, resolvedAction, onAction }: { item: InboxItem; resolvedAction?: string; onAction: (action: string) => void }) {
   if (!item.exception) return null;
   const commitment = commitmentById(item.commitmentId);
   const duplicate = item.exception.kind === "Possible duplicate";
@@ -101,17 +101,17 @@ function DecisionCard({ item }: { item: InboxItem }) {
       <div className="flex items-start gap-2"><AlertTriangle size={15} className="mt-0.5 shrink-0 text-warning" /><div><p className="text-[12px] font-bold">{item.exception.kind}</p><p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">{item.exception.detail}</p></div></div>
       {duplicate && <div className="mt-3 grid grid-cols-2 gap-2 text-[10px]"><div className="rounded-lg bg-card/75 p-2"><p className="font-semibold">Incoming</p><p>{item.vendor}</p><p>{documentLabel(item)}</p><b>{money(item.amount)}</b></div><div className="rounded-lg bg-card/75 p-2"><p className="font-semibold">Existing in QBO</p><p>{item.vendor}</p><p>Invoice #{item.number}</p><b>{money(item.amount)}</b></div></div>}
       {overage && commitment && <div className="mt-3 grid grid-cols-3 gap-1.5 text-center text-[10px]"><div className="rounded-lg bg-card/75 p-2"><p className="text-muted-foreground">Commitment</p><b>{money(commitment.original + commitment.approvedChanges)}</b></div><div className="rounded-lg bg-card/75 p-2"><p className="text-muted-foreground">After invoice</p><b>{money(commitment.invoiced + item.amount)}</b></div><div className="rounded-lg bg-card/75 p-2"><p className="text-muted-foreground">Over</p><b className="text-warning">{money(Math.max(commitment.invoiced + item.amount - commitment.original - commitment.approvedChanges, 0))}</b></div></div>}
-      <div className="mt-3 flex flex-wrap gap-1.5">{item.exception.actions.map((action, index) => <Button key={action} variant={index === 0 ? "default" : "outline"} size="sm" className="h-7 px-2.5 text-[10px]">{action}</Button>)}</div>
+      <div className="mt-3 flex flex-wrap gap-1.5">{item.exception.actions.map((action, index) => <Button key={action} onClick={() => onAction(action)} variant={resolvedAction === action || (!resolvedAction && index === 0) ? "default" : "outline"} size="sm" className="h-7 px-2.5 text-[10px]">{resolvedAction === action && <Check size={10} />}{action}</Button>)}</div>
     </section>
   );
 }
 
-function Field({ label, value, options, attention, onChange }: { label: string; value: string; options: string[]; attention?: boolean; onChange?: (value: string) => void }) {
+function Field({ label, value, options, attention, onChange }: { label: string; value: string; options: Array<string | { value: string; label: string }>; attention?: boolean; onChange?: (value: string) => void }) {
   return (
     <label className={cn("min-w-0 rounded-lg border bg-card/55 p-2", attention ? "border-warning/55" : "border-border/50")}>
       <span className="block text-[9px] uppercase text-muted-foreground">{label}</span>
       <select value={value} onChange={event => onChange?.(event.target.value)} className="mt-0.5 w-full truncate bg-transparent text-[11px] font-semibold outline-none">
-        {options.map(option => <option key={option} value={option}>{option}</option>)}
+        {options.map(option => { const choice = typeof option === "string" ? { value: option, label: option } : option; return <option key={choice.value} value={choice.value}>{choice.label}</option>; })}
       </select>
     </label>
   );
@@ -138,18 +138,19 @@ function ReviewPanel({ item, postedCost, onApprove, onFlag, onPrevious, onNext, 
   const line = lineById(lineId) ?? initialLine;
   const [commitmentId, setCommitmentId] = useState(item.commitmentId ?? "None");
   const [allocations, setAllocations] = useState(() => item.lines.map(lineItem => ({ ...lineItem })));
-  const [forceBalanced, setForceBalanced] = useState(true);
+  const [resolvedAction, setResolvedAction] = useState<string>();
   const codingRef = useRef<HTMLDivElement>(null);
   const lowConfidence = item.confidence < 70 || item.state !== "Ready";
   const hasDifferentCodes = new Set(allocations.map(allocation => allocation.suggestedLineId)).size > 1;
   const allocationTotal = allocations.reduce((total, allocation) => total + allocation.amount, 0);
-  const balanced = forceBalanced || Math.abs(allocationTotal - item.amount) < 0.01;
-  const canPost = !postedCost && item.state !== "Posted" && balanced && Boolean(projectId !== "Unassigned" && lineId);
+  const balanced = Math.abs(allocationTotal - item.amount) < 0.01;
+  const resolutionAllowsPosting = item.state === "Ready" || ["Post Anyway", "Adjust Commitment", "Create Change", "Partial Approve", "Assign Vendor", "Assign Project", "Create Cost"].includes(resolvedAction ?? "");
+  const canPost = !postedCost && item.state !== "Posted" && balanced && resolutionAllowsPosting && Boolean(projectId !== "Unassigned" && lineId);
   const selection = selections.find(candidate => candidate.id === item.selectionId || candidate.commitmentId === commitmentId);
 
   useEffect(() => {
     setProjectId(item.projectId ?? "Unassigned"); setLineId(item.suggestedLineId ?? ""); setCommitmentId(item.commitmentId ?? "None");
-    setAllocations(item.lines.map(lineItem => ({ ...lineItem }))); setForceBalanced(true);
+    setAllocations(item.lines.map(lineItem => ({ ...lineItem }))); setResolvedAction(undefined);
   }, [item]);
 
   useEffect(() => {
@@ -185,15 +186,15 @@ function ReviewPanel({ item, postedCost, onApprove, onFlag, onPrevious, onNext, 
           <div><p className="text-[9px] uppercase text-muted-foreground">Network match</p><p className="truncate text-[11px] font-semibold">{item.companyId ? "Matched" : item.vendor === "Unknown vendor" ? "Required" : "Likely match"}</p></div>
         </div>
 
-        <div className="mt-3"><DecisionCard item={item} /></div>
+        <div className="mt-3"><DecisionCard item={item} resolvedAction={resolvedAction} onAction={setResolvedAction} /></div>
 
         <section className="mt-3">
           <div className="mb-2 flex items-center justify-between"><h3 className="text-[11px] font-bold">Coding decision</h3><span className="text-[9px] text-muted-foreground">Euclid recommendation</span></div>
           <div className="grid grid-cols-2 gap-2">
-            <Field label="Project" value={projectId} attention={!item.projectId} onChange={value => { setProjectId(value); const first = budgetLines.find(candidate => candidate.projectId === value); if (first) setLineId(first.id); }} options={["Unassigned", ...projects.map(candidate => candidate.id)]} />
-            <Field label="Estimate line" value={lineId} attention={!lineId || item.confidence < 70} onChange={setLineId} options={lineOptions.length ? lineOptions.map(candidate => candidate.id) : [""]} />
+            <Field label="Project" value={projectId} attention={!item.projectId} onChange={value => { setProjectId(value); const first = budgetLines.find(candidate => candidate.projectId === value); if (first) setLineId(first.id); }} options={["Unassigned", ...projects.map(candidate => ({ value: candidate.id, label: candidate.name }))]} />
+            <Field label="Estimate line" value={lineId} attention={!lineId || item.confidence < 70} onChange={setLineId} options={lineOptions.length ? lineOptions.map(candidate => ({ value: candidate.id, label: candidate.name })) : [""]} />
             <Field label="Phase / cost code" value={line ? `${line.phase} · ${line.costCode}` : "Unmapped"} options={[line ? `${line.phase} · ${line.costCode}` : "Unmapped"]} />
-            <Field label="Commitment" value={commitmentId} attention={item.exception?.kind.includes("commitment")} onChange={setCommitmentId} options={["None", ...commitments.filter(candidate => projectId === "Unassigned" || candidate.projectId === projectId).map(candidate => candidate.id)]} />
+            <Field label="Commitment" value={commitmentId} attention={item.exception?.kind.includes("commitment")} onChange={setCommitmentId} options={["None", ...commitments.filter(candidate => projectId === "Unassigned" || candidate.projectId === projectId).map(candidate => ({ value: candidate.id, label: `${candidate.id} · ${candidate.company}` }))]} />
           </div>
           {selection && <p className="mt-2 text-[10px] text-muted-foreground">Linked selection: {selection.title} · allowance {money(selection.allowance)}</p>}
         </section>
@@ -202,7 +203,7 @@ function ReviewPanel({ item, postedCost, onApprove, onFlag, onPrevious, onNext, 
           <Disclosure label={`Review Line Coding · ${allocations.length} line${allocations.length === 1 ? "" : "s"}`} icon={Columns3} defaultOpen={lowConfidence || hasDifferentCodes}>
             <div className="space-y-1.5">{allocations.map((allocation, index) => (
               <div key={`${allocation.description}-${index}`} className="grid grid-cols-[minmax(0,1fr)_88px] gap-2 rounded-lg bg-card/65 p-2 text-[10px] sm:grid-cols-[minmax(0,1fr)_92px_minmax(120px,0.8fr)_48px]">
-                <span className="truncate">{allocation.description}</span><input value={allocation.amount} type="number" onChange={event => { setForceBalanced(false); setAllocations(current => current.map((candidate, candidateIndex) => candidateIndex === index ? { ...candidate, amount: Number(event.target.value) } : candidate)); }} className="bg-transparent text-right tabular-nums outline-none" />
+                <span className="truncate">{allocation.description}</span><input value={allocation.amount} type="number" onChange={event => setAllocations(current => current.map((candidate, candidateIndex) => candidateIndex === index ? { ...candidate, amount: Number(event.target.value) } : candidate))} className="bg-transparent text-right tabular-nums outline-none" />
                 <select value={allocation.suggestedLineId} onChange={event => setAllocations(current => current.map((candidate, candidateIndex) => candidateIndex === index ? { ...candidate, suggestedLineId: event.target.value } : candidate))} className="col-span-2 min-w-0 bg-transparent outline-none sm:col-span-1">{lineOptions.map(option => <option key={option.id} value={option.id}>{option.name}</option>)}</select>
                 <span className={cn("hidden text-right tabular-nums sm:block", confidenceTone(allocation.confidence))}>{allocation.confidence}%</span>
               </div>
@@ -224,7 +225,7 @@ function ReviewPanel({ item, postedCost, onApprove, onFlag, onPrevious, onNext, 
 
       <footer className="sticky bottom-0 flex shrink-0 items-center justify-between gap-2 border-t border-border/70 bg-card/95 px-3 py-2 backdrop-blur-xl">
         <TooltipProvider><div className="flex gap-1"><Tooltip><TooltipTrigger asChild><Button variant="outline" size="icon" onClick={onFlag} className="h-8 w-8"><Flag size={13} /></Button></TooltipTrigger><TooltipContent>Flag for review (F)</TooltipContent></Tooltip><Button variant="ghost" size="sm" onClick={onNext} className="h-8 text-[10px]">Skip<ArrowRight size={11} /></Button></div></TooltipProvider>
-        <Button size="sm" onClick={onApprove} disabled={!canPost} className="h-8 min-w-[132px] text-[11px]"><Check size={13} />{postedCost || item.state === "Posted" ? "Posted" : "Approve & Post"}</Button>
+        <Button size="sm" onClick={onApprove} disabled={!canPost} className="h-8 min-w-[132px] text-[11px]"><Check size={13} />{postedCost || item.state === "Posted" ? "Posted" : resolvedAction ? "Apply & Post" : "Approve & Post"}</Button>
       </footer>
     </section>
   );
@@ -266,8 +267,8 @@ export default function CostInboxPage() {
     const nextIndex = activeIndex < 0 ? 0 : (activeIndex + direction + rows.length) % rows.length;
     setOpenId(rows[nextIndex].id);
   };
-  const post = (ids: string[]) => {
-    const eligible = items.filter(item => ids.includes(item.id) && item.state === "Ready");
+  const post = (ids: string[], allowResolved = false) => {
+    const eligible = items.filter(item => ids.includes(item.id) && (item.state === "Ready" || allowResolved));
     if (!eligible.length) return;
     setPostedCosts(current => [...current, ...eligible.filter(item => !current.some(cost => cost.inboxId === item.id)).map(item => ({ inboxId: item.id, projectId: item.projectId, budgetLineId: item.suggestedLineId, commitmentId: item.commitmentId, amount: item.amount, status: "Posted" as const, sync: "Queued" as const }))]);
     setSelected(current => current.filter(id => !ids.includes(id)));
@@ -304,7 +305,7 @@ export default function CostInboxPage() {
             </div>
             <div className={cn("grid min-h-0 flex-1 lg:grid-cols-[minmax(320px,0.9fr)_minmax(410px,1.1fr)]", !showDocument && "lg:grid-cols-1")}>
               {showDocument && <div className={cn("min-h-0", mobileTab !== "document" && "hidden lg:block")}><PreviewPane item={open} onHide={() => setShowDocument(false)} /></div>}
-              <div className={cn("min-h-0", mobileTab !== "review" && "hidden lg:block")}><ReviewPanel item={open} postedCost={postedCosts.find(cost => cost.inboxId === open.id)} onApprove={() => post([open.id])} onFlag={() => flag(open.id)} onPrevious={() => navigate(-1)} onNext={() => navigate(1)} onShowDocument={() => { setShowDocument(true); setMobileTab("document"); }} /></div>
+              <div className={cn("min-h-0", mobileTab !== "review" && "hidden lg:block")}><ReviewPanel item={open} postedCost={postedCosts.find(cost => cost.inboxId === open.id)} onApprove={() => post([open.id], true)} onFlag={() => flag(open.id)} onPrevious={() => navigate(-1)} onNext={() => navigate(1)} onShowDocument={() => { setShowDocument(true); setMobileTab("document"); }} /></div>
             </div>
           </div>
         ) : (

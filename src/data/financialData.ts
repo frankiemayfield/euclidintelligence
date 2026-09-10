@@ -337,11 +337,11 @@ export const inboxItems: InboxItem[] = [
     id: "IN-9001", vendor: "Hyde Park Lumber", docType: "Invoice", number: "410702", projectId: "fregolle", amount: 1575.26, tax: 118.14, date: "2026-09-08", dueDate: "2026-10-08",
     source: "Invoice Upload", suggestedLineId: "fr-carp-rough", commitmentId: "PO-2301", confidence: 96, state: "Ready", terms: "Net 30",
     lines: [
-      { description: "SPF studs 2x6x104-5/8", amount: 4820, suggestedLineId: "fr-carp-rough", confidence: 97 },
-      { description: "LVL 1-3/4 x 11-7/8", amount: 3440, suggestedLineId: "fr-carp-rough", confidence: 94 },
-      { description: '7/16" OSB sheathing', amount: 2190, suggestedLineId: "fr-carp-rough", confidence: 96 },
-      { description: "Simpson connectors", amount: 860, suggestedLineId: "fr-hardware", confidence: 98 },
-      { description: "Delivery", amount: 225, suggestedLineId: "fr-gc", confidence: 88 },
+      { description: "SPF studs 2x6x104-5/8", amount: 608.43, suggestedLineId: "fr-carp-rough", confidence: 97 },
+      { description: "LVL 1-3/4 x 11-7/8", amount: 434.24, suggestedLineId: "fr-carp-rough", confidence: 94 },
+      { description: '7/16" OSB sheathing', amount: 276.26, suggestedLineId: "fr-carp-rough", confidence: 96 },
+      { description: "Simpson connectors", amount: 108.48, suggestedLineId: "fr-hardware", confidence: 98 },
+      { description: "Delivery", amount: 29.71, suggestedLineId: "fr-gc", confidence: 88 },
     ],
   },
   {
