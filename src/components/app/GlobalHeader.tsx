@@ -1,4 +1,4 @@
-import { Activity, Bell, Building2, CalendarRange, ChevronDown, CheckCheck, Clock3, FolderKanban, HardHat, MessageSquare, PlusCircle, Settings, ShieldCheck, UserRound, X } from "lucide-react";
+import { Activity, Bell, Building2, ChevronDown, CheckCheck, MessageSquare, Settings, ShieldCheck, UserRound, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
