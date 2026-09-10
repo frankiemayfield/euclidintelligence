@@ -51,7 +51,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <div className={`relative z-10 flex flex-1 gap-3 overflow-hidden pb-3 pt-3 lg:gap-4 lg:pb-5 ${isEstimator ? "px-3 lg:px-5" : "px-0"}`}>
         {/* Estimator Sidebar */}
         {isEstimator && (
-          <aside className={`${collapsed ? "w-14" : "w-56"} odyssey-surface flex flex-col shrink-0 overflow-hidden rounded-2xl transition-all duration-200`}>
+          <aside className={`${collapsed ? "w-14" : "w-56"} odyssey-surface flex h-fit max-h-full flex-col shrink-0 overflow-hidden rounded-2xl transition-all duration-200`}>
             <div className={`px-3 py-1.5 border-b border-border ${collapsed ? "px-2" : ""}`}>
               {!collapsed && (
                 <>
@@ -63,7 +63,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <p className="text-[10px] text-muted-foreground font-medium text-center">Est</p>
               )}
             </div>
-            <nav className="flex-1 py-2 px-1.5 space-y-0.5 overflow-y-auto">
+            <nav className="py-2 px-1.5 space-y-0.5 overflow-y-auto">
               {estimatorNavItems.map((item) => {
                 const active = location.pathname === item.path;
                 return (
