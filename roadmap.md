@@ -66,7 +66,7 @@
 - [x] Verify desktop/mobile review, exception cases, environment accents, and clean preview build
 
 # Cost Inbox Odyssey visual cleanup
-- [ ] Consolidate intake, sources, search, and filters into one responsive toolbar
-- [ ] Restyle queue navigation and table into one high-contrast workspace
-- [ ] Apply shared light/dark surface and control tokens without changing behavior
-- [ ] Verify workflows, responsive layouts, environments, and preview health
+- [x] Consolidate intake, sources, search, and filters into one responsive toolbar
+- [x] Restyle queue navigation and table into one high-contrast workspace
+- [x] Apply shared light/dark surface and control tokens without changing behavior
+- [x] Verify workflows, responsive layouts, environments, and preview health
