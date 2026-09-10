@@ -36,7 +36,7 @@ export default function CompanyProfilePage() {
 
   return (
     <TrackShell>
-      <div className="mx-auto w-full max-w-[1320px] p-4 lg:p-7">
+      <div className="mx-auto w-full max-w-[1250px] p-4 lg:p-7">
         <Link to="/network" className="mb-4 inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground"><ArrowLeft size={13} /> Network</Link>
 
         <header className="odyssey-surface mb-5 rounded-2xl p-5">

@@ -27,7 +27,7 @@ export default function SubDashboardPage() {
   const goto = (route: string, projectId?: string) => { if (projectId) setProjectId(projectId); navigate(route); };
   const downtown = projects.find(p => p.id === "downtown-ti");
 
-  return <SubLayout><div className="mx-auto w-full max-w-[1320px] p-4 lg:p-7">
+  return <SubLayout><div className="mx-auto w-full max-w-[1250px] p-4 lg:p-7">
     <section className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
       <div>
         <p className="mb-2 text-[11px] font-semibold uppercase text-muted-foreground [letter-spacing:.16em]">{companies.trueframe.name} · Framing Subcontractor</p>

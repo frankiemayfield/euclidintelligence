@@ -22,7 +22,7 @@ export default function ActivityPage() {
 
   return (
     <TrackShell>
-      <div className="mx-auto w-full max-w-[980px] p-4 lg:p-7">
+      <div className="mx-auto w-full max-w-[1250px] p-4 lg:p-7">
         <header className="mb-5">
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Company timeline</p>
           <h1 className="font-display text-3xl font-semibold">Activity</h1>
