@@ -7,17 +7,15 @@ import { getProject, projects } from "@/data/demoUniverse";
 import { scheduleHealth, statusFor } from "@/data/scheduleData";
 import { cn } from "@/lib/utils";
 
-const ALL = "all";
-
 export default function SchedulePage() {
   const track = useTrack();
   const list = projects
     .filter(p => statusFor(p.id).mode !== "none")
     .sort((a, b) => (statusFor(a.id).mode === "active" ? -1 : 1) - (statusFor(b.id).mode === "active" ? -1 : 1));
-  const [projectId, setProjectId] = useState<string>(ALL);
+  const [projectId, setProjectId] = useState<string>(list[0]?.id ?? "");
   const scopeCompanyId = track === "sub" ? "trueframe" : undefined;
-  const selectedLabel = projectId === ALL ? "All Active Projects" : getProject(projectId).name;
-  const shown = projectId === ALL ? list : list.filter(p => p.id === projectId);
+  const selectedLabel = projectId ? getProject(projectId).name : "Select project";
+  const shown = list.filter(p => p.id === projectId);
 
   return (
     <TrackShell>
