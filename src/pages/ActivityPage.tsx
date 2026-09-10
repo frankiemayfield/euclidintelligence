@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Clock3, Search } from "lucide-react";
+import { Building2, Clock3, Search, SlidersHorizontal } from "lucide-react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
+import { Dropdown } from "@/components/app/active/Dropdown";
 import { activityFilters, activityFor, activityGroups, fmtWhen, matchesFilter, urgencyTone } from "@/data/activityData";
-import { projects } from "@/data/demoUniverse";
+import { getProject, projects } from "@/data/demoUniverse";
 import { cn } from "@/lib/utils";
 
 export default function ActivityPage() {
