@@ -3,6 +3,8 @@ import { Navigate, useParams } from "react-router-dom";
 import { useTrack } from "@/components/app/TrackShell";
 import { useDemoProject } from "@/hooks/use-demo-project";
 import { projectSection, type PreconStepId } from "@/lib/routes";
+import { PreconWorkflowProvider } from "@/components/app/precon/WorkflowRail";
+import { isStepUnlocked } from "@/lib/preconWorkflow";
 
 import UploadPage from "@/pages/app/UploadPage";
 import ScopeAnalyzerPage from "@/pages/app/ScopeAnalyzerPage";
@@ -49,5 +51,15 @@ export default function ProjectPreconStepPage() {
   const map = track === "sub" ? SUB : BUILDER;
   const Tool = step && step in map ? map[step as PreconStepId] : undefined;
   if (!Tool) return <Navigate to={projectSection(base, projectId, "preconstruction")} replace />;
-  return <Tool />;
+
+  // Deep links into a gated stage fall back to the workflow map rather than a broken tool.
+  if (!isStepUnlocked(projectId, track, step as PreconStepId)) {
+    return <Navigate to={`${projectSection(base, projectId, "preconstruction")}?locked=${step}`} replace />;
+  }
+
+  return (
+    <PreconWorkflowProvider value={{ projectId, track, base, step: step as PreconStepId }}>
+      <Tool />
+    </PreconWorkflowProvider>
+  );
 }
