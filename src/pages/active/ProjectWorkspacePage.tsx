@@ -9,6 +9,8 @@ import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 import { fmtWhen, projectActivity, urgencyTone } from "@/data/activityData";
 import { builderNetwork, complianceTone } from "@/data/networkData";
 import { cn } from "@/lib/utils";
+import { ProjectSwitcher } from "@/components/app/ProjectSwitcher";
+import { hasWorkspace } from "@/components/app/ProjectSwitcher";
 import { StartConstruction } from "@/components/app/active/StartConstruction";
 import { SelectionsPanel } from "@/components/app/selections/SelectionsPanel";
 import { projectFinancials, selectionsFor } from "@/data/financialData";
@@ -54,8 +56,10 @@ export default function ProjectWorkspacePage() {
           <Link to={`${base}/active`} className="text-[11px] font-semibold text-primary">← {track === "sub" ? "Active Jobs" : "Active Projects"}</Link>
           <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h1 className="font-display text-2xl font-semibold">{project.name}</h1>
-              <p className="text-xs text-muted-foreground">{project.client} · {project.location}</p>
+              <ProjectSwitcher projectId={projectId} pillar="operations" tool={active} subtitle={`${project.client} · ${project.location}`} />
+              {hasWorkspace("financials", projectId) && (
+                <Link to={`${base}/financials/${projectId}/budget`} className="mt-1 inline-block text-[11px] font-semibold text-primary">View Financials →</Link>
+              )}
             </div>
             <div className="flex flex-wrap gap-5 text-[11px]">
               {[["Project Manager", s.projectManager], ["Superintendent", s.superintendent], ["Current Phase", s.currentPhase], ["Status", s.mode === "active" ? "Active" : "Preconstruction"]].map(([l, v]) => (
