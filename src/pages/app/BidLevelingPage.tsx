@@ -9,12 +9,19 @@ import { Button } from "@/components/ui/button";
 import { WorkflowTransition } from "@/components/app/WorkflowTransition";
 import { useDemoProject } from "@/hooks/use-demo-project";
 import { companies, framingBidPool } from "@/data/demoUniverse";
+import { BidIntakeDialog } from "@/components/app/bid-leveling/BidIntakeDialog";
+import { usePreconWorkflowContext } from "@/components/app/precon/WorkflowRail";
+import { flagDownstreamReview } from "@/lib/preconWorkflow";
+import { toast } from "@/hooks/use-toast";
 
 export default function BidLevelingPage() {
   const { project } = useDemoProject();
   const [activeTrade, setActiveTrade] = useState("Framing");
   const [expandedSub, setExpandedSub] = useState<string | null>(null);
   const [transition, setTransition] = useState(false);
+  const [intakeOpen, setIntakeOpen] = useState(false);
+  const [addedBids, setAddedBids] = useState<Record<string, SubBid[]>>({});
+  const workflow = usePreconWorkflowContext();
   const projectFramingBids: SubBid[] = (framingBidPool[project.id] ?? []).map((bid, index) => ({
     sub: Object.values(companies).find(company => company.id === bid.companyId)?.name ?? bid.companyId,
     rawTotal: bid.amount,
@@ -33,7 +40,9 @@ export default function BidLevelingPage() {
     adjustments: bid.addBacks ? [{ description: "Scope normalization", amount: bid.addBacks, reason: bid.note }] : [],
     uploadedFrom: `${project.name.replace(/[^a-z0-9]+/gi, "_")}_${bid.companyId}_Bid.pdf`,
   }));
-  const items = activeTrade === "Framing" ? projectFramingBids : bids[activeTrade] || [];
+  const baseItems = activeTrade === "Framing" ? projectFramingBids : bids[activeTrade] || [];
+  const added = addedBids[activeTrade] ?? [];
+  const items = [...added, ...baseItems.filter(b => !added.some(a => a.sub === b.sub))];
 
   return (
     <AppLayout>
@@ -45,10 +54,16 @@ export default function BidLevelingPage() {
                {project.name} — compare and normalize subcontractor bids against the analyzed scope
             </p>
           </div>
+          <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" className="text-sm font-semibold gap-1.5" onClick={() => setIntakeOpen(true)}>
+            <Upload size={14} />
+            Upload Bid
+          </Button>
           <Button size="sm" className="text-sm font-semibold gap-1.5" onClick={() => setTransition(true)}>
             Build Estimate
             <ArrowRight size={14} />
           </Button>
+          </div>
         </div>
 
         {/* Source reference */}
@@ -98,6 +113,27 @@ export default function BidLevelingPage() {
         />
 
       </div>
+
+      {intakeOpen && (
+        <BidIntakeDialog
+          projectId={project.id}
+          projectName={project.name}
+          trade={activeTrade}
+          existing={items}
+          onClose={() => setIntakeOpen(false)}
+          onAdd={(bid, isRevision, filename) => {
+            setAddedBids(prev => ({ ...prev, [activeTrade]: [bid, ...(prev[activeTrade] ?? []).filter(b => b.sub !== bid.sub)] }));
+            setIntakeOpen(false);
+            if (workflow) {
+              flagDownstreamReview(workflow.projectId, workflow.track, "bid-packages", "You", `${filename} added to ${activeTrade}`);
+            }
+            toast({
+              title: isRevision ? `Revised bid recorded for ${bid.sub}` : `Bid added for ${bid.sub}`,
+              description: `${filename} filed to project documents. Estimate and pricing flagged for review.`,
+            });
+          }}
+        />
+      )}
 
       <WorkflowTransition
         active={transition}
