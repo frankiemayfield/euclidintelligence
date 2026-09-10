@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
 import { ScheduleModule } from "@/components/app/schedule/ScheduleModule";
 import { Dropdown } from "@/components/app/active/Dropdown";
+import { OperationsNav } from "@/components/app/OperationsNav";
 import { getProject, projects } from "@/data/demoUniverse";
 import { scheduleHealth, statusFor } from "@/data/scheduleData";
 import { cn } from "@/lib/utils";
