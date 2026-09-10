@@ -7,7 +7,7 @@ export default function MessagesPage() {
   const channel = params.get("channel") ?? undefined;
   return (
     <TrackShell>
-      <div className="flex h-full w-full flex-col p-4 lg:p-6">
+      <div className="app-shell flex h-full flex-col py-4 lg:py-6">
         <header className="mb-3">
           <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Communication</p>
           <h1 className="font-display text-2xl font-semibold">Messages</h1>
