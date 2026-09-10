@@ -26,7 +26,6 @@ import CompanyProfilePage from "./pages/network/CompanyProfilePage";
 import CompliancePage from "./pages/compliance/CompliancePage";
 import MessagesPage from "./pages/MessagesPage";
 import ActivityPage from "./pages/ActivityPage";
-import ActiveProjectsPage from "./pages/active/ActiveProjectsPage";
 import OperationsOverviewPage from "./pages/operations/OperationsOverviewPage";
 import ProjectsHubPage from "./pages/projects/ProjectsHubPage";
 import PreconOverviewPage from "./pages/precon/PreconOverviewPage";
