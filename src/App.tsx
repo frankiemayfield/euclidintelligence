@@ -29,6 +29,9 @@ import ActivityPage from "./pages/ActivityPage";
 import ActiveProjectsPage from "./pages/active/ActiveProjectsPage";
 import OperationsOverviewPage from "./pages/operations/OperationsOverviewPage";
 import ProjectsHubPage from "./pages/projects/ProjectsHubPage";
+import PreconOverviewPage from "./pages/precon/PreconOverviewPage";
+import MarketOutlookPage from "./pages/precon/MarketOutlookPage";
+import EstimatorEntryPage from "./pages/precon/EstimatorEntryPage";
 import ProjectWorkspacePage from "./pages/active/ProjectWorkspacePage";
 import SchedulePage from "./pages/active/SchedulePage";
 import TimeClockPage from "./pages/active/TimeClockPage";
@@ -109,6 +112,10 @@ const App = () => (
                 <Route path="/app" element={<BuilderGuard><DashboardPage /></BuilderGuard>} />
                 <Route path="/app/projects" element={<BuilderGuard><ProjectsHubPage /></BuilderGuard>} />
                 <Route path="/app/preconstruction" element={<BuilderGuard><UploadPage /></BuilderGuard>} />
+                <Route path="/app/precon" element={<BuilderGuard><PreconOverviewPage /></BuilderGuard>} />
+                <Route path="/app/precon/projects" element={<BuilderGuard><ProjectsHubPage mode="precon" /></BuilderGuard>} />
+                <Route path="/app/precon/estimator" element={<BuilderGuard><EstimatorEntryPage /></BuilderGuard>} />
+                <Route path="/app/precon/market-outlook" element={<BuilderGuard><MarketOutlookPage /></BuilderGuard>} />
                 <Route path="/app/operations" element={<BuilderGuard><OperationsOverviewPage /></BuilderGuard>} />
                 <Route path="/app/new-project" element={<BuilderGuard><NewProjectPage /></BuilderGuard>} />
                 <Route path="/app/upload" element={<BuilderGuard><UploadPage /></BuilderGuard>} />
@@ -142,6 +149,10 @@ const App = () => (
                 <Route path="/sub" element={<SubGuard><SubDashboardPage /></SubGuard>} />
                 <Route path="/sub/projects" element={<SubGuard><ProjectsHubPage /></SubGuard>} />
                 <Route path="/sub/preconstruction" element={<SubGuard><SubUploadPage /></SubGuard>} />
+                <Route path="/sub/precon" element={<SubGuard><PreconOverviewPage /></SubGuard>} />
+                <Route path="/sub/precon/projects" element={<SubGuard><ProjectsHubPage mode="precon" /></SubGuard>} />
+                <Route path="/sub/precon/estimator" element={<SubGuard><EstimatorEntryPage /></SubGuard>} />
+                <Route path="/sub/precon/market-outlook" element={<SubGuard><MarketOutlookPage /></SubGuard>} />
                 <Route path="/sub/operations" element={<SubGuard><OperationsOverviewPage /></SubGuard>} />
                 <Route path="/sub/upload" element={<SubGuard><SubUploadPage /></SubGuard>} />
                 <Route path="/sub/scope-analyzer" element={<SubGuard><SubScopeAnalyzerPage /></SubGuard>} />

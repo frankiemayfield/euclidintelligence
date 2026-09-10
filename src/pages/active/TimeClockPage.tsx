@@ -1,5 +1,4 @@
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
-import { OperationsNav } from "@/components/app/OperationsNav";
 import { TimeClockPanel } from "./TimeClockPanel";
 
 export default function TimeClockPage() {
@@ -12,7 +11,6 @@ export default function TimeClockPage() {
           <h1 className="font-display text-3xl font-semibold">Time Clock</h1>
           <p className="mt-2 text-sm text-muted-foreground">Who is working, where they are working, and how those hours map to project cost codes.</p>
         </header>
-        <div className="mb-4"><OperationsNav base={track === "sub" ? "/sub" : "/app"} active="time" /></div>
         <TimeClockPanel companyLevel scopeCompanyId={track === "sub" ? "trueframe" : undefined} />
       </div>
     </TrackShell>

@@ -5,7 +5,6 @@ import { money, projects as allProjects } from "@/data/demoUniverse";
 import { changes, commitments, companyFinancials, costs, currentCommitment, inboxItems, remainingOnCommitment } from "@/data/financialData";
 import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 import { Metric, Panel, Pill, Variance } from "@/components/app/financials/FinancialPrimitives";
-import { FinancialsNav } from "./FinancialsNav";
 import { getRecentProject } from "@/lib/projectContext";
 import { getProject } from "@/data/demoUniverse";
 import { financialProjectIds } from "@/data/financialData";
@@ -30,7 +29,6 @@ export default function FinancialsOverviewPage() {
           <h1 className="font-display text-3xl font-semibold">How the company is performing</h1>
           <p className="mt-2 text-sm text-muted-foreground">What we planned, what we promised to spend, what we actually spent, what changed, and what the client owes us.</p>
         </header>
-        <FinancialsNav base={base} active="overview" />
 
         {(() => {
           const recent = getRecentProject("financials");

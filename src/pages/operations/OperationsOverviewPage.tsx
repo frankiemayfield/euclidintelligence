@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { AlertTriangle, ArrowRight, CalendarDays, HardHat, Users } from "lucide-react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
-import { OperationsNav } from "@/components/app/OperationsNav";
 import { getProject, projects } from "@/data/demoUniverse";
 import { clockedIn, workerById } from "@/data/fieldData";
 import { lateTasks, criticalTasks, scheduleHealth, statusFor, todaysWork, upcoming, fmtShort, fmtLong, TODAY, addDays, tasksFor } from "@/data/scheduleData";
@@ -54,7 +53,6 @@ export default function OperationsOverviewPage() {
           <h1 className="font-display text-3xl font-semibold">Overview</h1>
           <p className="mt-2 text-sm text-muted-foreground">What is happening across every active job today, this week, and where attention is needed.</p>
         </header>
-        <div className="mb-4"><OperationsNav base={base} active="overview" /></div>
 
         <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[["Active jobs", String(active.length)], ["Activities today", String(today.length)], ["On site now", String(onSite.length)], ["Needs attention", String(attention.length)]].map(([l, v]) => (

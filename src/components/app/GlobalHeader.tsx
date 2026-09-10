@@ -1,4 +1,4 @@
-import { Bell, Building2, ChevronDown, CheckCheck, MessageSquare, Settings, ShieldCheck, UserRound, X } from "lucide-react";
+import { Bell, ChevronDown, CheckCheck, MessageSquare, Settings, UserRound, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,39 +15,90 @@ const trackConfig = {
   sub: { dashboard: "/sub", projects: "/sub/operations", precon: "/sub/upload", newProject: "/sub/upload", preconLabel: "Preconstruction", activeLabel: "Active Jobs", active: "/sub/active", schedule: "/sub/schedule", time: "/sub/time", financials: "/sub/financials", settings: "/sub/settings", company: companies.trueframe.name, initials: people.tyler.initials, person: people.tyler.name, role: people.tyler.title },
   owner: { dashboard: "/owner", projects: "/owner/documents", precon: "/owner/upload", newProject: "/owner/upload", preconLabel: "Preconstruction", activeLabel: "Active Projects", active: "/owner/documents", schedule: "/owner/documents", time: "/owner/documents", financials: "/owner/budget", settings: "/owner/settings", company: "Osterfeld Residence", initials: "AO", person: "Andrew Osterfeld", role: "Homeowner" },
 } as const;
-function sectionFor(path: string, config: (typeof trackConfig)[Track]) {
+
+const PRECON_PATHS = ["/precon", "/upload", "/scope-analyzer", "/bid-leveling", "/estimate-builder", "/pricing", "/proposal", "/estimate-comparison", "/market-comparison", "/proposal-comparison", "/est-vs-actual", "/new-project", "/preconstruction", "/financials/preconstruction"];
+const OPERATIONS_PATHS = ["/operations", "/projects", "/active", "/schedule", "/time"];
+
+function sectionFor(path: string, base: string, config: (typeof trackConfig)[Track]) {
   if (path === config.dashboard || path === `${config.dashboard}/`) return "dashboard";
   if (path.startsWith("/activity")) return "activity";
-  if (path.startsWith(config.financials)) return "financials";
   if (path === config.settings || path.startsWith("/network") || path.startsWith("/compliance")) return "more";
-  if (path.startsWith(config.active) || path.startsWith(config.schedule) || path.startsWith(config.time) || path.startsWith(config.projects) || path.includes("/projects") || path.endsWith("/operations")) return "operations";
-  return "financials";
+  if (PRECON_PATHS.some(p => path.startsWith(`${base}${p}`))) return "precon";
+  if (OPERATIONS_PATHS.some(p => path.startsWith(`${base}${p}`))) return "operations";
+  if (path.startsWith(config.financials)) return "financials";
+  return "dashboard";
+}
+
+type PillarItem = { label: string; to: string; divider?: boolean };
+
+function Pillar({ id, label, to, items, section, open, setOpen }: {
+  id: string; label: string; to: string; items: PillarItem[]; section: string;
+  open: string | null; setOpen: (v: string | null) => void;
+}) {
+  const isOpen = open === id;
+  return (
+    <div className="relative flex items-center">
+      <Link to={to} data-active={section === id} onClick={() => setOpen(null)}
+        className="odyssey-nav-link rounded-l-full border border-transparent py-2 pl-4 pr-1 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">{label}</Link>
+      <button aria-label={`${label} menu`} aria-expanded={isOpen} data-active={section === id} onClick={() => setOpen(isOpen ? null : id)}
+        className="odyssey-nav-link rounded-r-full border border-transparent py-2 pl-1 pr-3 text-muted-foreground transition-colors hover:text-foreground">
+        <ChevronDown size={13} />
+      </button>
+      {isOpen && (
+        <div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
+          {items.map(item => (
+            <div key={item.to + item.label}>
+              {item.divider && <div className="my-1 h-px bg-border/60" />}
+              <Link to={item.to} onClick={() => setOpen(null)}
+                className="block rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground">{item.label}</Link>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function GlobalHeader({ track }: { track: Track }) {
   const config = trackConfig[track]; const location = useLocation(); const navigate = useNavigate(); const { signOut } = useAuth();
   const { setProjectId } = useDemoProject();
   const notices = track === "owner" ? [] : notificationsByTrack[track];
-  const [notificationsOpen,setNotificationsOpen]=useState(false); const [profileOpen,setProfileOpen]=useState(false); const [messengerOpen,setMessengerOpen]=useState(false); const [noticeFilter,setNoticeFilter]=useState<"all"|"unread">("all"); const [moreOpen,setMoreOpen]=useState(false);
-  const section=sectionFor(location.pathname,config);
-  const closeAll=()=>{setMoreOpen(false);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)};
-  const moreItems=[{label:"Network",to:"/network",icon:Building2},{label:"Compliance",to:"/compliance",icon:ShieldCheck}];
+  const [notificationsOpen,setNotificationsOpen]=useState(false); const [profileOpen,setProfileOpen]=useState(false); const [messengerOpen,setMessengerOpen]=useState(false); const [noticeFilter,setNoticeFilter]=useState<"all"|"unread">("all"); const [openPillar,setOpenPillar]=useState<string|null>(null);
+  const base = track === "sub" ? "/sub" : track === "owner" ? "/owner" : "/app";
+  const section=sectionFor(location.pathname,base,config);
+  const closeAll=()=>{setOpenPillar(null);setNotificationsOpen(false);setProfileOpen(false);setMessengerOpen(false)};
+  const pillars: { id: string; label: string; to: string; items: PillarItem[] }[] = track === "owner" ? [] : [
+    { id: "precon", label: "Precon", to: `${base}/precon`, items: [
+      { label: "Overview", to: `${base}/precon` },
+      { label: "Projects", to: `${base}/precon/projects` },
+      { label: "Estimator", to: `${base}/precon/estimator` },
+      { label: "Market Outlook", to: `${base}/precon/market-outlook` },
+      { label: "+ New Project", to: config.newProject, divider: true },
+    ] },
+    { id: "operations", label: "Operations", to: `${base}/operations`, items: [
+      { label: "Overview", to: `${base}/operations` },
+      { label: "Projects", to: `${base}/projects` },
+      { label: "Schedule", to: `${base}/schedule` },
+      { label: "Time Clock", to: `${base}/time` },
+    ] },
+    { id: "financials", label: "Financials", to: `${base}/financials`, items: [
+      { label: "Overview", to: `${base}/financials` },
+      { label: "Cost Inbox", to: `${base}/financials/inbox` },
+      { label: "Project Financials", to: `${base}/financials/projects` },
+    ] },
+    { id: "more", label: "More", to: "/network", items: [
+      { label: "Network", to: "/network" },
+      { label: "Compliance", to: "/compliance" },
+      { label: "Settings", to: config.settings, divider: true },
+    ] },
+  ];
   return <>
     <header className="odyssey-header relative z-[70] flex h-[76px] shrink-0 items-center justify-between px-6 lg:px-[7%]">
       <Link to={config.dashboard} aria-label="Euclid dashboard" className="flex h-full items-center"><EuclidWordmark /></Link>
-      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
+      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-0.5 md:flex" aria-label="Primary navigation">
         <Link to={config.dashboard} data-active={section==="dashboard"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Home</Link>
         <Link to="/activity" data-active={section==="activity"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Activity</Link>
-        <Link to={config.projects} data-active={section==="operations"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Operations</Link>
-        <Link to={config.financials} data-active={section==="financials"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Financials</Link>
-        <div className="relative">
-          <button data-active={section==="more"} onClick={()=>{const next=!moreOpen;closeAll();setMoreOpen(next)}} className="odyssey-nav-link flex items-center gap-1 rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">More <ChevronDown size={13}/></button>
-          {moreOpen&&<div className="odyssey-popover absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
-            {moreItems.map(item=><Link key={item.to} to={item.to} onClick={()=>setMoreOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground"><item.icon size={14}/>{item.label}</Link>)}
-            <div className="my-1 h-px bg-border/60"/>
-            <Link to={config.settings} onClick={()=>setMoreOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground"><Settings size={14}/>Settings</Link>
-          </div>}
-        </div>
+        {pillars.map(p => <Pillar key={p.id} {...p} section={section} open={openPillar} setOpen={setOpenPillar} />)}
       </nav>
       <div className="flex items-center gap-0.5">
         <Button variant="ghost" size="icon" className={cn("odyssey-header-control relative h-9 w-9",messengerOpen&&"is-active")} aria-label="Messages" onClick={()=>{setMessengerOpen(v=>!v);setNotificationsOpen(false);setProfileOpen(false)}}><MessageSquare strokeWidth={1.6}/><span className="odyssey-counter bg-destructive text-destructive-foreground">3</span></Button>

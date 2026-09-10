@@ -5,8 +5,6 @@ import { TrackShell, useTrack } from "@/components/app/TrackShell";
 import { getProjectRoute, money, projects } from "@/data/demoUniverse";
 import { statusFor } from "@/data/scheduleData";
 import { lifecycleOf, hasWorkspace } from "@/components/app/ProjectSwitcher";
-import { OperationsNav } from "@/components/app/OperationsNav";
-import { FinancialsNav } from "@/pages/financials/FinancialsNav";
 import { useDemoProject } from "@/hooks/use-demo-project";
 import { cn } from "@/lib/utils";
 
@@ -54,7 +52,7 @@ export default function ProjectsHubPage({ mode = "operations" }: { mode?: "opera
         </header>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          {precon ? <FinancialsNav base={base} active="precon" /> : <OperationsNav base={base} active="projects" />}
+          <div />
           <Link to={track === "sub" ? "/sub/upload" : "/app/new-project"}
             className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-[12.5px] font-semibold text-primary-foreground transition-opacity hover:opacity-90">
             <PlusCircle size={14} />New Project
