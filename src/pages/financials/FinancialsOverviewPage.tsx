@@ -209,10 +209,11 @@ export default function FinancialsOverviewPage() {
                                 <span className="ml-1 text-[10px] font-medium text-muted-foreground">{fin.variance < 0 ? "Unfavorable" : "Favorable"}</span>
                               </Link>
                             </td>
-                            <td className="px-4 py-2.5 text-right tabular-nums">
+                            <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums">
                               <span className="font-semibold">{fin.forecastMargin.toFixed(1)}%</span>
-                              <span className="block text-[10px] text-muted-foreground">vs {fin.originalMargin.toFixed(1)}% original</span>
+                              <span className="block text-[10px] text-muted-foreground">vs {fin.originalMargin.toFixed(1)}% orig.</span>
                             </td>
+
                           </>
 
                         )}
