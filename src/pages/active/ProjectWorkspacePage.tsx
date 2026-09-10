@@ -9,6 +9,7 @@ import { EuclidImpact } from "@/components/app/active/EuclidImpact";
 import { fmtWhen, projectActivity, urgencyTone } from "@/data/activityData";
 import { builderNetwork, complianceTone } from "@/data/networkData";
 import { cn } from "@/lib/utils";
+import { StartConstruction } from "@/components/app/active/StartConstruction";
 import { SelectionsPanel } from "@/components/app/selections/SelectionsPanel";
 import { projectFinancials, selectionsFor } from "@/data/financialData";
 
@@ -73,6 +74,7 @@ export default function ProjectWorkspacePage() {
 
         {active === "overview" && (
           <div className="grid gap-3 lg:grid-cols-3">
+            {s.mode !== "active" && <div className="lg:col-span-3"><StartConstruction projectName={project.name} /></div>}
             <Panel title="Current Phase" className="lg:col-span-2">
               <p className="text-sm font-semibold">{s.currentPhase}</p>
               <p className="mt-1 text-xs text-muted-foreground">{s.percentComplete}% complete · forecast {fmtLong(s.forecastFinish)} · baseline {fmtLong(s.baselineFinish)}</p>
