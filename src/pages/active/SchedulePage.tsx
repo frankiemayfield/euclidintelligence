@@ -27,7 +27,6 @@ export default function SchedulePage() {
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <OperationsNav base={track === "sub" ? "/sub" : "/app"} active="schedule" />
           <Dropdown label={selectedLabel} width="w-72">
-            <button onClick={() => setProjectId(ALL)} className={cn("w-full rounded-lg px-2 py-1.5 text-left hover:bg-card/70", projectId === ALL && "text-primary")}>All Active Projects</button>
             {list.map(p => (
               <button key={p.id} onClick={() => setProjectId(p.id)}
                 className={cn("flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-card/70", projectId === p.id && "text-primary")}>
