@@ -158,7 +158,7 @@ export default function PreconOverviewPage() {
                 <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{scoped.length} projects · {money(pipelineValue)}</span>
               </header>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[860px] text-left text-[12px]">
+                <table className="w-full min-w-[680px] text-left text-[12px]">
                   <thead>
                     <tr className="border-b border-border/50 text-[9.5px] uppercase tracking-[.12em] text-muted-foreground">
                       <th className="px-4 py-2 font-semibold">Project</th>
