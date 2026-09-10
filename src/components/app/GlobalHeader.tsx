@@ -21,7 +21,8 @@ const OPERATIONS_PATHS = ["/operations", "/projects", "/active", "/schedule", "/
 
 function sectionFor(path: string, base: string, config: (typeof trackConfig)[Track]) {
   if (path === config.dashboard || path === `${config.dashboard}/`) return "dashboard";
-  if (path.startsWith("/activity")) return "activity";
+  if (path.startsWith(`${base}/projects`)) return "projects";
+  if (path.startsWith("/activity")) return "more";
   if (path === config.settings || path.startsWith("/network") || path.startsWith("/compliance")) return "more";
   if (PRECON_PATHS.some(p => path.startsWith(`${base}${p}`))) return "precon";
   if (OPERATIONS_PATHS.some(p => path.startsWith(`${base}${p}`))) return "operations";
