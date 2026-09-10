@@ -51,7 +51,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <div className={`relative z-10 flex flex-1 gap-3 overflow-hidden pb-3 pt-1.5 lg:gap-4 lg:pb-5 ${isEstimator ? "px-3 lg:px-5" : "px-0"}`}>
         {/* Estimator Sidebar */}
         {isEstimator && (
-          <aside className={`${collapsed ? "w-14" : "w-56"} odyssey-surface mt-7 flex h-fit max-h-full flex-col shrink-0 overflow-hidden rounded-2xl transition-all duration-200`}>
+          <aside className={`${collapsed ? "w-14" : "w-56"} odyssey-surface mt-11 flex h-fit max-h-full flex-col shrink-0 overflow-hidden rounded-2xl transition-all duration-200`}>
             <div className={`px-3 py-1.5 border-b border-border ${collapsed ? "px-2" : ""}`}>
               {!collapsed && (
                 <>
