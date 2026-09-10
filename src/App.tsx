@@ -29,6 +29,10 @@ import ActiveProjectsPage from "./pages/active/ActiveProjectsPage";
 import ProjectWorkspacePage from "./pages/active/ProjectWorkspacePage";
 import SchedulePage from "./pages/active/SchedulePage";
 import TimeClockPage from "./pages/active/TimeClockPage";
+import FinancialsOverviewPage from "./pages/financials/FinancialsOverviewPage";
+import CostInboxPage from "./pages/financials/CostInboxPage";
+import FinancialProjectsPage from "./pages/financials/FinancialProjectsPage";
+import ProjectFinancialsPage from "./pages/financials/ProjectFinancialsPage";
 
 // Auth pages
 import SignInPage from "./pages/auth/SignInPage";
@@ -120,6 +124,13 @@ const App = () => (
                 <Route path="/app/schedule" element={<BuilderGuard><SchedulePage /></BuilderGuard>} />
                 <Route path="/app/time" element={<BuilderGuard><TimeClockPage /></BuilderGuard>} />
 
+                {/* Builder financials */}
+                <Route path="/app/financials" element={<BuilderGuard><FinancialsOverviewPage /></BuilderGuard>} />
+                <Route path="/app/financials/inbox" element={<BuilderGuard><CostInboxPage /></BuilderGuard>} />
+                <Route path="/app/financials/projects" element={<BuilderGuard><FinancialProjectsPage /></BuilderGuard>} />
+                <Route path="/app/financials/:projectId" element={<BuilderGuard><ProjectFinancialsPage /></BuilderGuard>} />
+                <Route path="/app/financials/:projectId/:tab" element={<BuilderGuard><ProjectFinancialsPage /></BuilderGuard>} />
+
                 {/* Subcontractor routes */}
                 <Route path="/sub" element={<SubGuard><SubDashboardPage /></SubGuard>} />
                 <Route path="/sub/upload" element={<SubGuard><SubUploadPage /></SubGuard>} />
@@ -138,6 +149,13 @@ const App = () => (
                 <Route path="/sub/active/:projectId/:tab" element={<SubGuard><ProjectWorkspacePage /></SubGuard>} />
                 <Route path="/sub/schedule" element={<SubGuard><SchedulePage /></SubGuard>} />
                 <Route path="/sub/time" element={<SubGuard><TimeClockPage /></SubGuard>} />
+
+                {/* Subcontractor financials */}
+                <Route path="/sub/financials" element={<SubGuard><FinancialsOverviewPage /></SubGuard>} />
+                <Route path="/sub/financials/inbox" element={<SubGuard><CostInboxPage /></SubGuard>} />
+                <Route path="/sub/financials/projects" element={<SubGuard><FinancialProjectsPage /></SubGuard>} />
+                <Route path="/sub/financials/:projectId" element={<SubGuard><ProjectFinancialsPage /></SubGuard>} />
+                <Route path="/sub/financials/:projectId/:tab" element={<SubGuard><ProjectFinancialsPage /></SubGuard>} />
 
                 {/* Global routes (Network, Compliance, Activity) */}
                 <Route path="/network" element={<GlobalGuard><NetworkPage /></GlobalGuard>} />

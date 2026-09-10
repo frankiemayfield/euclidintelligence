@@ -159,7 +159,7 @@ export interface InboxItem {
   vendor: string;
   companyId?: string;
   docType: "Invoice" | "Receipt" | "Credit" | "Statement" | "Subcontractor Application";
-  number: string;
+  number?: string;
   projectId?: string;
   amount: number;
   tax: number;
@@ -414,7 +414,7 @@ export const contingency: Record<string, Contingency> = {
     { date: "2026-07-30", reason: "Framing correction at stair opening", amount: 4000, user: "Jordan Ellis", source: "Field" },
     { date: "2026-08-18", reason: "Concealed plumbing repair", amount: 42000, user: "Frankie Mayfield", source: "Field" },
   ] },
-];
+};
 
 export const financialProjectIds = ["downtown-ti", "fregolle"];
 
