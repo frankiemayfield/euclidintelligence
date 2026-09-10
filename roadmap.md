@@ -57,3 +57,10 @@
 - [x] Time Clock (company + project) with cost-code mapping
 - [x] Header: Home | Activity | Pre-Construction | Active Projects (dropdown) | More
 - [x] Filtered global Activity feed
+
+# Fast AI Cost Inbox review
+- [x] Replace oversized intake and KPI cards with a compact searchable processing queue
+- [x] Add confidence-driven split document/review workspace and progressive evidence disclosure
+- [x] Add dedicated duplicate, commitment-overage, and low-confidence decision flows
+- [x] Add inline and bulk approval, next-record behavior, keyboard review, and session-derived posting links
+- [x] Verify desktop/mobile review, exception cases, environment accents, and clean preview build
