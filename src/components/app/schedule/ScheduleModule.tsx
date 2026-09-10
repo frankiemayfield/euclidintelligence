@@ -107,9 +107,9 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
         </div>
 
         {/* toolbar (bottom) */}
-        <div className="flex flex-wrap items-center gap-1.5 border-t border-border/40 pt-1.5">
+        <div className="flex flex-nowrap items-center gap-1.5 border-t border-border/40 pt-1.5 overflow-x-auto no-scrollbar">
           {/* left — views */}
-          <div className="flex rounded-full bg-muted/70 p-0.5">
+          <div className="flex shrink-0 rounded-full bg-muted/70 p-0.5">
             {(Object.keys(viewIcons) as View[]).map(v => {
               const Icon = viewIcons[v];
               return <button key={v} onClick={() => { setView(v); setLookAhead(false); }} className={cn("flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold", view === v && !lookAhead && "bg-card shadow-sm")}><Icon size={12} /><span className="hidden sm:inline">{v}</span></button>;
@@ -117,7 +117,7 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
           </div>
 
           {/* center — search + filter */}
-          <div className="relative min-w-[140px] flex-1">
+          <div className="relative w-[160px] shrink-0">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search schedule..." className="w-full rounded-full border border-border/60 bg-transparent py-1 pl-7 pr-2.5 text-[10px] outline-none focus:border-primary/50" />
           </div>
@@ -132,7 +132,7 @@ export function ScheduleModule({ projectId, projectName, scopeCompanyId }: { pro
           </Dropdown>
 
           {/* right — actions */}
-          <div className="ml-auto flex flex-wrap items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5">
             <button onClick={() => { setLookAhead(false); setTodaySignal(n => n + 1); }} className="rounded-full border border-border/60 px-2 py-1 text-[10px] font-semibold text-muted-foreground hover:text-foreground">Today</button>
             <button onClick={() => setLookAhead(v => !v)}
               className={cn("flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] font-semibold", lookAhead ? "border-primary/60 bg-primary/15 text-primary" : "border-border/60 text-muted-foreground hover:text-foreground")}>
