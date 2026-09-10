@@ -41,6 +41,13 @@
     --env-position: 50% 42%;
     --env-position-mobile: 38% 45%;
 
+    /* Dense financial workspace surfaces */
+    --surface-workspace: 185 28% 99%;
+    --surface-toolbar: 190 24% 97%;
+    --surface-control: 190 20% 94%;
+    --surface-header: 190 22% 95%;
+    --surface-border: 200 18% 72%;
+
     --sidebar-background: 185 28% 97%;
     --sidebar-foreground: 215 15% 20%;
     --sidebar-primary: 196 78% 32%;
@@ -103,6 +110,12 @@
     --sidebar-accent-foreground: 210 8% 85%;
     --sidebar-border: 215 12% 14%;
     --sidebar-ring: 207 65% 45%;
+
+    --surface-workspace: 215 19% 9%;
+    --surface-toolbar: 215 17% 11%;
+    --surface-control: 215 14% 15%;
+    --surface-header: 215 16% 13%;
+    --surface-border: 215 11% 24%;
 
     --success: 142 50% 38%;
     --success-foreground: 0 0% 100%;
@@ -315,6 +328,57 @@
       linear-gradient(145deg, hsl(var(--card) / 0.78), hsl(var(--card) / 0.64));
     box-shadow: var(--shadow-card);
     backdrop-filter: blur(24px) saturate(140%);
+  }
+
+  .financial-workspace {
+    border: 1px solid hsl(var(--surface-border) / 0.72);
+    background: hsl(var(--surface-workspace) / 0.965);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(28px) saturate(112%);
+  }
+
+  .financial-toolbar {
+    border: 1px solid hsl(var(--surface-border) / 0.68);
+    background: hsl(var(--surface-toolbar) / 0.93);
+    backdrop-filter: blur(24px) saturate(115%);
+  }
+
+  .financial-control {
+    border: 1px solid hsl(var(--surface-border) / 0.72);
+    border-radius: 0.625rem;
+    background: hsl(var(--surface-control) / 0.88);
+    color: hsl(var(--foreground));
+    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+  }
+
+  .financial-control:hover {
+    border-color: hsl(var(--env-accent) / 0.35);
+    background: hsl(var(--surface-control));
+  }
+
+  .financial-control:focus-within,
+  .financial-control:focus-visible {
+    border-color: hsl(var(--env-accent) / 0.55);
+    box-shadow: 0 0 0 2px hsl(var(--env-accent) / 0.1);
+    outline: none;
+  }
+
+  .financial-table-header {
+    background: hsl(var(--surface-header) / 0.98);
+  }
+
+  .financial-segment {
+    border-radius: 0.5rem;
+    color: hsl(var(--muted-foreground));
+    transition: color 150ms ease, background-color 150ms ease;
+  }
+
+  .financial-segment:hover { color: hsl(var(--foreground)); }
+
+  .financial-segment[data-active="true"] {
+    background: hsl(var(--env-accent) / 0.1);
+    color: hsl(var(--env-accent));
+    box-shadow: inset 0 0 0 1px hsl(var(--env-accent) / 0.18);
   }
 
 
