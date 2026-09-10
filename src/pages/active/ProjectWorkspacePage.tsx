@@ -188,7 +188,7 @@ export default function ProjectWorkspacePage() {
           </div>
         )}
 
-        {active === "schedule" && <ScheduleModule projectId={projectId} projectName={project.name} scopeCompanyId={scopeCompanyId} />}
+        {active === "schedule" && <ScheduleWorkspace scope={{ kind: "project", projectId }} base={base} scopeCompanyId={scopeCompanyId} />}
 
         {active === "selections" && <SelectionsPanel projectId={projectId} base={base} />}
 
