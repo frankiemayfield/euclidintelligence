@@ -145,3 +145,14 @@ function WorkflowRailInner({ projectId, track, base, step }: PreconWorkflowValue
     </div>
   );
 }
+
+/** Renders the rail inside a workspace shell only when a precon step is active. */
+export function WorkflowRailSlot() {
+  const ctx = usePreconWorkflowContext();
+  if (!ctx) return null;
+  return (
+    <div className="px-4 pt-3 lg:px-8">
+      <WorkflowRail />
+    </div>
+  );
+}
