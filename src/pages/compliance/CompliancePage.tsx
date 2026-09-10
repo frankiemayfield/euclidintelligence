@@ -104,7 +104,7 @@ export default function CompliancePage() {
 
   return (
     <TrackShell>
-      <div className="mx-auto w-full max-w-[1250px] p-4 lg:p-7">
+      <div className="app-shell py-4 lg:py-7">
         <header className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase text-muted-foreground [letter-spacing:.16em]">Risk & documentation</p>

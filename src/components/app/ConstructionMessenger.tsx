@@ -85,7 +85,7 @@ export function MessengerBody({ initialChannel, onClose }: { initialChannel?: st
     if (!text.trim()) return;
     setMessages(current => [...current, { id: Date.now(), author: "Frankie Mayfield", initials: "FM", time: "Now", text: text.trim(), mine: true }]);
   };
-  return <div className="grid h-full min-h-0 grid-cols-[240px_minmax(0,1fr)_240px] gap-3 max-lg:grid-cols-[220px_minmax(0,1fr)] max-md:grid-cols-1">
+  return <div className="grid h-full min-h-0 grid-cols-[21%_minmax(0,1fr)_19%] gap-4 max-lg:grid-cols-[24%_minmax(0,1fr)] max-md:grid-cols-1">
       <aside className="odyssey-surface min-h-0 overflow-hidden rounded-2xl max-md:hidden">
         <div className="flex h-14 items-center justify-between border-b border-border/60 px-4"><div><p className="font-display text-base font-bold">Messages</p><p className="text-[10px] text-muted-foreground">Mayfield & Co.</p></div><Button size="icon" variant="ghost" className="h-8 w-8"><Plus size={15}/></Button></div>
         <div className="m-3 flex items-center gap-2 rounded-lg border border-border/70 bg-card/65 px-3 py-2"><Search size={13} className="text-muted-foreground"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search messages..." className="min-w-0 flex-1 bg-transparent text-xs outline-none"/></div>

@@ -26,7 +26,7 @@ export default function SchedulePage() {
 
   return (
     <TrackShell>
-      <div className="mx-auto flex h-full w-full max-w-[1250px] flex-col p-4 lg:p-6">
+      <div className="app-shell flex h-full flex-col py-4 lg:py-6">
         <header className="mb-3">
           <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Operations</p>
           <h1 className="font-display text-2xl font-semibold">Schedule</h1>

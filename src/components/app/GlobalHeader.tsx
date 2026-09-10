@@ -55,7 +55,7 @@ function Pillar({ id, label, to, items, section, open, setOpen }: {
         data-active={isActive}
         data-open={isOpen}
         onClick={() => setOpen(null)}
-        className="odyssey-nav-group block px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+        className="odyssey-nav-group block px-4 py-2 text-[14px] font-medium leading-6 text-muted-foreground transition-colors hover:text-foreground"
       >{label}</Link>
       {isOpen && (
         <div role="menu" className="odyssey-popover odyssey-menu absolute left-1/2 top-11 z-[100] w-56 -translate-x-1/2 p-2">
@@ -123,17 +123,18 @@ export function GlobalHeader({ track }: { track: Track }) {
     ] },
   ];
   return <div ref={headerRef} className="contents">
-    <header className="odyssey-header relative z-[70] h-[72px] shrink-0">
-      <div className="relative mx-auto flex h-full w-full max-w-[1180px] items-center justify-between px-5 lg:px-8">
-      <Link to={config.dashboard} aria-label="Euclid dashboard" onClick={closeAll} className="flex h-full items-center"><EuclidWordmark className="h-10 w-[132px]" /></Link>
-      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex" aria-label="Primary navigation">
-        <Link to={config.dashboard} data-active={section==="dashboard"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Home</Link>
-        {track !== "owner" && <Link to={`${base}/projects`} data-active={section==="projects"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Projects</Link>}
+    <header className="odyssey-header relative z-[70] h-[76px] shrink-0">
+      <div className="app-shell relative flex h-full items-center justify-between">
+      <Link to={config.dashboard} aria-label="Euclid dashboard" onClick={closeAll} className="flex h-full items-center"><EuclidWordmark className="h-12 w-[168px]" /></Link>
+      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 md:flex" aria-label="Primary navigation">
+        <Link to={config.dashboard} data-active={section==="dashboard"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[14px] font-medium leading-6 text-muted-foreground transition-colors hover:text-foreground">Home</Link>
+        {track !== "owner" && <Link to={`${base}/projects`} data-active={section==="projects"} onClick={closeAll} className="odyssey-nav-link rounded-full border border-transparent px-4 py-2 text-[14px] font-medium leading-6 text-muted-foreground transition-colors hover:text-foreground">Projects</Link>}
         {pillars.map(p => <Pillar key={p.id} {...p} section={section} open={openPillar} setOpen={setOpenPillar} />)}
       </nav>
-      <div className="flex items-center gap-0.5">
-        <Button variant="ghost" size="icon" className={cn("odyssey-header-control relative h-9 w-9",messengerOpen&&"is-active")} aria-label="Messages" onClick={()=>{setMessengerOpen(v=>!v);setNotificationsOpen(false);setProfileOpen(false)}}><MessageSquare strokeWidth={1.6}/><span className="odyssey-counter bg-destructive text-destructive-foreground">3</span></Button>
-        <div className="relative"><Button variant="ghost" size="icon" className={cn("odyssey-header-control relative h-9 w-9",notificationsOpen&&"is-active")} aria-label="Notifications" onClick={()=>{setNotificationsOpen(v=>!v);setProfileOpen(false);setMessengerOpen(false)}}><Bell strokeWidth={1.6}/><span className="odyssey-counter bg-primary text-primary-foreground">{notices.length}</span></Button>
+      <div className="flex items-center gap-1.5">
+        <Button variant="ghost" size="icon" className={cn("odyssey-header-control relative h-10 w-10 [&_svg]:size-[18px]",messengerOpen&&"is-active")} aria-label="Messages" onClick={()=>{setMessengerOpen(v=>!v);setNotificationsOpen(false);setProfileOpen(false)}}><MessageSquare strokeWidth={1.6}/><span className="odyssey-counter bg-destructive text-destructive-foreground">3</span></Button>
+        <div className="relative"><Button variant="ghost" size="icon" className={cn("odyssey-header-control relative h-10 w-10 [&_svg]:size-[18px]",notificationsOpen&&"is-active")} aria-label="Notifications" onClick={()=>{setNotificationsOpen(v=>!v);setProfileOpen(false);setMessengerOpen(false)}}><Bell strokeWidth={1.6}/><span className="odyssey-counter bg-primary text-primary-foreground">{notices.length}</span></Button>
+
           {notificationsOpen&&<div className="odyssey-popover fixed right-[4%] top-[84px] z-[100] flex max-h-[calc(100vh-104px)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden lg:right-[9%]">
              <div className="flex items-center justify-between px-4 py-4"><div className="flex items-center gap-2"><p className="font-display text-base font-bold">Notifications</p><span className="rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">{notices.length}</span></div><div className="flex items-center gap-1"><Button variant="ghost" size="sm" className="h-8 px-2 text-[10px]"><CheckCheck size={13}/>Mark all read</Button><Button variant="ghost" size="icon" className="h-8 w-8" onClick={()=>setNotificationsOpen(false)}><X size={14}/></Button></div></div>
             <div className="mx-4 grid grid-cols-2 rounded-full bg-muted/70 p-1">{(["all","unread"] as const).map(f=><button key={f} onClick={()=>setNoticeFilter(f)} className={cn("rounded-full py-1.5 text-[10px] font-semibold capitalize",noticeFilter===f&&"bg-card text-foreground shadow-sm")}>{f}{f==="unread"&&" (3)"}</button>)}</div>
@@ -142,8 +143,9 @@ export function GlobalHeader({ track }: { track: Track }) {
             <Link to={config.dashboard} className="border-t border-border/60 px-4 py-3 text-center text-[10px] font-semibold text-primary" onClick={()=>setNotificationsOpen(false)}>View all activity</Link>
           </div>}
         </div>
-        <Link to={config.settings} className="hidden sm:block"><Button variant="ghost" size="icon" className="odyssey-header-control h-9 w-9" aria-label="Settings"><Settings strokeWidth={1.6}/></Button></Link>
-        <div className="ml-2 hidden h-5 w-px bg-border/60 sm:block"/><div className="relative"><Button variant="ghost" className="h-10 px-1.5 sm:pr-2" onClick={()=>{setProfileOpen(v=>!v);setNotificationsOpen(false);setMessengerOpen(false)}}><span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">{config.initials}</span><span className="hidden text-[13px] font-semibold lg:inline">{config.person.split(" ")[0]}</span><ChevronDown size={13} className="hidden text-muted-foreground lg:block"/></Button>{profileOpen&&<div className="odyssey-popover absolute right-0 top-12 z-[100] w-64 p-2"><div className="border-b border-border/60 px-3 py-3"><p className="text-sm font-semibold">{config.person}</p><p className="text-[10px] text-muted-foreground">{config.company} · {config.role}</p></div><Link to={config.settings} className="mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground" onClick={()=>setProfileOpen(false)}><UserRound size={14}/>Profile & preferences</Link><Link to={config.settings} className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground" onClick={()=>setProfileOpen(false)}><Settings size={14}/>Workspace settings</Link><Button variant="ghost" className="mt-1 h-9 w-full justify-start rounded-lg px-3 text-xs text-destructive" onClick={()=>{signOut();navigate("/signin")}}>Sign out</Button></div>}</div>
+        <Link to={config.settings} className="hidden sm:block"><Button variant="ghost" size="icon" className="odyssey-header-control h-10 w-10 [&_svg]:size-[18px]" aria-label="Settings"><Settings strokeWidth={1.6}/></Button></Link>
+        <div className="ml-2 hidden h-6 w-px bg-border/60 sm:block"/><div className="relative"><Button variant="ghost" className="h-11 gap-2 px-1.5 sm:pr-2.5" onClick={()=>{setProfileOpen(v=>!v);setNotificationsOpen(false);setMessengerOpen(false)}}><span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">{config.initials}</span><span className="hidden text-[14px] font-semibold lg:inline">{config.person.split(" ")[0]}</span><ChevronDown size={15} className="hidden text-muted-foreground lg:block"/></Button>{profileOpen&&<div className="odyssey-popover absolute right-0 top-12 z-[100] w-64 p-2"><div className="border-b border-border/60 px-3 py-3"><p className="text-sm font-semibold">{config.person}</p><p className="text-[10px] text-muted-foreground">{config.company} · {config.role}</p></div><Link to={config.settings} className="mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground" onClick={()=>setProfileOpen(false)}><UserRound size={14}/>Profile & preferences</Link><Link to={config.settings} className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-card/60 hover:text-foreground" onClick={()=>setProfileOpen(false)}><Settings size={14}/>Workspace settings</Link><Button variant="ghost" className="mt-1 h-9 w-full justify-start rounded-lg px-3 text-xs text-destructive" onClick={()=>{signOut();navigate("/signin")}}>Sign out</Button></div>}</div>
+
       </div>
       </div>
     </header>
