@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { TrackShell, useTrack } from "@/components/app/TrackShell";
 import { PageHeader, ScopeSelector, ALL_SCOPE } from "@/components/app/PageScope";
-import { money, projects as allProjects } from "@/data/demoUniverse";
+import { isConstructionActive, money, projects as allProjects } from "@/data/demoUniverse";
 import {
   budgetLines, changes, clientInvoices, commitments, contracts, costs, currentCommitment,
   inboxItems, linesFor, projectFinancials, remainingCommitment,
@@ -16,8 +16,10 @@ const pendingStatuses = ["Potential", "Pricing", "Submitted", "Needs Review", "D
 const compact = (n: number) => money(n);
 const pts = (n: number) => `${n >= 0 ? "+" : "-"}${Math.abs(n).toFixed(1)} pts`;
 
-/** A project is financially active once it carries a budget or an executed contract. */
-const isFinanciallyActive = (id: string) => budgetLines.some(l => l.projectId === id) || !!contracts[id];
+/** A project is financially active once construction has started and the estimate
+ *  has been pushed to the job-costing budget. Preconstruction jobs stay in Precon. */
+const isFinanciallyActive = (id: string) =>
+  isConstructionActive(id) && (budgetLines.some(l => l.projectId === id) || !!contracts[id]);
 
 /** Restrained inline Euclid note — small eyebrow plus a left rule, no card. */
 function EuclidNote({ label = "Margin", children }: { label?: string; children: React.ReactNode }) {

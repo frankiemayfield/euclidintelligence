@@ -9,7 +9,7 @@
  * Selections) reads from this module. Nothing is duplicated between screens.
  */
 
-import { getProject, money } from "./demoUniverse";
+import { getProject, isConstructionActive, money } from "./demoUniverse";
 
 /* ------------------------------------------------------------------ types */
 
@@ -416,7 +416,11 @@ export const contingency: Record<string, Contingency> = {
   ] },
 };
 
-export const financialProjectIds = ["downtown-ti", "fregolle"];
+/**
+ * Financial tools are only available for jobs that have started construction —
+ * proposal accepted / estimate finalized and pushed to the job-costing budget.
+ */
+export const financialProjectIds = ["downtown-ti", "fregolle"].filter(isConstructionActive);
 
 /* ------------------------------------------------------------- formulas */
 
