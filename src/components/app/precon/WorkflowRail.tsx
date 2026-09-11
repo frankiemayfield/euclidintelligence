@@ -65,18 +65,18 @@ function WorkflowRailInner({ projectId, track, base, step }: PreconWorkflowValue
   };
 
   return (
-    <div className="sticky top-0 z-30 mb-2 rounded-xl border border-border/60 bg-card/85 px-2 py-1 backdrop-blur-xl">
-      <div className="flex items-center gap-1.5">
+    <div className="sticky top-0 z-30 mb-2 w-fit max-w-full rounded-xl border border-border/60 bg-card/85 px-1.5 py-1 backdrop-blur-xl">
+      <div className="flex items-center gap-1">
         <button
           onClick={() => navigate(projectSection(base, projectId, "preconstruction"))}
-          className="flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
+          className="flex shrink-0 items-center rounded-md px-1 py-0.5 text-muted-foreground transition-colors hover:text-foreground"
           title="Workflow overview"
         >
-          <LayoutGrid size={11} /> <span className="hidden sm:inline">Workflow</span>
+          <LayoutGrid size={11} />
         </button>
 
         {/* Desktop rail */}
-        <div className="hidden min-w-0 flex-1 items-center gap-0.5 overflow-x-auto md:flex">
+        <div className="hidden min-w-0 items-center gap-0.5 overflow-x-auto md:flex">
           {model.steps.map((s, i) => {
             const locked = s.state === "locked";
             return (
