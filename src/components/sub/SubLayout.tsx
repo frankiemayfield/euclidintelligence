@@ -90,7 +90,7 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
         {/* Main + Euclid */}
         <div className="flex min-w-0 flex-1 flex-col">
           {isEstimator && (
-            <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-1 pt-1 lg:px-6">
+            <div className="flex shrink-0 items-center justify-between gap-3 px-0 pb-1 pt-1">
               <p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Preconstruction · Estimator</p>
               <ProjectSwitcher projectId={project.id} pillar="precon" compact className="w-auto max-w-[260px] rounded-full border border-border/60 bg-card/40 px-3 py-1.5" />
             </div>
