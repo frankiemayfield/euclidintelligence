@@ -41,6 +41,7 @@ import ProjectsRedirect from "./pages/projects/ProjectsRedirect";
 import ProjectFinancialsPage from "./pages/financials/ProjectFinancialsPage";
 import ProjectPreconPage from "./pages/projects/ProjectPreconPage";
 import ProjectPreconStepPage from "./pages/projects/ProjectPreconStepPage";
+import { PreconToolRedirect } from "@/components/app/PreconToolRedirect";
 import { RouteRedirect } from "./components/app/RouteRedirect";
 
 // Auth pages
@@ -154,17 +155,18 @@ const App = () => (
                 <Route path="/app/financials/change-orders" element={<BuilderGuard><FinancialToolEntryPage /></BuilderGuard>} />
                 <Route path="/app/financials/client-billing" element={<BuilderGuard><FinancialToolEntryPage /></BuilderGuard>} />
 
-                {/* Standalone estimating tools (company level, job-in-context) */}
-                <Route path="/app/preconstruction" element={<BuilderGuard><UploadPage /></BuilderGuard>} />
-                <Route path="/app/upload" element={<BuilderGuard><UploadPage /></BuilderGuard>} />
-                <Route path="/app/scope-analyzer" element={<BuilderGuard><ScopeAnalyzerPage /></BuilderGuard>} />
-                <Route path="/app/bid-leveling" element={<BuilderGuard><BidLevelingPage /></BuilderGuard>} />
-                <Route path="/app/estimate-builder" element={<BuilderGuard><EstimateBuilderPage /></BuilderGuard>} />
-                <Route path="/app/pricing" element={<BuilderGuard><PricingMarginPage /></BuilderGuard>} />
-                <Route path="/app/estimate-comparison" element={<BuilderGuard><ProposalComparisonPage /></BuilderGuard>} />
-                <Route path="/app/market-comparison" element={<BuilderGuard><ProposalComparisonPage /></BuilderGuard>} />
-                <Route path="/app/proposal-comparison" element={<BuilderGuard><ProposalComparisonPage /></BuilderGuard>} />
-                <Route path="/app/proposal" element={<BuilderGuard><ProposalPage /></BuilderGuard>} />
+                {/* Legacy standalone estimator URLs -> gated project workflow */}
+                <Route path="/app/preconstruction" element={<BuilderGuard><PreconToolRedirect base="/app" step="documents" /></BuilderGuard>} />
+                <Route path="/app/upload" element={<BuilderGuard><PreconToolRedirect base="/app" step="documents" /></BuilderGuard>} />
+                <Route path="/app/scope-analyzer" element={<BuilderGuard><PreconToolRedirect base="/app" step="scope" /></BuilderGuard>} />
+                <Route path="/app/bid-leveling" element={<BuilderGuard><PreconToolRedirect base="/app" step="bid-packages" /></BuilderGuard>} />
+                <Route path="/app/bid-packages" element={<BuilderGuard><PreconToolRedirect base="/app" step="bid-packages" /></BuilderGuard>} />
+                <Route path="/app/estimate-builder" element={<BuilderGuard><PreconToolRedirect base="/app" step="estimate" /></BuilderGuard>} />
+                <Route path="/app/pricing" element={<BuilderGuard><PreconToolRedirect base="/app" step="pricing" /></BuilderGuard>} />
+                <Route path="/app/estimate-comparison" element={<BuilderGuard><PreconToolRedirect base="/app" step="market-comparison" /></BuilderGuard>} />
+                <Route path="/app/market-comparison" element={<BuilderGuard><PreconToolRedirect base="/app" step="market-comparison" /></BuilderGuard>} />
+                <Route path="/app/proposal-comparison" element={<BuilderGuard><PreconToolRedirect base="/app" step="market-comparison" /></BuilderGuard>} />
+                <Route path="/app/proposal" element={<BuilderGuard><PreconToolRedirect base="/app" step="proposal" /></BuilderGuard>} />
                 <Route path="/app/est-vs-actual" element={<BuilderGuard><EstVsActualPage /></BuilderGuard>} />
 
                 {/* Legacy builder aliases */}
@@ -218,14 +220,15 @@ const App = () => (
                 <Route path="/sub/financials/change-orders" element={<SubGuard><FinancialToolEntryPage /></SubGuard>} />
                 <Route path="/sub/financials/client-billing" element={<SubGuard><FinancialToolEntryPage /></SubGuard>} />
 
-                <Route path="/sub/preconstruction" element={<SubGuard><SubUploadPage /></SubGuard>} />
-                <Route path="/sub/upload" element={<SubGuard><SubUploadPage /></SubGuard>} />
-                <Route path="/sub/scope-analyzer" element={<SubGuard><SubScopeAnalyzerPage /></SubGuard>} />
-                <Route path="/sub/bid-leveling" element={<SubGuard><SubBidLevelingPage /></SubGuard>} />
-                <Route path="/sub/estimate-builder" element={<SubGuard><SubEstimateBuilderPage /></SubGuard>} />
-                <Route path="/sub/pricing" element={<SubGuard><SubPricingMarginPage /></SubGuard>} />
-                <Route path="/sub/market-comparison" element={<SubGuard><SubMarketComparisonPage /></SubGuard>} />
-                <Route path="/sub/proposal" element={<SubGuard><SubProposalExportPage /></SubGuard>} />
+                <Route path="/sub/preconstruction" element={<SubGuard><PreconToolRedirect base="/sub" step="documents" /></SubGuard>} />
+                <Route path="/sub/upload" element={<SubGuard><PreconToolRedirect base="/sub" step="documents" /></SubGuard>} />
+                <Route path="/sub/scope-analyzer" element={<SubGuard><PreconToolRedirect base="/sub" step="scope" /></SubGuard>} />
+                <Route path="/sub/bid-leveling" element={<SubGuard><PreconToolRedirect base="/sub" step="bid-packages" /></SubGuard>} />
+                <Route path="/sub/bid-packages" element={<SubGuard><PreconToolRedirect base="/sub" step="bid-packages" /></SubGuard>} />
+                <Route path="/sub/estimate-builder" element={<SubGuard><PreconToolRedirect base="/sub" step="estimate" /></SubGuard>} />
+                <Route path="/sub/pricing" element={<SubGuard><PreconToolRedirect base="/sub" step="pricing" /></SubGuard>} />
+                <Route path="/sub/market-comparison" element={<SubGuard><PreconToolRedirect base="/sub" step="market-comparison" /></SubGuard>} />
+                <Route path="/sub/proposal" element={<SubGuard><PreconToolRedirect base="/sub" step="proposal" /></SubGuard>} />
                 <Route path="/sub/est-vs-actual" element={<SubGuard><SubEstVsActualPage /></SubGuard>} />
 
                 {/* Legacy sub aliases */}
