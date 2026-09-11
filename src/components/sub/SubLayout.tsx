@@ -9,18 +9,18 @@ import { AtlasPanel, AtlasToggleButton } from "@/components/app/AtlasPanel";
 import { GlobalHeader } from "@/components/app/GlobalHeader";
 import { ProjectSwitcher, SidebarProjectSwitcher } from "@/components/app/ProjectSwitcher";
 import { useDemoProject } from "@/hooks/use-demo-project";
+import { projectPreconStep } from "@/lib/routes";
 import { WorkflowRailSlot } from "@/components/app/precon/WorkflowRail";
 
 const estimatorNavItems = [
-  { label: "Document Upload", icon: Upload, path: "/sub/upload" },
-  { label: "Scope Analyzer", icon: FileSearch, path: "/sub/scope-analyzer" },
-  { label: "Bid Packages", icon: Scale, path: "/sub/bid-leveling" },
-  { label: "Estimate", icon: Table2, path: "/sub/estimate-builder" },
-  { label: "Pricing & Margin", icon: DollarSign, path: "/sub/pricing" },
-  { label: "Proposal Export", icon: FileOutput, path: "/sub/proposal" },
-  { label: "Market Comparison", icon: BarChart3, path: "/sub/market-comparison" },
-  { label: "Est. vs Actual", icon: TrendingUp, path: "/sub/est-vs-actual" },
-];
+  { label: "Document Upload", icon: Upload, step: "documents" },
+  { label: "Scope Analyzer", icon: FileSearch, step: "scope" },
+  { label: "Bid Packages", icon: Scale, step: "bid-packages" },
+  { label: "Estimate", icon: Table2, step: "estimate" },
+  { label: "Pricing & Margin", icon: DollarSign, step: "pricing" },
+  { label: "Proposal Export", icon: FileOutput, step: "proposal" },
+  { label: "Market Comparison", icon: BarChart3, step: "market-comparison" },
+] as const;
 
 type GlobalSection = "dashboard" | "estimator" | "settings";
 
@@ -33,6 +33,7 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
   const getSection = (): GlobalSection => {
     if (location.pathname === "/sub" || location.pathname === "/sub/") return "dashboard";
     if (location.pathname === "/sub/settings") return "settings";
+    if (/^\/sub\/projects\/[^/]+\/preconstruction\/[^/]+$/.test(location.pathname)) return "estimator";
     if (/^\/sub\/(projects|active|operations|schedule|time|financials)/.test(location.pathname)) return "dashboard";
     if (/^\/sub\/precon(\/|$)/.test(location.pathname)) return "dashboard";
     if (!location.pathname.startsWith("/sub/")) return "dashboard";
@@ -66,9 +67,10 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
             </div>
             <nav className="py-2 px-1.5 space-y-0.5 overflow-y-auto">
               {estimatorNavItems.map((item) => {
-                const active = location.pathname === item.path;
+                const target = projectPreconStep("/sub", project.id, item.step);
+                const active = location.pathname === target;
                 return (
-                  <Link key={item.path} to={item.path}
+                  <Link key={item.step} to={target}
                     className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                       active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}
@@ -95,7 +97,7 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
               <ProjectSwitcher projectId={project.id} pillar="precon" compact className="w-auto max-w-[260px] rounded-full border border-border/60 bg-card/40 px-3 py-1.5" />
             </div>
           )}
-        <main data-dense-workspace={location.pathname.includes("scope-analyzer") || location.pathname.includes("estimate-builder") || location.pathname.includes("bid-leveling") || location.pathname.includes("market-comparison") || location.pathname.includes("estimate-comparison") ? "true" : undefined} className="header-scroll-fade min-w-0 flex-1 overflow-y-auto rounded-2xl"><WorkflowRailSlot />{children}</main>
+        <main data-dense-workspace={/(scope|estimate|bid-packages|market-comparison|scope-analyzer|estimate-builder|bid-leveling|estimate-comparison)$/.test(location.pathname) ? "true" : undefined} className="header-scroll-fade min-w-0 flex-1 overflow-y-auto rounded-2xl"><WorkflowRailSlot />{children}</main>
         </div>
 
         {/* Euclid Panel */}
