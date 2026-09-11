@@ -48,7 +48,7 @@ export function SubLayout({ children }: { children: React.ReactNode }) {
       <WorkspaceBackground />
       <div className="relative z-[70]"><GlobalHeader track="sub" /></div>
 
-      <div className={`relative z-10 flex flex-1 gap-3 overflow-hidden pb-3 pt-1.5 lg:gap-4 lg:pb-5 ${isEstimator ? "px-3 lg:px-5" : "px-0"}`}>
+      <div className={`relative z-10 flex flex-1 gap-3 overflow-hidden pb-3 pt-1.5 lg:gap-4 lg:pb-5 ${isEstimator ? "app-shell" : "px-0"}`}>
         {/* Estimator Sidebar */}
         {isEstimator && (
           <aside className={`${collapsed ? "w-14" : "w-56"} odyssey-surface flex h-fit max-h-full flex-col shrink-0 overflow-hidden rounded-2xl transition-all duration-200`}>
