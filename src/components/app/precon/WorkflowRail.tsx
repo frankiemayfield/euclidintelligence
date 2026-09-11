@@ -65,14 +65,14 @@ function WorkflowRailInner({ projectId, track, base, step }: PreconWorkflowValue
   };
 
   return (
-    <div className="sticky top-0 z-30 mb-3 rounded-2xl border border-border/60 bg-card/85 px-3 py-1.5 backdrop-blur-xl">
-      <div className="flex items-center gap-2">
+    <div className="sticky top-0 z-30 mb-2 rounded-xl border border-border/60 bg-card/85 px-2 py-1 backdrop-blur-xl">
+      <div className="flex items-center gap-1.5">
         <button
           onClick={() => navigate(projectSection(base, projectId, "preconstruction"))}
-          className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
+          className="flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
           title="Workflow overview"
         >
-          <LayoutGrid size={13} /> <span className="hidden sm:inline">Workflow</span>
+          <LayoutGrid size={11} /> <span className="hidden sm:inline">Workflow</span>
         </button>
 
         {/* Desktop rail */}
@@ -81,22 +81,22 @@ function WorkflowRailInner({ projectId, track, base, step }: PreconWorkflowValue
             const locked = s.state === "locked";
             return (
               <div key={s.id} className="flex min-w-0 items-center">
-                {i > 0 && <ChevronRight size={11} className="mx-0.5 shrink-0 text-muted-foreground/40" />}
+                {i > 0 && <ChevronRight size={10} className="mx-0 shrink-0 text-muted-foreground/40" />}
                 <button
                   onClick={() => go(s.id, locked)}
                   disabled={locked}
                   aria-current={s.id === step ? "step" : undefined}
                   title={locked ? s.blocker : s.status}
                   className={cn(
-                    "flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-[11.5px] font-medium transition-colors",
+                    "flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[10.5px] font-medium transition-colors",
                     s.id === step ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                     locked && "cursor-not-allowed opacity-45 hover:bg-transparent hover:text-muted-foreground",
                   )}
                 >
-                  {s.state === "complete" ? <Check size={11} className="text-primary" />
-                    : s.state === "review" ? <AlertTriangle size={11} className="text-warning" />
-                    : locked ? <Lock size={10} />
-                    : <span className={cn("h-1.5 w-1.5 rounded-full", stateDot[s.state])} />}
+                  {s.state === "complete" ? <Check size={10} className="text-primary" />
+                    : s.state === "review" ? <AlertTriangle size={10} className="text-warning" />
+                    : locked ? <Lock size={9} />
+                    : <span className={cn("h-1 w-1 rounded-full", stateDot[s.state])} />}
                   <span className="truncate">{i + 1}. {s.short}</span>
                 </button>
               </div>
@@ -129,17 +129,17 @@ function WorkflowRailInner({ projectId, track, base, step }: PreconWorkflowValue
 
         <button
           onClick={advance}
-          className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-2.5 py-1.5 text-[11.5px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          className="flex shrink-0 items-center gap-1 rounded-md bg-primary px-2 py-1 text-[10.5px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           title={next ? `Mark ${active.label} complete and open ${next.label}` : `Mark ${active.label} complete`}
         >
           {next ? (nextLocked ? `Complete & open ${next.short}` : `Next: ${next.short}`) : "Mark complete"}
-          <ArrowRight size={12} />
+          <ArrowRight size={11} />
         </button>
       </div>
 
       {active.state === "review" && (
-        <p className="mt-1 flex items-center gap-1.5 px-1 text-[11px] text-warning">
-          <AlertTriangle size={11} /> Upstream data changed — review this stage before moving on.
+        <p className="mt-0.5 flex items-center gap-1 px-1 text-[10px] text-warning">
+          <AlertTriangle size={10} /> Upstream data changed — review this stage before moving on.
         </p>
       )}
     </div>
