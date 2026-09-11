@@ -126,7 +126,7 @@ export default function PreconOverviewPage() {
       <div className="app-shell py-4 lg:py-7">
         <PageHeader
           eyebrow="Preconstruction"
-          title="Precon Overview"
+          title="Estimates, Bids, Proposals"
           description="See where every project stands before construction begins, what needs action, and what is coming next."
           className="mb-3"
           right={
