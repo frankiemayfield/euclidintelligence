@@ -50,7 +50,7 @@ export default function OperationsOverviewPage() {
       <div className="app-shell py-4 lg:py-7">
         <header className="mb-4">
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Operations</p>
-          <h1 className="font-display text-3xl font-semibold">Overview</h1>
+          <h1 className="font-display text-3xl font-semibold">Active Projects</h1>
           <p className="mt-2 text-sm text-muted-foreground">What is happening across every active job today, this week, and where attention is needed.</p>
         </header>
 
