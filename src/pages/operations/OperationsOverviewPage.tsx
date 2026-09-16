@@ -204,17 +204,17 @@ export default function OperationsOverviewPage() {
                 </span>
               </header>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px] text-left text-[12px]">
+                <table className="w-full min-w-[640px] table-fixed text-left text-[12px]">
                   <thead>
                     <tr className="border-b border-border/50 text-[9.5px] uppercase tracking-[.12em] text-muted-foreground">
-                      <th className="px-4 py-2 font-semibold">Project</th>
-                      <th className="px-3 py-2 font-semibold">Phase</th>
-                      <th className="px-3 py-2 font-semibold">Progress</th>
-                      <th className="px-3 py-2 font-semibold">Forecast Finish</th>
-                      <th className="px-3 py-2 font-semibold">Schedule</th>
-                      <th className="px-3 py-2 text-right font-semibold">On Site</th>
-                      <th className="px-3 py-2 font-semibold">Next Milestone</th>
-                      <th className="px-4 py-2 text-right font-semibold">Attention</th>
+                      <th className="w-[24%] px-4 py-2 font-semibold">Project</th>
+                      <th className="w-[11%] px-3 py-2 font-semibold">Phase</th>
+                      <th className="w-[10%] px-3 py-2 font-semibold">Progress</th>
+                      <th className="w-[10%] px-3 py-2 font-semibold">Forecast Finish</th>
+                      <th className="w-[10%] px-3 py-2 font-semibold">Schedule</th>
+                      <th className="w-[7%] px-3 py-2 text-right font-semibold">On Site</th>
+                      <th className="w-[19%] px-3 py-2 font-semibold">Next Milestone</th>
+                      <th className="w-[9%] px-4 py-2 text-right font-semibold">Attention</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -248,7 +248,7 @@ export default function OperationsOverviewPage() {
                             </Link>
                           </td>
                           <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">{onSite}</td>
-                          <td className="max-w-[190px] px-3 py-2.5 text-[11.5px]">
+                          <td className="max-w-[150px] px-3 py-2.5 text-[11.5px]">
                             {milestone ? (
                               <span className="flex items-center gap-1.5">
                                 <span className="truncate">{milestone.title}</span>
